@@ -181,7 +181,7 @@ export function View({ drill = "farinelli", from, to, seconds, rounds }: Breathw
 const SAFETY = [
   "Feel lightheaded, dizzy or short of breath? Stop and breathe normally.",
   "Have a heart, lung or blood pressure condition, or are pregnant? Ask your doctor first.",
-  "Make sure someone else is nearby while you practise.",
+  "Make sure someone else is nearby while you practice.",
 ];
 const SAFETY_KEY = "musickit.breathwork.safetyOk";
 const safetyRead = () => {

@@ -30,6 +30,6 @@ export const NOTES_TOUR: TourStep[] = [
   {
     target: "notes-settings",
     title: "Strings and frets",
-    text: "Pick the strings and frets to practise. Start with the natural notes on the low E and A strings.",
+    text: "Pick the strings and frets to practice. Start with the natural notes on the low E and A strings.",
   },
 ];

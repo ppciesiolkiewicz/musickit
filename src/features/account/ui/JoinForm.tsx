@@ -284,8 +284,8 @@ export default function JoinForm({ token, google, tours }: {
         <h2 className="text-2xl font-semibold leading-tight text-slate-100 sm:text-[1.7rem]">{hello}</h2>
         <p className="text-sm leading-relaxed text-slate-300">
           {kind === "personal"
-            ? <>We&apos;d love to have you practising here. Join, and attunr puts together a plan for you from day one.</>
-            : <>We&apos;d love to have you teaching here. Join, add your students, and attunr gets each of them practising from day one.</>}
+            ? <>We&apos;d love to have you practicing here. Join, and attunr puts together a plan for you from day one.</>
+            : <>We&apos;d love to have you teaching here. Join, add your students, and attunr gets each of them practicing from day one.</>}
         </p>
       </div>
 

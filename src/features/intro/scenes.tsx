@@ -222,7 +222,7 @@ export function SoloRate(p: SceneProps) {
 const HABIT: { cue: string; icon: IconName; title: string; line: string }[] = [
   { cue: "reminder", icon: "bell", title: "A daily reminder", line: "At the time you choose" },
   { cue: "timer", icon: "timer", title: "A timer", line: "For the day's practice" },
-  { cue: "streak", icon: "check", title: "A day streak", line: "The days you practise" },
+  { cue: "streak", icon: "check", title: "A day streak", line: "The days you practice" },
 ];
 
 export function SoloHabit(p: SceneProps) {
@@ -320,7 +320,7 @@ export function TeachStudent(p: SceneProps) {
 }
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-/** The days Ben doesn't practise: the teacher turns them off and those days stay empty. */
+/** The days Ben doesn't practice: the teacher turns them off and those days stay empty. */
 const OFF_DAYS = [2, 6];
 
 export function TeachWeek(p: SceneProps) {

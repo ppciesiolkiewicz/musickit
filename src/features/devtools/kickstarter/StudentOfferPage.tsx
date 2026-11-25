@@ -15,7 +15,7 @@ export default function StudentOfferPage({ demos }: { demos: DemoLink[] }) {
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold text-slate-100">The offer to students</h2>
-        <p className="text-sm text-slate-400">What a person who practises on their own gets from attunr, and on what terms. Anything written for students is written from this page. Edit it in <code className="text-slate-300">src/features/devtools/model/kickstarterStudents.ts</code>.</p>
+        <p className="text-sm text-slate-400">What a person who practices on their own gets from attunr, and on what terms. Anything written for students is written from this page. Edit it in <code className="text-slate-300">src/features/devtools/model/kickstarterStudents.ts</code>.</p>
       </div>
       <section aria-label="The offer in one line" className="rounded-xl border border-sky-900 bg-sky-950/30 p-4">
         <p className="text-base font-medium text-slate-100">{STUDENT_OFFER_LINE}</p>

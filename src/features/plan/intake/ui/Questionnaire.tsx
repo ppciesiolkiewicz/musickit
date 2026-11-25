@@ -32,7 +32,7 @@ export interface QuestionOpts {
   forStudent?: boolean;
 }
 
-/** Which areas the player practises; at least one. Answers of an area that is switched off stay, in case it comes back. */
+/** Which areas the player practices; at least one. Answers of an area that is switched off stay, in case it comes back. */
 export function areasStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: QuestionOpts = {}): ModalStep {
   const toggle = (area: Area) => {
     const picked = a.areas.includes(area) ? a.areas.filter((x) => x !== area) : [...a.areas, area];
@@ -160,7 +160,7 @@ export function restSteps(a: PlanAnswers, set: SetAnswer, voice = true, opts: Qu
   return [
     ...(voice && a.areas.includes("voice") ? [voiceStep(a, set, opts)] : []),
     {
-      title: forStudent ? "How long can your student practise a day?" : "How long can you practise a day?",
+      title: forStudent ? "How long can your student practice a day?" : "How long can you practice a day?",
       body: (
         <div role="radiogroup" className="grid grid-cols-3 gap-3 desk:grid-cols-6">
           {MINUTES.map((m, i) => (

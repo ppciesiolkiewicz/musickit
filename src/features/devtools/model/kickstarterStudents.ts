@@ -1,5 +1,5 @@
 /**
- * The offer to students: what a person who practises on their own gets from attunr, and on what terms. /admin/dev/kickstarter
+ * The offer to students: what a person who practices on their own gets from attunr, and on what terms. /admin/dev/kickstarter
  * (Students) shows it, and anything written for students (an ad, a sign-up page) is written from it. Change what may be
  * said to a student here, nowhere else. The offer to teachers and schools is in ./kickstarter.
  */
@@ -41,7 +41,7 @@ export const PILLARS: Pillar[] = [
       "Progress tracking: after each exercise they rate how it went, from \"Can't do it yet\" to \"Easy now\". A day streak and a progress tracker on the plan page show how far each topic has come.",
       "There are no points, no score and no percentages. Progress is what gets easier to play or sing.",
       "Under the plan is a learning path: every skill in small steps, in order, from a first week to advanced. The plan picks the next step within reach. A student doesn't see the steps, so say \"the next thing to learn\", never \"see your path\".",
-      "The change is what the habit does: practising every day, knowing what to play, hearing it get easier. Never a result by a date (\"play any song in 30 days\").",
+      "The change is what the habit does: practicing every day, knowing what to play, hearing it get easier. Never a result by a date (\"play any song in 30 days\").",
     ],
   },
   {

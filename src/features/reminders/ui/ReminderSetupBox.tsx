@@ -22,7 +22,7 @@ export function ReminderSetupBox({ value, onChange }: { value: ReminderSettings;
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <label className="flex items-center gap-3">
             <input type="checkbox" className="h-4 w-4 shrink-0 accent-amber-400" checked={on} onChange={(e) => onChange({ ...value, enabled: e.target.checked })} />
-            <span className="font-medium text-slate-100">Remind me to practise at</span>
+            <span className="font-medium text-slate-100">Remind me to practice at</span>
           </label>
           <select
             value={value.time}

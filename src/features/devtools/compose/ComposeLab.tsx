@@ -95,7 +95,7 @@ function Words() {
   );
 }
 const WORDS: [string, ReactNode][] = [
-  ["Area", "Guitar, voice, or theory & ear. A player picks the areas they practise in the first questionnaire."],
+  ["Area", "Guitar, voice, or theory & ear. A player picks the areas they practice in the first questionnaire."],
   ["Path, track, step", <>The path is everything the app teaches. It is split into tracks: one skill each, such as one scale shape family. A track is a list of steps, easiest first. A step is written <C>track-id:number</C>, so <C>some-track:3</C> is the third step of that track. A step can need other steps first, on its own track or on another.</>],
   ["Topic, line", "A topic is a group of tracks that the first questionnaire asks about with one question. The line is the answer the player picked for that topic: Not yet, Beginner, Intermediate or Advanced."],
   ["Block, choice", "A block is one exercise in the library. A block holds one or more choices: variants of the exercise, each with its own steps, level and minutes. The composer always picks a choice, and a day never holds two choices of the same block."],
@@ -328,7 +328,7 @@ export default function ComposeLab() {
 
       <ol className="flex flex-col gap-5">
         <Stage n={1} title="The player" rule={<>
-          <p>The composer starts from the player&apos;s answers to the first questionnaire: the areas they practise, the minutes a day, and one line for each topic (Not yet, Beginner, Intermediate or Advanced).</p>
+          <p>The composer starts from the player&apos;s answers to the first questionnaire: the areas they practice, the minutes a day, and one line for each topic (Not yet, Beginner, Intermediate or Advanced).</p>
           <p>Before each day, the ratings so far can raise a topic&apos;s line (<C>raisedAnswers</C>). A topic goes up one level when every skill of the topic that has a step at that level is solid there. It never goes below the answer. A raised line is shown in green, with the line it was before.</p>
           <p>A topic&apos;s line decides two things in the next stage: the step each of the topic&apos;s tracks starts on, and how many new steps the topic offers at once (1 for Not yet, 2 for Beginner, no limit from Intermediate).</p>
           <p>The three key columns belong to stage 5. The rung says how far up the area&apos;s key ladder the player stands: the answer to the keys question, or, with no answer, a rung worked out from the level in the area.</p>

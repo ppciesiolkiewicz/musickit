@@ -95,7 +95,7 @@ export default function ProgressPage() {
 
       <Block title="Outcome: streak and time" about={`As of ${result.asOf}.`}>
         <Table
-          head={["Streak days", "Through", "Practised days", "Seconds total", "Seconds sorted"]}
+          head={["Streak days", "Through", "Practiced days", "Seconds total", "Seconds sorted"]}
           rows={[[result.streak.days, result.streak.through ?? "—", result.streak.practised.join(", ") || "—", result.seconds.total, result.seconds.sorted]]}
         />
       </Block>

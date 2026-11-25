@@ -126,7 +126,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
     title: "The Practice plan",
     items: [
       { q: "Do I need my own AI?", a: <>No. attunr puts your plan together from its library of exercises, for the steps you are on. Each day you open the Practice plan page, attunr makes that day&apos;s plan, and the stars you give each exercise shape the next one.</> },
-      { q: "What happens the next day?", a: <>When you open the Practice plan page on a new day, attunr makes a new plan. An exercise you rated 1 to 3 stars comes back; 4 or 5 stars move you on to the next step. For other exercises today, press <b className="text-slate-200">Get another plan</b>: the ones you rated stay. To change what you play or how long you practise, press <b className="text-slate-200">Change my answers</b>.</> },
+      { q: "What happens the next day?", a: <>When you open the Practice plan page on a new day, attunr makes a new plan. An exercise you rated 1 to 3 stars comes back; 4 or 5 stars move you on to the next step. For other exercises today, press <b className="text-slate-200">Get another plan</b>: the ones you rated stay. To change what you play or how long you practice, press <b className="text-slate-200">Change my answers</b>.</> },
     ],
   },
   {

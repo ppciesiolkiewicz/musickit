@@ -16,7 +16,7 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 
 /** The Resend request body, a plain-text part and an HTML part. `teacherName` is in the subject: who it is from is why it gets opened. */
 export function claimEmail(to: string, studentName: string, teacherName: string, link: string, env: Env) {
-  const intro = `${teacherName} made an account for you on attunr, an app for practising music with a plan for each week.`;
+  const intro = `${teacherName} made an account for you on attunr, an app for practicing music with a plan for each week.`;
   const what = "Open this link to log in the first time:";
   const rest = `The link works for ${LIFE}, and only once. After that you log in with this email address.\nIf you don't know ${teacherName}, ignore this email. Nobody can log in without the link.`;
   return {

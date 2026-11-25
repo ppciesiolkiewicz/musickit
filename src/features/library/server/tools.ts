@@ -34,7 +34,7 @@ const SPECS: Record<string, Spec> = {
       "A library block's level is its first choice's and its steps are all its choices' steps together. " +
       "Use it to find blocks to reuse or to see what the library holds on a topic. Stars say how the player is doing with a block, not how good the block is. " +
       "mine: 'unused' is library blocks the player does not have yet, 'had' is blocks the player has had, 'repeat' is blocks the player had and last rated 1 to 3 stars. " +
-      "order: 'least-used' (default) is the fewest seconds practised first, 'random-least-used' picks at random from the least used fifth, 'newest' is the newest first. " +
+      "order: 'least-used' (default) is the fewest seconds practiced first, 'random-least-used' picks at random from the least used fifth, 'newest' is the newest first. " +
       `The answer is capped: ${BLOCK_LIMIT.default} blocks by default, at most ${BLOCK_LIMIT.max}. A full page may mean there are more.`,
     args: {
       area: str("An area id: guitar, voice or theory."),
@@ -58,7 +58,7 @@ const SPECS: Record<string, Spec> = {
   },
   library_coverage: {
     description:
-      "How much the library holds for every topic at every level, for every concept and for every path step: blocks, times practised and seconds. " +
+      "How much the library holds for every topic at every level, for every concept and for every path step: blocks, times practiced and seconds. " +
       "Steps are \"trackId:n\", in path order (easiest first); a block counts for a step only when it names it. " +
       "blocks counts choices: a library block counts once for each of its choices at that level or naming that step; times and seconds count each block once. " +
       "Read this first to see which steps are thin. A zero row means nothing there yet. " +

@@ -175,7 +175,7 @@ function Maker() {
 
 /** Where attunr could go, one direction to a card. Only the practice plans and the notes are built; the rest is the vision. */
 const DIRECTIONS: { icon: IconName; title: string }[] = [
-  { icon: "target", title: "Every student practises the right thing" },
+  { icon: "target", title: "Every student practices the right thing" },
   { icon: "activity", title: "Teachers see the week between lessons" },
   { icon: "pencil", title: "Material in your own teaching style" },
   { icon: "video", title: "Interactive tools for teaching over the internet" },

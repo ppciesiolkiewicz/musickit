@@ -35,7 +35,7 @@ const SECTIONS: LegalSection[] = [
         <p>We keep what the app needs to work, and nothing we don&apos;t use.</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Your account: your email, your name, your role (player or teacher), the plan you chose, when you agreed to the terms, and whether you asked for news emails. If you log in with Google, Google tells us your email, your name and an id for your Google account. We never see your Google password.</li>
-          <li>What you make: your practice plans, your answers to the questions, your ratings, how long you practised each day, your notes, your voice type and range, and the videos you record and save.</li>
+          <li>What you make: your practice plans, your answers to the questions, your ratings, how long you practiced each day, your notes, your voice type and range, and the videos you record and save.</li>
           <li>Where you are logged in: for each browser, the kind of browser and when you last used it.</li>
           <li>Messages you send us: the message and the email you gave, from the contact form, the feedback page or the early-access list.</li>
         </ul>
@@ -50,7 +50,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>A teacher who adds a student gives us the student&apos;s name and email. The student then has their own account.</p>
-        <p>A teacher sees what their students practise: the plan, the ratings and the time. A student sees the week of practice their teacher makes for them. Nobody else sees either.</p>
+        <p>A teacher sees what their students practice: the plan, the ratings and the time. A student sees the week of practice their teacher makes for them. Nobody else sees either.</p>
         <p>The teacher or school must have the consent it needs from a student, or from a parent or guardian, before adding them.</p>
       </>
     ),

@@ -22,18 +22,18 @@ const shortDate = (day: string): string => {
 /** "Beginner", or "Beginner, starting on Intermediate" once something at the next level is solid. */
 function levelLine(t: TopicOutcome): string {
   const at = topicLevel(t);
-  if (!at) return "Not answered or practised yet";
+  if (!at) return "Not answered or practiced yet";
   const level = labelOf(LEVELS, at.level);
   return at.next ? `${level}, starting on ${labelOf(LEVELS, at.next)}` : level;
 }
 
-/** How often a concept was rated, when last, and the minutes practised; nothing for one not rated yet. */
+/** How often a concept was rated, when last, and the minutes practiced; nothing for one not rated yet. */
 function details(c: ConceptOutcome): string[] {
   if (c.state === "not-yet") return [];
   const times = c.ratings === 1 ? "once" : `${c.ratings} times`;
   const lines = [c.lastOn ? `Rated ${times}, last on ${shortDate(c.lastOn)}.` : `Rated ${times}.`];
   const minutes = minutesOf(c.seconds);
-  if (minutes > 0) lines.push(`${minutes} min practised.`);
+  if (minutes > 0) lines.push(`${minutes} min practiced.`);
   return lines;
 }
 
@@ -56,7 +56,7 @@ function Concept({ c }: { c: ConceptOutcome }) {
 }
 
 /**
- * The progress tracker's body: each area the student chose or practised, its six topics with the level each stands on,
+ * The progress tracker's body: each area the student chose or practiced, its six topics with the level each stands on,
  * and every concept with how it went. Levels by name and plain facts only: no score, no percentage.
  */
 export default function ProgressTracker({ outcome, answers }: { outcome: Outcome; answers: PlanAnswers | null }) {

@@ -93,7 +93,7 @@ export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => Ad
   };
   const name = cleanName(draft.name) || "your student";
   const when: ModalStep = {
-    title: "Which days does your student practise?",
+    title: "Which days does your student practice?",
     hint: `${name}'s plan has exercises on these days only. You can change them with every new plan.`,
     canNext: draft.days.length > 0,
     body: (

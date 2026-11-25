@@ -350,7 +350,7 @@ export default function SlopeView({ area, progress, reach = null, blocks = {}, g
                 <a
                   key={`b:${step.ref}`} href={blockHref({ step: step.ref })} target="_blank" rel="noreferrer"
                   onPointerDown={(e) => e.stopPropagation()}
-                  title={n ? `Open the ${n === 1 ? "block" : `${n} blocks`} for this step in a new tab` : "No block practises this step yet"}
+                  title={n ? `Open the ${n === 1 ? "block" : `${n} blocks`} for this step in a new tab` : "No block practices this step yet"}
                   aria-label={`${step.track.label} step ${step.index + 1}: ${n ? `open ${n === 1 ? "its block" : `its ${n} blocks`}` : "no block yet"}, in a new tab`}
                   className={`absolute rounded-full border px-1.5 text-[10px] font-semibold leading-4 tabular-nums hover:brightness-125 focus-visible:outline-2 focus-visible:outline-sky-400 ${n ? "border-sky-500/60 bg-slate-950 text-sky-200" : "border-amber-400/70 bg-amber-950 text-amber-200"}`}
                   style={{ left: x + PILL_W - 22, top: y + PILL_H - 9 }}

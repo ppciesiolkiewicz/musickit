@@ -44,7 +44,7 @@ const GUIDE: Record<Kind, string[]> = {
 
 
 /**
- * The voice warm-ups page: why and what to try (both), what to practise (Lip roll or The hill, two separate tools) and
+ * The voice warm-ups page: why and what to try (both), what to practice (Lip roll or The hill, two separate tools) and
  * what to do in the one picked, over the tool; the picked tool's own choices and Voice in the settings column, as on the
  * other singing pages. A choice changes the tool's props without remounting it, so a tool that is running keeps running
  * with the new settings.
@@ -75,7 +75,7 @@ export default function WarmUpsApp() {
     <SettingsPanel settings={bar}>
       <div>
         <Lesson course="3/breath-and-holding-a-note" why={LESSON.why} tryThis={LESSON.tryThis} />
-        <div data-tour="warm-ups-kind" className="mb-3"><GameChoice label="What to practise" options={KINDS} value={kind} onChange={setKind} tone="sky" /></div>
+        <div data-tour="warm-ups-kind" className="mb-3"><GameChoice label="What to practice" options={KINDS} value={kind} onChange={setKind} tone="sky" /></div>
         <div className="mb-4 rounded-xl border border-slate-800 bg-slate-900/30 px-3 py-2 text-sm leading-snug text-slate-300" aria-live="polite">
           {GUIDE[kind].map((line) => <p key={line}>{line}</p>)}
         </div>

@@ -10,7 +10,7 @@ export const streakWords = (days: number): string => (days === 0 ? "Your progres
 /** The day streak, said plainly; pressing it opens the progress tracker. */
 export default function StreakButton({ streak, onOpen }: { streak: Streak; onOpen: () => void }) {
   return (
-    <Button size="sm" onClick={onOpen} title="Days in a row you rated an exercise or practised for 5 minutes. Press to see your progress." className="!rounded-full">
+    <Button size="sm" onClick={onOpen} title="Days in a row you rated an exercise or practiced for 5 minutes. Press to see your progress." className="!rounded-full">
       <Icon name="activity" size={12} />
       {streakWords(streak.days)}
     </Button>

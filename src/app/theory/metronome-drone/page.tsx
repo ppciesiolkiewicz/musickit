@@ -20,7 +20,7 @@ export default function MetronomeDronePage() {
       pageId="metronome-drone"
       tour={METRONOME_DRONE_TOUR}
       title="Metronome & drone"
-      intro="Practise to a click or a held note. Play a scale to the click, or hold one note and play a scale, a mode or an arpeggio against it: every mode sounds different over its own root. Add drums and a bass in the drone's key if you want a band."
+      intro="Practice to a click or a held note. Play a scale to the click, or hold one note and play a scale, a mode or an arpeggio against it: every mode sounds different over its own root. Add drums and a bass in the drone's key if you want a band."
     >
       {/* the tool keeps its own tempo, key and style: the panel holds the app's volume */}
       <SettingsPanel settings={<SettingsSection first><VolumeRow /></SettingsSection>}>

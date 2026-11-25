@@ -18,7 +18,7 @@ export function WelcomeView({ name, hasPlan }: { name: string | null; hasPlan: b
       <h2 className="text-lg text-slate-100">Hello, {name}</h2>
       <p className="text-sm leading-relaxed text-slate-300">
         {hasPlan
-          ? "Your teacher made you a practice plan. It shows what to practise each day."
+          ? "Your teacher made you a practice plan. It shows what to practice each day."
           : "Your teacher set up attunr for you. When your teacher makes your first plan, you'll find it on your practice plan page."}
       </p>
       <Link href="/plan" className={PRIMARY}>Open your practice plan</Link>

@@ -282,7 +282,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
         {q && s.mode === "name" && (
           <div className="flex flex-wrap gap-2">{choices.map((pc) => <button key={pc} type="button" onClick={() => name(pc)} className="min-w-14 cursor-pointer rounded-xl border-2 border-slate-600 bg-slate-800 px-4 py-2 text-base font-semibold text-slate-50 transition hover:border-amber-400 hover:bg-slate-700 active:scale-[0.96]">{pcName(pc, s.flats)}</button>)}</div>
         )}
-        {showHeat && <p className="text-xs text-slate-400">Red cells are where you missed, amber where you were slow. Practise those next: narrow the strings and frets in the settings.</p>}
+        {showHeat && <p className="text-xs text-slate-400">Red cells are where you missed, amber where you were slow. Practice those next: narrow the strings and frets in the settings.</p>}
         {answerBy}
       </Stage>
       </div>

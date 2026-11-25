@@ -67,7 +67,7 @@ export function SharePlan({ planId }: { planId: string }) {
 function UpgradeToTeacher() {
   return (
     <div className="mt-3 flex flex-col gap-3">
-      <p className="text-xs leading-relaxed text-slate-300">With a teacher account, you share a plan as a link, and each student who opens it gets their own copy to practise.</p>
+      <p className="text-xs leading-relaxed text-slate-300">With a teacher account, you share a plan as a link, and each student who opens it gets their own copy to practice.</p>
       <Link href="/kickstarter" className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
         Upgrade to Teacher account
       </Link>

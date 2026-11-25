@@ -381,7 +381,7 @@ export default function RhythmGame({ bare = false, pattern: fixedPattern, bpm: f
   const offset = s.offset[s.input];
   const canKeep = summary && summary.meanOffset !== null && summary.perfect + summary.good + summary.ok >= 4 && Math.abs(summary.meanOffset) >= 0.005;
 
-  const micHint = "Space or a tap is the quickest way to learn a rhythm. With the mic you clap, or you strum your guitar and practise with your real strumming hand.";
+  const micHint = "Space or a tap is the quickest way to learn a rhythm. With the mic you clap, or you strum your guitar and practice with your real strumming hand.";
   const playWith = (
     <ChipRow label="Play with" info={micHint}>
       <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>

@@ -26,7 +26,7 @@ export function catalogue(): CatalogueEntry[] {
   }));
   const scales = [...MODE_PAGES.map((m) => ({ slug: m.slug, name: m.name })), ...PENTATONICS.map((p) => ({ slug: p.slug, name: p.name }))]
     .map((s) => ({ href: scaleHref(s.slug, DEFAULT_KEY_PC), label: s.name, desc: "Scale page (the key is in the last part of the path, e.g. /a, /f-sharp)" }));
-  return [{ href: "/tuner", label: "Tuner", desc: "Tune up before practising" }, ...pages, ...course, ...scales];
+  return [{ href: "/tuner", label: "Tuner", desc: "Tune up before practicing" }, ...pages, ...course, ...scales];
 }
 
 const pathOf = (href: string) => href.split(/[?#]/)[0].replace(/\/$/, "") || "/";

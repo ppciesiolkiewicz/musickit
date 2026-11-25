@@ -17,7 +17,7 @@ export const AUDIENCES: { id: Audience; label: string; line: string }[] = [
 
 /** Over the plans of each audience: what every plan on that side gives, said once. */
 export const AUDIENCE_LEAD: Record<Audience, string> = {
-  individual: "One plan, monthly or yearly. You get a daily practice plan made for your level and your time, plus every tool to practise with.",
+  individual: "One plan, monthly or yearly. You get a daily practice plan made for your level and your time, plus every tool to practice with.",
   teachers: "Everything in Individual, plus a practice plan for each of your students and lesson notes you can send as a link.",
 };
 

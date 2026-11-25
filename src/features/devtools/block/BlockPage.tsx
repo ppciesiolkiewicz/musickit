@@ -47,7 +47,7 @@ export default function BlockPage({ step, blocks, asked }: { step: StepInfo | nu
       )}
       {blocks.length === 0 && (
         <p className="text-sm text-amber-300">
-          {step ? "No block practises this step yet: it is a gap to seed." : "No block in the code has this id."}{" "}
+          {step ? "No block practices this step yet: it is a gap to seed." : "No block in the code has this id."}{" "}
           <Link href="/admin/content/path" className="text-sky-300 underline">Back to the path</Link>
         </p>
       )}

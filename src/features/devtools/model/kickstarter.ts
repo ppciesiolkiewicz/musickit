@@ -44,28 +44,28 @@ export const LINKS_TO_AVOID: { label: string; path: string; why: string }[] = [
 
 /** What is true about attunr and the offer. An email says nothing about either that isn't here. */
 export const FACTS: string[] = [
-  "The vision for attunr is a web app for music teachers and schools. A teacher organises lesson notes in it and gives students interactive exercises to practise with at home.",
+  "The vision for attunr is a web app for music teachers and schools. A teacher organises lesson notes in it and gives students interactive exercises to practice with at home.",
   "In one line: attunr is a tool that supports teachers in creating practice plans for their students, and in the future it will support studios with many parts of running them.",
   "Why I'm building it: I love music, and I'm looking for ways to make teaching better for teachers, practice better for students, and the work easier for music schools.",
   "A lesson note is one page with today's material on it (scales, chords, exercises the student can play) and goes to the student as a link.",
   "attunr is in demo mode today. What can be tried now is the demos: interactive lesson notes, weekly practice plans and the free tools on the website.",
-  "The vision for attunr is that in each lesson the teacher quickly does two things with attunr: gets the student's daily exercises for the next week, and creates an interactive practice note, with AI helping to draft the note. The student then practises with them every day at home.",
+  "The vision for attunr is that in each lesson the teacher quickly does two things with attunr: gets the student's daily exercises for the next week, and creates an interactive practice note, with AI helping to draft the note. The student then practices with them every day at home.",
   "A weekly practice plan is seven days of short interactive exercises for one student. attunr puts it together from its own library of exercises, to fit where that student is. No AI writes the plan.",
   "The vision for weekly plans is that the teacher steers them: the teacher adds a student, and before each new week sets one slider for each topic to where the student is now. The next plan follows the sliders and how the student rated the exercises. This is not built yet.",
   "The vision for progress tracking is that a teacher sees each student on a learning path: every skill the student works on (open chords, barre chords, the pentatonic positions, singing intervals, hearing chords) is a row of small steps across four levels, from new to advanced. The steps the student has made solid are filled in, the step they are on is marked, and it shows how many weeks they have been on it. The teacher sees every topic at once, guitar, voice and theory, and where each student is ahead or stuck. This is not built yet.",
   "A student's progress comes from the student: after each exercise they rate how it went, and a step counts as solid when its newest rating is \"Solid\" or \"Easy now\". A weekly plan can be summed up the same way: which skills and steps its exercises work on.",
   "Outside the founding-partner offer, a teacher pays by how many students they have, not by how many plans they make.",
-  "Quality of practice matters more than hours. Sometimes a student practises for hours and gets very little from it; sometimes 20 minutes of focused practice moves them on a lot. That's why the vision for attunr is to measure how engaged a student is in three ways: how long they practise each day, how consistently they practise from day to day, and how well they feel they played each exercise, rated by themselves from \"Can't do it yet\" to \"Easy now\".",
-  "Why exact material helps: having the exact thing to work on in front of you makes a big difference. A specific scale in a specific key and position gets a student much further than a book or video that shows it in one key and leaves them to transpose it in their head. It won't make a student who doesn't practise start practising, but it makes the minutes they do manage count for more.",
+  "Quality of practice matters more than hours. Sometimes a student practices for hours and gets very little from it; sometimes 20 minutes of focused practice moves them on a lot. That's why the vision for attunr is to measure how engaged a student is in three ways: how long they practice each day, how consistently they practice from day to day, and how well they feel they played each exercise, rated by themselves from \"Can't do it yet\" to \"Easy now\".",
+  "Why exact material helps: having the exact thing to work on in front of you makes a big difference. A specific scale in a specific key and position gets a student much further than a book or video that shows it in one key and leaves them to transpose it in their head. It won't make a student who doesn't practice start practicing, but it makes the minutes they do manage count for more.",
   "Music teaching needs a human. The motivation and the guidance come from the teacher; the AI tools are only there to make the teacher's work easier.",
   "Beyond theory, the vision has room for exercises for kids and other learners, help with running a studio, learning materials made automatically in the teacher's own teaching style, and new ways for a teacher to earn from their expertise, such as selling their interactive notes, with their own videos embedded, as short courses. None of this is built yet.",
   "I won't charge anyone until I know attunr helps them: better teaching, a better student experience, time saved or more income. Early adopters get an extended free trial, a locked-in price and a say in what gets built.",
   "I'm starting with a small group of 20 to 30 studios, so each one has real influence, and what works for one can be shared with all of them.",
-  "attunr has two sides. A person who practises on their own gets a daily practice plan, and that works today. A teacher or a school gets weekly plans and lesson notes for their students, and I'm finding out how useful that is for studios. Say this only when being open about where it stands helps the reply.",
+  "attunr has two sides. A person who practices on their own gets a daily practice plan, and that works today. A teacher or a school gets weekly plans and lesson notes for their students, and I'm finding out how useful that is for studios. Say this only when being open about where it stands helps the reply.",
   "It could grow to manage more of a music school. Coming soon, not built yet and with no date: tools to run a studio, with scheduling (one calendar for every lesson) and profiles (one for each teacher and each student). What comes next is decided with the founding partners.",
   "Planned after that, not built yet: a teacher builds a course from their interactive notes and their own embedded videos, and sells it through the attunr website.",
   "I'm looking for founding partners: schools and teachers who use it early and help shape it.",
-  "attunr is for studios and teachers who are already interested in technology: they like trying new tools in their teaching and are happy for students to practise with an app. I'm not trying to win over anyone who isn't.",
+  "attunr is for studios and teachers who are already interested in technology: they like trying new tools in their teaching and are happy for students to practice with an app. I'm not trying to win over anyone who isn't.",
   `I need at least ${FOUNDING_PARTNERS_NEEDED} founding partners to start the project.`,
   `A founding partner chooses any teacher plan, of any size, and pays the early price: ${FOUNDING_OFFER}. It is locked in: it doesn't go up later.`,
   `A founding partner gets a long trial, ${FOUNDING_TRIAL_DAYS} days, before any paid period starts. They are free to change their mind at any time in those ${FOUNDING_TRIAL_DAYS} days, and then they pay nothing. If they have already paid, it is a 100% money-back guarantee: they get all of it back.`,
@@ -135,7 +135,7 @@ Thanks for the reply. I’m Piotr, the founder of attunr, and I’m taking over 
 Here are some ideas for Evia Music. You can try each of them without registering.
 
 Interactive lesson notes
-After a lesson, the teacher sends the student one interactive page with that day’s material: scales, chords and exercises the student can play. AI helps draft the note. The student opens it as a link at home and practises with it.
+After a lesson, the teacher sends the student one interactive page with that day’s material: scales, chords and exercises the student can play. AI helps draft the note. The student opens it as a link at home and practices with it.
 
 An interactive lesson note on A minor pentatonic, played and then sung: https://www.attunr.app/note/minor-pentatonic
 
@@ -156,7 +156,7 @@ CAGED shapes: https://www.attunr.app/theory/caged
 The rest are on the main site: https://www.attunr.app
 
 Where it is today
-attunr is still in beta, and I’m improving it all the time. I practise with it myself, and my guitar playing has improved a lot since I started.
+attunr is still in beta, and I’m improving it all the time. I practice with it myself, and my guitar playing has improved a lot since I started.
 
 What I plan next
 I have many plans for attunr, such as tools to run a studio and white-labelling for schools. None of that is built yet, and the order is not fixed.
@@ -179,7 +179,7 @@ Piotr`,
 Thanks for the reply. I’m Piotr, the founder of attunr, and I’m taking over from Jesse. I love music, and I’m building attunr to make teaching easier for teachers and practice better for students.
 
 Weekly practice plans
-The vision for attunr is that after each rehearsal the teacher generates each singer’s daily exercises for the next week, with AI helping to create them with embedded interactive components. The idea behind it: 20 minutes of focused practice can be better than an hour of scattered practice, so a singer should never lose time working out what to practise.
+The vision for attunr is that after each rehearsal the teacher generates each singer’s daily exercises for the next week, with AI helping to create them with embedded interactive components. The idea behind it: 20 minutes of focused practice can be better than an hour of scattered practice, so a singer should never lose time working out what to practice.
 
 A beginner singer’s week of daily exercises: https://www.attunr.app/demo/voice-beginner
 An intermediate singer’s week: https://www.attunr.app/demo/voice-intermediate
@@ -208,7 +208,7 @@ Piotr`,
   },
   {
     label: "Answering doubts: Jason",
-    about: "A reply to a teacher who said most students won't practise anyway and asked whether this costs money. The founder agrees, says no money is asked for now, asks for feedback, shares the vision and the demo page, is open about where it stands, and asks whether to send an update.",
+    about: "A reply to a teacher who said most students won't practice anyway and asked whether this costs money. The founder agrees, says no money is asked for now, asks for feedback, shares the vision and the demo page, is open about where it stands, and asks whether to send an update.",
     text: `Hi Jason,
 
 Haha, I think you might be right! Thanks for being so direct. I suspect it’s true of most teachers’ students, not just yours.
@@ -217,7 +217,7 @@ On the money: fair question, and no, I’m not asking for any. I won’t charge 
 
 So what I want from you right now is exactly this kind of feedback.
 
-In my own practice, having the exact thing I want to work on in front of me makes a big difference. A specific scale in a specific key and position gets me much further than a book or video that shows it in one key and leaves me to transpose it in my head. It won’t make a student who doesn’t practice start practising, but it can make the ten minutes they do manage count for more.
+In my own practice, having the exact thing I want to work on in front of me makes a big difference. A specific scale in a specific key and position gets me much further than a book or video that shows it in one key and leaves me to transpose it in my head. It won’t make a student who doesn’t practice start practicing, but it can make the ten minutes they do manage count for more.
 
 All the demos are on one page now, including a Notes creator where you can build your own lesson page: https://www.attunr.app/demo
 

@@ -17,7 +17,7 @@ import { PLAN_DAYS, type PlanAnswers, type PlanExercise, type StoredPlan } from 
 
 
 /** The version of the prompt, its authoring guide and the page's tools for the browser's AI: raised with an entry in `CHANGELOG.md` beside this file (see "Version" in AGENTS.md). */
-export const PROMPT_VERSION = 20;
+export const PROMPT_VERSION = 21;
 
 /** The student section's lines: per area a rough level and the line they picked for each topic, then voice, time, notes, styles. */
 function studentLines(a: PlanAnswers): string[] {
@@ -38,7 +38,7 @@ function studentLines(a: PlanAnswers): string[] {
   ];
 }
 
-/** The settings an exercise was practised with, read from its tools: `scale-neck, backing-band · A, E · 60-80 bpm · tenor`; "" with no tools. */
+/** The settings an exercise was practiced with, read from its tools: `scale-neck, backing-band · A, E · 60-80 bpm · tenor`; "" with no tools. */
 export function settingsOf(e: PlanExercise): string {
   const names: string[] = [], keys: number[] = [], bpms: number[] = [], voices: string[] = [];
   const add = <T,>(to: T[], v: T | undefined) => { if (v !== undefined && !to.includes(v)) to.push(v); };
@@ -49,7 +49,7 @@ export function settingsOf(e: PlanExercise): string {
     if (typeof t.bpm === "number") add(bpms, t.bpm);
     if (typeof t.voice === "string") add(voices, t.voice);
   }
-  // a choice is no tool to name: its options are more keys and tempos the step was practised in
+  // a choice is no tool to name: its options are more keys and tempos the step was practiced in
   const choices = [e.choice, ...e.cells.flatMap((c) => (c.type === "section" ? [c.choice] : []))].flatMap((c) => (c ? ["options" in c ? c.options : [c.open]] : []));
   for (const o of choices.flat()) {
     if (typeof o.key === "number") add(keys, o.key);
@@ -105,7 +105,7 @@ export function weekByTopic(plan: StoredPlan): string {
 }
 
 /** How to read the ratings of a finished week. */
-const BUILD_ON = "Build on this: ratings are how the exercise went, and the tools, keys, bpm and voice after the semicolon are what they practised with: the baseline to step from. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing (the key, the position, the tempo). 4-5: move on: first the next stage of the same level (faster, another key, a help taken away), and when that was already there, the next level, which is a new kind of difficulty (\"Levels\" below says what). Repeat what was skipped in a new form, and keep the thread of their goals.";
+const BUILD_ON = "Build on this: ratings are how the exercise went, and the tools, keys, bpm and voice after the semicolon are what they practiced with: the baseline to step from. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing (the key, the position, the tempo). 4-5: move on: first the next stage of the same level (faster, another key, a help taken away), and when that was already there, the next level, which is a new kind of difficulty (\"Levels\" below says what). Repeat what was skipped in a new form, and keep the thread of their goals.";
 
 export type PromptPartKind = "intro" | "student" | "week" | "progress" | "history" | "course" | "rules" | "interface" | "links" | "format" | "library";
 
@@ -130,7 +130,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
     ? studentLines(answers).join("\n")
     : ["The player skipped the questionnaire. Plan from these default answers and from any ratings below:", ...studentLines(DEFAULT_ANSWERS)].join("\n");
   // the week just finished goes in by topic. The AI's memory is the newest summary any stored plan carries (a reply may
-  // come without one, and a plan used again carries an old one); the weeks practised since that summary was written go
+  // come without one, and a plan used again carries an old one); the weeks practiced since that summary was written go
   // in full, and with no summary at all the two weeks before this one do.
   const lastWeek = previous[0];
   const at = previous.findIndex((p) => p.config.progress?.trim());
@@ -138,7 +138,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
   const history = previous.slice(1, at < 0 ? 3 : Math.min(at + 1, 4)).map(weekReport).join("\n\n");
   return [
     part("intro", "Intro", "intro", [
-      "You are writing a 7-day drill plan for one student. They practise with attunr, a web app; each exercise is a drill that shows the tools it needs right in the plan, between its text. The lessons live elsewhere (see Links below): the exercises say what to do with the tools.",
+      "You are writing a 7-day drill plan for one student. They practice with attunr, a web app; each exercise is a drill that shows the tools it needs right in the plan, between its text. The lessons live elsewhere (see Links below): the exercises say what to do with the tools.",
       "",
     ]),
     part("student", "The student", "student", [
@@ -154,7 +154,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
       summary,
       "",
     ])] : []),
-    ...(history ? [part("history", "Earlier weeks", "history", [`## Earlier weeks (newest first${summary ? "; practised after those notes were written" : ""})`, history, ""])] : []),
+    ...(history ? [part("history", "Earlier weeks", "history", [`## Earlier weeks (newest first${summary ? "; practiced after those notes were written" : ""})`, history, ""])] : []),
     ...(course.length ? [part("course", "Course ratings", "course", [
       "## Course sections they rated",
       ...course.map((r) => `- ${r.title}: ${starText(r.stars)}${r.note ? ` — "${r.note}"` : ""}`),
@@ -178,7 +178,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
     ...(library ? [library] : []),
     part("exercise-format", "Exercise format", "format", [
       "## Exercise format",
-      "An exercise is a block: a title, an optional choice, and a list of \"cells\" shown top to bottom in the order you write them. A section is a cell with a heading, minutes and its own cells: write one section per step. A choice at the top of the block or in a section's header sets the key, scale, tempo, position or level of the tools under it; a tool that must keep its own value lists the part in \"pinned\". An exercise that works in other keys or at other tempos says so with \"moves\" (see the rules), and then names its key and tempo in the title, headings and text only as {{=key}} and {{=bpm}}, which the app fills in. A tool shows what the text before it talks about, so put each tool right after that text. A backing-band keeping time goes first. A guitar-play-along or backing-track has no length of its own: it loops until the student stops it (so does a song-chart with no \"repeat\"), and the exercise's \"minutes\" set the timer. A section with \"minutes\" is a timed block; the timer shows the block, and the tools do not switch by themselves, so put each block's tools inside its section. Every exercise names its \"steps\": the 1 to 3 steps of the learning path it practises, as \"trackId:n\" from the list under Answer format, each in one of its \"concepts\". Pick the steps the student is working on now, from the line they picked for its topic and their ratings. The app sets the exercise's level from them (the highest level of its steps). Every exercise is also tagged, and the app shows the tags as hashtags after the title: \"area\" (one of " + EXERCISE_AREAS.join(", ") + ": the one area it practises; theory covers ear training) and \"tags\" (1 to 3 of " + Object.keys(EXERCISE_TAGS).join(", ") + ": what kind of practice it is); write them as fields, or as hashtags at the end of the title. Notes in text: write each note you name as {{3}} or {{b7}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear, so invite that.",
+      "An exercise is a block: a title, an optional choice, and a list of \"cells\" shown top to bottom in the order you write them. A section is a cell with a heading, minutes and its own cells: write one section per step. A choice at the top of the block or in a section's header sets the key, scale, tempo, position or level of the tools under it; a tool that must keep its own value lists the part in \"pinned\". An exercise that works in other keys or at other tempos says so with \"moves\" (see the rules), and then names its key and tempo in the title, headings and text only as {{=key}} and {{=bpm}}, which the app fills in. A tool shows what the text before it talks about, so put each tool right after that text. A backing-band keeping time goes first. A guitar-play-along or backing-track has no length of its own: it loops until the student stops it (so does a song-chart with no \"repeat\"), and the exercise's \"minutes\" set the timer. A section with \"minutes\" is a timed block; the timer shows the block, and the tools do not switch by themselves, so put each block's tools inside its section. Every exercise names its \"steps\": the 1 to 3 steps of the learning path it practices, as \"trackId:n\" from the list under Answer format, each in one of its \"concepts\". Pick the steps the student is working on now, from the line they picked for its topic and their ratings. The app sets the exercise's level from them (the highest level of its steps). Every exercise is also tagged, and the app shows the tags as hashtags after the title: \"area\" (one of " + EXERCISE_AREAS.join(", ") + ": the one area it practices; theory covers ear training) and \"tags\" (1 to 3 of " + Object.keys(EXERCISE_TAGS).join(", ") + ": what kind of practice it is); write them as fields, or as hashtags at the end of the title. Notes in text: write each note you name as {{3}} or {{b7}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear, so invite that.",
       "",
     ]),
     part("cells", "Cell interface", "interface", [
@@ -248,7 +248,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
       "- A guitarist learning to tune by ear: string-singer sings the open strings into memory (drills \"strings\", then \"pairs\", then \"fifth-fret\").",
       "- Breath for singers: a singer's warm-up often opens with a short breathwork tool (2 to 3 minutes), and a week that works on long phrases or steady tone gives breath its own exercise, tagged \"sing\". Farinelli first for control (\"from\" and \"to\" grow over the weeks: beginner 3 to 8, intermediate 4 to 10, advanced 4 to 20), sss-zzz or zzz-sss to feel where the voice starts, long-exhale for a steady flow of air, cycles or body-scan to settle. The tool counts and paces the breath, so the text says only what to notice (\"keep your shoulders still\", \"fill to about 80%, not to the top\").",
       "- Intervals and ear training stay inside one octave. A compound interval (a 9th, a 10th) is its own exercise: set \"wide\": true on interval-ears and tag the exercise \"multi-octave\". interval-ears' \"set\" must be exactly the intervals the steps name (m3 is 3, M3 is 4, P4 is 5, P5 is 7, m7 is 10).",
-      "- A progression is practised several ways over the week, not one: hear it as arpeggios or comping (guitar-play-along with a progression shape, a different backing each time), play the shapes (chord-shapes), strum it in time (strum-along), improvise over it (guitar-play-along with solo-over).",
+      "- A progression is practiced several ways over the week, not one: hear it as arpeggios or comping (guitar-play-along with a progression shape, a different backing each time), play the shapes (chord-shapes), strum it in time (strum-along), improvise over it (guitar-play-along with solo-over).",
       "- A backing-track with drums, bass and keys uses a curated progression that fits the lesson (\"blues\" for a 12-bar blues, \"minor-blues\", \"dorian\" for a Dorian vamp) and the lesson's key; the student can mute a part to play it. Its \"parts\" set what the step needs: leave \"keys\" out when the student comps the chords, leave \"bass\" out when they play the bass line; \"always\" for a part the exercise leans on. Its chords must be the ones the text names: when no curated progression has them, give the lesson's chords as \"numerals\" in its key (or \"chords\"), one per bar.",
       "- A strum-along is a metronome and the chords as boxes, one per bar (or beat), each holding its beats and strums, the playing one lit. Give the strum as its \"pattern\" (\"D D D D\", \"D U D U D U D U\", \"D . D U . U D U\"), matching the text.",
       "- Any exercise that asks for a tempo (\"play it at 80\", \"60 bpm\") shows a tool that sounds the beat at that tempo: strum-along for strumming chords, clap-along for a rhythm clapped or tapped, a staff with its \"click\" for singing, else a backing-band offering its click or drums, a backing-track for improvising or singing over chords, a song-chart for a whole song, or a guitar-play-along. Its \"bpm\" is the number the text names.",
@@ -256,7 +256,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
       "- A line over chords (guide tones, chord tones, an arpeggio part) is a guitar-play-along whose steps are those degrees: the app holds the chords under it so the student hears each note against its chord, never just a click, and its neck view keeps the whole line in place with the chord playing standing out. Use guitar-play-along's \"under\": \"drone\" only when one key root should sound under everything. A sung line over chords is different: the guitar-play-along is for the guitar, so the singer reads the line from a staff (\"notes\" the line's degrees, mic on) with a backing-track on those chords under it (\"parts\": { \"drums\": \"on\", \"bass\": \"off\", \"keys\": \"always\" } for a gentle start, the chords always there), which shows the chord playing.",
       "- When the student's voice type is known, set \"voice\" on every staff, melody-singer and run-singer tool to it; when it is not, and on every staff in an exercise that does not sing, use \"tenor\".",
       "- A staff the student sings from (mic on) labels its notes: set its \"labels\" to \"solfege\" when the text names notes as Do Re Mi, else \"degree\", so the singer reads every note by its number or syllable, never a bare note name.",
-      "- You choose what to practise; the app computes notes, frets, tabs and timing, and the tools show fingers and frets. Never write frets or note lists the app can compute, and no fingerings.",
+      "- You choose what to practice; the app computes notes, frets, tabs and timing, and the tools show fingers and frets. Never write frets or note lists the app can compute, and no fingerings.",
       "- Do not put two exercises of the same kind next to each other in a day.",
       "- Explained words: the app adds an (i) with a short meaning and an article link to these words, so use them by name where they fit and do not define them in the text. List of words: " + GLOSSARY.map((t) => t.forms[0]).join(", ") + ".",
       "",
@@ -271,7 +271,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
     ]),
     part("writing", "How to write an exercise", "rules", [
       "## How to write an exercise",
-      "- Practice first: reading is the shortest part of every exercise, and every block is something to play, sing or hear now. A sentence of why is welcome when it helps the student build their own drill, but it is never required: at most one, in \"why\" (\"Dorian differs from natural minor by one note, so practise that note.\"), not repeated in the first text; the sections start with the first block. No paragraphs of rationale, no a-ha moments to discover, no step-by-step technique (posture, breathing); breathwork paces the breath.",
+      "- Practice first: reading is the shortest part of every exercise, and every block is something to play, sing or hear now. A sentence of why is welcome when it helps the student build their own drill, but it is never required: at most one, in \"why\" (\"Dorian differs from natural minor by one note, so practice that note.\"), not repeated in the first text; the sections start with the first block. No paragraphs of rationale, no a-ha moments to discover, no step-by-step technique (posture, breathing); breathwork paces the breath.",
       "- Say how to use the app more than how to play: what to press, what to start, where to look (\"Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff.\"). Every Play names what it starts and where it is (\"Press Play below to start the metronome\", \"Press Play above to start the backing track\"), never a bare \"Press Play.\"; the click is \"the metronome\" and a step is \"one note per beat\". Whatever the app plays under the student (the drums and bass of a backing-band, a backing-track, a song-chart, the chords under a guitar-play-along) is \"the backing track\" in the text, never \"the band\" or \"the backing\".",
       "- Playful and exploratory, not prescriptive: invite the student to try, mix, make up, guess and check. No exact counts (\"five times\", \"ten right in a row\", \"done at four clean runs\"); the timer sets the length. Say loosely when to move on, without numbers or technique: \"try it at least a few times\", \"play until it feels comfortable\", \"until your fingers find it without looking\". No poetic lines (\"Re rubs against it\"). Plain, natural English: short sentences, but two steps that go together share one (\"Find it on the A string, then on the B string, and hop between the two.\"); never a string of two-word orders, never more than two steps chained. Guitar fingers go with frets: \"play frets 1 to 4 with fingers 1, 2, 3 and 4\", never \"play fingers 1 2 3 4\".",
       "- Clear phrasing. Say exactly what to do: \"play {{6}}, then {{1}}\", not \"resolve it to Do three times\". No jargon the text does not explain (\"cross at least once per phrase\"), no numbers out of nowhere (\"not seven\"). A target says when: \"land on {{c}} when Cm7 comes round\".",
@@ -284,7 +284,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
       "  - A second staff in the same step names whose controls they are, one control to a sentence: \"Press Play on the A staff below. Then press Start microphone.\"",
       "- One control per sentence, and where is one word, \"below\" or \"above\": \"Press a chord box below to hear it. Then press Play under them to start the metronome.\" A melody-singer or run-singer starts the mic with its Play: \"Press Play below to hear the tune: the mic starts with it.\"",
       "- A text may hold line breaks (\"\\n\"), each a new line on the page. Put one between what to do, the next thing to try, and what to notice or do when it goes wrong. The noticing line starts with what the student just changed: \"When you change the key, the chords are new but the numbers sound the same.\"",
-      "- The thing a drill practises has one word in every step and heading of the exercise: \"the crossing\" for the way from one position to the next, \"the tune\", \"the run\".",
+      "- The thing a drill practices has one word in every step and heading of the exercise: \"the crossing\" for the way from one position to the next, \"the tune\", \"the run\".",
       "- Every singing step says what to sing on, in these exact words, which the app explains: \"on the note names\" while learning the notes (\"Sing along on the note names.\"), else a vowel (\"on \\\"ah\\\"\", \"on \\\"oo\\\", which keeps the top note light\") or a change of vowel across a phrase (\"the call on \\\"oo\\\", the answer on \\\"ee\\\"\", \"move through \\\"ee-oh-oo-oh-ah\\\"\"). For a beginner, and for any high note, pick an easy vowel: \\\"oo\\\", \\\"ee\\\" or a hum; keep \\\"ah\\\" for low and middle notes, since an open \\\"ah\\\" is the hardest to keep in tune up high.",
       "- What to sing on is its own clause with its own verb (\"Sing along on the note names.\", \"then sing it on \\\"la\\\"\"), never hung inside another instruction (not \"Make up a tune from {{1}}, {{2}} and {{3}} on \\\"la\\\"\"). The moment to move on is the feel spelled out (\"once the names come without thinking\"), never \"once you know it\".",
       "- Keep the range to the level. The staff runs from the lowest Do in the voice's range up to its top, and \"mute\" and \"hide\" take a degree away in every octave, so they can't drop only the high notes. For a new or beginner singer, every note the text asks for sits three semitones or more under the top of their range (a tenor: A4 at most): pick a key where the drill fits low (a tenor's Do Mi Sol fits in C, D and A; in F and G it reaches C5 or B4), or say where to start (\"from the low {{1}}\"), and give any high note on \"oo\". An intermediate exercise can open eased, the drill in a lower key on \"oo\", then open the full range in a later staff. Advanced uses the whole range.",
@@ -318,15 +318,15 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
       "  why?: string;",
       "  area: " + EXERCISE_AREAS.map((a) => `"${a}"`).join(" | ") + ";",
       "  tags: string[]; // 1 to 3, from the tags listed under Exercise format",
-      "  topic: string; // the one topic it practises, from the list below: a topic of its area",
+      "  topic: string; // the one topic it practices, from the list below: a topic of its area",
       "  concepts: string[]; // up to 4 of that topic's concepts, from the list below",
-      "  steps: string[]; // 1 to 3 steps it practises, \"trackId:n\" from the list below, each of one of its concepts; the app sets the level from them",
+      "  steps: string[]; // 1 to 3 steps it practices, \"trackId:n\" from the list below, each of one of its concepts; the app sets the level from them",
       "  learnBefore: string[]; // at least one, see Links",
       "  choice?: Choice; // see Cells: a key, scale, tempo, position or level the whole exercise follows\n  moves?: { key?: \"any\"; bpm?: { from: number; to: number; step: number } }; // what may change from one play to the next: any key, a range of tempos (see the Moves rule)\n  cells: Cell[]; // see Cells",
       "  exploreMore?: string[]; // see Links",
       "}",
       "```",
-      "Topics, each with its concepts (topic id (name): concept ids), then each concept's steps, easiest first (n name (level); a \"Mix\" step practises the steps before it together):",
+      "Topics, each with its concepts (topic id (name): concept ids), then each concept's steps, easiest first (n name (level); a \"Mix\" step practices the steps before it together):",
       ...TOPICS.flatMap((t) => [
         `- ${t.id} (${t.label}): ${conceptsOf(t.id).map((c) => c.id).join(", ")}`,
         ...conceptsOf(t.id).map((c) => `  - ${c.id}: ${(PATH.find((x) => x.id === c.id)?.steps ?? []).map((st, i) => `${i + 1} ${st.name} (${st.level})`).join("; ")}`),

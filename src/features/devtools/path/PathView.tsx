@@ -39,12 +39,12 @@ function Names({ ids, nodes, pick }: { ids: string[]; nodes: Map<string, PathNod
   );
 }
 
-/** A step's blocks, opened on /admin/content/block in a new tab; amber "no block" when none practises it. */
+/** A step's blocks, opened on /admin/content/block in a new tab; amber "no block" when none practices it. */
 export function BlocksLink({ ref_, n }: { ref_: string; n: number }) {
   return (
     <a
       href={blockHref({ step: ref_ })} target="_blank" rel="noreferrer"
-      title={n ? `Open the ${n === 1 ? "block" : `${n} blocks`} for this step in a new tab` : "No block practises this step yet: open the step in a new tab"}
+      title={n ? `Open the ${n === 1 ? "block" : `${n} blocks`} for this step in a new tab` : "No block practices this step yet: open the step in a new tab"}
       className={`ml-2 rounded border px-1.5 py-0.5 text-xs hover:underline ${n ? "border-sky-500/40 text-sky-300" : "border-amber-400/40 text-amber-300"}`}
     >
       {n ? `${n} block${n === 1 ? "" : "s"} ↗` : "no block ↗"}

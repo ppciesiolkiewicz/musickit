@@ -154,7 +154,7 @@ export default function PlanApp() {
   const given = <GivenPlans plans={state.given} />;
   // the questionnaire again, from the stored answers (areas, where you are in each topic, minutes a day)
   const changeAnswers = (
-    <Button onClick={() => setFlow(true)} title="Answer the questions again: what you play, where you are in each topic, and how long you practise a day" className={BIG}>
+    <Button onClick={() => setFlow(true)} title="Answer the questions again: what you play, where you are in each topic, and how long you practice a day" className={BIG}>
       <Icon name="pencil" size={16} />Change my answers
     </Button>
   );
@@ -257,7 +257,7 @@ function RateNudge({ rated, practised, onClose }: { rated: number; practised: nu
   return (
     <Modal title="Rate each exercise" narrow onClose={onClose}>
       <div className="flex flex-col gap-3 text-sm text-slate-300">
-        <p>Your stars decide what goes into your next plan. On your past days you rated {rated} of the {practised} exercises you practised.</p>
+        <p>Your stars decide what goes into your next plan. On your past days you rated {rated} of the {practised} exercises you practiced.</p>
         <p>When you finish an exercise, give it stars under How did it go?</p>
         <div className="flex justify-end">
           <Button onClick={onClose} className={BIG}>Got it</Button>

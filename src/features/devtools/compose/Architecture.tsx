@@ -59,7 +59,7 @@ export const C = ({ children }: { children: ReactNode }) => <code className="fon
 
 /** What `composeDay` takes: the field, where the server gets it, what the composer does with it. */
 const INPUTS: [string, ReactNode, ReactNode][] = [
-  ["answers", <>The <C>answers</C> saved in the player&apos;s plan document: what they picked in the first questionnaire. They go through <C>raisedAnswers</C> first, which raises a topic one level at a time as far as the player&apos;s ratings have reached. For a teacher&apos;s student, the teacher&apos;s score for a topic replaces the answer as the starting level.</>, <>Reads four things from them: the areas the player practises, the minutes a day, the answer to the keys question, and the line of each topic. A topic&apos;s line sets the step its tracks start on and how many new steps the topic offers at once.</>],
+  ["answers", <>The <C>answers</C> saved in the player&apos;s plan document: what they picked in the first questionnaire. They go through <C>raisedAnswers</C> first, which raises a topic one level at a time as far as the player&apos;s ratings have reached. For a teacher&apos;s student, the teacher&apos;s score for a topic replaces the answer as the starting level.</>, <>Reads four things from them: the areas the player practices, the minutes a day, the answer to the keys question, and the line of each topic. A topic&apos;s line sets the step its tracks start on and how many new steps the topic offers at once.</>],
   ["solid", <>Every rating the player has made (their progress entries), reduced by <C>solidRatedAt</C> to one map: a step, and the time of its newest rating. A step is in the map only when that newest rating is 4 stars or more. An older rating of the same step is not looked at.</>, <>Two uses. A solid step counts as known, which brings the steps after it within reach. And the solid steps are the review list, the one rated longest ago first.</>],
   ["blocks", <><C>library.composeBlocks(player, areas)</C>, with each row turned into a candidate by <C>candidateOf</C>. There is one candidate for each active choice of a curated block in the player&apos;s areas, when the choice names at least one step. A candidate carries the choice&apos;s minutes and moves, how much all players have used the block, and this player&apos;s newest rating of the choice.</>, <>These are the only exercises a day can hold. The composer writes no exercise and changes none.</>],
   ["date", <>The page sends its local date. The server refuses a date more than one day away from its own.</>, <>Decides which topic goes first in the day (it moves on by one each date), and is part of the seed.</>],
@@ -181,7 +181,7 @@ function DataPanel() {
             ["id", <>a curated block&apos;s readable id (the seed file&apos;s name); else the hash of content and tags</>],
             ["kind", <><C>curated</C> (seed, updated in place) or <C>hashed</C> (insert-only)</>],
             ["content", <>the <C>Block</C>: title, choice, moves, cells (right column)</>],
-            ["area, topic, concepts, tags", <>what it practises; <C>composeBlocks</C> filters by area</>],
+            ["area, topic, concepts, tags", <>what it practices; <C>composeBlocks</C> filters by area</>],
             ["minutes, why, learnBefore, exploreMore", <>the default slot</>],
             ["steps, level", <>empty on a curated block: they live on its choices</>],
           ]}>One row per distinct block, whoever has it. Never deleted.</Entity>
@@ -189,7 +189,7 @@ function DataPanel() {
           <Entity layer="data" name="choices" file="lib/db/schema.ts" fields={[
             ["id", <><C>{"<blockId>/<name>"}</C></>],
             ["name, place", <>unique within the block, and its order</>],
-            ["level, steps", <>the path steps this way of playing it practises (<C>caged:7</C>)</>],
+            ["level, steps", <>the path steps this way of playing it practices (<C>caged:7</C>)</>],
             ["moves", <>what may change between plays: any key, a tempo range (<C>Moves</C>, <C>plan/model/moves.ts</C>)</>],
             ["minutes", <>the slot&apos;s minutes for this choice</>],
             ["active", <>false once it leaves the seed; only active choices are candidates</>],

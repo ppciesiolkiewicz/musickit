@@ -4,7 +4,7 @@ import IntroVideos from "@/features/intro/IntroVideos";
 
 export const metadata: Metadata = {
   title: "Quick tour · attunr",
-  description: "Two short tours of attunr: a daily practice plan for a person who practises on their own, and weekly plans and lesson notes for teachers and schools.",
+  description: "Two short tours of attunr: a daily practice plan for a person who practices on their own, and weekly plans and lesson notes for teachers and schools.",
   alternates: { canonical: "/intro" },
 };
 
