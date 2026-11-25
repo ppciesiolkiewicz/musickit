@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Tool } from "@/features/plan/ui/ExerciseTool";
+import { drawToolOverlay } from "@/features/plan/ui/ToolOverlay";
+import { OverlayDrawProvider } from "@/features/contentVideos/ui/OverlayVideo";
 import type { PlanTool } from "@/features/plan/model/tools";
 import RecordVideo, { type RecordFor } from "@/features/contentVideos/ui/RecordVideo";
 import { stepGroups, toolName } from "@/features/contentVideos/model/coverage";
@@ -31,9 +33,12 @@ export default function RecordPage({ target, options, videos, error }: { target:
         </label>
       )}
       {/* the tool as written, not in the recorder's own voice: the melody drawn over the video is the one sung here */}
-      <RecordVideo target={target} videos={videos} drawn={option?.tool ?? null}>
-        {option ? <Tool key={picked} tool={option.tool} /> : <p className="text-sm text-slate-300">No seed exercise uses this tool, so there is no tool to show over the camera. The video records without it.</p>}
-      </RecordVideo>
+      {/* the tool drawn over the take, in step with it, for watching back and for Export with overlay */}
+      <OverlayDrawProvider draw={drawToolOverlay}>
+        <RecordVideo target={target} videos={videos} drawn={option?.tool ?? null}>
+          {option ? <Tool key={picked} tool={option.tool} /> : <p className="text-sm text-slate-300">No seed exercise uses this tool, so there is no tool to show over the camera. The video records without it.</p>}
+        </RecordVideo>
+      </OverlayDrawProvider>
     </div>
   );
 }

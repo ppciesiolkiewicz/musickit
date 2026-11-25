@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { getAudioContext, getOutputBus, openRecordInput, wakeAudio, type RecordInput } from "@/features/sound";
 import RecordInputSelect from "@/components/RecordInputSelect";
 import { clockTime } from "@/features/recorder/recorder";
 import { pickVideoType, videoFileName } from "@/features/videos/recording";
 import { saveContentVideo } from "@/features/contentVideos/client/api";
+import { burnOverlay, canBurn, noChange } from "@/features/contentVideos/client/burn";
 import { riffTimes, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
 import { FxControls, NeckView, useFx } from "@/features/neckFx";
@@ -120,6 +121,13 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   // which marker sits at which fret, the buttons and the effects: shared with the content video record page
   const [fx, setFx] = useFx();
   const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
+  // the take and what is drawn over it: what Export with overlay records
+  const takeBox = useRef<HTMLDivElement | null>(null);
+  // Export with overlay running: how far through the take it is (0 to 1)
+  const [exporting, setExporting] = useState<number | null>(null);
+  const stopExport = useRef<AbortController | null>(null);
+  // read after hydration: the server has no browser to ask
+  const burnable = useSyncExternalStore(noChange, canBurn, () => false);
   const [countIn, setCountIn] = useState(1);
   // the expected length follows the riff's until it is typed in
   const [typedLength, setLength] = useState<number | null>(null);
@@ -311,7 +319,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   /** Upload the take as the riff block's own video: its id is given and stored first, so a retry reuses it. */
   const sendToPlayers = async () => {
     const size = frame && frame.url === url ? frame : null;
-    if (!take || cell === null || sending || !size?.width || !size.height) return;
+    if (!take || cell === null || sending || exporting !== null || !size?.width || !size.height) return;
     setProblem("");
     setSending(true);
     try {
@@ -320,9 +328,11 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
       if (!take.videoId) {
         try { await mark(at, { videoId }); } catch (e) { setProblem(`The browser didn't store this take, so it wasn't uploaded: ${message(e)}. Press Save for players again.`); return; }
       }
+      // the exported file when there is one: players see the overlay in the picture
+      const file = take.withOverlay ?? { blob: take.blob, type: take.type, width: size.width, height: size.height };
       const out = await saveContentVideo({
-        id: videoId, blob: take.blob, type: take.type, title: name, note: "", seconds: take.seconds,
-        width: size.width, height: size.height,
+        id: videoId, blob: file.blob, type: file.type, title: name, note: "", seconds: take.seconds,
+        width: file.width, height: file.height,
         madeFor: riff, target: { kind: "cell", blockId: riff, cell, tool: "guitar-play-along:riff" }, fileUp: take.fileUp,
       });
       // a cell target takes no steps from other videos, so `lost` is always empty here
@@ -334,6 +344,33 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
     }
   };
 
+  /** Play the take once and record it with what is drawn over it (the riff's notes, the neck effects) burned in. */
+  const exportTake = async () => {
+    const box = takeBox.current;
+    if (!take || !takeVideo || !box || exporting !== null || sending) return;
+    setProblem("");
+    const ctrl = new AbortController();
+    stopExport.current = ctrl;
+    setExporting(0);
+    try {
+      const out = await burnOverlay(box, takeVideo, take.seconds, { onProgress: setExporting, signal: ctrl.signal });
+      // a new file for players: an upload of the plain take started before is not reused
+      await mark(take.at, { withOverlay: { blob: out.blob, type: out.type, width: out.width, height: out.height }, ...(take.uploaded ? {} : { videoId: undefined, fileUp: undefined }) });
+    } catch (e) {
+      setProblem(e instanceof Error && e.name === "NotAllowedError"
+        ? "The export didn't start: the share dialog was closed. Press Export with overlay, then pick this tab."
+        : `The take wasn't exported: ${message(e)}`);
+    } finally {
+      stopExport.current = null;
+      setExporting(null);
+    }
+  };
+  const dropOverlay = () => {
+    if (!take || sending) return;
+    void mark(take.at, { withOverlay: undefined, ...(take.uploaded ? {} : { videoId: undefined, fileUp: undefined }) })
+      .catch((e: unknown) => setProblem(`The browser didn't store the take: ${message(e)}.`));
+  };
+
   const remove = async () => {
     setProblem("");
     try { await deleteTake(riff); show(null); } catch (e) { setProblem(`The take wasn't deleted: ${message(e)}.`); }
@@ -342,9 +379,11 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   const download = () => {
     if (!take) return;
     const a = document.createElement("a");
-    a.href = url;
-    a.download = videoFileName(name, take.type);
+    const file = take.withOverlay;
+    a.href = file ? URL.createObjectURL(file.blob) : url;
+    a.download = videoFileName(file ? `${name} with overlay` : name, file?.type ?? take.type);
     a.click();
+    if (file) window.setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
   };
 
   const undo = () => {
@@ -360,7 +399,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
       const el = e.target as HTMLElement | null;
       if (e.key.toLowerCase() !== "r" || e.repeat || e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true]")) return;
       e.preventDefault();
-      if (phase === "ready" && !sending) void record();
+      if (phase === "ready" && !sending && exporting === null) void record();
       else if (phase === "recording") recorder.current?.stop();
     };
     window.addEventListener("keydown", onKey);
@@ -396,7 +435,13 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
               markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Print the 
               <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or the 
               <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>: they are the kind the camera reads (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. With two placed markers in view it finds the frets, and the effects ticked under Effects are drawn on
-              them. Covering a marker listed in Buttons turns on its filter. Nothing from it is saved with the take.
+              them. Covering a marker listed in Buttons turns on its filter. It doesn&apos;t run while you record.
+            </p>
+            <p>
+              The take records the camera and the input only. To put what is drawn over it into the video, press Export with overlay: the
+              take plays once from its start and is recorded with the riff&apos;s notes and, with Read the neck on, the neck effects, as they
+              show then. Pick this tab in the share dialog and keep the tab in front until the take ends. Save file and Save for players then
+              use the exported take.
             </p>
             <p className="font-medium text-slate-200">Printing and placing markers</p>
             <ol className="list-decimal space-y-1 pl-5">
@@ -424,23 +469,36 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
           </div>
         </details>
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
-        {phase === "ready" && <button onClick={() => void record()} disabled={sending} title={sending ? "Wait for the upload to finish" : undefined} className={`${rec} disabled:opacity-40`}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className={kbd}>R</kbd></button>}
+        {phase === "ready" && <button onClick={() => void record()} disabled={sending || exporting !== null} title={sending ? "Wait for the upload to finish" : undefined} className={`${rec} disabled:opacity-40`}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className={kbd}>R</kbd></button>}
         {phase === "recording" && <button onClick={() => recorder.current?.stop()} className={rec}><span className="size-2 bg-white" />Stop <kbd className={kbd}>R</kbd></button>}
         {phase === "recording" && <span className="font-mono tabular-nums text-rose-300">{clockTime(seconds)} / {clockTime(MAX_SECONDS)}</span>}
         {phase === "ready" && <button onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
-        {previous && phase !== "recording" && <button onClick={undo} disabled={sending} className={btn} title={`Recorded ${new Date(previous.at).toLocaleTimeString()}, ${clockTime(previous.seconds)}`}>Back to the previous take</button>}
+        {previous && phase !== "recording" && <button onClick={undo} disabled={sending || exporting !== null} className={btn} title={`Recorded ${new Date(previous.at).toLocaleTimeString()}, ${clockTime(previous.seconds)}`}>Back to the previous take</button>}
         {take && phase !== "recording" && (
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <span className={`text-xs ${stored === "failed" ? "text-rose-400" : "text-slate-400"}`}>
               {clockTime(take.seconds)} · {stored === "saved" ? "Saved in this browser" : stored === "saving" ? "Saving…" : "Not saved"}
+              {take.withOverlay ? " · With overlay" : ""}
               {sending ? " · Uploading…" : take.uploaded ? " · Saved for players" : ""}
             </span>
+            {exporting !== null ? (
+              <>
+                <span className="font-mono text-xs tabular-nums text-sky-300">Exporting… {Math.round(exporting * 100)}%</span>
+                <button onClick={() => stopExport.current?.abort()} className={btn}>Stop export</button>
+              </>
+            ) : burnable && (
+              <button onClick={() => void exportTake()} disabled={sending} className={btn}
+                title="Plays the take once and records it with what is over it now: the riff's notes and, with Read the neck on, the neck effects. Pick this tab in the share dialog, and keep it in front until the take ends.">
+                {take.withOverlay ? "Export with overlay again" : "Export with overlay"}
+              </button>
+            )}
+            {take.withOverlay && exporting === null && !take.uploaded && <button onClick={dropOverlay} disabled={sending} className={btn} title="Save file and Save for players use the take without the overlay">Use the take without overlay</button>}
             {stored === "failed" && <button onClick={() => void store(take)} className={btn}>Save</button>}
             <button onClick={download} className={btn}>Save file</button>
             {!take.uploaded && !sending && cell !== null && (
-              <button onClick={() => void sendToPlayers()} disabled={!(frame?.url === url && frame.width > 0 && frame.height > 0)} className={btn} title="Uploads this take as the video players see with this exercise">Save for players</button>
+              <button onClick={() => void sendToPlayers()} disabled={exporting !== null || !(frame?.url === url && frame.width > 0 && frame.height > 0)} className={btn} title="Uploads this take as the video players see with this exercise">Save for players</button>
             )}
-            <button onClick={() => void remove()} disabled={sending} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
+            <button onClick={() => void remove()} disabled={sending || exporting !== null} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
           </div>
         )}
       </div>
@@ -505,10 +563,10 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
       {(camera || (take && url)) && (
         <div className="flex flex-wrap items-start gap-3">
           {phase !== "recording" && take && url && (
-            <div className="relative w-full max-w-4xl">
+            <div ref={takeBox} className="relative isolate w-full max-w-4xl overflow-hidden rounded bg-black">
               <video key={url} ref={setTakeVideo} src={url} controls playsInline
                 onLoadedMetadata={(e) => setFrame({ url, width: e.currentTarget.videoWidth, height: e.currentTarget.videoHeight })} className="max-h-[32rem] w-full rounded bg-black" />
-              {readNeck && <NeckView key={url} video={takeVideo} fx={fx} notes={takeNotes} onRead={onNeckRead} />}
+              {readNeck && <NeckView key={url} video={takeVideo} fx={fx} notes={takeNotes} onRead={onNeckRead} bare={exporting !== null} />}
               <TakeNotes video={takeVideo} notes={takeNotes} mode={overlay} grid={barGrid(take.bpm ?? bpm, take.downbeat ?? 0, windowBars)} />
             </div>
           )}

@@ -15,6 +15,8 @@ export interface RiffTake {
   fileUp?: boolean;
   /** the row is saved too: the take is the riff block's own video */
   uploaded?: boolean;
+  /** Export with overlay: the take with what was drawn over it burned in. Save file and Save for players use it when it is here */
+  withOverlay?: { blob: Blob; type: string; width: number; height: number };
 }
 
 /** One frame Read the neck read, at `t` seconds into the take: the marker ids and each hand's fingertips. */

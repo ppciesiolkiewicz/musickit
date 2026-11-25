@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { openRecordInput, type RecordInput } from "@/features/sound";
 import RecordInputSelect from "@/components/RecordInputSelect";
@@ -12,6 +12,8 @@ import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls
 import type { PlanTool } from "@/features/plan/model/tools";
 import { FxControls, NeckView, useFx } from "@/features/neckFx";
 import { saveContentVideo } from "../client/api";
+import { burnOverlay, canBurn, noChange, type Burned } from "../client/burn";
+import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
 import { squeeze, type Sample } from "../model/clock";
 import { BGS, DEFAULT_BOX, DEFAULT_LOOK, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
 import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelBg, panelClass, panelStyle } from "./lookPanel";
@@ -27,7 +29,11 @@ import type { ContentVideoInfo } from "../server/access";
  */
 
 type Phase = "off" | "starting" | "ready" | "recording";
-interface Take { id: string; blob: Blob; type: string; seconds: number; url: string; width: number; height: number; fileUp: boolean; saved: boolean; overlay: Overlay | null }
+interface Take {
+  id: string; blob: Blob; type: string; seconds: number; url: string; width: number; height: number; fileUp: boolean; saved: boolean; overlay: Overlay | null;
+  /** Export with overlay: the take with the tool and the neck effects burned in, saved for players in its place */
+  burned: Burned | null;
+}
 
 /** how often the tool's beat is read while a take records */
 const SAMPLE_MS = 50;
@@ -127,6 +133,14 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const [readNeck, setReadNeck] = useState(false);
   const [fx, setFx] = useFx();
   const takeUrl = useRef("");
+  // the take's video and its box (the video and what is drawn over it): what Export with overlay records
+  const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
+  const takeBox = useRef<HTMLDivElement | null>(null);
+  const [exporting, setExporting] = useState<number | null>(null);
+  const stopExport = useRef<AbortController | null>(null);
+  // read after hydration: the server has no browser to ask
+  const burnable = useSyncExternalStore(noChange, canBurn, () => false);
+  const draw = useDrawTool();
   // the tool's beat as it tells it (`useToolClock`), and the take's samples of it
   const beat = useRef<number | null>(null);
   const samples = useRef<Sample[]>([]);
@@ -240,7 +254,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
       takeUrl.current = URL.createObjectURL(blob);
       const settings = s.getVideoTracks()[0]?.getSettings();
-      setTake({ id: crypto.randomUUID(), blob, type: recorded, seconds: Math.max(1, Math.round((performance.now() - from) / 1000)), url: takeUrl.current, width: settings?.width ?? 0, height: settings?.height ?? 0, fileUp: false, saved: false, overlay });
+      setTake({ id: crypto.randomUUID(), blob, type: recorded, seconds: Math.max(1, Math.round((performance.now() - from) / 1000)), url: takeUrl.current, width: settings?.width ?? 0, height: settings?.height ?? 0, fileUp: false, saved: false, overlay, burned: null });
       setDone("");
       setPhase(stream.current ? "ready" : "off");
     };
@@ -257,7 +271,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       const el = e.target as HTMLElement | null;
       if (e.key.toLowerCase() !== "r" || e.repeat || e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true]")) return;
       e.preventDefault();
-      if (phase === "ready" && !sending) record();
+      if (phase === "ready" && !sending && exporting === null) record();
       else if (phase === "recording") recorder.current?.stop();
     };
     window.addEventListener("keydown", onKey);
@@ -270,18 +284,42 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const levelsOf = (list: string[]) => list.map((s) => names.get(s) ?? s).join(", ");
   const nothingTicked = !own && laddered && !steps?.length;
 
+  /** Play the take once and record it with the tool and the neck effects over it burned in. */
+  const exportTake = async () => {
+    const box = takeBox.current;
+    if (!take || !takeVideo || !box || exporting !== null || sending || take.saved) return;
+    setProblem("");
+    const ctrl = new AbortController();
+    stopExport.current = ctrl;
+    setExporting(0);
+    try {
+      const burned = await burnOverlay(box, takeVideo, take.seconds, { onProgress: setExporting, signal: ctrl.signal });
+      // a new file: an upload of the plain take started before is not reused
+      setTake((t) => (t && t.id === take.id ? { ...t, burned, id: crypto.randomUUID(), fileUp: false } : t));
+    } catch (e) {
+      setProblem(e instanceof Error && e.name === "NotAllowedError"
+        ? "The export didn't start: the share dialog was closed. Press Export with overlay, then pick this tab."
+        : `The take wasn't exported: ${message(e)}`);
+    } finally {
+      stopExport.current = null;
+      setExporting(null);
+    }
+  };
+
   const save = async () => {
-    if (!take || sending || nothingTicked) return;
+    if (!take || sending || nothingTicked || exporting !== null) return;
     if (!take.width || !take.height) { setProblem("The take's picture size couldn't be read. Record the take again."); return; }
     setProblem("");
     setSending(true);
+    // the exported take has the tool in its picture: it is saved with no overlay, so the tool isn't drawn twice
+    const file = take.burned ?? take;
     const out = await saveContentVideo({
-      id: take.id, blob: take.blob, type: take.type, title: title.trim() || toolName(tool), note, seconds: take.seconds, width: take.width, height: take.height,
+      id: take.id, blob: file.blob, type: file.type, title: title.trim() || toolName(tool), note, seconds: take.seconds, width: file.width, height: file.height,
       madeFor: own && block ? block.id : `tool:${tool}`,
       target: own && block ? { kind: "cell", blockId: block.id, cell: block.cell, tool } : { kind: "tool", tool, steps },
       fileUp: take.fileUp,
       // where the tool sits now: the video plays back with it there
-      overlay: take.overlay && { ...take.overlay, look },
+      overlay: take.burned ? null : take.overlay && { ...take.overlay, look },
     });
     setSending(false);
     if (!out.ok) {
@@ -301,7 +339,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       <div className="flex flex-wrap items-center gap-2">
         {phase === "off" && <button type="button" onClick={() => void startCamera()} className={btn}>Start camera</button>}
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
-        {phase === "ready" && <button type="button" onClick={record} disabled={sending} className={rec}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className="rounded bg-rose-900/80 px-1 text-xs font-normal">R</kbd></button>}
+        {phase === "ready" && <button type="button" onClick={record} disabled={sending || exporting !== null} className={rec}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className="rounded bg-rose-900/80 px-1 text-xs font-normal">R</kbd></button>}
         {phase === "recording" && <button type="button" onClick={() => recorder.current?.stop()} className={rec}><span className="size-2 bg-white" />Stop <kbd className="rounded bg-rose-900/80 px-1 text-xs font-normal">R</kbd></button>}
         {phase === "recording" && <span className="font-mono tabular-nums text-rose-300">{clockTime(seconds)}</span>}
         {phase === "ready" && <button type="button" onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
@@ -316,7 +354,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         )}
         {phase !== "recording" && <RecordInputSelect onPick={() => void switchMic()} />}
         <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
-        <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera, for testing. Not while recording, and not saved with the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
+        <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera and the take. Not while recording: Export with overlay puts them in the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
           <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} className="accent-sky-500" /> Read the neck
         </label>
       </div>
@@ -358,9 +396,28 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       {take && phase !== "recording" && (
         <section className="flex flex-col gap-3 rounded-xl border border-slate-800 p-3">
           <h2 className="font-semibold text-slate-100">The take · {clockTime(take.seconds)}</h2>
-          <video key={take.url} src={take.url} controls playsInline className="max-h-96 w-full max-w-3xl rounded bg-black"
-            onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setTake((t) => (t && t.url === take.url ? { ...t, width: videoWidth, height: videoHeight } : t)); }} />
-          <p className="text-xs text-slate-400">{overlayWords(take.overlay, drawn)}</p>
+          {/* framed like the camera above, so the tool sits where it sat there */}
+          <div ref={takeBox} className="relative isolate aspect-video w-full max-w-3xl overflow-hidden rounded bg-black">
+            <video key={take.url} ref={setTakeVideo} src={take.url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
+              onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setTake((t) => (t && t.url === take.url ? { ...t, width: videoWidth, height: videoHeight } : t)); }} />
+            {readNeck && <NeckView key={take.url} video={takeVideo} fx={fx} fit="cover" bare={exporting !== null} />}
+            {take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}
+          </div>
+          <p className="text-xs text-slate-400">{take.burned ? "Exported with overlay: players see this take with the tool and the effects in the picture." : overlayWords(take.overlay, drawn)}</p>
+          {!take.saved && (
+            <div className="flex flex-wrap items-center gap-2">
+              {exporting !== null ? (
+                <>
+                  <span className="font-mono text-xs tabular-nums text-sky-300">Exporting… {Math.round(exporting * 100)}%</span>
+                  <button type="button" onClick={() => stopExport.current?.abort()} className={btn}>Stop export</button>
+                </>
+              ) : burnable ? (
+                <button type="button" onClick={() => void exportTake()} disabled={sending} className={btn}>{take.burned ? "Export with overlay again" : "Export with overlay"}</button>
+              ) : <span className="text-xs text-slate-500">This browser can&apos;t export the overlay. Use Chrome 132 or newer.</span>}
+              {take.burned && exporting === null && <button type="button" onClick={() => setTake((t) => (t && t.id === take.id ? { ...t, burned: null, id: crypto.randomUUID(), fileUp: false } : t))} disabled={sending} className={btn}>Use the take without overlay</button>}
+              {exporting === null && <span className="text-xs text-slate-500">Export plays the take once and records it with what is over it now: the tool, and the neck effects with Read the neck on. Pick this tab in the share dialog and keep it in front until the take ends.</span>}
+            </div>
+          )}
           <label className="flex max-w-xl flex-col gap-1 text-xs text-slate-400">Title<input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} disabled={take.saved} className={input} /></label>
           <label className="flex max-w-xl flex-col gap-1 text-xs text-slate-400">Note: what the video shows<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={1000} rows={2} disabled={take.saved} className={input} /></label>
 
@@ -399,7 +456,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
           {!take.saved && own && block && <p className="text-xs text-slate-400">This replaces the video this block had for this tool, if it had one. The old video is kept.</p>}
           {nothingTicked && !take.saved && <p className="text-xs text-amber-200">Tick at least one level, or press All levels.</p>}
           <div className="flex flex-wrap items-center gap-2">
-            {!take.saved && <button type="button" onClick={() => void save()} disabled={sending || nothingTicked} className={btn}>{sending ? "Uploading…" : take.fileUp ? "Save for players again" : "Save for players"}</button>}
+            {!take.saved && <button type="button" onClick={() => void save()} disabled={sending || nothingTicked || exporting !== null} className={btn}>{sending ? "Uploading…" : take.fileUp ? "Save for players again" : "Save for players"}</button>}
             {done && <p role="status" className="text-slate-200">{done}</p>}
             {take.saved && <Link href={`/admin/content/videos#${encodeURIComponent(tool)}`} className="text-sky-400 hover:underline">Back to Tools videos</Link>}
           </div>

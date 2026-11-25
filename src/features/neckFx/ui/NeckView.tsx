@@ -55,7 +55,7 @@ const FILTER_WORDS: Record<Filter, string> = { mono: "Mono", neon: "Neon", warm:
  * markers, and the effects ticked in `fx`. Covering a marker listed in `fx.buttons` turns on its filter. Picks come from
  * `stream`'s sound (live) or from `notes` at their times in the video (a take).
  */
-export default function NeckView({ video, fx, live = false, notes, onRead, fit = "contain" }: {
+export default function NeckView({ video, fx, live = false, notes, onRead, fit = "contain", bare = false }: {
   video: HTMLVideoElement | null;
   /** how the video fills its box (its object-fit), so the drawing lines up with it */
   fit?: "contain" | "cover";
@@ -66,6 +66,8 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
   notes?: { start: number; midi: number }[];
   /** each frame read, for the take's log */
   onRead?: (r: NeckRead) => void;
+  /** no status line over the picture: the take is being exported with the effects in it */
+  bare?: boolean;
 }) {
   const report = useRef(onRead);
   useEffect(() => { report.current = onRead; }, [onRead]);
@@ -351,7 +353,7 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
   return (
     <>
       <canvas ref={canvas} className={`pointer-events-none absolute inset-0 h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"}`} />
-      <span className="absolute left-2 top-2 rounded bg-slate-900/80 px-1.5 text-xs text-slate-300">{problem || [status, heard && `Heard: ${heard}`, deaf].filter(Boolean).join(" · ")}</span>
+      {!bare && <span className="absolute left-2 top-2 rounded bg-slate-900/80 px-1.5 text-xs text-slate-300">{problem || [status, heard && `Heard: ${heard}`, deaf].filter(Boolean).join(" · ")}</span>}
     </>
   );
 }
