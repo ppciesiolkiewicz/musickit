@@ -467,11 +467,12 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
             </ol>
             <p className="font-medium text-slate-200">Colour dots (to try out)</p>
             <p>
-              Round stickers in four colours, to stick along both edges of the fretboard so the camera can find the edges and frets past the markers. The reader doesn&apos;t read them yet.
+              Round stickers and long stripes, to stick along both edges of the fretboard so the camera can find the edges and frets past the markers. The reader doesn&apos;t read them yet.
               Print the <a href="/riff/neck-dots-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 dots</a> or the{" "}
               <a href="/riff/neck-dots-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 dots</a> on matte sticker paper at 100%, in colour.
-              Green goes on the near edge, cyan on the far edge, magenta at the nut and fret 12, and blue is a spare. Use 3 or 4 mm on the top of the fretboard, outside the outer strings, or 5 or 6 mm on the side of the neck.
-              Stick the colour check from the top of the sheet beside the neck, in the camera&apos;s view.
+              Green goes on the near edge and cyan on the far edge. Magenta marks the nut and fret 12, lime frets 5 and 17, and violet frets 7 and 19. Blue is a spare. White is for a dark fretboard and black for a maple one.
+              Use 3 or 4 mm on the top of the fretboard, outside the outer strings, or 5 mm on the side of the neck.
+              The stripes run down the side of the sheet in green, cyan and magenta, in bands you cut into strips 2 to 5 mm wide. Cut out one of the two calibration cards at the top of the sheet and stick it beside the neck, in the camera&apos;s view.
             </p>
           </div>
         </details>
