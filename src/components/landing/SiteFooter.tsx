@@ -36,6 +36,21 @@ export default function SiteFooter() {
           <p className="mt-4 max-w-xs leading-relaxed text-slate-400">
             See what you hear. A daily practice plan for guitar and voice, lesson notes you can share, and the tools to practise with.
           </p>
+          <a
+            href="https://www.indieappcircle.com/apps/j579ayydtdgxpp9yqckf7n86w18jww5m?utm_source=badge&ref=YW4pk3"
+            target="_blank"
+            rel="noopener"
+            className="mt-6 inline-block rounded focus-visible:outline-2 focus-visible:outline-sky-400"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- external SVG badge, served by IndieAppCircle */}
+            <img
+              src="https://www.indieappcircle.com/badge/j579ayydtdgxpp9yqckf7n86w18jww5m.svg?theme=dark"
+              alt="Give us feedback on IndieAppCircle"
+              width={216}
+              height={54}
+              style={{ border: 0 }}
+            />
+          </a>
         </div>
 
         {columns.map((c) => (
