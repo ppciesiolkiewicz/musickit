@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { gridOf, parsePlaced, placeByHand, type Grid, type NeckRead, type Pt } from "../model/grid";
 import {
-  FILTER_CSS, across, coveredNow, easeGrid, filtersOn, frettingTips, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
-  spaceAt, wireAt, type Filter, type FxSettings,
+  FILTER_CSS, across, coveredNow, easeGrid, filtersOn, frettingTips, grow, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
+  ringColour, spaceAt, wireAt, type Filter, type FxSettings,
 } from "../model/fx";
 import { CALM, QUIET, easeMood, keyOf, moodColour, moodFilter, moodTarget, stepBeat, type Beat, type Heard, type Mood } from "../model/mood";
 import { listenForPicks, type Pick } from "../client/listen";
@@ -21,6 +21,8 @@ const DOTS = [3, 5, 7, 9, 12, 15, 17, 19, 21];
 const KEEP_GRID = 0.5, FLASH = 0.6, PULSE = 0.5, TRAIL = 14;
 /** How long notes are kept for the mood (s), the most sparks at once, and how fast a beat bump settles (per s). */
 const KEEP_HEARD = 8, MAX_SPARKS = 700, BUMP_DECAY = 10;
+/** How long a marker stays painted out after it was last seen (s): detection drops a frame now and then. */
+const KEEP_PATCH = 0.4;
 /** Effects that need the picks heard live. */
 const HEARING = new Set(["flash", "pulse", "mood", "heat", "sparks", "bump"]);
 type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: number; hue: number; size: number };
@@ -123,6 +125,8 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
     const heard: Heard[] = [];
     let mood: Mood = CALM, moodAt = -1, handFret: number | null = null, keyName = "", keyTonic: number | null = null;
     const sparks: Spark[] = [];
+    // each marker seen lately, painted out in the colour around it (Hide markers)
+    const patches = new Map<number, { corners: Pt[]; rgb: [number, number, number]; at: number }>();
     let bump = 0, beat: Beat = QUIET, pickedNow = 0;
     // which side of the markers' line the neck is on: the side the fretting hand is (+1 or −1), kept once seen
     let neckSide = 1;
@@ -146,7 +150,12 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           k = Math.min(1, DETECT_WIDTH / w);
           scratch.width = Math.round(w * k); scratch.height = Math.round(h * k);
           sctx.drawImage(video, 0, 0, scratch.width, scratch.height);
-          found = markers.detect(sctx.getImageData(0, 0, scratch.width, scratch.height));
+          const img = sctx.getImageData(0, 0, scratch.width, scratch.height);
+          found = markers.detect(img);
+          if (fxNow.effects.includes("hide")) for (const m of found) {
+            const rgb = ringColour(img.data, img.width, img.height, m.corners);
+            if (rgb) patches.set(m.id, { corners: grow(m.corners.map((p) => ({ x: p.x / k, y: p.y / k })), 1.3), rgb, at: now });
+          }
           const res = hand.detectForVideo(video, performance.now());
           landmarks = res.landmarks;
           handsSeen = res.landmarks.map((lm) => TIPS.map((t) => ({ x: lm[t].x * w, y: lm[t].y * h })));
@@ -218,7 +227,8 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
         pickedNow = 0;
         const mc = moodColour(mood), e = mood.energy, { strength, beat: follows } = fxNow;
         const col = (a: number, dl = 0) => `hsla(${mc.hue} ${mc.sat}% ${Math.min(95, mc.light + dl)}% / ${a})`;
-        video.style.filter = [...(on.has("mood") ? [moodFilter(mood, strength.mood, beat.beat * follows.mood)] : []), ...filters.map((f) => FILTER_CSS[f])].join(" ");
+        const videoFilter = [...(on.has("mood") ? [moodFilter(mood, strength.mood, beat.beat * follows.mood)] : []), ...filters.map((f) => FILTER_CSS[f])].join(" ");
+        video.style.filter = videoFilter;
         bump *= Math.exp(-BUMP_DECAY * dt);
         // a tense note shakes the picture a little while it lasts
         const shake = mood.tension > 0.5 ? (mood.tension - 0.5) * (2 + 8 * e) * strength.bump : 0;
@@ -228,6 +238,19 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
 
         const ctx = c.getContext("2d")!;
         ctx.clearRect(0, 0, w, h);
+        for (const [id, p] of patches) if (now - p.at > KEEP_PATCH) patches.delete(id);
+        if (on.has("hide")) {
+          // under everything else, and graded like the video so the patch matches it
+          ctx.save(); ctx.filter = videoFilter || "none";
+          for (const p of patches.values()) {
+            const colour = `rgb(${p.rgb.join(" ")})`, size = Math.hypot(p.corners[1].x - p.corners[0].x, p.corners[1].y - p.corners[0].y);
+            ctx.fillStyle = colour; ctx.shadowColor = colour; ctx.shadowBlur = size * 0.35;
+            ctx.beginPath();
+            p.corners.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)));
+            ctx.closePath(); ctx.fill(); ctx.fill();
+          }
+          ctx.restore();
+        } else patches.clear();
         const lastNote = [...flashes].reverse().find((f) => f.midi !== null)?.midi ?? null;
         const hue = lastNote === null ? 190 : noteHue(lastNote);
         // how wide the neck looks: from the markers' size on screen

@@ -5,13 +5,14 @@ import { SCALE_MM, distOf, fretAt, type Grid, type Pt } from "./grid";
  * markers used as buttons (covered = pressed), and the filters those buttons switch. Pure: NeckView draws.
  */
 
-export const EFFECTS = ["mood", "heat", "sparks", "bump", "markers", "frets", "glow", "flash", "pulse", "trails"] as const;
+export const EFFECTS = ["mood", "heat", "sparks", "bump", "hide", "markers", "frets", "glow", "flash", "pulse", "trails"] as const;
 export type Effect = (typeof EFFECTS)[number];
 export const EFFECT_WORDS: Record<Effect, string> = {
   mood: "Mood light",
   heat: "Neck heat",
   sparks: "Sparks",
   bump: "Beat bump",
+  hide: "Hide markers",
   markers: "Markers and hands",
   frets: "Fret lines",
   glow: "Hand glow",
@@ -23,7 +24,9 @@ export const EFFECT_WORDS: Record<Effect, string> = {
 /** The mood effects, each with a Strength; the test effects (for lining up the grid) have none. */
 export const MOOD_EFFECTS = ["mood", "heat", "sparks", "bump"] as const satisfies readonly Effect[];
 export type MoodEffect = (typeof MOOD_EFFECTS)[number];
-export const TEST_EFFECTS = EFFECTS.filter((e) => !(MOOD_EFFECTS as readonly Effect[]).includes(e));
+/** The effects for the look of the video: the mood effects and Hide markers. The rest are test effects. */
+export const LOOK_EFFECTS = [...MOOD_EFFECTS, "hide"] as const satisfies readonly Effect[];
+export const TEST_EFFECTS = EFFECTS.filter((e) => !(LOOK_EFFECTS as readonly Effect[]).includes(e));
 /** The mood effects that also follow the beat (how loud the playing is right now). */
 export const BEAT_EFFECTS = ["mood", "heat"] as const satisfies readonly MoodEffect[];
 export type BeatEffect = (typeof BEAT_EFFECTS)[number];
@@ -76,7 +79,7 @@ export const A3_LAYOUT: { id: number; mm: number; fret: number | null; gap?: num
 export const A3_MARKERS = A3_LAYOUT.flatMap((m) => (m.fret === null ? [] : [`${m.id}@${m.fret}${m.fret === 0 ? `/${m.mm}${m.gap ? `+${m.gap}` : ""}` : ""}`])).join(", ");
 export const A3_BUTTONS = A3_LAYOUT.flatMap((m) => (m.filter ? [`${m.id}=${m.filter}`] : [])).join(", ");
 
-export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["mood", "heat", "sparks"],
+export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["mood", "heat", "sparks", "hide"],
   strength: { mood: 1, heat: 1, sparks: 1, bump: 1 },
   beat: { mood: 1, heat: 1 },
 };
@@ -183,4 +186,30 @@ export function frettingTips(g: Grid, hands: Pt[][]): { tips: Pt[]; frets: numbe
   });
   const best = on.sort((a, b) => b.frets.length - a.frets.length)[0];
   return best?.frets.length ? best : null;
+}
+
+/** A marker's corners pushed out from its middle by `f` (1.2 = a fifth bigger), so a patch covers its white border too. */
+export function grow(corners: Pt[], f: number): Pt[] {
+  const cx = corners.reduce((t, p) => t + p.x, 0) / corners.length, cy = corners.reduce((t, p) => t + p.y, 0) / corners.length;
+  return corners.map((p) => ({ x: cx + (p.x - cx) * f, y: cy + (p.y - cy) * f }));
+}
+/**
+ * The colour around a marker, to paint it out: the median of each channel over points on a ring just outside it (`corners`
+ * grown by `f`), so a string or a finger across the ring doesn't tint it. `rgba` is a frame's pixels, `w` × `h`. Null when
+ * the ring is off the frame.
+ */
+export function ringColour(rgba: ArrayLike<number>, w: number, h: number, corners: Pt[], f = 1.6): [number, number, number] | null {
+  const ring = grow(corners, f), rs: number[] = [], gs: number[] = [], bs: number[] = [];
+  for (let i = 0; i < ring.length; i++) {
+    const a = ring[i], b = ring[(i + 1) % ring.length];
+    for (let s = 0; s < 8; s++) {
+      const x = Math.round(a.x + ((b.x - a.x) * s) / 8), y = Math.round(a.y + ((b.y - a.y) * s) / 8);
+      if (x < 0 || y < 0 || x >= w || y >= h) continue;
+      const o = (y * w + x) * 4;
+      rs.push(rgba[o]); gs.push(rgba[o + 1]); bs.push(rgba[o + 2]);
+    }
+  }
+  if (rs.length < 4) return null;
+  const mid = (v: number[]) => v.sort((p, q) => p - q)[Math.floor(v.length / 2)];
+  return [mid(rs), mid(gs), mid(bs)];
 }

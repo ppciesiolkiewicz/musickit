@@ -22,7 +22,7 @@ with the effects in the picture. `bare` hides the status line for that.
 
 Ticked in **Effects** (`model/fx.ts` names them, `ui/NeckView.tsx` draws them):
 
-Mood effects, on by default: they show how the playing feels, not where it is. `model/mood.ts` works out a **mood** from the
+Under **Effects**, on by default. The mood effects: they show how the playing feels, not where it is. `model/mood.ts` works out a **mood** from the
 notes heard (live) or passed (a take), and the fretting hand:
 
 - **Energy** (0 to 1): how high up the neck the fretting hand is (fret 14 and above is the top; with no hand on the grid, how
@@ -45,7 +45,10 @@ The effects:
   wild ones float up, and embers rise off the picture above half energy.
 - **Beat bump**: the picture (video and drawing) jumps a little on each pick, more when wild, and shakes on a tense note.
 
-Each has a **Strength** (0 to 200%, 100% the usual look); Mood light and Neck heat also have **Beat**, how much they jump
+- **Hide markers**: paints over each marker seen in the colour around it (the median over a ring just outside it, so a
+  string or a finger across doesn't tint it), graded like the video, and keeps it covered 0.4 s after it drops out.
+
+Each mood effect has a **Strength** (0 to 200%, 100% the usual look); Mood light and Neck heat also have **Beat**, how much they jump
 with it. The beat (`stepBeat` in `model/mood.ts`) jumps on each pick and, live, with how loud the sound is against the
 loudest it has been lately (`listenForPicks`' `onLevel`), then falls within a fraction of a second. On a take it comes from
 the riff's notes only.
@@ -86,7 +89,7 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
 | `client/listen.ts` | Browser. Picks and their notes from a stream's sound, and how loud it is. |
 | `ui/NeckView.tsx` | React. The canvas over a video: reads markers and hands each new frame, draws every animation frame. |
-| `ui/FxControls.tsx` | React. Markers, Buttons, Covering, Mood effects (with Strength and Beat) and Test effects; `useFx` keeps them. |
+| `ui/FxControls.tsx` | React. Markers, Buttons, Covering, Effects (the mood effects with Strength and Beat, and Hide markers) and Test effects; `useFx` keeps them. |
 | `js-aruco2.d.ts` | Types for the untyped js-aruco2. |
 
 Tests: `tsx --test src/features/neckFx/model/*.test.ts` (the cached tsx).

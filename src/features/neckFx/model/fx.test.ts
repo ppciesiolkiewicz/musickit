@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fretAt, parsePlaced } from "./grid";
-import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, pxPerMm, readFx, spaceAt, wireAt, DEFAULT_FX } from "./fx";
+import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, grow, pxPerMm, readFx, ringColour, spaceAt, wireAt, DEFAULT_FX } from "./fx";
 
 const near = (a: number, b: number, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} ≠ ${b}`);
 const g = gridThrough({ x: 0.1, y: 0.5 }, { x: 0.7, y: 0.5 });
@@ -86,4 +86,15 @@ test("strength and beat read back clamped, missing ones from the default", () =>
 test("a millimetre on screen from the grid", () => {
   // the nut to wire 12 is half the scale, 324 mm, here 0.6 units
   near(pxPerMm(g) * 324, 0.6);
+});
+test("a marker is painted out in the median colour around it", () => {
+  const w = 20, h = 20, px = new Uint8ClampedArray(w * h * 4);
+  // wood everywhere, a marker in the middle, one string across
+  for (let i = 0; i < w * h; i++) px.set([120, 70, 30, 255], i * 4);
+  for (let y = 8; y < 12; y++) for (let x = 8; x < 12; x++) px.set([255, 255, 255, 255], (y * w + x) * 4);
+  for (let x = 0; x < w; x++) px.set([220, 220, 220, 255], (7 * w + x) * 4);
+  const quad = [{ x: 8, y: 8 }, { x: 12, y: 8 }, { x: 12, y: 12 }, { x: 8, y: 12 }];
+  assert.deepEqual(ringColour(px, w, h, quad), [120, 70, 30]);
+  assert.equal(ringColour(px, w, h, quad.map((p) => ({ x: p.x + 100, y: p.y }))), null);
+  near(grow(quad, 2)[0].x, 6);
 });

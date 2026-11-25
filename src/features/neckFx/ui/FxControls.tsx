@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  A3_BUTTONS, A3_LAYOUT, A3_MARKERS, AMOUNT_MAX, BEAT_EFFECTS, DEFAULT_FX, EFFECTS, EFFECT_WORDS, FILTERS, MOOD_EFFECTS, TEST_EFFECTS, readFx,
+  A3_BUTTONS, A3_LAYOUT, A3_MARKERS, AMOUNT_MAX, BEAT_EFFECTS, DEFAULT_FX, EFFECTS, EFFECT_WORDS, FILTERS, LOOK_EFFECTS, MOOD_EFFECTS, TEST_EFFECTS, readFx,
   type BeatEffect, type FxSettings,
 } from "../model/fx";
 
@@ -31,6 +31,7 @@ const input = "rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm te
 const field = "flex items-center gap-1.5 text-slate-300";
 const btn = "rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-40";
 const cap = (w: string) => w[0].toUpperCase() + w.slice(1);
+const isMood = (e: string): e is (typeof MOOD_EFFECTS)[number] => (MOOD_EFFECTS as readonly string[]).includes(e);
 const isBeat = (e: string): e is BeatEffect => (BEAT_EFFECTS as readonly string[]).includes(e);
 
 /** A 0 to 200% slider, shown as a percentage. */
@@ -44,7 +45,7 @@ function Amount({ label, title, value, onChange, disabled }: { label: string; ti
   );
 }
 
-/** Markers, Buttons, Covering, the mood effects with their Strength and Beat, the test effects, for a page that shows NeckView, and where the A3 layout puts each marker. */
+/** Markers, Buttons, Covering, the look effects (mood effects with their Strength and Beat, and Hide markers), the test effects, for a page that shows NeckView, and where the A3 layout puts each marker. */
 export default function FxControls({ fx, set }: { fx: FxSettings; set: (part: Partial<FxSettings>) => void }) {
   const tick = (e: (typeof EFFECTS)[number], on: boolean) => set({ effects: on ? EFFECTS.filter((x) => x === e || fx.effects.includes(x)) : fx.effects.filter((x) => x !== e) });
   const isA3 = fx.markers === A3_MARKERS && fx.buttons === A3_BUTTONS;
@@ -68,16 +69,19 @@ export default function FxControls({ fx, set }: { fx: FxSettings; set: (part: Pa
       </label>
     </div>
     <fieldset className="flex flex-col gap-1">
-      <legend className="mb-1 text-slate-400">Mood effects</legend>
-      {MOOD_EFFECTS.map((e) => {
+      <legend className="mb-1 text-slate-400">Effects</legend>
+      {LOOK_EFFECTS.map((e) => {
         const off = !fx.effects.includes(e);
         return (
           <div key={e} className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <label className={`${field} w-32`}>
               <input type="checkbox" checked={!off} onChange={(ev) => tick(e, ev.target.checked)} className="accent-sky-500" /> {EFFECT_WORDS[e]}
             </label>
-            <Amount label="Strength" title="How strong the effect is. 100% is the usual look." value={fx.strength[e]} disabled={off}
-              onChange={(v) => set({ strength: { ...fx.strength, [e]: v } })} />
+            {isMood(e) && (
+              <Amount label="Strength" title="How strong the effect is. 100% is the usual look." value={fx.strength[e]} disabled={off}
+                onChange={(v) => set({ strength: { ...fx.strength, [e]: v } })} />
+            )}
+            {e === "hide" && <span className="text-xs text-slate-500">Paints over each marker in the colour around it.</span>}
             {isBeat(e) && (
               <Amount label="Beat" title="How much it jumps with each pick and with how loud you play. 0% ignores the beat." value={fx.beat[e]} disabled={off}
                 onChange={(v) => set({ beat: { ...fx.beat, [e]: v } })} />
