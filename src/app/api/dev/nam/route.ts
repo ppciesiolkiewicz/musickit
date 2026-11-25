@@ -1,4 +1,4 @@
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { permissionGate } from "@/features/devtools/server/access";
 
@@ -48,16 +48,23 @@ async function modelFiles(): Promise<string[]> {
   return found.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 }
 
+/** Whether any of the folders is on this machine (a production server has neither). */
+async function hasFolder(): Promise<boolean> {
+  for (const folder of FOLDERS) if (await stat(path.join(process.cwd(), folder)).then((s) => s.isDirectory(), () => false)) return true;
+  return false;
+}
+
 /**
  * The amp models on this machine's disk, for the riff maker where the amp library isn't set up (no store token in
  * development). No `file`: the list, each with its licence. `file`: that model's text, only when it is one of the listed files.
  */
 export async function GET(req: Request) {
-  const gate = await permissionGate(req, "dev");
+  const gate = await permissionGate(req, ["dev", "content"]);
   if (gate) return gate;
   const files = await modelFiles();
+  const onThisMachine = await hasFolder();
   const file = new URL(req.url).searchParams.get("file");
-  if (file === null) return Response.json({ models: files.map((f) => ({ file: f, name: nameOf(f), licence: licenceOf(f) })) }, { headers: { "cache-control": "no-store" } });
+  if (file === null) return Response.json({ models: files.map((f) => ({ file: f, name: nameOf(f), licence: licenceOf(f) })), onThisMachine }, { headers: { "cache-control": "no-store" } });
   if (!files.includes(file)) return Response.json({ error: "Unknown model." }, { status: 404 });
   try {
     return new Response(await readFile(path.join(process.cwd(), file), "utf8"), { headers: { "content-type": "application/json", "cache-control": "no-store" } });

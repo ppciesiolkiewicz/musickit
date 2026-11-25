@@ -1,7 +1,9 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { blockFileText, checkEdit, riffBlockOf, withRiff, type RiffBlock, type RiffEdit } from "@/features/devtools/riff/blocks";
-import { devGate } from "@/features/devtools/gate";
+import { blockFileText, checkEdit, riffBlockOf, riffsOf, withRiff, type RiffBlock, type RiffEdit } from "@/features/devtools/riff/blocks";
+import { devGate, devOnly } from "@/features/devtools/gate";
+import { permissionGate } from "@/features/devtools/server/access";
+import { SEED_BLOCKS } from "@/features/library/seed";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,11 +34,13 @@ async function readRiffs(): Promise<{ riffs: RiffBlock[]; problems: string[] }> 
 
 /**
  * The riffs of the seed blocks for the riff maker (/admin/content/riff), read from the files and not from the bundle, so a riff saved
- * a moment ago is the one that opens. Only on a developer's machine: PUT writes into the checkout.
+ * a moment ago is the one that opens. Only on a developer's machine: PUT writes into the checkout. In production GET answers from the bundled seed (`fromBundle`) and PUT is a 404.
  */
-export async function GET() {
-  const gate = devGate();
+export async function GET(req: Request) {
+  const gate = await permissionGate(req, ["dev", "content"]);
   if (gate) return gate;
+  // a production build has no checkout to read: the riffs of the bundled seed (interim, until riffs are saved to the database)
+  if (!devOnly()) return Response.json({ ...riffsOf(SEED_BLOCKS), fromBundle: true }, { headers: { "cache-control": "no-store" } });
   try {
     return Response.json(await readRiffs(), { headers: { "cache-control": "no-store" } });
   } catch (e) {

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
 import { contextLines, copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze, type CopyNote, type NoteContext } from "../model/copyNotes";
-import { useCommits, useCopyNotes, useLinkedNote, useRoute, useShownSections, writeCopyNotes as write } from "./store";
+import { useCommitState, useCopyNotes, useLinkedNote, useRoute, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
 import { TextNoteMarks, pathOf, placesOf } from "./TextNoteMarks";
@@ -40,6 +40,8 @@ function blockOf(target: EventTarget | null): HTMLElement | null {
 }
 
 /** The buttons of the bar on /admin/content/library, so the notes read as the same tool. */
+/** What the bar says where git gives no commit (a production server has no checkout). */
+const COMMIT_UNKNOWN = "Commit not known";
 const BTN = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-default disabled:opacity-50";
 const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/70 bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-amber-500/30";
 
@@ -56,7 +58,7 @@ export default function CopyNotes() {
   // the path and the hash: on a page that moves by its hash (/admin/content/stories) each place keeps its own notes
   const path = useRoute() || pathname;
   const notes = useCopyNotes();
-  const commits = useCommits();
+  const { commits, settled: commitsSettled } = useCommitState();
   const head = commits?.head ?? null;
   const shown = useShownSections();
   const linked = useLinkedNote();
@@ -229,9 +231,10 @@ export default function CopyNotes() {
               <button type="button" disabled={!here.length} onClick={() => (setPicked(null), setList(true))} title="This page's notes" className="cursor-pointer rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-700 hover:text-slate-100 disabled:cursor-default disabled:hover:bg-slate-800 disabled:hover:text-slate-300">{here.length} on this page{here.length ? " →" : ""}</button>
               {outdated > 0 && <span className="rounded-full bg-orange-500/15 px-2 py-0.5 text-xs text-orange-200">{outdated} on changed sections</span>}
               {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; a section note also keeps its example file's commit">HEAD {head}</span>}
+              {!head && commitsSettled && <span className="text-xs text-slate-500">{COMMIT_UNKNOWN}</span>}
               <span className="ml-auto flex flex-wrap gap-2">
                 <button type="button" aria-pressed={on} onClick={() => setOn((v) => !v)} title={on ? "On: click any text on the page to note it (A turns it off)" : "Turn on, then click any text on the page to note it (or press A)"} className={on ? PRIMARY : BTN}><Icon name="pencil" size={12} />Note a text<kbd className="rounded border border-current px-1 font-mono text-[10px] opacity-70">A</kbd></button>
-                <button type="button" disabled={!head || !notes.length} onClick={repin} title={`Pin every note to the checkout's HEAD: they still hold${shown ? "; section notes also to their sections as they are now (those on gone sections stay)" : ". Section notes are pinned to their sections as they are now only from /admin/content/library"}`} className={BTN}>Re-pin all to HEAD</button>
+                <button type="button" disabled={!head || !notes.length} onClick={repin} title={!head && commitsSettled ? COMMIT_UNKNOWN : `Pin every note to the checkout's HEAD: they still hold${shown ? "; section notes also to their sections as they are now (those on gone sections stay)" : ". Section notes are pinned to their sections as they are now only from /admin/content/library"}`} className={BTN}>Re-pin all to HEAD</button>
                 <button type="button" disabled={!notes.length} onClick={() => (clearing ? (write(() => []), setClearing(false)) : setClearing(true))} className={`${BTN} ${clearing ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : ""}`}>{clearing ? "Click again to delete all" : "Clear all"}</button>
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
               </span>

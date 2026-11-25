@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { SEED_BLOCKS } from "@/features/library/seed";
 import { GENRES } from "@/features/library/seed/genres";
 import { columnsOf } from "@/features/exercises/riffs/riff";
-import { blockFileText, checkEdit, riffBlockOf, withRiff, type RiffBlock } from "./blocks";
+import { blockFileText, checkEdit, riffBlockOf, riffsOf, withRiff, type RiffBlock } from "./blocks";
 
 const riffs = SEED_BLOCKS.flatMap((f) => { const r = riffBlockOf(f); return r ? [{ f, r }] : []; });
 
@@ -70,5 +70,21 @@ describe("the seed blocks that hold a riff", () => {
     assert.deepEqual(checkEdit({ ...ok, amp: "Tim R JCM2000 Crunch" }), []);
     assert.equal(checkEdit({ ...ok, amp: " " }).length, 1);
     assert.equal(checkEdit({ ...ok, amp: 3 }).length, 1);
+  });
+});
+
+describe("riffsOf", () => {
+  it("lists the riffs of bundled seed blocks", () => {
+    const out = riffsOf(SEED_BLOCKS);
+    assert.deepEqual(out.riffs.map((r) => r.id), riffs.map((x) => x.f.id).sort((a, b) => a.localeCompare(b)));
+    assert.deepEqual(out.problems, []);
+  });
+
+  it("puts a block whose riff can't be read in problems, by id", () => {
+    const { f } = riffs[0];
+    const out = riffsOf([JSON.parse(JSON.stringify(f).replace(/"key":"[^"]*"/, '"key":"nope"')), "junk"]);
+    assert.equal(out.problems.length, 1);
+    assert.match(out.problems[0], new RegExp(`^${f.id}: `));
+    assert.deepEqual(out.riffs, []);
   });
 });

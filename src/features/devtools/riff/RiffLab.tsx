@@ -12,6 +12,7 @@ import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNea
 import { PlayAlongTimeline } from "@/features/exercises/play-along/PlayAlong";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { GENRES } from "@/features/library/seed/genres";
+import { devOnly } from "@/features/devtools/gate";
 import type { RiffBlock } from "./blocks";
 import { gearOf, groupByGear, type KindFilter } from "./ampCatalog";
 
@@ -120,6 +121,10 @@ export default function RiffLab() {
     void createCloud(getModelLibrary()).list().then((r) => ("models" in r ? setCloud(r.models) : setCloudError(r.error)));
   }, [sound, cloud.length, cloudError]);
   const [disk, setDisk] = useState<{ file: string; name: string; licence: string }[]>([]);
+  /** whether this server has the folders of .nam files at all (a production server doesn't) */
+  const [diskHere, setDiskHere] = useState(true);
+  /** Save to block writes the seed file, which only a developer's computer has */
+  const canSaveSeed = devOnly();
   /** the amp picker's filters: which kind of gear it lists, and the words searched for */
   const [ampKind, setAmpKind] = useState<KindFilter>("amp");
   const [ampSearch, setAmpSearch] = useState("");
@@ -130,8 +135,8 @@ export default function RiffLab() {
     if (sound !== "amp") return;
     let off = false;
     fetch("/api/dev/nam", { cache: "no-store", signal: AbortSignal.timeout(10000) })
-      .then(async (res) => { if (!res.ok) throw new Error(`Models on this computer: ${res.status}`); return (await res.json()) as { models: { file: string; name: string; licence: string }[] }; })
-      .then((r) => { if (!off) setDisk(r.models); })
+      .then(async (res) => { if (!res.ok) throw new Error(`Models on this computer: ${res.status}`); return (await res.json()) as { models: { file: string; name: string; licence: string }[]; onThisMachine?: boolean }; })
+      .then((r) => { if (!off) { setDisk(r.models); setDiskHere(r.onThisMachine !== false); } })
       .catch((e) => { if (!off) setNotice(e instanceof Error ? e.message : String(e)); });
     return () => { off = true; };
   }, [sound]);
@@ -436,7 +441,9 @@ export default function RiffLab() {
       {state.id && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-slate-400">Seed block: <a href={`/admin/content/library?item=${state.id}`} className="font-mono text-sky-300 underline">{state.id}</a>{seedRiff?.draft && " (switched off)"}</span>
-          {!seedRiff ? <span className="text-amber-300">No seed block with this id holds a riff.</span> : (
+          {!seedRiff ? <span className="text-amber-300">No seed block with this id holds a riff.</span> : !canSaveSeed ? (
+            <span className="text-slate-500">Save to block writes the seed file, so it works only on a developer&apos;s computer.</span>
+          ) : (
             <>
               <button onClick={() => void saveSeed()} disabled={!seedDirty} className="rounded bg-sky-700 px-3 py-1 text-white disabled:bg-slate-800 disabled:text-slate-500">Save to block</button>
               <button onClick={() => void reloadSeed()} disabled={!seedDirty} className="rounded bg-slate-800 px-3 py-1 disabled:opacity-40">Reload from block</button>
@@ -511,6 +518,7 @@ export default function RiffLab() {
                   </optgroup>
                 ))}
               </select>
+              {!diskHere && <span className="self-center text-xs text-slate-400">No amp models on this computer. Pick one from the amp library.</span>}
               {cloudError && disk.length === 0 && <span title={cloudError} className="self-center text-rose-400">Amp library: {cloudError}</span>}
               <label className="cursor-pointer rounded bg-slate-800 px-2 py-1 text-sm text-slate-100">Add .nam<input type="file" accept=".nam" multiple hidden onChange={(e) => void addModels(e.target.files)} /></label>
             </span>

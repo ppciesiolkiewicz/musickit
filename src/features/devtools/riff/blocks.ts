@@ -68,6 +68,18 @@ export function riffBlockOf(file: unknown): RiffBlock | { error: string } | null
   };
 }
 
+/** The riffs of a list of seed block files, sorted by id. A block whose riff can't be read is left out and named in `problems`. */
+export function riffsOf(blocks: unknown[]): { riffs: RiffBlock[]; problems: string[] } {
+  const riffs: RiffBlock[] = [];
+  const problems: string[] = [];
+  for (const b of blocks) {
+    const r = riffBlockOf(b);
+    if (r && "error" in r) problems.push(`${isObj(b) ? String(b.id) : "a block"}: ${r.error}`);
+    else if (r) riffs.push(r);
+  }
+  return { riffs: riffs.sort((a, b) => a.id.localeCompare(b.id)), problems: problems.sort() };
+}
+
 /** What is wrong with an edit (empty when it is sound). */
 export function checkEdit(e: unknown): string[] {
   if (!isObj(e)) return ["not an object"];

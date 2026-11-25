@@ -6,7 +6,7 @@ import { devOnly } from "../gate";
 
 /**
  * Who may open a page for building or running the app and call its routes: anyone in development, and in production a
- * signed-in account with the page's permission (`dev` for /dev and /api/dev, `admin` for /admin and /api/admin; see
+ * signed-in account with the page's permission (`dev` for /dev and /api/dev, `content` for /admin/content and the /api/dev routes its pages call, `admin` for /admin/admin and /api/admin; see
  * `PERMISSIONS` in features/account/model.ts). Everyone else gets a 404, as if the page weren't there. `account` is
  * only asked in production; a failure to find it (no database, a broken session) counts as nobody.
  */

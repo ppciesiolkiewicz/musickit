@@ -103,12 +103,17 @@ let commits: Promise<Commits | null> | null = null;
 
 /** HEAD and the example files' commits, fetched once per page load; null until they arrive (or when git isn't there). */
 export function useCommits(): Commits | null {
-  const [c, setC] = useState<Commits | null>(null);
+  return useCommitState().commits;
+}
+
+/** The same, and whether the answer is in: `settled` with no `commits` means the commit is not known (no git here, or the call failed). */
+export function useCommitState(): { commits: Commits | null; settled: boolean } {
+  const [state, setState] = useState<{ commits: Commits | null; settled: boolean }>({ commits: null, settled: false });
   useEffect(() => {
-    commits ??= fetch("/api/dev/commit").then((r) => (r.ok ? r.json() : null), () => null);
-    void commits.then(setC, () => setC(null));
+    commits ??= fetch("/api/dev/commit", { signal: AbortSignal.timeout(10000) }).then((r) => (r.ok ? r.json() : null), () => null);
+    void commits.then((c) => setState({ commits: c, settled: true }), () => setState({ commits: null, settled: true }));
   }, []);
-  return c;
+  return state;
 }
 
 /* ---- the sections a page notes on (/admin/content/library), so the Notes bar can re-pin them and count the outdated ---- */

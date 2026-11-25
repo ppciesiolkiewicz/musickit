@@ -17,7 +17,7 @@ interface Frame {
  * "src/…/X.tsx:74:19", or null where it can't tell (another bundler, an internal file).
  */
 export async function POST(req: Request) {
-  const gate = await permissionGate(req, "dev");
+  const gate = await permissionGate(req, ["dev", "content"]);
   if (gate) return gate;
   const body = (await req.json().catch(() => null)) as { frames?: Frame[] } | null;
   const frames = (body?.frames ?? []).filter((f) => typeof f?.file === "string" && f.file.startsWith("/_next/static/") && Number.isInteger(f.line1) && Number.isInteger(f.column1)).slice(0, 20);

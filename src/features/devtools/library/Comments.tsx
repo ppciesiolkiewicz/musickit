@@ -8,7 +8,7 @@ import type { PlainCell as Section } from "@/features/plan/model/tools";
 import { pinSection, quoteOf, sectionHash, sectionText } from "../model/comments";
 import { placeOf, stateOf, type CopyNote } from "../model/copyNotes";
 import { NoteBar, NoteEditor } from "../copy/NoteBar";
-import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "../copy/store";
+import { useCommitState, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "../copy/store";
 
 /*
  * The pencils on a drawn /admin/content/library item: a shortcut to a dev note (the Notes button's "Note a text") pinned to one section, so it
@@ -20,7 +20,7 @@ import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as
 /** Notes under one section, and the button (shown on hover, or always once there are some) that adds one. */
 function CommentSlot({ example, address, index, section }: { example: string; address: string; index: number; section: Section }) {
   const all = useCopyNotes();
-  const commits = useCommits();
+  const { commits, settled: commitsSettled } = useCommitState();
   const route = usePathname();
   const linked = useLinkedNote();
   // the new comment's box is open (its text lives in NoteEditor)
@@ -65,6 +65,7 @@ function CommentSlot({ example, address, index, section }: { example: string; ad
             );
             return <NoteBar key={c.id} id={`note-${c.id}`} note={c} state={state} linked={linked === c.id} extra={keep} />;
           })}
+          {adding && commitsSettled && !commits && <span className="text-xs text-slate-500">Commit not known</span>}
           {adding && <NoteEditor initial="" onSave={add} onCancel={() => setAdding(false)} />}
         </div>
       )}
