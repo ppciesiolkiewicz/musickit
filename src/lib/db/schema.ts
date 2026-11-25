@@ -31,9 +31,12 @@ export const plans = pgTable("plans", {
   name: text("name").notNull(),
   /** The role the plan gives; "student" or "teacher". */
   role: userRole("role").notNull(),
-  /** Cents a month, paid monthly, in `CURRENCY` (Australian dollars, `features/account/plans.ts`), GST included. */
+  /**
+   * Cents a month, paid monthly, in `CURRENCY` (Australian dollars, `features/account/plans.ts`), GST included. The
+   * same number is the US dollar price, before sales tax (`ALSO_IN` in `server/stripe.ts`).
+   */
   monthCents: integer("month_cents").notNull(),
-  /** Cents a year, paid once a year, in `CURRENCY`, GST included. */
+  /** Cents a year, paid once a year: A$ with GST, and the same number in US$ before sales tax. */
   yearCents: integer("year_cents").notNull(),
   /** Days free before the first payment. */
   trialDays: integer("trial_days").notNull().default(30),

@@ -37,8 +37,16 @@ const TAX_CODE = "txcd_10103100";
  */
 const managedPayments = () => process.env.STRIPE_MANAGED_PAYMENTS === "true";
 
-// the currency is in the key: a Stripe price can't change currency, so the old USD prices are never picked up
-const lookupKey = (plan: Plan, billing: Billing) => `plan_${plan.id}_${billing}_${CURRENCY}_${priceCents(plan, billing)}`;
+/**
+ * Currencies each price also has, at the same number as the `plans` table's (A$9 is also US$9). Checkout shows the one
+ * for the buyer's country; anywhere else it converts the AUD price (adaptive pricing). US prices are before sales tax,
+ * as US buyers expect; Stripe adds it at Checkout.
+ */
+const ALSO_IN = { usd: "exclusive" } as const;
+
+// the currencies are in the key: a Stripe price can't gain or change a currency, so older prices are never picked up
+const lookupKey = (plan: Plan, billing: Billing) =>
+  `plan_${plan.id}_${billing}_${[CURRENCY, ...Object.keys(ALSO_IN)].join("-")}_${priceCents(plan, billing)}`;
 
 /** The Stripe price for the plan paid by `billing`, made (with its product) when there is none yet. */
 async function priceFor(plan: Plan, billing: Billing): Promise<string> {
@@ -56,6 +64,9 @@ async function priceFor(plan: Plan, billing: Billing): Promise<string> {
     // the plans table's prices include GST, as Australian consumer prices must
     tax_behavior: "inclusive",
     unit_amount: priceCents(plan, billing),
+    currency_options: Object.fromEntries(
+      Object.entries(ALSO_IN).map(([currency, tax_behavior]) => [currency, { unit_amount: priceCents(plan, billing), tax_behavior }]),
+    ),
     recurring: { interval: billing },
     lookup_key: key,
     transfer_lookup_key: true,
