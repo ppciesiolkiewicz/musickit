@@ -51,7 +51,7 @@ const IN_PROGRESS = [
 const STEPS = [
   { n: "01", title: "Hear it", text: "Pick a mode and play it, or ask for a sample melody. Hold a drone underneath and the mood jumps out." },
   { n: "02", title: "See it", text: "The same notes on the neck, every one coloured by its job. Positions, CAGED shapes and boxes fall into place." },
-  { n: "03", title: "Play it", text: "Loop a groove, tune up, and improvise over it. Practise what you like, the way you like." },
+  { n: "03", title: "Play it", text: "Loop a groove, tune up, and improvise over it. Practice what you like, the way you like." },
 ];
 
 /** Style courses after the basic course: the scales, modes and chords that give each style its sound. */
@@ -160,7 +160,7 @@ export default function LandingOne() {
               <span className="mt-1 block italic text-sky-300">Then learn to play it.</span>
             </h1>
             <p className="mt-6 max-w-[34rem] text-base leading-relaxed text-slate-300 sm:text-lg">
-              Every scale, mode and chord on the guitar neck, each note coloured by the job it does, and played back the moment you tap it. Pick a mood, see it under your fingers, practise it over a drone or a loop.
+              Every scale, mode and chord on the guitar neck, each note coloured by the job it does, and played back the moment you tap it. Pick a mood, see it under your fingers, practice it over a drone or a loop.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/theory/scales" className="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
@@ -219,7 +219,7 @@ export default function LandingOne() {
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
               <Eyebrow>In the kit today</Eyebrow>
-              <H2><span id="kit">Everything you practise with,<br className="hidden sm:block" /> on one site.</span></H2>
+              <H2><span id="kit">Everything you practice with,<br className="hidden sm:block" /> on one site.</span></H2>
             </div>
             <p className="max-w-sm text-sm text-slate-400">Free to use now. Every page works in any key and plays what it shows.</p>
           </div>
@@ -266,7 +266,7 @@ export default function LandingOne() {
                 <Eyebrow>Early access · limited</Eyebrow>
                 <H2><span id="ea">The basic course,<br /> <span className="italic text-sky-300">plus every style that follows.</span></span></H2>
                 <p className="mt-5 max-w-xl text-slate-300">
-                  Video lessons that teach the fretboard by scale degree: scales, modes and intervals, built on the tools above so you know how to keep practising on your own. Join early and every style course is yours free when it launches.
+                  Video lessons that teach the fretboard by scale degree: scales, modes and intervals, built on the tools above so you know how to keep practicing on your own. Join early and every style course is yours free when it launches.
                 </p>
                 <ul className="mt-6 grid gap-3 text-sm text-slate-300 sm:grid-cols-2">
                   {[
@@ -313,7 +313,7 @@ export default function LandingOne() {
           <div className="order-1 lg:order-2">
             <Eyebrow>Coming next</Eyebrow>
             <H2><span id="lessons">Lessons that happen inside the kit.</span></H2>
-            <p className="mt-4 text-slate-400">Private lessons with teachers who bring up any scale, neck or loop in a second, and show you how to practise on your own between lessons.</p>
+            <p className="mt-4 text-slate-400">Private lessons with teachers who bring up any scale, neck or loop in a second, and show you how to practice on your own between lessons.</p>
             <ul className="mt-6 flex flex-col gap-4">
               {[
                 { t: "Notes that look like pages", s: "After each lesson: diagrams, exercises and what to try next, ready to look back on." },

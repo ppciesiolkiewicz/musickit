@@ -146,14 +146,14 @@ export function PlanSection() {
       <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
         <div>
           <Eyebrow>Practice plan<BetaBadge /></Eyebrow>
-          <H2 id="plan-h">Never wonder <span className="ls-accent italic text-sky-300">what to practise.</span></H2>
+          <H2 id="plan-h">Never wonder <span className="ls-accent italic text-sky-300">what to practice.</span></H2>
           <p className="mt-4 max-w-lg text-slate-300">
             Tell attunr what you play, how much time you have and where you want to go. attunr builds a plan from its drills, and <Mark>every day a new set of exercises</Mark> is waiting for you.
           </p>
           <ul className="mt-6 flex flex-col gap-4">
             {[
               { icon: "sparkles" as const, t: "New ideas every day", s: "A fresh mix of drills each day, and the idea behind each, so you learn to build your own.", c: "bg-sky-500/15 text-sky-300" },
-              { icon: "layers" as const, t: "Each week builds on the last", s: "Next week's plan knows what you practised this week and picks up from there.", c: "bg-teal-500/15 text-teal-300" },
+              { icon: "layers" as const, t: "Each week builds on the last", s: "Next week's plan knows what you practiced this week and picks up from there.", c: "bg-teal-500/15 text-teal-300" },
               { icon: "bell" as const, t: "A nudge when it's time", s: "Set a daily reminder so practice becomes a habit.", c: "bg-violet-500/15 text-violet-300" },
             ].map((x) => (
               <li key={x.t} className="flex gap-4">
@@ -212,7 +212,7 @@ export function IdeasSection({ school = false, id, eyebrow = "Free in the app", 
         <li className="ls-card flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
           <div className="flex h-56 items-center justify-center"><ProgressPath /></div>
           <h3 className="text-2xl text-slate-50" style={DISPLAY}>Always know what&apos;s next</h3>
-          <p className="text-sm leading-relaxed text-slate-400">{school ? "Students practise in an order that builds, one step at a time, so nobody wonders whether today's practice was the right practice." : <>Practise in an order that builds, one step at a time, so you never wonder whether today&apos;s practice was the right practice.</>}</p>
+          <p className="text-sm leading-relaxed text-slate-400">{school ? "Students practice in an order that builds, one step at a time, so nobody wonders whether today's practice was the right practice." : <>Practice in an order that builds, one step at a time, so you never wonder whether today&apos;s practice was the right practice.</>}</p>
         </li>
       </ul>
       <h3 className="mt-14 text-center text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>Open a tool and <span className="ls-accent italic text-sky-300">start playing.</span></h3>

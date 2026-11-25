@@ -113,7 +113,7 @@ export default async function Image() {
                 fontWeight: 600,
               }}
             >
-              Start practising free →
+              Start practicing free →
             </div>
           </div>
         </div>

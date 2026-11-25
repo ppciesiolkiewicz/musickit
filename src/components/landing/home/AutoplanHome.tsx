@@ -42,8 +42,8 @@ const PILLARS: Record<Audience, Card[]> = {
   schools: [
     { icon: "sparkles", title: "A week of practice for each student", text: "Seven days of short exercises, put together from attunr's library to fit where that student is. You steer it with one slider for each topic before each new week." },
     // NOTES-HIDDEN: shown only while SHOW_NOTES is on
-    ...(SHOW_NOTES ? [{ icon: "file-text" as IconName, title: "Lesson notes that play", text: "One page with today's scales, chords and exercises, sent to the student as a link. They open it at home and practise with it." }] : []),
-    { icon: "guitar", title: "The exact material at home", text: "This scale, in this key, in this position, in front of the student. There is nothing to transpose in their head, so the minutes they practise count for more." },
+    ...(SHOW_NOTES ? [{ icon: "file-text" as IconName, title: "Lesson notes that play", text: "One page with today's scales, chords and exercises, sent to the student as a link. They open it at home and practice with it." }] : []),
+    { icon: "guitar", title: "The exact material at home", text: "This scale, in this key, in this position, in front of the student. There is nothing to transpose in their head, so the minutes they practice count for more." },
   ],
 };
 
@@ -52,7 +52,7 @@ const STEPS: Record<Audience, Card[]> = {
   players: [
     { icon: "list", title: "Answer a few questions", text: "What you play or sing, where you are in each topic, and how many minutes a day you have." },
     { icon: "sparkles", title: "attunr builds today's plan", text: "attunr picks exercises from its library for the next thing to learn in each topic. Each day is a bit different from the day before." },
-    { icon: "check", title: "Practise, then rate it", text: "Each exercise opens with the tools it needs. Rate how it went, and the next plan starts from there." },
+    { icon: "check", title: "Practice, then rate it", text: "Each exercise opens with the tools it needs. Rate how it went, and the next plan starts from there." },
   ],
   schools: [
     { icon: "list", title: "Add a student", text: "Their name, their email and a few questions about what they play and where they are. The student gets a link by email." },
@@ -98,7 +98,7 @@ const COPY: Record<Audience, {
     eyebrow: "Guitar and voice",
     title: <>A week of practice <span className="ls-accent block italic text-sky-300">for every student.</span></>,
     lead: <>Add a student, and attunr puts together seven days of <Mark>short exercises that fit where they are</Mark>, each with the diagram, drone or backing it needs. Before each new week you set where the student is now, and the next plan follows.</>,
-    planNote: <>You use the same app as your students, so you see exactly what a student practises at home, and <Mark tone="var(--color-violet-400)">how they rated each exercise</Mark>.</>,
+    planNote: <>You use the same app as your students, so you see exactly what a student practices at home, and <Mark tone="var(--color-violet-400)">how they rated each exercise</Mark>.</>,
     heroNote: (payments) => <>{!payments && "Free while in beta. "}Log in with your email or Google. <Link href="/kickstarter" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">Founding partners</Link> get a {FOUNDING_TRIAL_DAYS}-day trial and a locked-in price.</>,
     notesTitle: <>Lesson notes <span className="ls-accent italic text-teal-300">before the student leaves.</span></>,
     notesText: <>In the last two minutes of a lesson, a teacher lays out today&apos;s chords, scales and positions on one page, then <Mark tone="var(--color-teal-400)">sends it to the student as a link</Mark>. Every diagram on it plays.</>,
@@ -111,7 +111,7 @@ const COPY: Record<Audience, {
   },
   players: {
     eyebrow: "Guitar and voice",
-    title: <>Know what to practise, <span className="ls-accent block italic text-sky-300">every day.</span></>,
+    title: <>Know what to practice, <span className="ls-accent block italic text-sky-300">every day.</span></>,
     lead: <>Answer a few questions, and attunr puts your practice together: <Mark>short exercises for your level and your time</Mark>, each with the diagram, drone or backing it needs. Every plan builds on how the last one went.</>,
     planNote: <>A timer runs through the day&apos;s exercises, and a daily reminder can nudge you at the time you pick.</>,
     heroNote: (payments) => <>{payments ? "The" : "Free while in beta. When paid plans open, the"} first {FIRST_STUDENTS} people who sign up pay <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">{FIRST_STUDENTS_LINE}</a>.</>,
@@ -439,7 +439,7 @@ export function PlayersEnding() {
           <Eyebrow tone="text-amber-300">Why I built attunr</Eyebrow>
           <H2 id="story-h">I was stuck, so I built the practice app I needed.</H2>
           <blockquote className="mt-6 border-l-2 border-amber-400/60 pl-5 text-lg italic leading-relaxed text-slate-300" style={DISPLAY}>
-            “I practised and practised and wasn&apos;t getting better. I kept running out of ideas for what to work on. What works for me is drills: repeating them until my hands know them, and understanding why they work. So I built attunr, and a plan that brings me new ones every day. <Mark tone="var(--color-amber-400)">It&apos;s not a game. It&apos;s practice.</Mark>”
+            “I practiced and practiced and wasn&apos;t getting better. I kept running out of ideas for what to work on. What works for me is drills: repeating them until my hands know them, and understanding why they work. So I built attunr, and a plan that brings me new ones every day. <Mark tone="var(--color-amber-400)">It&apos;s not a game. It&apos;s practice.</Mark>”
           </blockquote>
           <p className="mt-3 pl-5 text-sm text-slate-400"><b className="text-slate-200">Pio</b>, founder of attunr</p>
         </div>
