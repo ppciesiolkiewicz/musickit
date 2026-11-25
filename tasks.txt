@@ -840,6 +840,9 @@ Reminders5: [NEW 2026-11-19] Build Reminders1-4 from the plan, docs/superpowers/
 quarter hours. The open-tab notification and the plan document's `reminder` are gone. A taught student is reminded
 (Review Focus 1). Not done: Reminders3 (push), Reminders4 (setup step). Not seen in the browser or an inbox; migration
 not run (couldn't read .env.local).
+[2026-11-25 done, setup only] Reminders4 on /account/setup: "Remind me to practise at" and a quarter-hour time, first
+among the boxes, on at 18:00, saved with the account (`startReminder`; a reminder the account has is kept). Seen at 390
+and 1280 px with a faked session. Left: /join and /welcome (claim), and the browser choice once push exists.
 Deferred1 (WhatsApp and text message reminders) would be one more channel on the same run.
 
 TaskSeries E2E: an end-to-end suite that walks the app's main flows in a real browser (user, 2026-11-19)
@@ -1341,7 +1344,36 @@ and add to these pages. Rank pages and provide me your understanding which pages
 
 69. Reusable notes and plans, reusable videos
 - I want to allow composing notes and plans into sharable bundles
-- 
+-
+
+
+TaskSeries AmpModels: NAM amp models the app may ship, for riffs by genre (user, 2026-11-24)
+Where things stand (2026-11-24): 257 GPL-3 models from github.com/pelennor2170/NAM_models are in nam/gpl3 (gitignored,
+with the repo's COPYING and README; the two Axe-FX captures left out). /api/dev/nam tags them "(GPL-3)". Every riff
+block names one in `"amp"` (jazz Magnatone Ch1 Norm, funk Fender Twin Norm Bright, blues Magnatone Bridged Driven,
+rock JCM2000 Crunch); the riff maker plays it, players still hear the piano. Files without a loudness are measured
+when read (measureLoudness in nam/info.ts). Not legal advice anywhere below: read each licence before shipping a file.
+AmpModels1: [NEW 2026-11-24] Where to get more models, and what each source allows
+- GitHub, free: pelennor2170/NAM_models, GPL-3, 263 files (community captures from the NAM Facebook group). May ship
+  unchanged with the creator's name, the GPL text and a link to the repo on a credits page; a changed file stays GPL.
+  Who agreed to GPL is not recorded per file: low risk, not none. Skip captures of other modelers (Axe-FX etc.). Other
+  GitHub hits (hx-stomp-nam-lite, pod-go-nam-lite) are code, not capture libraries.
+- TONE3000 (tone3000.com), free: each tone has its creator's licence (T3K, CC BY, CC BY-NC, CC0). Only CC0 is clearly
+  shippable (nam/cc0); CC BY probably with credit, check the tone page; T3K and CC BY-NC can't ship. No licence filter
+  on the search page. API terms (tone3000.com/api/terms): no bundling or hosting catalog tones without written
+  permission, a company product needs a commercial agreement. Ask support@tone3000.com about bundling CC0/CC BY and a
+  licence filter. Their policy says paid tones are coming.
+- Paid packs, made to play through, not to pass on: ChopTones (choptones.com, Rock Pack about EUR 35, single amps
+  about EUR 17), Slammin Captures (slammincaptures.bigcartel.com, EULA), Desmond Digital (sociabuzz.com, about $15 a
+  pack), MultiTracks / Anthony Catacoli (multitracks.com). No listing says a file may ship inside another product: the
+  app sends a .nam to every browser, which is passing it on. Read the EULA or ask the seller first.
+- Ways around it: capture own or rented gear with the open-source NAM trainer (the file is ours to ship), or pay a
+  capture maker for files with a clause allowing them in the app. Fixed riffs can instead be rendered to audio
+  offline through any model we may play through and ship only the audio; anything the player changes (tempo, notes)
+  needs the model live.
+AmpModels2: [NEW 2026-11-24] Before a model reaches players: a credits page (creator, licence, source link, GPL text),
+a cab IR after the amp (most GPL files are the amp alone and sound fizzy without one), and a short list per genre
+picked by ear from the 257.
 
 
 
@@ -1665,6 +1697,15 @@ looked at, so string and position are guessed. Add:
    https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
 3. Join with audio: the pitch from hearNotes picks the (string, fret) under a fingertip.
 Start on a saved take, not live. Later, maybe: neck found without markers (YOLO on a Roboflow fretboard set, SAM 2).
+
+NEW19: [NEW 2026-11-24] Metronome: real time signatures, not only beats per bar (user, after comparing with MoChord and count-in)
+Today the click counts plain beats: the looper's MetronomeBar has a "Beats per bar" select (2-7, MetronomeBar.tsx:52,
+engine beatsPerBar), the click instrument has bpm + beatsPerBar (features/instruments/click), the band's step grids use a
+fixed BEATS_PER_BAR. There is no beat unit, so 3/4 and 6/8 can't be told apart, and no accent groups.
+Wanted: pick a time signature (at least 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8, 12/8) on the metronome & drone page and in
+the looper. Compound and odd meters accent by groups (6/8 = 3+3, 7/8 = 2+2+3 or 3+2+2), and the beat dots show the groups.
+Open: is BPM counted in the beat unit or the dotted beat for 6/8; do the band's drum and bass patterns follow the meter or
+stay in 4/4; can a seed block / plan prop set the meter.
 
 NEW20: [NEW 2026-11-25] Finish the quick tours' narration (Charlie's voice) once ElevenLabs has credits again
 The tours on /intro, the home pages, /demo, /join/<token> and /claim were rewritten on 2026-11-25 (commit f0a08144):
