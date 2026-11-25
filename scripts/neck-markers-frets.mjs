@@ -1,5 +1,5 @@
-// Prints public/riff/neck-markers-frets-a3.pdf: small ArUco markers (ARUCO_MIP_36h12) sized to sit one per fret,
-// each with a 5 mm tab above it for hanging it off the edge of the neck. Ids start after the A3 sheet's (0-50), so
+// Prints public/riff/neck-markers-frets-a3.pdf: ArUco markers (ARUCO_MIP_36h12) sized to sit one per fret.
+// Ids start after the A3 sheet's (0-50), so
 // markers from both sheets can be used together. Every marker is checked to decode with js-aruco2 before printing.
 //   node scripts/neck-markers-frets.mjs
 import { createRequire } from "node:module";
@@ -9,8 +9,8 @@ const require = createRequire(import.meta.url);
 const { AR } = require("js-aruco2");
 
 const FIRST_ID = 51;
-const SIZES = [20, 18, 16, 14, 12]; // black square, mm
-const TAB = 5; // mm of paper above the white edge
+const SIZES = [24, 22, 20, 18, 16, 14, 12]; // black square, mm
+const ONE_ROW = 14; // this size and smaller get one row each: few players put markers that high
 const SCALE = 648; // 25.5" scale, mm
 const PAGE = { w: 297, h: 420, margin: 10 };
 const GAP = 3; // mm between pieces
@@ -52,22 +52,22 @@ const sections = [];
 const HEADER = 30, LABEL = 4, HEAD = 7; // mm
 let room = PAGE.h - 2 * PAGE.margin - HEADER;
 const plan = SIZES.map((s) => {
-  const pw = s * 1.25, ph = pw + TAB + LABEL;
+  const pw = s * 1.25, ph = pw + LABEL;
   const perRow = Math.floor((usable + GAP) / (pw + GAP));
   return { s, pw, ph, perRow };
 });
-// rows per size: give each size an equal share, then fill what's left with the smallest sizes
+// rows per size: one each, then fill what's left with the larger sizes, largest first
 const rows = plan.map(() => 1);
 const used = () => plan.reduce((t, p, i) => t + HEAD + rows[i] * (p.ph + GAP), 0);
 for (let grew = true; grew;) {
   grew = false;
-  for (let i = plan.length - 1; i >= 0; i--) if (used() + plan[i].ph + GAP <= room) { rows[i]++; grew = true; }
+  for (let i = 0; i < plan.length; i++) if (plan[i].s > ONE_ROW && used() + plan[i].ph + GAP <= room) { rows[i]++; grew = true; }
 }
 for (const [i, p] of plan.entries()) {
   const items = [];
   for (let k = 0; k < rows[i] * p.perRow; k++) {
     if (!decodes(id)) throw new Error(`marker ${id} does not decode`);
-    items.push(`<div class="piece" style="width:${p.pw}mm"><div class="cut" style="width:${p.pw}mm;height:${p.pw + TAB}mm"><div class="tab" style="height:${TAB}mm"></div>${markerSvg(id)}</div><div class="label">${id} · ${p.s} mm</div></div>`);
+    items.push(`<div class="piece" style="width:${p.pw}mm"><div class="cut" style="width:${p.pw}mm;height:${p.pw}mm">${markerSvg(id)}</div><div class="label">${id} · ${p.s} mm</div></div>`);
     id++;
   }
   sections.push(`<h2>${p.s} mm <span>fits a marker on every fret wire up to fret ${upToWire(p.pw)}</span></h2><div class="row" style="gap:${GAP}mm">${items.join("")}</div>`);
@@ -84,7 +84,6 @@ h2 { font-size: 10pt; height: ${HEAD}mm; padding-top: 2mm; }
 h2 span { font-weight: normal; color: #444; margin-left: 2mm; }
 .row { display: flex; flex-wrap: wrap; row-gap: ${GAP}mm; }
 .cut { outline: 0.2mm dashed #888; display: flex; flex-direction: column; }
-.tab { border-bottom: 0.2mm dotted #bbb; }
 .cut svg { display: block; width: 100%; }
 .label { height: ${LABEL}mm; font-size: 6.5pt; color: #444; text-align: center; padding-top: 0.5mm; }
 .head { height: ${HEADER}mm; }
@@ -92,7 +91,7 @@ h2 span { font-weight: normal; color: #444; margin-left: 2mm; }
 <div class="head">
 <h1>Neck markers for frets (ARUCO_MIP_36h12) · A3</h1>
 <p>Print at 100% ("Actual size") on matte paper, or better on matte sticker paper or thin card. Measure one black square: it should match its size.</p>
-<p>Cut on the dashed line. The strip above the dotted line is a 5 mm tab: stick it to the edge or back of the neck so the marker hangs off the neck beside the fretboard. Keep the white edge round the black square.</p>
+<p>Cut on the dashed line. Keep the white edge round the black square.</p>
 <p>Centre each marker on a fret wire. The note after each size says how far up the neck that size still fits with a marker on every wire. Ids carry on from the A3 sheet (0–50), so each id is on one sheet only.</p>
 </div>
 ${sections.join("\n")}
