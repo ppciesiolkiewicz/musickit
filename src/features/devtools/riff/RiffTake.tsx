@@ -437,9 +437,9 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
             </p>
             <p>
               Read the neck draws your fingertips and the markers it sees over the camera and over a saved take. Recording needs no
-              markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Print the 
-              <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or the 
-              <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>: they are the kind the camera reads (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. With two placed markers in view it finds the frets, and the effects ticked under Effects are drawn on
+              markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Print the{" "}
+              <a href="/riff/neck-markers-frets-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">fret markers</a>{" "}
+              (A3): they are the kind the camera reads (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. With two placed markers in view it finds the frets, and the effects ticked under Effects are drawn on
               them. Covering a marker listed in Buttons turns on its filter. It doesn&apos;t run while you record.
             </p>
             <p>
@@ -451,26 +451,28 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
             <p className="font-medium text-slate-200">Printing and placing markers</p>
             <ol className="list-decimal space-y-1 pl-5">
               <li>
-                Print the sheet for your paper: <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or{" "}
-                <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>. Each has markers
-                from 40 mm down to 25 mm, the black square only, each with its own number. Use 30 mm where it fits, and 25 mm where it doesn&apos;t: smaller ones drop out.
-                For markers along the neck, print the <a href="/riff/neck-markers-frets-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">fret markers</a> (A3): each size says how far up the neck it fits.
+                Print the <a href="/riff/neck-markers-frets-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">fret markers</a> on
+                A3. Each marker has its own number and its size under it, from 40 mm down to 12 mm (the black square only). Each size says how far up the neck it fits inside a fret space.
               </li>
-              <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one with a ruler: it should be 30 mm on every side.</li>
+              <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one black square with a ruler: it should match the size under it.</li>
               <li>Cut around each marker so a white edge about 3 mm wide stays on all sides. The camera needs that edge to find the square.</li>
               <li>
-                Stick them off the fretboard, where your fingers won&apos;t cover them, with each one&apos;s centre in the middle of a fret space, level with the dots on the fretboard.
+                Stick them on the edge of the fretboard nearest you, each one centred in its fret space, level with the dots on the fretboard.
                 On a Squier Stratocaster or Telecaster (25.5&quot; scale) the fret spaces are about 36 mm wide at the nut, 27 mm at fret 5 and
-                18 mm at fret 12, so a 30 mm marker fits inside one only near the nut.
-                <ul className="mt-1 list-disc space-y-0.5 pl-5">
-                  <li>One on the headstock face, just above the nut (fret 0).</li>
-                  <li>One on the body just past the neck joint, level with fret 17.</li>
-                  <li>Skip the side of the neck: it is only about 20 mm deep, and a marker that small drops out.</li>
-                </ul>
-                Type each marker&apos;s number and its fret into Markers, as number@fret. Fret 5 is the space between the 4th and 5th wires, where the fret 5 dot is. The headstock one is fret 0, and its size in mm after a slash, since its centre sits past the nut (so 0@0/25, 1@17): the log uses it to read the fret your hand is at.
+                18 mm at fret 12, so the markers get smaller up the neck. A 30 mm one goes on the headstock just past the nut (fret 0), and a 40 mm one on the body, level with fret 19.
+                Where each marker goes, under Read the neck, lists the layout on the test guitar, and Use the A3 layout fills Markers with it.
+                For your own layout, type each marker&apos;s number and its fret into Markers, as number@fret. Fret 5 is the space between the 4th and 5th wires, where the fret 5 dot is. The headstock one is fret 0, with its size in mm after a slash (0@0/30).
               </li>
               <li>Test from where the camera will stand: press Start camera, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers label at the top left of the camera. If one keeps dropping out, print it bigger or move the camera closer.</li>
             </ol>
+            <p className="font-medium text-slate-200">Colour dots (to try out)</p>
+            <p>
+              Round stickers in four colours, to stick along both edges of the fretboard so the camera can find the edges and frets past the markers. The reader doesn&apos;t read them yet.
+              Print the <a href="/riff/neck-dots-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 dots</a> or the{" "}
+              <a href="/riff/neck-dots-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 dots</a> on matte sticker paper at 100%, in colour.
+              Green goes on the near edge, cyan on the far edge, magenta at the nut and fret 12, and blue is a spare. Use 3 or 4 mm on the top of the fretboard, outside the outer strings, or 5 or 6 mm on the side of the neck.
+              Stick the colour check from the top of the sheet beside the neck, in the camera&apos;s view.
+            </p>
           </div>
         </details>
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}

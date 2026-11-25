@@ -9,7 +9,7 @@ with the effects in the picture. `bare` hides the status line for that.
 ## How it reads the neck
 
 - **Markers** (dictionary ARUCO_MIP_36h12, via js-aruco2) are printed from `public/riff` (`neck-markers-a4.pdf`,
-  `neck-markers-a3.pdf`, `neck-markers-frets-a3.pdf`, the last printed by `scripts/neck-markers-frets.mjs`). Each one placed is
+  `neck-markers-a3.pdf`, `neck-markers-frets-a3.pdf`, the last printed by `scripts/neck-markers-frets.mjs`). Colour dots to stick along both board edges (`neck-dots-a4.pdf`, `neck-dots-a3.pdf`, `scripts/neck-dots.mjs`) are printed for trying out; no reader reads them yet. Each one placed is
   typed into **Markers** as `id@fret`: fret N is the middle of fret space N, level with the dot inlays; fret 0 is the nut, with
   the marker's size after a slash when its edge is by the nut (`0@0/25`), and how far that edge is past the nut after a plus
   (`0@0/30+8`, in mm).
