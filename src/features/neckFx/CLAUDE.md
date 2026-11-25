@@ -3,7 +3,7 @@
 What it is and where things live: `README.md`. Keep it true in the same commit as a change.
 
 - **`model/` stays pure and tested** (no React, no browser): `tsx --test src/features/neckFx/model/*.test.ts`.
-- **It imports only** `@/lib/chordKit/shapeTools` (`OPEN_MIDI`), `@/features/sound` (`getAudioContext`), `@/features/tuner` (`detectPitch`) and `@/features/rhythm` (`createOnsetDetector`), plus js-aruco2, MediaPipe and OpenCV.js (a script from jsDelivr, not an npm dependency). Pages import it through `index.ts`; nothing here imports a page's feature.
+- **It imports only** `@/lib/chordKit/shapeTools` (`OPEN_MIDI`), `@/lib/chordKit/gripName` (a chord's name), `@/features/sound` (`getAudioContext`), `@/features/tuner` (`detectPitch`) and `@/features/rhythm` (`createOnsetDetector`), plus js-aruco2, MediaPipe and OpenCV.js (a script from jsDelivr, not an npm dependency). Pages import it through `index.ts`; nothing here imports a page's feature.
 - **It draws and listens, never records**: no MediaRecorder here (a page's Export with overlay records the screen it draws on), and the stream it listens to belongs to the page (it never stops its tracks).
 - **js-aruco2 loads two ways**: under Turbopack its `AR` is on the module's exports, under webpack on the global; `cv.js` is imported first for webpack. Keep both working.
 - **OpenCV.js is a thenable that resolves to itself**: never resolve a promise with the module or `await` it bare (it loops forever); `client/cv.ts` keeps it wrapped as `{ cv }`. Every `cv.Mat` made per frame is deleted.

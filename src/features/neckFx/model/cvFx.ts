@@ -1,3 +1,4 @@
+import { gripName } from "@/lib/chordKit/gripName";
 import { AMOUNT_MAX } from "./fx";
 
 /** What the OpenCV reader draws over the neck. Pure: NeckCvView draws, CvControls sets. */
@@ -21,8 +22,10 @@ export interface CvSettings {
   fire: boolean;
   /** how strong Neck fire is, 0 to `AMOUNT_MAX` */
   fireStrength: number;
+  /** a ring from each note's place as it is played, its name while it sounds, and the chord the notes sounding make */
+  pulse: boolean;
 }
-export const DEFAULT_CV: CvSettings = { numbers: "dots", strings: true, notes: true, fire: true, fireStrength: 1 };
+export const DEFAULT_CV: CvSettings = { numbers: "dots", strings: true, notes: true, fire: true, fireStrength: 1, pulse: true };
 
 /** Settings read back from storage: anything unreadable falls back to the default. */
 export function readCv(v: unknown): CvSettings {
@@ -33,6 +36,7 @@ export function readCv(v: unknown): CvSettings {
     strings: flag(o.strings, DEFAULT_CV.strings),
     notes: flag(o.notes, DEFAULT_CV.notes),
     fire: flag(o.fire, DEFAULT_CV.fire),
+    pulse: flag(o.pulse, DEFAULT_CV.pulse),
     fireStrength: typeof o.fireStrength === "number" && Number.isFinite(o.fireStrength) ? Math.min(AMOUNT_MAX, Math.max(0, o.fireStrength)) : DEFAULT_CV.fireStrength,
   };
 }
@@ -53,3 +57,28 @@ export function heatAt(f: number, hand: number | null, energy: number, kick: num
 /** Smooth noise from -1 to 1 for the flames' flicker: a few sines, so it needs no table. */
 export const flicker = (x: number, t: number) =>
   (Math.sin(x * 1.7 + t * 2.3) + 0.6 * Math.sin(x * 3.9 - t * 3.7 + 1.3) + 0.35 * Math.sin(x * 7.3 + t * 5.9 + 4.1)) / 1.95;
+
+/** How long a Pick pulse ring grows (s), and the shortest time a note counts as sounding, for one with no end. */
+export const PULSE_S = 0.7, MIN_HOLD_S = 0.3;
+
+/** A note of a take: when it starts and ends (s) in the video, and where it is played when the riff says. */
+export interface TakeNote { start: number; midi: number; end?: number; string?: number; fret?: number }
+
+/**
+ * The take's notes on screen at time `t` for Pick pulse: each one from its start until its ring has grown or it stops
+ * sounding, whichever is later, with how long since it started (`age`) and whether it still sounds (`held`).
+ */
+export function pulsesAt<N extends TakeNote>(notes: N[], t: number): (N & { age: number; held: boolean })[] {
+  return notes.flatMap((n) => {
+    const age = t - n.start, hold = Math.max(MIN_HOLD_S, (n.end ?? n.start) - n.start);
+    return age >= 0 && age < Math.max(PULSE_S, hold) ? [{ ...n, age, held: age < hold }] : [];
+  });
+}
+
+/** The chord the notes sounding together make ("Am", "E5", "C/E"), or null for one note or no chord: low to high, the bass first. */
+export function chordOf(midis: number[]): { name: string; rootPc: number } | null {
+  const sorted = [...new Set(midis)].sort((a, b) => a - b);
+  if (new Set(sorted.map((m) => ((m % 12) + 12) % 12)).size < 2) return null;
+  const g = gripName(sorted);
+  return g ? { name: g.name, rootPc: g.rootPc } : null;
+}

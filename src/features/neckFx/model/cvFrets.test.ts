@@ -4,7 +4,7 @@ import {
   STRIP_HALF, TOP_WIRE, axisOf, boardMarkers, guessPlace, keepMarkers, lineFit, midiAt, peakNear, placeOnNeck, proj, projFit, projInv, ransacLine,
   readStrip, spotOf, stringsOf, stripOf, wireMm, type BoardMarker, type Neck, type Seen,
 } from "./cvFrets";
-import { DEFAULT_CV, flicker, heatAt, numbered, readCv } from "./cvFx";
+import { DEFAULT_CV, chordOf, flicker, heatAt, numbered, pulsesAt, readCv } from "./cvFx";
 import { parsePlaced, type Pt } from "./grid";
 
 const close = (a: number, b: number, tol: number, what = "") => assert.ok(Math.abs(a - b) <= tol, `${what} ${a} ≠ ${b} (±${tol})`);
@@ -142,4 +142,28 @@ test("OpenCV settings read back, with the default for what's unreadable", () => 
   assert.deepEqual(numbered("dots"), [3, 5, 7, 9, 12, 15, 17, 19, 21]);
   assert.equal(numbered("all").length, 22);
   assert.deepEqual(numbered("off"), []);
+});
+
+test("pulsesAt: a note shows from its start until its ring has grown or it stops sounding", () => {
+  const notes = [{ start: 1, end: 3, midi: 45 }, { start: 1, midi: 52 }, { start: 2.5, end: 2.6, midi: 57 }];
+  assert.deepEqual(pulsesAt(notes, 0.9), []);
+  const at = pulsesAt(notes, 1.5);
+  assert.deepEqual(at.map((n) => [n.midi, n.held]), [[45, true], [52, false]]);
+  assert.equal(at[0].age, 0.5);
+  assert.deepEqual(pulsesAt(notes, 2.7).map((n) => [n.midi, n.held]), [[45, true], [57, true]]);
+  assert.deepEqual(pulsesAt(notes, 3.5), []);
+});
+
+test("chordOf: names the notes sounding together, not one note or its octave", () => {
+  assert.equal(chordOf([57, 64, 69, 72, 76, 45])?.name, "Am");
+  assert.equal(chordOf([40, 47, 52])?.name, "E5");
+  assert.equal(chordOf([52, 60, 55])?.name, "C/E");
+  assert.equal(chordOf([45]), null);
+  assert.equal(chordOf([45, 57]), null);
+});
+
+test("readCv: Pick pulse is on unless turned off", () => {
+  assert.equal(readCv({}).pulse, true);
+  assert.equal(readCv({ pulse: false }).pulse, false);
+  assert.equal(DEFAULT_CV.pulse, true);
 });
