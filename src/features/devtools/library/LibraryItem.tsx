@@ -141,7 +141,7 @@ export default function LibraryItem({ item }: { item: DrawnItem }) {
   const entries = useMemo(() => catalogue(), []);
   const tools = useMemo(() => [...toolsUsed(JSON.parse(item.json))], [item.json]);
   if (!mounted) return <p className="text-sm text-slate-500">Loading…</p>;
-  const preview = <ExamplePreview json={item.json} entries={entries} />;
+  const preview = <ExamplePreview json={item.json} entries={entries} videos={item.kind === "block"} blockId={item.seedId} />;
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/60">
       <div className="flex flex-col gap-1 border-b border-slate-700 bg-slate-800/50 px-4 py-2.5">

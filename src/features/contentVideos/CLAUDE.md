@@ -2,7 +2,7 @@
 
 What it is and where things live: `README.md`. Keep it true in the same commit as a change.
 
-- **React lives in `ui/` only, and it never draws a tool itself**: the record page (`src/app/admin/content/videos/record`) draws it with the plan's `ExerciseTool` and hands it to `RecordVideo`. The plan imports `model/drawn`, `client/api` (`lookUpVideos`), `ui/CellVideo` and the `PlayInfo`, `CellAsk` and `CellVideo` types; nothing in this feature imports `plan/ui`.
+- **React lives in `ui/` only, and it never draws a tool itself**: the record page (`src/app/admin/content/videos/record`) draws it with the plan's `ExerciseTool` and hands it to `RecordVideo`. The library (`devtools/prompt/ExamplePreview`) imports `ui/LibraryStrip`. The plan imports `model/drawn`, `client/api` (`lookUpVideos`), `ui/CellVideo` and the `PlayInfo`, `CellAsk` and `CellVideo` types; nothing in this feature imports `plan/ui`.
 - **A plan day looks its videos up by the tools as drawn** (`drawnAsks`, never the cells as written) and shows each video once per day (`dayVideos`).
 - **`model/` stays pure and tested** (no React, no browser, no SQL): `tsx --test src/features/contentVideos/*/*.test.ts` (the cached tsx). `server/rules.ts` is pure too.
 - **Steps come from `LADDERS` and are never restated.** `TOOL_LADDERS` names only each tool's ladder ids. A new ladder that reads a tool is added to `TOOL_LADDERS` under that tool (`slot.test.ts` fails until it is).

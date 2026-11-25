@@ -67,12 +67,12 @@ function ToSectionTop() {
  * under it saying what the chips do. With nothing given it is drawn as written, with no chips. The host may hold where
  * the chips stand (`at`, `onAt`), so a title outside the body follows them; else the body holds it. The same for the
  * choice chips (`picks`, `onPicks`), so the host knows the tools as drawn; and `beforeTool` draws something right above
- * each tool (a plan card's Watch video).
+ * each tool (a plan card's Watch video), `afterTool` right under it (the library's video strip).
  *
  * Before the first tool that sounds a tempo, a block at a very slow one gets the app's line saying the tempo is meant and
  * why (`slowTempoLine`).
  */
-export function BlockBody({ block: asWritten, size, keyBar = false, address = "ex", given, at, onAt, picks: hostPicks, onPicks, beforeTool }: { block: Block; size: ReaderSize; /** draw an open block choice as the key bar */ keyBar?: boolean; /** which block, for a cell aside */ address?: string; /** the version to draw a block with moves in */ given?: Given | null; /** where the version's chips stand, when the host holds it */ at?: At; onAt?: (at: At) => void; /** where the choice chips stand, when the host holds them */ picks?: Picks; onPicks?: (picks: Picks) => void; /** drawn right above a tool: its number among the block's tool cells, in reading order */ beforeTool?: (cell: number) => ReactNode }) {
+export function BlockBody({ block: asWritten, size, keyBar = false, address = "ex", given, at, onAt, picks: hostPicks, onPicks, beforeTool, afterTool }: { block: Block; size: ReaderSize; /** draw an open block choice as the key bar */ keyBar?: boolean; /** which block, for a cell aside */ address?: string; /** the version to draw a block with moves in */ given?: Given | null; /** where the version's chips stand, when the host holds it */ at?: At; onAt?: (at: At) => void; /** where the choice chips stand, when the host holds them */ picks?: Picks; onPicks?: (picks: Picks) => void; /** drawn right above a tool: its number among the block's tool cells, in reading order */ beforeTool?: (cell: number) => ReactNode; /** drawn right under a tool, the same way */ afterTool?: (cell: number) => ReactNode }) {
   const aside = useContext(CellAsideContext);
   const [ownPicks, setOwnPicks] = useState<Picks>({});
   const picks = hostPicks ?? ownPicks;
@@ -119,6 +119,7 @@ export function BlockBody({ block: asWritten, size, keyBar = false, address = "e
           <Fragment key={i}>
             {beforeTool?.(toolNo[i])}
             <ToolFigure key={`${i}-${blockAt}-${p.chips ? pickAt(p.chips, picks, p.id) : ""}-${where.key ?? 0}-${where.bpm ?? 0}`} type={s.tool.type} look={look} measure={measure}><ToolBoundary><ExerciseTool tool={s.tool} /></ToolBoundary></ToolFigure>
+            {afterTool?.(toolNo[i])}
           </Fragment>
         );
     }

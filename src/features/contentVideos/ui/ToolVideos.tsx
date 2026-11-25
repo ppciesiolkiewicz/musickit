@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { contentVideoFileUrl, deleteContentVideo, editContentVideo, listContentVideos, retickContentVideo } from "../client/api";
-import { coverage, coveredCount, stepGroups, toolName, type SeedUse } from "../model/coverage";
+import { coverage, coveredCount, levelsText, stepGroups, toolName, type SeedUse } from "../model/coverage";
 import type { ContentVideoInfo } from "../server/access";
 import type { Lost } from "../server/repo";
 
@@ -20,25 +20,12 @@ const input = "rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm te
 /** `#picking-drill`: the picked tool in the address, so it can be linked and survives a reload. */
 const readHash = (): string => decodeURIComponent(window.location.hash.slice(1));
 
-/** A step's name for a person: its ladder step's name, No level, or the tool. */
-function stepNames(tool: string): Map<string | null, string> {
-  return new Map(stepGroups(tool).flatMap((g) => g.steps.map((s) => [s.step, s.step === null ? "the whole tool" : s.name] as const)));
-}
-
 const recordHref = (tool: string, steps: (string | null)[]): string => {
   const ticked = steps.filter((s): s is string => s !== null);
   return `/admin/content/videos/record?tool=${encodeURIComponent(tool)}${ticked.length ? `&steps=${encodeURIComponent(ticked.join(","))}` : ""}`;
 };
 
-/** "Beginner and Intermediate", "every level". */
-function levelsLine(tool: string, steps: string[] | null): string {
-  const names = stepNames(tool);
-  if (steps === null) return "the whole tool";
-  const all = stepGroups(tool).flatMap((g) => g.steps.map((s) => s.step));
-  if (all.every((s) => s !== null && steps.includes(s))) return "every level and No level";
-  const list = steps.map((s) => names.get(s) ?? s);
-  return list.length <= 1 ? (list[0] ?? "") : `${list.slice(0, -1).join(", ")} and ${list.at(-1)}`;
-}
+const levelsLine = levelsText;
 
 /** What the last re-tick took off other videos, in one line. */
 function lostLine(tool: string, lost: Lost[]): string {

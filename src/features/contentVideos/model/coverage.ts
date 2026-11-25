@@ -92,3 +92,13 @@ export function wouldLose(tool: string, steps: string[] | null, videos: ToolVide
     return lost.length ? [{ id: v.id, steps: lost }] : [];
   });
 }
+
+/** The levels a video covers, for a person: "the whole tool", "every level and No level", "beginner", "new, beginner and No level". */
+export function levelsText(tool: string, steps: string[] | null): string {
+  if (steps === null) return "the whole tool";
+  const all = stepGroups(tool).flatMap((g) => g.steps);
+  if (all.every((s) => s.step !== null && steps.includes(s.step))) return "every level and No level";
+  const names = new Map(all.map((s) => [s.step, s.name]));
+  const list = steps.map((s) => names.get(s) ?? s);
+  return list.length <= 1 ? (list[0] ?? "") : `${list.slice(0, -1).join(", ")} and ${list.at(-1)}`;
+}

@@ -62,3 +62,11 @@ test("wouldLose names the videos a save takes steps from", async () => {
   assert.deepEqual(wouldLose("picking-drill", ["picking-drill:advanced"], videos, "adv"), []);
   assert.deepEqual(wouldLose("backing-band", null, videos), [{ id: "band", steps: null }]);
 });
+
+test("levelsText names the levels a video covers", async () => {
+  const { levelsText } = await import("./coverage");
+  assert.equal(levelsText("backing-band", null), "the whole tool");
+  assert.equal(levelsText("picking-drill", ["picking-drill:new", "picking-drill:beginner", "picking-drill:intermediate", "picking-drill:advanced", "none"]), "every level and No level");
+  assert.equal(levelsText("picking-drill", ["picking-drill:beginner"]), "beginner");
+  assert.equal(levelsText("picking-drill", ["picking-drill:new", "picking-drill:beginner", "none"]), "new, beginner and No level");
+});

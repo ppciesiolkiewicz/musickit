@@ -2,7 +2,7 @@
 
 import { withKeys } from "../model/keys";
 import { applyGiven, type At } from "../model/moves";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { HUE_TONES, Popover, StarRating, hueAt, type Hue } from "@/components/ui";
 import { BlockBody, BlockTitle } from "./reader/BlockArticle";
@@ -55,7 +55,7 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
  * `videos` puts a Watch video button right above each tool that has one (`CellVideo`); the card holds where its chips
  * stand and tells the day its tools as drawn (`onAsks`), so the video follows a chip that changes the level.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, ticking = false, spent, rating = null, onRate, ratedBy, address, tour = true, videos, onAsks }: {
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, ticking = false, spent, rating = null, onRate, ratedBy, address, tour = true, videos, onAsks, afterTool }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
   /** the day timer is counting this exercise's time: its timer shows it ticking */ ticking?: boolean;
   /** seconds spent on it so far; without it only the planned minutes show */ spent?: number;
@@ -66,6 +66,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   /** carries the page tour's hook (`plan-exercise`); off for a past day shown under today's */ tour?: boolean;
   /** by tool cell: the content video shown above it */ videos?: Record<number, PlayInfo>;
   /** its tool cells as drawn now, each time the chips move them */ onAsks?: (asks: CellAsk[]) => void;
+  /** drawn right under each tool, by its tool cell (the library's video strip) */ afterTool?: (cell: number) => ReactNode;
 }) {
   const hue = hueAt(index);
   const tags = hashtagLine(e);
@@ -117,7 +118,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
           : <SpentTime seconds={spent} minutes={e.minutes} ticking={ticking} />}
       </div>
       <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
-      <ExerciseSettings><BlockBody block={block} size="card" address={address} given={e.given} at={at} onAt={setAt} picks={picks} onPicks={setPicks} beforeTool={(cell) => (videos?.[cell] ? <CellVideo key={videos[cell].id} video={videos[cell]} /> : null)} /></ExerciseSettings>
+      <ExerciseSettings><BlockBody block={block} size="card" address={address} given={e.given} at={at} onAt={setAt} picks={picks} onPicks={setPicks} beforeTool={(cell) => (videos?.[cell] ? <CellVideo key={videos[cell].id} video={videos[cell]} /> : null)} afterTool={afterTool} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
       {spent !== undefined && <span className="self-end"><SpentBar seconds={spent} minutes={e.minutes} ticking={ticking} small /></span>}
