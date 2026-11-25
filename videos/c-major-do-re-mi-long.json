@@ -4,52 +4,145 @@
   "voice": "alto",
   "scale": "major-ionian",
   "bpm": 80,
-  "intro": { "title": "Do Re Mi Fa Sol", "text": "12 tunes, a little harder each time · sing each 4 times · 80 bpm" },
+  "intro": {
+    "title": "Do Re Mi Fa Sol",
+    "text": "12 tunes, a little harder each time · sing each 4 times · 80 bpm"
+  },
   "layers": {
-    "melody": { "subject": { "kind": "melody", "beats": 4 } },
-    "intro": { "subject": { "kind": "intro" } },
-    "countdown": { "subject": { "kind": "countdown" } },
-    "progress": { "subject": { "kind": "progress" } },
-    "next": { "subject": { "kind": "next" } },
-    "logo": { "subject": { "kind": "logo" } },
-    "url": { "subject": { "kind": "url" } }
+    "melody": {
+      "subject": {
+        "kind": "melody",
+        "beats": 4
+      }
+    },
+    "intro": {
+      "subject": {
+        "kind": "intro"
+      }
+    },
+    "countdown": {
+      "subject": {
+        "kind": "countdown"
+      }
+    },
+    "progress": {
+      "subject": {
+        "kind": "progress"
+      }
+    },
+    "next": {
+      "subject": {
+        "kind": "next"
+      }
+    },
+    "logo": {
+      "subject": {
+        "kind": "logo"
+      }
+    },
+    "url": {
+      "subject": {
+        "kind": "url"
+      }
+    }
   },
   "formats": {
     "16x9": {
+      "beats": 7,
       "layers": {
-        "melody": { "x": 0.08, "y": 0.3, "w": 0.84, "h": 0.5 },
-        "intro": { "x": 0.2, "y": 0.04, "w": 0.6, "h": 0.22 },
-        "countdown": { "x": 0.3, "y": 0.05, "w": 0.4, "h": 0.2 },
-        "progress": { "x": 0.76, "y": 0.04, "w": 0.21, "h": 0.16 },
-        "next": { "x": 0.03, "y": 0.83, "w": 0.5, "h": 0.13 },
-        "logo": { "x": 0.03, "y": 0.04, "w": 0.15, "h": 0.1 },
-        "url": { "x": 0.7, "y": 0.9, "w": 0.27, "h": 0.07 }
+        "melody": { "x": 0.04, "y": 0.25, "w": 0.92, "h": 0.58 },
+        "intro": { "x": 0.2, "y": 0.04, "w": 0.56, "h": 0.2 },
+        "countdown": { "x": 0.25, "y": 0.04, "w": 0.5, "h": 0.2 },
+        "progress": { "x": 0.783, "y": 0.04, "w": 0.187, "h": 0.13 },
+        "next": { "x": 0.015, "y": 0.85, "w": 0.5, "h": 0.12 },
+        "logo": { "x": 0.015, "y": 0.04, "w": 0.196, "h": 0.1 },
+        "url": { "x": 0.741, "y": 0.9, "w": 0.25, "h": 0.06 }
       }
     },
     "9x16": {
       "layers": {
-        "melody": { "x": 0.02, "y": 0.39, "w": 0.96, "h": 0.22 },
-        "intro": { "x": 0.06, "y": 0.16, "w": 0.88, "h": 0.18 },
-        "countdown": { "x": 0.1, "y": 0.2, "w": 0.8, "h": 0.14 },
-        "progress": { "x": 0.2, "y": 0.63, "w": 0.6, "h": 0.1 },
-        "next": { "x": 0.06, "y": 0.75, "w": 0.88, "h": 0.12 },
-        "logo": { "x": 0.3, "y": 0.05, "w": 0.4, "h": 0.07 },
-        "url": { "x": 0.15, "y": 0.9, "w": 0.7, "h": 0.05 }
+        "melody": { "x": 0.04, "y": 0.42, "w": 0.92, "h": 0.28 },
+        "intro": { "x": 0.06, "y": 0.255, "w": 0.88, "h": 0.14 },
+        "countdown": { "x": 0.1, "y": 0.255, "w": 0.8, "h": 0.14 },
+        "progress": { "x": 0.2, "y": 0.13, "w": 0.6, "h": 0.1 },
+        "next": { "x": 0.06, "y": 0.75, "w": 0.88, "h": 0.11 },
+        "logo": { "x": 0.3, "y": 0.035, "w": 0.4, "h": 0.065 },
+        "url": { "x": 0.15, "y": 0.91, "w": 0.7, "h": 0.05 }
       }
     }
   },
   "timeline": [
-    { "tune": "1 2 1 2 | 1w", "label": "book 1", "times": 4, "caption": "Do and Re, back and forth · get ready" },
-    { "tune": "2 1 2h | 1w", "label": "book 3", "times": 4, "caption": "Starting on Re · get ready" },
-    { "tune": "1 1 2 2 | 1 2 1h | 2h 2 2 | 1w", "label": "book 5", "times": 4, "caption": "Steps in pairs · get ready" },
-    { "tune": "1 2 3 2 | 1w", "label": "book 8", "times": 4, "caption": "Up to Mi and back · get ready" },
-    { "tune": "2 3 1 2 | 1w", "label": "book 10", "times": 4, "caption": "The Mi to Do skip · get ready" },
-    { "tune": "3 1 2 3 | 2h 1h | 3 2 1 2 | 1w", "label": "book 12", "times": 4, "caption": "Leaping from Mi · get ready" },
-    { "tune": "2 4 2 3 | 1w", "label": "book 15", "times": 4, "caption": "The Re to Fa skip · get ready" },
-    { "tune": "4 3 2 3 | 1w", "label": "book 17", "times": 4, "caption": "Stepping down from Fa · get ready" },
-    { "tune": "1 2 3 4 | 3h 2h | 2 4 2 3 | 1w", "label": "book 18", "times": 4, "caption": "Climbing to Fa · get ready" },
-    { "tune": "4 5 3 2 | 1w", "label": "book 23", "times": 4, "caption": "A touch of Sol · get ready" },
-    { "tune": "1 2 3 4 | 5h 4 3 | 2 4 3 2 | 1w", "label": "book 24", "times": 4, "caption": "All the way to Sol · get ready" },
-    { "tune": "3 4 5 3 | 4 2 3 1 | 2 4 3 2 | 1w", "label": "book 27", "times": 4, "caption": "Mi Fa Sol and home · get ready" }
+    {
+      "tune": "1 2 1 2 | 1w",
+      "label": "book 1",
+      "times": 4,
+      "caption": "Do and Re, back and forth"
+    },
+    {
+      "tune": "2 1 2h | 1w",
+      "label": "book 3",
+      "times": 4,
+      "caption": "Starting on Re"
+    },
+    {
+      "tune": "1 1 2 2 | 1 2 1h | 2h 2 2 | 1w",
+      "label": "book 5",
+      "times": 4,
+      "caption": "Steps in pairs"
+    },
+    {
+      "tune": "1 2 3 2 | 1w",
+      "label": "book 8",
+      "times": 4,
+      "caption": "Up to Mi and back"
+    },
+    {
+      "tune": "2 3 1 2 | 1w",
+      "label": "book 10",
+      "times": 4,
+      "caption": "The Mi to Do skip"
+    },
+    {
+      "tune": "3 1 2 3 | 2h 1h | 3 2 1 2 | 1w",
+      "label": "book 12",
+      "times": 4,
+      "caption": "Leaping from Mi"
+    },
+    {
+      "tune": "2 4 2 3 | 1w",
+      "label": "book 15",
+      "times": 4,
+      "caption": "The Re to Fa skip"
+    },
+    {
+      "tune": "4 3 2 3 | 1w",
+      "label": "book 17",
+      "times": 4,
+      "caption": "Stepping down from Fa"
+    },
+    {
+      "tune": "1 2 3 4 | 3h 2h | 2 4 2 3 | 1w",
+      "label": "book 18",
+      "times": 4,
+      "caption": "Climbing to Fa"
+    },
+    {
+      "tune": "4 5 3 2 | 1w",
+      "label": "book 23",
+      "times": 4,
+      "caption": "A touch of Sol"
+    },
+    {
+      "tune": "1 2 3 4 | 5h 4 3 | 2 4 3 2 | 1w",
+      "label": "book 24",
+      "times": 4,
+      "caption": "All the way to Sol"
+    },
+    {
+      "tune": "3 4 5 3 | 4 2 3 1 | 2 4 3 2 | 1w",
+      "label": "book 27",
+      "times": 4,
+      "caption": "Mi Fa Sol and home"
+    }
   ]
 }

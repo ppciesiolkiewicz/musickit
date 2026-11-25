@@ -148,6 +148,16 @@ test("formats", () => {
   bad((c) => (c.formats["16x9"].layers.url = { x: -0.1, y: 0, w: 0.1, h: 0.1 }), /^formats\.16x9\.url: /);
   bad((c) => (c.formats["16x9"].layers.url = { x: 0, y: 0, w: 0, h: 0.1 }), /^formats\.16x9\.url: /);
   bad((c) => (c.formats["16x9"].layers.url = { x: 0, y: 0, w: 0.1 }), /^formats\.16x9\.url\.h: /);
+  bad((c) => (c.formats["16x9"].beats = 1), /^formats\.16x9\.beats: /);
+  bad((c) => (c.formats["16x9"].beats = 6.5), /^formats\.16x9\.beats: /);
+});
+
+test("a format can set its own beats across the staff", () => {
+  const c = valid();
+  c.formats["16x9"].beats = 8;
+  const parsed = parseVideoConfig(c, []);
+  assert.deepEqual(parsed.beats, { "16x9": 8 });
+  assert.deepEqual(parseVideoConfig(valid(), []).beats, {});
 });
 
 test("timeline", () => {

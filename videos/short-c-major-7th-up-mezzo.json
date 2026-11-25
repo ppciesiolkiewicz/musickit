@@ -1,0 +1,48 @@
+{
+  "name": "short-c-major-7th-up-mezzo",
+  "key": "C",
+  "voice": "mezzo",
+  "scale": "major-ionian",
+  "bpm": 80,
+  "layers": {
+    "melody": {
+      "subject": {
+        "kind": "melody",
+        "beats": 4
+      }
+    },
+    "countdown": {
+      "subject": {
+        "kind": "countdown"
+      }
+    },
+    "logo": {
+      "subject": {
+        "kind": "logo"
+      }
+    },
+    "url": {
+      "subject": {
+        "kind": "url"
+      }
+    }
+  },
+  "formats": {
+    "9x16": {
+      "layers": {
+        "logo": { "x": 0.3, "y": 0.035, "w": 0.4, "h": 0.065 },
+        "countdown": { "x": 0.06, "y": 0.2, "w": 0.88, "h": 0.15 },
+        "melody": { "x": 0.04, "y": 0.4, "w": 0.92, "h": 0.28 },
+        "url": { "x": 0.15, "y": 0.91, "w": 0.7, "h": 0.05 }
+      }
+    }
+  },
+  "timeline": [
+    {
+      "tune": "1 7 6 7 | 1'w",
+      "label": "book 92",
+      "times": 3,
+      "caption": "Sing a 7th: Do up to Ti"
+    }
+  ]
+}

@@ -56,6 +56,8 @@ export interface VideoConfig {
   layers: { id: string; subject: Subject }[];
   /** layer id → rect, for each format the config names */
   formats: Partial<Record<FormatId, Record<string, FrameRect>>>;
+  /** beats across the staff in a format, over the melody layer's own: a wide frame takes more beats at the same note size */
+  beats: Partial<Record<FormatId, number>>;
   intro?: VideoIntro;
   timeline: VideoTune[];
 }
@@ -174,10 +176,16 @@ export function parseVideoConfig(raw: unknown, pluginIds: string[]): VideoConfig
 
   if (!isObject(raw.formats) || !Object.keys(raw.formats).length) return fail("formats", "name at least one format (16x9 or 9x16)");
   const formats: VideoConfig["formats"] = {};
+  const beats: VideoConfig["beats"] = {};
   for (const [fmt, def] of Object.entries(raw.formats)) {
     if (!Object.hasOwn(FORMATS, fmt)) return fail(`formats.${fmt}`, "no such format (16x9 or 9x16)");
     const rects = isObject(def) && isObject(def.layers) ? def.layers : fail(`formats.${fmt}.layers`, "expected an object of rects keyed by layer id");
     for (const id of Object.keys(rects)) if (!layers.some((l) => l.id === id)) fail(`formats.${fmt}.${id}`, "no such layer");
+    if (isObject(def) && def.beats !== undefined) {
+      const b = def.beats;
+      if (typeof b !== "number" || !Number.isInteger(b) || b < MELODY_BEATS.min || b > MELODY_BEATS.max) return fail(`formats.${fmt}.beats`, `expected a whole number from ${MELODY_BEATS.min} to ${MELODY_BEATS.max}`);
+      beats[fmt as FormatId] = b;
+    }
     formats[fmt as FormatId] = Object.fromEntries(layers.map((l) => [l.id, rects[l.id] === undefined ? fail(`formats.${fmt}.${l.id}`, "missing rect") : parseRect(rects[l.id], `formats.${fmt}.${l.id}`)]));
   }
 
@@ -186,5 +194,5 @@ export function parseVideoConfig(raw: unknown, pluginIds: string[]): VideoConfig
 
   const intro = raw.intro === undefined ? undefined : parseIntro(raw.intro);
 
-  return { name, tonicPc, scale, bpm, voice, layers, formats, ...(intro ? { intro } : {}), timeline };
+  return { name, tonicPc, scale, bpm, voice, layers, formats, beats, ...(intro ? { intro } : {}), timeline };
 }

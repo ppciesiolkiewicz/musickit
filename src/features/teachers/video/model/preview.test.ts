@@ -13,7 +13,7 @@ const config = (): VideoConfig => ({
   voice: "alto",
   intro: { title: "Hi", seconds: 2 },
   layers: [],
-  formats: {},
+  formats: {}, beats: {},
   timeline: [
     { tune: "1 2 3 2 | 1w", times: 2, caption: "first" },
     { tune: "3 2 1 2 | 3w", times: 2, caption: "second" },

@@ -12,7 +12,7 @@ const config = (): VideoConfig => ({
   bpm: 60,
   voice: "alto",
   layers: [],
-  formats: {},
+  formats: {}, beats: {},
   timeline: [
     { tune: "1 2 3 2 | 1w", label: "one", times: 2, caption: "first" },
     { tune: "3 2 1 2 | 3w", times: 2, caption: "second" },

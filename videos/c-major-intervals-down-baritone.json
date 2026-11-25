@@ -1,0 +1,95 @@
+{
+  "name": "c-major-intervals-down-baritone",
+  "key": "C",
+  "voice": "baritone",
+  "scale": "major-ionian",
+  "bpm": 80,
+  "intro": {
+    "title": "Intervals going down",
+    "text": "5 leaps down · sing each 4 times · 80 bpm"
+  },
+  "layers": {
+    "melody": {
+      "subject": {
+        "kind": "melody",
+        "beats": 4
+      }
+    },
+    "intro": {
+      "subject": {
+        "kind": "intro"
+      }
+    },
+    "countdown": {
+      "subject": {
+        "kind": "countdown"
+      }
+    },
+    "progress": {
+      "subject": {
+        "kind": "progress"
+      }
+    },
+    "next": {
+      "subject": {
+        "kind": "next"
+      }
+    },
+    "logo": {
+      "subject": {
+        "kind": "logo"
+      }
+    },
+    "url": {
+      "subject": {
+        "kind": "url"
+      }
+    }
+  },
+  "formats": {
+    "16x9": {
+      "beats": 7,
+      "layers": {
+        "melody": { "x": 0.04, "y": 0.25, "w": 0.92, "h": 0.58 },
+        "intro": { "x": 0.2, "y": 0.04, "w": 0.56, "h": 0.2 },
+        "countdown": { "x": 0.25, "y": 0.04, "w": 0.5, "h": 0.2 },
+        "progress": { "x": 0.783, "y": 0.04, "w": 0.187, "h": 0.13 },
+        "next": { "x": 0.015, "y": 0.85, "w": 0.5, "h": 0.12 },
+        "logo": { "x": 0.015, "y": 0.04, "w": 0.196, "h": 0.1 },
+        "url": { "x": 0.741, "y": 0.9, "w": 0.25, "h": 0.06 }
+      }
+    }
+  },
+  "timeline": [
+    {
+      "tune": "5 3 1 3 | 1w",
+      "label": "book 23",
+      "times": 4,
+      "caption": "Sol down to Mi, Mi down to Do: 3rds"
+    },
+    {
+      "tune": "4 1 2 3 | 1w",
+      "label": "book 72",
+      "times": 4,
+      "caption": "Fa down to Do, a 4th"
+    },
+    {
+      "tune": "5 1 3 2 | 1w",
+      "label": "book 79",
+      "times": 4,
+      "caption": "Sol down to Do, a 5th"
+    },
+    {
+      "tune": "1' 2 3 2 | 1w",
+      "label": "book 94",
+      "times": 4,
+      "caption": "The high Do down to Re, a 7th"
+    },
+    {
+      "tune": "1' 1 3 2 | 1w",
+      "label": "book 100",
+      "times": 4,
+      "caption": "The high Do down to Do, an octave"
+    }
+  ]
+}

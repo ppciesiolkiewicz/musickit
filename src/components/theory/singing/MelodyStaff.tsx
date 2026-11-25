@@ -29,6 +29,7 @@ import type { MelodyChord } from "@/features/theory/melodyChords";
  * from the dot to the note due with how far off it is in cents.
  * `steadyCamera` (videos) moves that view with the bar itself at a steady pace instead of easing after the dot: the bar
  * sits far enough in that the faded half bar is in view from the wrap to beat 1, and the wrap jumps back in one frame.
+ * With `headScrolls` (videos) the clef, key and time signature ride off with the tune instead of staying put.
  * Without the `lead` (videos, where every pass is written out) the faded half bar is left off and the staff starts on beat 1.
  * `chords` are written by name above the staff where each starts, lit while it sounds; a whole beat no note sounds
  * through gets a quarter rest, and nothing is due there, so the dot is judged against no note.
@@ -72,7 +73,7 @@ interface Point { x: number; step: number; t: number }
 interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; beat: number | null; hit: boolean; cents: number; target: number }
 const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", beat: null, hit: false, cents: 0, target: -1 };
 
-export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, steadyCamera = false, lead = true, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
+export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pitch, playFrom, beatMs, gridBeats, tapped, onNote, scale = 1, follow = false, followBeats, steadyCamera = false, headScrolls = false, lead = true, cents = IN_TUNE_CENTS, lagMs = DOT_LAG_MS }: {
   notes: StaffNote[];
   /** the chords under the tune, named above the staff */
   chords?: MelodyChord[];
@@ -95,6 +96,8 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
   followBeats?: number;
   /** a following view that rides the bar exactly and jumps back on the wrap: no easing, no sweep back (for videos) */
   steadyCamera?: boolean;
+  /** the clef, key signature and time signature scroll away with the tune instead of staying at the left, and the notes use the space (for videos) */
+  headScrolls?: boolean;
   /** the last half bar drawn again, faded, before the first (default on) */
   lead?: boolean;
   /** within this many cents counts as on the note */
@@ -249,7 +252,7 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
 
   const drawRest = (at: number, ghost: boolean) => {
     const x = bx(at);
-    if (x < x0 - 20 || x > W + 20) return null;
+    if (x < (headScrolls ? 0 : x0) - 20 || x > W + 20) return null;
     const y = yOf(4);
     return (
       <path key={`rest-${ghost ? "ghost-" : ""}${at}`} d={`M ${x + 2} ${y - 13} l -6 7 l 6 6 l -6 7 c -4 -2 -7 2 -2 6`} fill="none" stroke={ink.glyph} strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" opacity={ghost ? GHOST_OPACITY : 1} />
@@ -258,7 +261,7 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
 
   const drawChord = (c: MelodyChord, at: number, ghost: boolean) => {
     const x = bx(at);
-    if (x < x0 - 40 || x > W + 40) return null;
+    if (x < (headScrolls ? 0 : x0) - 40 || x > W + 40) return null;
     const on = nowBeat !== null && nowBeat >= c.at && nowBeat < c.at + c.beats && (a.beat! < 0) === ghost;
     return (
       <text key={`chord-${ghost ? "ghost-" : ""}${c.at}`} x={x - 6} y={chordsH - 4} fontSize={15} fontWeight={700} fill={on ? PLAYED : ink.name} opacity={ghost && !on ? GHOST_OPACITY : 1}>
@@ -271,7 +274,7 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
     const n = notes[i];
     const x = bx(at);
     // a held note stays drawn until its end has gone by, not just its head
-    if (x + beats * beatW < x0 - 40 || x > W + 40) return null;
+    if (x + beats * beatW < (headScrolls ? 0 : x0) - 40 || x > W + 40) return null;
     const on = (due === i && inGhost === ghost) || (tapped === i && !ghost);
     const lit = on && a.hit && !!showDot;
     const c = degreeColour(n.degree);
@@ -294,7 +297,7 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
         <svg viewBox={`0 0 ${W} ${H}`} width={W * scale} height={H * scale} role="img" aria-label={`A melody in ${ladder.title}: ${notes.map((n) => solfege(n.label)).join(" ")}`}>
           <defs>
             <clipPath id={clip}>
-              <rect x={x0 - 4} y={0} width={W - x0 + 4} height={H} />
+              <rect x={headScrolls ? 0 : x0 - 4} y={0} width={headScrolls ? W : W - x0 + 4} height={H} />
             </clipPath>
             <linearGradient id={guide}>
               <stop offset={0} style={{ stopColor: colour }} stopOpacity={0} />
@@ -303,9 +306,10 @@ export default function MelodyStaff({ notes, chords = [], ladder, clef, live, pi
           </defs>
           <g stroke={ink.line} strokeWidth={1}>
             {[0, 2, 4, 6, 8].map((s) => <line key={s} x1={8} x2={lineEnd} y1={yOf(s)} y2={yOf(s)} />)}
-            <line x1={8} x2={8} y1={yOf(8)} y2={yOf(0)} strokeWidth={1.5} />
+            {!headScrolls && <line x1={8} x2={8} y1={yOf(8)} y2={yOf(0)} strokeWidth={1.5} />}
           </g>
-          <g fill={ink.glyph} textAnchor="middle">
+          <g fill={ink.glyph} textAnchor="middle" transform={headScrolls ? `translate(${-a.cam} 0)` : undefined}>
+            {headScrolls && <line x1={8} x2={8} y1={yOf(8)} y2={yOf(0)} stroke={ink.line} strokeWidth={1.5} />}
             <ClefGlyph clef={clef} yOf={yOf} />
             {sig.map((g, i) => <text key={i} x={56 + i * 9} y={yOf(g.step) + 6} fontSize={20}>{g.glyph}</text>)}
             <text x={timeX} y={yOf(6) + 7} fontSize={19} fontWeight={700}>4</text>

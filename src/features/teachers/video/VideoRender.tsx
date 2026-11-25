@@ -114,8 +114,8 @@ export default function VideoRender() {
   if (!job) return <div className="app-bg fixed inset-0 z-50 flex items-center justify-center text-sm text-slate-300">{hasJob ? status : "No video job"}</div>;
   return (
     <>
-      {/* the dev server's indicator is not part of the frame */}
-      <style>{"nextjs-portal { display: none !important; }"}</style>
+      {/* the dev server's indicator and the dev-only copy notes button are not part of the frame */}
+      <style>{"nextjs-portal, [data-copy-notes] { display: none !important; }"}</style>
       {/* above anything the root layout draws */}
       <VideoFrame config={job.config} score={job.score} format={job.format} time={time} className="fixed left-0 top-0 z-50" />
     </>
@@ -188,14 +188,14 @@ export function VideoFrame({ config, score, format, time, className = "", style 
 
   const stageKey = useMemo(() => ({ tonicPc: config.tonicPc, family: 0, mode: 0 }), [config.tonicPc]);
   return (
-    // the frame is exactly the output size
-    <div className={`app-bg overflow-hidden ${className}`} style={{ ...style, width, height }}>
+    // the frame is exactly the output size, on the panels' own dark (slate-950), so the logo and the text sit on it with no box edges showing
+    <div className={`overflow-hidden bg-slate-950 ${className}`} style={{ ...style, width, height }}>
       <TimelineContext.Provider value={timeline}>
         {config.layers.map((l, i) => {
           const r = rects[l.id];
           return (
             <div key={l.id} className="absolute" style={{ left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.w * 100}%`, height: `${r.h * 100}%`, zIndex: i }}>
-              <StageWidget subject={l.subject} onSubjectChange={NOOP} stageKey={stageKey} onStageKey={NOOP} />
+              <StageWidget subject={l.subject.kind === "melody" && config.beats[format] ? { ...l.subject, beats: config.beats[format] } : l.subject} onSubjectChange={NOOP} stageKey={stageKey} onStageKey={NOOP} />
             </div>
           );
         })}
