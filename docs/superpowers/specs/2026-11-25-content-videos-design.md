@@ -40,6 +40,9 @@ Lines marked **(user)** were decided by the user. Lines marked **(call)** are th
   show the first one (preferred)").
 - /dev/riff's Take panel saves to the same store and table, so a riff's video is its block's video (user: "fix video
   upload in /dev/riff to be able to upload them to blob").
+- A person with `content` edits a riff in the riff maker and saves it to the database, in production too; it is live
+  for players at once (user, 2026-11-25: "I want to be able to add video to riff and also edit riffs in the app. The
+  rest has just video"). §5a.
 - The library page always lists every block and plan, switched-off ones too, each tagged (user).
 - Content people cannot open `/admin/admin` or the rest of `/dev` (user).
 - Permissions are set per person from a users page (user).
@@ -48,10 +51,11 @@ Lines marked **(user)** were decided by the user. Lines marked **(call)** are th
 
 - Course sections with empty video spots to record into, and pointing a course section at a video: tasks.txt, later
   (user: "can be skipped ... noted in tasks.txt").
-- Editing exercises, riffs or on/off in production. Only a block's or tool's `video` is edited in the app; everything
-  else comes from the seed files (user: "We only allow to edit video in the app now the rest comes from re-generating").
-- A review or approval step for videos (user).
-- Writing an app edit back into a seed file.
+- Editing exercises (other than a riff's notes, §5a) or on/off in production. A block's or tool's `video` and a riff
+  are edited in the app; everything else comes from the seed files (user: "We only allow to edit video in the app now
+  the rest comes from re-generating"; riffs added 2026-11-25: "The rest has just video").
+- A review or approval step for videos or riff edits (user).
+- Writing an app edit back into a seed file, except riffs, which a development command pulls into their files (§5a).
 - A timed drawing per tool written from scratch. Tools reuse their normal component unless they export a
   `VideoOverlay` (user).
 - The ElevenLabs Sampler: stays in /dev (user).
@@ -98,7 +102,7 @@ Lines marked **(user)** were decided by the user. Lines marked **(call)** are th
   | Learning path | as now |
   | Component stories | as now |
   | Onboarding coverage | as now |
-  | Riff maker | as now; **Save to block** writes the seed file, so it works in development only and says so elsewhere; recording saves to the store (§3) |
+  | Riff maker | reads and saves riffs in the database (§5a), in production too; recording saves to the store (§3). Until §5a lands, **Save to block** writes the seed file, works in development only and says so elsewhere |
   | Video studio | as now |
   | Copy notes | from the database (§6) |
 
@@ -178,15 +182,42 @@ tool cell at it. The IndexedDB take stays as the local copy until the upload is 
 
 ## 5. Exercises in the library and the seed
 
-- **What the seed owns** (user): everything in the seed file, on/off (`draft`) included. `db:seed-blocks` updates it every
-  run, as today.
-- **What the app owns**: `blocks.videos`. The seed never writes or clears it (user: "if the field is empty on seed,
+- **What the seed owns** (user): everything in the seed file, on/off (`draft`) included, except a riff edited in the
+  app (§5a). `db:seed-blocks` updates it every run, as today.
+- **What the app owns**: `blocks.videos`, and the riff of a riff block once it is edited in the app (§5a). The seed
+  never writes or clears `blocks.videos` (user: "if the field is empty on seed,
   e.g. video, then this should not be updated"). Since a tool cell has no id, a cell's video is kept by its position in
   `cells` (call); if a seed edit changes the cells' count or the tool type at that position, the seed run drops that
   cell's entry and prints which (call).
 - **Library tags**, always shown (user): every block and plan is listed, switched-off ones too; the
   `?include_not_enabled=1` link goes (user). Each row has **Seed** (from a seed file) or **Database only** (a player's or
   the AI's block, no file), and **Off** when it isn't offered to players. A block with a video has a video tag (call).
+  A riff edited in the app and not yet pulled into its file has an **Edited in the app** tag (call).
+
+## 5a. Riffs edited in the app
+
+Added 2026-11-25 (user: "I want to be able to add video to riff and also edit riffs in the app. The rest has just
+video").
+
+- **What is edited**: what the riff maker's **Save to block** writes today (`withRiff` in
+  `src/features/devtools/riff/blocks.ts`): the key, scale, notes, tempo (a tempo range in `moves` moves with it) and
+  amp. The block's words, genre, choices and on/off stay the seed file's (user: "the rest has just video").
+- **Who**: `content` permission, in production and development. Only curated riff blocks; the riff maker makes no new
+  block, as today (a new riff is still a seed block written with `exercise-example`).
+- **Saving** (call): the riff maker reads riffs from the database and its **Save** writes the riff into the block's
+  `content` in the database through a `content`-gated route, with `blocks.riff_edited_at` and `riff_edited_by`
+  (→ users, `on delete set null`) set. Live for players at once, no review. **Reload** reads the database again.
+- **The seed keeps an edited riff** (call): for a block with `riff_edited_at` set, `db:seed-blocks` takes everything
+  from the file but keeps the database's riff (`withRiff` over the file's block) and prints which riffs it kept. A
+  block without it is seeded as today.
+- **Back into the files** (call): `npm run db:pull-riffs`, run in development against a chosen database, writes each
+  edited riff into its seed file with `withRiff`, so agents, the library MCP and `exercise-example` read the current
+  notes. It leaves `riff_edited_at` set (the database and the file then agree, so the seed keeps the same riff either
+  way). After a pull the **Edited in the app** tag goes, since the file matches.
+- **Plans** (call): a player's plan is a stored copy, so a riff edit reaches plans made after it; plans already made
+  keep the riff they were made with. (Videos differ: they are looked up when drawn, §3.)
+- A content video's overlay keeps its own copy of the settings (§4), so a riff edit after recording doesn't move the
+  overlay off the hands; the riff maker shows a note when a riff with a video has changed since it was recorded (call).
 
 ## 6. Notes for content people
 
@@ -205,6 +236,8 @@ tool cell at it. The IndexedDB take stays as the local copy until the upload is 
 
 1. Permissions and migration; users page.
 2. `/admin` split: `/admin/admin`, `/admin/content` with the moved pages; library tags.
+2b. Riffs edited in the app (§5a): save to the database, the seed keeps them, `db:pull-riffs` (tasks.txt
+   ContentVideos11).
 3. Content videos: table, Blob path, upload and file routes, `video` field kept by the seed, /dev/riff saving there.
 4. Video in the plan: video icon, the first-only rule for a day.
 5. Recording panel with the tool overlay; `VideoOverlay` for the riff tool.
@@ -223,5 +256,6 @@ Each step lands on its own and leaves the app working.
 
 - Course sections with empty video spots a content person records into, and a `video` field on course sections.
 - Reusing a video in several places from the content view (pick an existing video for an exercise or section).
-- Pulling an app edit back into a seed file, if editing beyond `video` is ever allowed in the app.
+- Pulling an app edit back into a seed file, if editing beyond `video` and riffs is ever allowed in the app (riffs have
+  `db:pull-riffs`, §5a).
 - The overlay for the other tools (each made drivable from outside, with a `VideoOverlay` where useful).

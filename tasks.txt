@@ -1421,6 +1421,9 @@ on a section).
 ContentVideos8: [NEW 2026-11-25] Later: pick an existing video for an exercise or course section from the content view (reuse).
 ContentVideos9: [NEW 2026-11-25] Later: the overlay for the other tools (each drivable from outside: start, stop, seek).
 ContentVideos10: [NEW 2026-11-25] Later, only if editing beyond video is allowed in the app: write an app edit back to its seed file.
+ContentVideos11: [NEW 2026-11-25] Riffs edited in the app (spec §5a, build step 2b, after ContentVideos2): the riff maker
+saves key, scale, notes, tempo and amp to the database (content permission, production too) with riff_edited_at/by;
+db:seed-blocks keeps an edited riff; npm run db:pull-riffs writes edited riffs back into their seed files.
 
 TaskSeries Upkeep: keeping the stack up to date (2026-11-18)
 Upkeep1: [NEW 2026-11-18] Next.js security upgrade. `next dev` stops on its first start with a security advisory and
