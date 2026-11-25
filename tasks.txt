@@ -1515,12 +1515,18 @@ ContentVideos4: [DONE 2026-11-25] Watch video right above each tool with a video
 tool; one lookup per day by the tools as drawn (a level chip moves the video); each video once per day; a failed lookup
 has a line with Try again. Not checked: a real file playing (no Blob token locally), a chip moving the video on screen
 (unit-tested only).
-ContentVideos5: [NEW 2026-11-25] Tools videos page (/admin/content/videos, its own nav item, laid out like Component
+ContentVideos5: [PART DONE 2026-11-25] Tools videos page (/admin/content/videos, its own nav item, laid out like Component
 stories: every tool, its steps and No level, each with its video or Missing and how many seed blocks use it; Record,
 Change steps, Edit, Delete). Record page (/admin/content/videos/record, the only page with the camera and the tool: tick
 the steps, All levels, No level, or This block only; says which video loses a step). Library strip under each tool cell
 (the video it shows and where from, play, a Record link; nothing records there). The tool over the camera, its
 start/stop saved, replayed in step; VideoOverlay for the riff and the melody singer.
+Done (9a10853d, 5494b3a5, 9fbd811b): the Tools videos page (Change levels, Edit, Delete; PATCH keeps a note left
+out), the record page (camera, the tool over it in a seed exercise's settings, levels or This block only, which video
+loses a level), the library line under each tool. Checked on a scratch server against the local Docker DB, a take with
+Playwright's fake camera; not checked: a real upload (no Blob token) and phone width. Left: the overlay (the tool's
+start/stop saved with the take and replayed in step; VideoOverlay for the riff and the melody singer). Open question
+for the user: on playback the melody singer's Play opens the mic and both tools play sound over the video's.
 ContentVideos6: [NEW 2026-11-25] Notes in the database for content people (author, deployed commit).
 ContentVideos7: [NEW 2026-11-25] Later: course sections with empty video spots a content person records into (a video field
 on a section).
