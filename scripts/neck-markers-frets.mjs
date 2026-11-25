@@ -10,7 +10,8 @@ const { AR } = require("js-aruco2");
 
 const FIRST_ID = 51;
 // black square, mm. A group of several sizes shares one row: few players put markers that high up the neck.
-const GROUPS = [[40], [24], [22], [20], [18], [16, 14, 12]];
+const GROUPS = [[40], [30], [24], [22], [20], [18], [16, 14, 12]];
+const TEST_SIZE = 30; // this size and up are wider than any fret, for testing: one row
 const SCALE = 648; // 25.5" scale, mm
 const PAGE = { w: 297, h: 420, margin: 10 };
 const GAP = 3; // mm between pieces
@@ -63,7 +64,7 @@ const rows = plan.map(() => 1);
 const used = () => plan.reduce((t, p, i) => t + HEAD + rows[i] * (p.ph + GAP), 0);
 for (let grew = true; grew;) {
   grew = false;
-  for (let i = 0; i < plan.length; i++) if (plan[i].sizes.length === 1 && used() + plan[i].ph + GAP <= room) { rows[i]++; grew = true; }
+  for (let i = 0; i < plan.length; i++) if (plan[i].sizes.length === 1 && plan[i].sizes[0] < TEST_SIZE && used() + plan[i].ph + GAP <= room) { rows[i]++; grew = true; }
 }
 const fits = (s) => upToWire(piece(s))
   ? `fret ${upToWire(piece(s))}`
