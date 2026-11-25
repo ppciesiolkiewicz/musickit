@@ -42,13 +42,14 @@ const PROGRESSIONS: Record<Level, number[][]> = {
 };
 const BPM: Record<Level, number> = { 0: 60, 1: 72, 2: 90 };
 
-const pick = <T,>(xs: T[]): T => xs[Math.floor(Math.random() * xs.length)];
+/** One of `xs` at random. Clamped: a random number at the very top of the range (seen in a build's prerender) would read past the end. */
+const pick = <T,>(xs: T[]): T => xs[Math.min(xs.length - 1, Math.max(0, Math.floor(Math.random() * xs.length)))];
 const ascii = (s: string) => s.replace(/♯/g, "#").replace(/♭/g, "b");
 
 interface Made { label: string; props: Record<string, unknown> }
 
 function make(kind: Kind, level: Level, keyId: string | null): Made {
-  const key = KEYS.find((k) => k.id === (keyId ?? pick(level === 0 ? EASY_KEYS : KEYS.map((k) => k.id))))!;
+  const key = KEYS.find((k) => k.id === (keyId ?? pick(level === 0 ? EASY_KEYS : KEYS.map((k) => k.id)))) ?? KEYS[0];
   const bpm = BPM[level];
   if (kind === "interval") {
     const ivs = level === 2 ? [pick(INTERVALS[2]), pick(INTERVALS[1])] : [pick(INTERVALS[level])];
