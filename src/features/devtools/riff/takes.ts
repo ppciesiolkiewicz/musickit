@@ -1,5 +1,7 @@
 "use client";
 
+import type { NeckRead } from "@/features/neckFx";
+
 /** The riff maker's video takes, one per riff, kept in this browser (IndexedDB) under the riff's id. */
 export interface RiffTake {
   id: string; blob: Blob; type: string; seconds: number; at: number;
@@ -16,11 +18,7 @@ export interface RiffTake {
 }
 
 /** One frame Read the neck read, at `t` seconds into the take: the marker ids and each hand's fingertips. */
-export interface NeckRead {
-  t: number; markers: number[]; hands: { x: number; y: number }[][];
-  /** each marker's centre; x and y here and in `hands` are fractions of the frame's width */
-  at?: { id: number; x: number; y: number }[];
-}
+export type { NeckRead } from "@/features/neckFx";
 export interface TakeLog { neck?: NeckRead[] }
 
 const DB = "musickit-dev-riff-takes";

@@ -1,4 +1,10 @@
-import { placesOf } from "./riff";
+import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
+
+/** The highest fret a note is placed at. */
+export const TOP_FRET = 22;
+/** Every place a pitch sits on the neck, low string first. */
+const placesOf = (midi: number): { string: number; fret: number }[] =>
+  OPEN_MIDI.map((open, string) => ({ string, fret: midi - open })).filter((p) => p.fret >= 0 && p.fret <= TOP_FRET);
 
 /**
  * From the neck markers and the fretting hand to a string and fret.
@@ -14,12 +20,18 @@ import { placesOf } from "./riff";
  */
 
 export type Pt = { x: number; y: number };
+/** One frame read by NeckView: x and y here and in `hands` are fractions of the frame's width. */
+export interface NeckRead {
+  t: number; markers: number[]; hands: { x: number; y: number }[][];
+  /** each marker's centre */
+  at?: { id: number; x: number; y: number }[];
+}
 /** `fret`: the fret space the marker's centre is in the middle of, or 0 for the nut. `mm`: at fret 0 only, the marker's side when its
  * edge (not its centre) touches the nut: then its centre is half of that up the headstock. */
 export interface Placed { id: number; fret: number; mm?: number }
 export interface Grid { origin: Pt; dir: Pt; a: number; b: number }
 
-const distOf = (fret: number) => 1 - 2 ** (-fret / 12); // nut to fret, in scale lengths
+export const distOf = (fret: number) => 1 - 2 ** (-fret / 12); // nut to fret, in scale lengths
 const SCALE_MM = 648; // 25.5" (Stratocaster, Telecaster)
 /** Nut to the marker's centre, in scale lengths: halfway between the wires either side of its fret space, or up the headstock from the nut. */
 const placeOf = (p: Placed) => (p.fret === 0 ? -(p.mm ?? 0) / 2 / SCALE_MM : (distOf(p.fret - 1) + distOf(p.fret)) / 2);

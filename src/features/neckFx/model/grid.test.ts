@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { fretAt, gridOf, parsePlaced, placeByHand } from "./neckGrid";
+import { fretAt, gridOf, parsePlaced, placeByHand } from "./grid";
 
 const placed = parsePlaced("3@0, 7@17");
 const dist = (f: number) => 1 - 2 ** (-f / 12);

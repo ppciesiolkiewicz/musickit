@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { placed } from "./NoteOverlay";
 import type { NeckRead, TakeLog } from "./takes";
-import { fretAt, gridOf, parsePlaced, placeByHand } from "./neckGrid";
+import { fretAt, gridOf, parsePlaced, placeByHand } from "@/features/neckFx";
 import { STRING_NAMES, type Timed } from "./riff";
 
 const btn = "rounded bg-slate-800 px-3 py-1 text-sm";

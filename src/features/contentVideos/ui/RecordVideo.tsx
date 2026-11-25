@@ -9,6 +9,7 @@ import { ToolClockListener } from "@/components/practice/toolClock";
 import { NoAutoScroll } from "@/components/practice/bringIntoView";
 import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls";
 import type { PlanTool } from "@/features/plan/model/tools";
+import { FxControls, NeckView, useFx } from "@/features/neckFx";
 import { saveContentVideo } from "../client/api";
 import { squeeze, type Sample } from "../model/clock";
 import { BGS, DEFAULT_BOX, DEFAULT_LOOK, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
@@ -111,6 +112,12 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement | null>(null);
+  // the live video as state too, so NeckView can read the camera
+  const [liveVideo, setLiveVideo] = useState<HTMLVideoElement | null>(null);
+  const liveRef = useCallback((el: HTMLVideoElement | null) => { live.current = el; setLiveVideo(el); }, []);
+  // optional, for testing: the neck read from printed markers, with effects drawn over the camera (not while recording)
+  const [readNeck, setReadNeck] = useState(false);
+  const [fx, setFx] = useFx();
   const takeUrl = useRef("");
   // the tool's beat as it tells it (`useToolClock`), and the take's samples of it
   const beat = useRef<number | null>(null);
@@ -275,7 +282,11 @@ export default function RecordVideo({ target, videos, children, drawn }: {
           </label>
         )}
         <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
+        <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera, for testing. Not while recording, and not saved with the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
+          <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} className="accent-sky-500" /> Read the neck
+        </label>
       </div>
+      {readNeck && <FxControls fx={fx} set={setFx} />}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-300">
         <label className="flex items-center gap-1.5">Place
           <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
@@ -296,8 +307,10 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
 
       <div ref={frame} className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
-        {camera ? <video ref={live} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
+        {camera ? <video ref={liveRef} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
+        {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
+        {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
         {/* one tree for every place, so changing the place never restarts the tool */}
         <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look)}>
           <div className={free ? `${panelClass(look, "record")} inset-0 pt-5` : undefined}>
