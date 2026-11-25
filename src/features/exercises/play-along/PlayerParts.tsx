@@ -1,7 +1,11 @@
 "use client";
 
-import type { ReactNode, Ref } from "react";
+import { useMemo, type ReactNode, type Ref } from "react";
+import ChordDiagram from "@/components/chordKit/ChordDiagram";
+import ChordPeek from "@/components/chordKit/ChordPeek";
 import Icon from "@/components/Icon";
+import { strumShape } from "@/lib/chordKit/playback";
+import { chordShapeFor } from "../cues/voicing";
 import { Button, HUE_TONES, KeyCap, Slider, hueAt, type Hue } from "@/components/ui";
 
 /**
@@ -79,13 +83,29 @@ export function chordHues(chords: string[]): Hue[] {
   });
 }
 
+/** A chord card's name: pointing at it (or tapping it) opens its chord box with its Play. A name with no shape is plain text. */
+function ChordName({ name, className }: { name: string; className: string }) {
+  const voiced = useMemo(() => chordShapeFor(name, "open"), [name]);
+  const label = name.replace("#", "♯");
+  if (!voiced) return <span className={className}>{label}</span>;
+  return (
+    <ChordPeek label={label} className={`${className} text-left decoration-dotted underline-offset-4 hover:underline`}
+      card={<>
+        <span className="font-medium text-slate-100">{label}</span>
+        <div className="w-40 self-center">
+          <ChordDiagram shape={voiced.shape} rootFret={voiced.fret} onPlay={() => strumShape(voiced.shape, voiced.fret)} />
+        </div>
+      </>} />
+  );
+}
+
 /** A chord card: its colour as a top stripe; `lit` fills and lifts it in that colour, `next` dashes its border. */
 export function ChordCard({ name, hue, lit, next, children, className = "" }: { name: string; hue: Hue; lit: boolean; next?: boolean; children?: ReactNode; className?: string }) {
   return (
     <span role="listitem" aria-current={lit || undefined}
       className={`relative flex max-w-full flex-col gap-1.5 overflow-hidden rounded-xl border px-1.5 pb-1.5 pt-2.5 transition duration-100 ${lit ? `${HUE_TONES[hue].on} -translate-y-0.5` : next ? "border-dashed border-slate-400/70 bg-slate-950/40" : "border-slate-700/70 bg-slate-950/40"} ${className}`}>
       <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${STRIPE[hue]} ${lit ? "" : "opacity-60"}`} />
-      <span className={`px-1 text-base font-semibold leading-none tracking-tight ${lit ? "text-white" : "text-slate-100"}`}>{name.replace("#", "♯")}</span>
+      <ChordName name={name} className={`self-start px-1 text-base font-semibold leading-none tracking-tight ${lit ? "text-white" : "text-slate-100"}`} />
       {children}
     </span>
   );
