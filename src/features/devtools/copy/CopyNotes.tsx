@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
 import { contextLines, copyNotesMarkdown, noteHref, outdatedCount, repinCopyNotes, squeeze, type CopyNote, type NoteContext } from "../model/copyNotes";
-import { useCommitState, useCopyNotes, useLinkedNote, useRoute, useShownSections, writeCopyNotes as write } from "./store";
+import { COMMIT_UNKNOWN, useCommitState, useCopyNotes, useLinkedNote, useRoute, useShownSections, writeCopyNotes as write } from "./store";
 import { devUi } from "../gate";
 import { NoteBar } from "./NoteBar";
 import { TextNoteMarks, pathOf, placesOf } from "./TextNoteMarks";
@@ -40,8 +40,6 @@ function blockOf(target: EventTarget | null): HTMLElement | null {
 }
 
 /** The buttons of the bar on /admin/content/library, so the notes read as the same tool. */
-/** What the bar says where git gives no commit (a production server has no checkout). */
-const COMMIT_UNKNOWN = "Commit not known";
 const BTN = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-default disabled:opacity-50";
 const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/70 bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-amber-500/30";
 

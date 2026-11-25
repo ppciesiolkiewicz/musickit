@@ -8,7 +8,7 @@ import type { PlainCell as Section } from "@/features/plan/model/tools";
 import { pinSection, quoteOf, sectionHash, sectionText } from "../model/comments";
 import { placeOf, stateOf, type CopyNote } from "../model/copyNotes";
 import { NoteBar, NoteEditor } from "../copy/NoteBar";
-import { useCommitState, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "../copy/store";
+import { COMMIT_UNKNOWN, useCommitState, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "../copy/store";
 
 /*
  * The pencils on a drawn /admin/content/library item: a shortcut to a dev note (the Notes button's "Note a text") pinned to one section, so it
@@ -56,6 +56,7 @@ function CommentSlot({ example, address, index, section }: { example: string; ad
       </button>
       {(mine.length > 0 || adding) && (
         <div className="mt-2 flex min-w-72 flex-col gap-1.5">
+          {commitsSettled && !commits && <span className="text-xs text-slate-500">{COMMIT_UNKNOWN}</span>}
           {mine.map((c) => {
             const state = stateOf(c.section!, hash);
             const keep = state === "changed" && (
@@ -65,7 +66,6 @@ function CommentSlot({ example, address, index, section }: { example: string; ad
             );
             return <NoteBar key={c.id} id={`note-${c.id}`} note={c} state={state} linked={linked === c.id} extra={keep} />;
           })}
-          {adding && commitsSettled && !commits && <span className="text-xs text-slate-500">Commit not known</span>}
           {adding && <NoteEditor initial="" onSave={add} onCancel={() => setAdding(false)} />}
         </div>
       )}

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Icon from "@/components/Icon";
 import { clearCopyNotes, copyNotesMarkdown, noteHref, pathOfRoute, repinCopyNotes } from "../model/copyNotes";
-import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "./store";
+import { COMMIT_UNKNOWN, useCommitState, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "./store";
 import { NoteBar } from "./NoteBar";
 
 const BTN = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-default disabled:opacity-50";
@@ -44,7 +44,8 @@ function CopyButton({ text, label, primary = false, disabled = false }: { text: 
 /** Every page's copy notes, in the order of the sitemap, with the pages that have none yet below; copy, re-pin and clear them all or per page. */
 export default function NotesPage() {
   const notes = useCopyNotes();
-  const commits = useCommits();
+  const { commits, settled: commitsSettled } = useCommitState();
+  const unknown = !commits && commitsSettled;
   const head = commits?.head ?? null;
   const sitemap = useSitemapPaths();
   const [clearing, setClearing] = useState<string | null>(null);
@@ -67,8 +68,9 @@ export default function NotesPage() {
         <Icon name="pencil" size={14} className="text-amber-300" />
         <span className="text-sm text-slate-100">{notes.length} note{notes.length === 1 ? "" : "s"} on {byRoute.length} page{byRoute.length === 1 ? "" : "s"}</span>
         {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD">HEAD {head}</span>}
+        {!head && unknown && <span className="text-xs text-slate-500">{COMMIT_UNKNOWN}</span>}
         <span className="ml-auto flex flex-wrap gap-2">
-          <button type="button" disabled={!head || !notes.length} onClick={() => head && write((l) => repinCopyNotes(l, head))} title="Pin every note to the checkout's HEAD: they still hold" className={BTN}>Re-pin all to HEAD</button>
+          <button type="button" disabled={!head || !notes.length} onClick={() => head && write((l) => repinCopyNotes(l, head))} title={unknown ? COMMIT_UNKNOWN : "Pin every note to the checkout's HEAD: they still hold"} className={BTN}>Re-pin all to HEAD</button>
           <button type="button" disabled={!notes.length} onClick={() => confirm("all", () => write(() => []))} className={danger("all")}>{clearing === "all" ? "Click again to delete all" : "Clear all"}</button>
           <CopyButton primary disabled={!notes.length} label="Copy all" text={() => copyNotesMarkdown(notes, { head: head ?? undefined, files: commits?.files, origin: location.origin })} />
         </span>
@@ -82,7 +84,7 @@ export default function NotesPage() {
             <Link href={route} className="font-mono text-sm font-semibold text-sky-200 hover:underline">{route}</Link>
             <span className="text-xs text-slate-500">{list.length}</span>
             <span className="ml-auto flex flex-wrap gap-2">
-              <button type="button" disabled={!head} onClick={() => head && write((l) => repinCopyNotes(l, head, route))} className={BTN}>Re-pin to HEAD</button>
+              <button type="button" disabled={!head} onClick={() => head && write((l) => repinCopyNotes(l, head, route))} title={unknown ? COMMIT_UNKNOWN : undefined} className={BTN}>Re-pin to HEAD</button>
               <button type="button" onClick={() => confirm(route, () => write((l) => clearCopyNotes(l, route)))} className={danger(route)}>{clearing === route ? "Click again to clear" : "Clear"}</button>
               <CopyButton label="Copy" text={() => copyNotesMarkdown(list, { head: head ?? undefined, files: commits?.files, origin: location.origin })} />
             </span>

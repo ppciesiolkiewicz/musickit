@@ -94,6 +94,9 @@ export function useScrollTo(id: string | null) {
 
 /* ---- git: HEAD and each example file's last commit, from /api/dev/commit ---- */
 
+/** What a page says where git gives no commit (a production server has no checkout). */
+export const COMMIT_UNKNOWN = "Commit not known";
+
 export interface Commits {
   head: string;
   files: Record<string, { path: string; commit: string; dirty: boolean }>;

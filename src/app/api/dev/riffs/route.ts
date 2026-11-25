@@ -14,22 +14,21 @@ const fileOf = (id: string) => path.join(process.cwd(), BLOCKS, `${id}.json`);
 const fail = (error: string, status: number) => Response.json({ error }, { status });
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
-/** The seed blocks that hold a riff, as their files are now. One whose riff can't be read is left out and named in `problems`. */
+/** The seed blocks that hold a riff, as their files are now, through `riffsOf` as the bundled path does. A file that can't be read or parsed is named by its file name in `problems`. */
 async function readRiffs(): Promise<{ riffs: RiffBlock[]; problems: string[] }> {
   const names = (await readdir(path.join(process.cwd(), BLOCKS))).filter((f) => f.endsWith(".json")).sort();
-  const riffs: RiffBlock[] = [];
-  const problems: string[] = [];
+  const blocks: unknown[] = [];
+  const unread: string[] = [];
   await Promise.all(names.map(async (name) => {
     try {
       const text = await readFile(path.join(process.cwd(), BLOCKS, name), "utf8");
-      if (!text.includes('"riff"')) return;
-      const r = riffBlockOf(JSON.parse(text));
-      if (r && "error" in r) problems.push(`${name}: ${r.error}`); else if (r) riffs.push(r);
+      if (text.includes('"riff"')) blocks.push(JSON.parse(text));
     } catch (e) {
-      problems.push(`${name}: ${message(e)}`);
+      unread.push(`${name}: ${message(e)}`);
     }
   }));
-  return { riffs: riffs.sort((a, b) => a.id.localeCompare(b.id)), problems: problems.sort() };
+  const { riffs, problems } = riffsOf(blocks);
+  return { riffs, problems: [...unread, ...problems].sort() };
 }
 
 /**
