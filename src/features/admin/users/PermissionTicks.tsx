@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PERMISSION_LABEL, PERMISSIONS, type Permission } from "@/features/account/model";
-import { failedMessage, SELF } from "./messages";
+import { failedMessage, SELF, thrownMessage } from "./messages";
 
 
 /**
@@ -35,7 +35,7 @@ export default function PermissionTicks({ userId, initial, self }: { userId: str
       setShown(body.permissions);
     } catch (e) {
       setShown(saved);
-      setError(e instanceof Error ? e.message : failedMessage(undefined));
+      setError(thrownMessage(e));
     } finally {
       setSaving(false);
     }
