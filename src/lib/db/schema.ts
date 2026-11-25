@@ -5,6 +5,10 @@ import { bigint, boolean, check, date, index, integer, jsonb, pgEnum, pgTable, p
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
  * and `npm run db:migrate` applies it. Never edit a migration that has been applied somewhere. `npm run db:diagram`
  * redraws docs/db/schema.svg (shown in the README).
+ *
+ * Every table ends in `.enableRLS()` with no policies: Supabase serves the `public` schema over its Data API to anyone
+ * holding the public anon key, and row level security with no policies shuts that out. The app connects as the table
+ * owner (`postgres` on Supabase), which bypasses it. schema.test.ts fails on a table without it.
  */
 
 const at = (name: string) => timestamp(name, { withTimezone: true, mode: "date" });
@@ -53,7 +57,7 @@ export const plans = pgTable("plans", {
    */
   newPlanPercent: integer("new_plan_percent").notNull().default(50),
   updatedAt: at("updated_at").notNull().defaultNow(),
-}, (t) => [check("plans_new_plan_percent_range", sql`${t.newPlanPercent} between 1 and 99`)]);
+}, (t) => [check("plans_new_plan_percent_range", sql`${t.newPlanPercent} between 1 and 99`)]).enableRLS();
 
 /**
  * The library of practice plans an autoplan can be taken from instead of asking the AI (see `plans.new_plan_percent`).
@@ -83,7 +87,7 @@ export const practicePlans = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("practice_plans_reuse").on(t.enabledForReuse)],
-);
+).enableRLS();
 
 /** One person. Every email here was proven: by a link we mailed, or by Google. */
 export const users = pgTable("users", {
@@ -121,7 +125,7 @@ export const users = pgTable("users", {
   termsVersion: text("terms_version"),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
-});
+}).enableRLS();
 
 /**
  * A person who chose a plan priced with them (Teacher Unlimited: any number of students, `pricedWithYou` in
@@ -134,7 +138,7 @@ export const planRequests = pgTable("plan_requests", {
   planId: text("plan_id").notNull().references(() => plans.id, { onDelete: "cascade" }),
   createdAt: at("created_at").notNull().defaultNow(),
   contactedAt: at("contacted_at"),
-});
+}).enableRLS();
 
 /** A sign-in with another service (Google) tied to a user. */
 export const identities = pgTable(
@@ -148,7 +152,7 @@ export const identities = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [uniqueIndex("identities_provider_account").on(t.provider, t.providerAccountId), index("identities_user").on(t.userId)],
-);
+).enableRLS();
 
 /** A signed-in browser. The cookie holds the token; only its SHA-256 is stored. */
 export const sessions = pgTable(
@@ -163,7 +167,7 @@ export const sessions = pgTable(
     expiresAt: at("expires_at").notNull(),
   },
   (t) => [index("sessions_user").on(t.userId), index("sessions_expires").on(t.expiresAt)],
-);
+).enableRLS();
 
 export const authTokenKind = pgEnum("auth_token_kind", ["email_link", "signup", "claim"]);
 
@@ -194,7 +198,7 @@ export const authTokens = pgTable(
     usedAt: at("used_at"),
   },
   (t) => [index("auth_tokens_email").on(t.email, t.createdAt), index("auth_tokens_expires").on(t.expiresAt)],
-);
+).enableRLS();
 
 /**
  * A teacher and their student (a normal `users` row of its own). A student has one teacher, so `student_id` is unique.
@@ -211,7 +215,7 @@ export const teacherStudents = pgTable(
     plannedOn: date("planned_on", { mode: "string" }),
   },
   (t) => [primaryKey({ columns: [t.teacherId, t.studentId] })],
-);
+).enableRLS();
 
 /**
  * A link we send a teacher to try the app on a plan no one can choose (`plan_id`, the Teacher Demo: 2 students, free).
@@ -232,7 +236,7 @@ export const teacherInvites = pgTable(
     claimedAt: at("claimed_at"),
   },
   (t) => [index("teacher_invites_created").on(t.createdAt)],
-);
+).enableRLS();
 
 /** One JSON document of a player's data per kind (their notes, their plans, and so on). */
 export const userDocuments = pgTable(
@@ -246,7 +250,7 @@ export const userDocuments = pgTable(
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [uniqueIndex("user_documents_user_kind").on(t.userId, t.kind)],
-);
+).enableRLS();
 
 /** A player's progress on one exercise. */
 export const progressEntries = pgTable(
@@ -262,7 +266,7 @@ export const progressEntries = pgTable(
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [uniqueIndex("progress_entries_user_exercise").on(t.userId, t.exerciseId), index("progress_entries_block").on(t.blockId), index("progress_entries_choice").on(t.choiceId)],
-);
+).enableRLS();
 
 /**
  * The day timer's record of one day of one plan, kept apart from the plan document so a timer save is a few bytes:
@@ -283,7 +287,7 @@ export const planDayTimes = pgTable(
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.planId, t.day] })],
-);
+).enableRLS();
 
 /** Where an owner got a block: written by the AI, edited by the player, seeded by the app, or from a hand-written example. */
 export const blockSource = pgEnum("block_source", ["ai", "edit", "seed", "example"]);
@@ -333,7 +337,7 @@ export const blocks = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("blocks_area").on(t.area), index("blocks_topic").on(t.topic)],
-);
+).enableRLS();
 
 /**
  * A choice of a curated block: one way to play it, with its own name, level, steps, moves, settings and minutes. The seed
@@ -357,7 +361,7 @@ export const choices = pgTable(
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [unique("choices_block_name").on(t.blockId, t.name), index("choices_block").on(t.blockId), index("choices_active").on(t.active)],
-);
+).enableRLS();
 
 /**
  * The blocks of a library plan (never a player's plan), in order: one row per plan, day and place. Replaced as a whole for a
@@ -376,7 +380,7 @@ export const practicePlanBlocks = pgTable(
     minutes: integer("minutes").notNull(),
   },
   (t) => [primaryKey({ columns: [t.planId, t.day, t.place] }), index("practice_plan_blocks_block").on(t.blockId)],
-);
+).enableRLS();
 
 /**
  * Who has a block: one row per owner and block. `user_id` null is the app (seeded and example blocks); the unique pair
@@ -392,7 +396,7 @@ export const blockOwners = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [unique("block_owners_user_block").on(t.userId, t.blockId).nullsNotDistinct(), index("block_owners_block").on(t.blockId)],
-);
+).enableRLS();
 
 /**
  * A conversation between a signed-in user and us (features/messages), or one contact form message from a visitor
@@ -418,7 +422,7 @@ export const messageThreads = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("message_threads_user").on(t.userId, t.lastAt), index("message_threads_status").on(t.status, t.lastAt), check("message_threads_status_value", sql`${t.status} in ('open', 'closed')`)],
-);
+).enableRLS();
 
 /** One message in a thread, from the user or from us. `context` is where the user sent it from (`MessageContext`). */
 export const messages = pgTable(
@@ -432,7 +436,7 @@ export const messages = pgTable(
     at: at("at").notNull(),
   },
   (t) => [index("messages_thread").on(t.threadId, t.at)],
-);
+).enableRLS();
 
 /** A video a player uploaded. The file is in the private blob store at `blobPath`. */
 export const videos = pgTable(
@@ -450,7 +454,7 @@ export const videos = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("videos_user_id_idx").on(t.userId)],
-);
+).enableRLS();
 
 export const shareKind = pgEnum("share_kind", ["note", "plan"]);
 
@@ -467,7 +471,7 @@ export const shares = pgTable(
     stoppedAt: at("stopped_at"),
   },
   (t) => [index("shares_user_kind_item").on(t.userId, t.kind, t.itemId)],
-);
+).enableRLS();
 
 /** The videos a share shows. */
 export const shareVideos = pgTable(
@@ -477,7 +481,7 @@ export const shareVideos = pgTable(
     videoId: uuid("video_id").notNull().references(() => videos.id, { onDelete: "cascade" }),
   },
   (t) => [primaryKey({ columns: [t.shareId, t.videoId] }), index("share_videos_video_id_idx").on(t.videoId)],
-);
+).enableRLS();
 
 /** A player who took a shared plan as their own. */
 export const planClaims = pgTable(
@@ -488,7 +492,7 @@ export const planClaims = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.shareId, t.userId] }), index("plan_claims_user_id_idx").on(t.userId)],
-);
+).enableRLS();
 
 /**
  * A player's singing voice (`SingerVoice` in features/theory/voiceRange.ts), one row a player, none while it is not
@@ -508,7 +512,7 @@ export const userVoices = pgTable(
   (t) => [
     check("user_voices_type_or_range", sql`(${t.type} is not null and ${t.low} is null and ${t.high} is null) or (${t.type} is null and ${t.low} is not null and ${t.high} is not null and ${t.low} < ${t.high})`),
   ],
-);
+).enableRLS();
 
 /**
  * A player's daily reminder email (`features/reminders`): a local quarter-hour time in their browser's time zone, and
@@ -526,7 +530,7 @@ export const reminders = pgTable(
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [check("reminders_time_quarter", sql`${t.time} ~ '^([01][0-9]|2[0-3]):(00|15|30|45)$'`)],
-);
+).enableRLS();
 
 /**
  * One paid Stripe invoice: a completed order. Written by the Stripe webhook (`invoice.paid`), one row per invoice, so
@@ -558,4 +562,4 @@ export const payments = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("payments_user").on(t.userId)],
-);
+).enableRLS();

@@ -1,0 +1,25 @@
+ALTER TABLE "auth_tokens" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "block_owners" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "blocks" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "choices" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "identities" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "message_threads" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "messages" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "payments" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "plan_claims" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "plan_day_times" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "plan_requests" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "plans" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "practice_plan_blocks" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "practice_plans" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "progress_entries" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "reminders" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "sessions" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "share_videos" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "shares" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "teacher_invites" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "teacher_students" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "user_documents" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "user_voices" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "users" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "videos" ENABLE ROW LEVEL SECURITY;
