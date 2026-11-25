@@ -18,8 +18,9 @@ Lines marked **(user)** were decided by the user. Lines marked **(call)** are th
 - A **content video** is a row in a new database table, with its file in the private Blob store. It has a title and
   a note on what it shows. It is not tied to one key or tempo: it can be instructional, cover a couple of keys and say
   more than the exercise (user).
-- **Other things point at a video** by id: an exercise (a block), or one tool cell inside it, gets a `video` field;
-  later a course section does too (user). There is no links table (user).
+- **Other things point at a video** by id, at three levels (user, 2026-11-25: "we need all 3"): a block (every level
+  of it), one choice of it (one level), and one tool cell inside the exercise, for every choice or for one; later a
+  course section does too (user). There is no links table (user).
 - **The overlay** is the exercise's own tool drawn over the video while it plays (user). While recording, the tool sits
   over the camera and the recorder starts it when they like, with the tool's own Play (user). The take saves when
   the tool was started and stopped and with what settings; on playback the tool starts and stops at those times by
@@ -143,11 +144,31 @@ in this browser and can be retried, with a visible error (every fetch has a time
 route answers with a cacheable `cache-control` so repeat plays cost less. PATCH (title, note) and DELETE for `content`. Delete is refused while something points at it, listing what
 (call).
 
-**Pointing at it**: a block, or a tool cell in it, points at a content video by id (user). Stored in the database only
-(call: seed files don't carry it, see §5), and **outside the block's `content`** (call): a new column
-`blocks.videos jsonb`, `{ block?: <video id>, cells?: { "<cell index>": <video id> } }`. Keeping it out of `content`
-means a hashed block's id still matches its content, and the seed never has to merge it. Saving a video from the
-library's Video panel sets it, in the same request.
+**Pointing at it**: a block, a choice of it, or a tool cell in it points at a content video by id (user). Stored in the
+database only (call: seed files don't carry it, see §5), and **outside the block's `content`** (call): a new column
+`blocks.videos jsonb`:
+
+```
+{
+  block?: <video id>,                          // the whole exercise, every choice
+  cells?: { "<cell index>": <video id> },      // one tool cell, every choice
+  choices?: {
+    "<choice id>": {                           // `<block id>/<name>`: one level
+      block?: <video id>,
+      cells?: { "<cell index>": <video id> }
+    }
+  }
+}
+```
+
+**Which one shows** (call): the most specific wins. For the exercise as a whole, the drawn choice's `block`, else the
+block's `block`. For a tool cell, the drawn choice's cell, else the block's cell. A choice-level video replaces the
+block-level one only where it is set, so a block can have one video for every level and a harder take for the advanced
+choice only. Keeping it out of `content` means a hashed block's id still matches its content, and the seed never has to
+merge it. Saving a video from the library's Video panel sets it, in the same request.
+
+Today every seed block has one choice (469 blocks, 2026-11-25), so block and choice level look the same until a block
+gets a second choice; the panel still lets the recorder pick which.
 
 - **Only curated (seed) blocks** get videos (call). The Video panel isn't offered on a Database only block. A player's
   edited copy of a curated block (a new hashed block with `parentId`) does not show the parent's video (call).
@@ -161,8 +182,10 @@ tool cell at it. The IndexedDB take stays as the local copy until the upload is 
 
 ## 4. Recording panel and overlay
 
-- Under each exercise drawn in the library (`/admin/content/library?item=<id>`), a **Video** panel: the linked video if
-  any (play, title, note, **Replace**, **Unlink**), or **Record**. Per tool cell, the same, smaller.
+- Under each exercise opened in the library (`/admin/content/library/blocks?item=<id>`, in its row), a **Video**
+  panel: the linked video if any (play, title, note, **Replace**, **Unlink**), or **Record**. It has two places: **Every
+  level** (the block's) and **This level: <choice name>** (the drawn choice's), and says which one a player of this
+  choice sees. Per tool cell, the same two, smaller.
 - Recording, reusing `VideoRecorder` parts and /dev/riff's camera and audio input picking: the camera fills the
   frame and the exercise's tool sits over it. The recorder starts and stops the tool with its own controls whenever they
   want (user). A strict click/count-in is not needed (user: "more permissive"); /dev/riff keeps its click mode for
@@ -188,7 +211,8 @@ tool cell at it. The IndexedDB take stays as the local copy until the upload is 
   never writes or clears `blocks.videos` (user: "if the field is empty on seed,
   e.g. video, then this should not be updated"). Since a tool cell has no id, a cell's video is kept by its position in
   `cells` (call); if a seed edit changes the cells' count or the tool type at that position, the seed run drops that
-  cell's entry and prints which (call).
+  cell's entry, at both levels, and prints which (call). A choice the seed file no longer has loses its `choices` entry
+  the same way; the videos themselves stay in `content_videos`.
 - **Library tags**, always shown (user): every block and plan is listed, switched-off ones too; the
   `?include_not_enabled=1` link goes (user). Each row has **Seed** (from a seed file) or **Database only** (a player's or
   the AI's block, no file), and **Off** when it isn't offered to players. A block with a video has a video tag (call).
