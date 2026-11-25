@@ -24,8 +24,10 @@ export const DEFAULT_LOOK: Look = { place: "bottom", size: "medium", bg: "dark" 
 /** a saved video with no look: as videos played before looks were saved */
 export const PLAYBACK_LOOK: Look = { place: "top", size: "medium", bg: "dark" };
 
-/** a free panel before it is moved or sized */
-export const DEFAULT_BOX: Box = { x: 0.05, y: 0.05, w: 0.5, h: 0.4 };
+/** a free panel before it is moved or sized: in the top right corner */
+export const DEFAULT_BOX: Box = { x: 0.45, y: 0.05, w: 0.5, h: 0.4 };
+/** the same for a narrow tool laid out at its own width (a chord box), which is taller than it is wide */
+export const NARROW_BOX: Box = { x: 0.7, y: 0.05, w: 0.25, h: 0.6 };
 /** the smallest share of the picture a free panel may take, across and down */
 export const MIN_BOX = 0.1;
 

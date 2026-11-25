@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { DEFAULT_BOX, type Look } from "../model/overlay";
+import { DEFAULT_BOX, type Box, type Look } from "../model/overlay";
 
 /**
  * The classes of the panel the tool sits in over the camera (recording) or over the video (playback), from its look.
@@ -27,12 +27,12 @@ export function panelClass(look: Look, on: "record" | "play"): string {
 }
 
 /**
- * A free panel's place and width, as shares of the picture; none for the other places (their classes place them). Its
+ * A free panel's place and width, as shares of the picture (`unset` until it is moved); none for the other places (their classes place them). Its
  * height follows the tool, scaled to that width (`Scaled`), so the tool keeps its proportions at any size.
  */
-export function panelStyle(look: Look): CSSProperties | undefined {
+export function panelStyle(look: Look, unset: Box = DEFAULT_BOX): CSSProperties | undefined {
   if (look.place !== "free") return undefined;
-  const b = look.box ?? DEFAULT_BOX;
+  const b = look.box ?? unset;
   return { left: `${b.x * 100}%`, top: `${b.y * 100}%`, width: `${b.w * 100}%` };
 }
 

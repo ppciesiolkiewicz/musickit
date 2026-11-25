@@ -16,7 +16,7 @@ import { saveContentVideo } from "../client/api";
 import { burnOverlay, canBurn, noChange, type Burned } from "../client/burn";
 import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
 import { squeeze, type Sample } from "../model/clock";
-import { BGS, DEFAULT_BOX, DEFAULT_LOOK, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
+import { BGS, DEFAULT_BOX, DEFAULT_LOOK, NARROW_BOX, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
 import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelBg, panelClass, panelStyle } from "./lookPanel";
 import Scaled from "./Scaled";
 import { stepGroups, toolName, wouldLose } from "../model/coverage";
@@ -43,6 +43,8 @@ const CAMERA_KEY = "musickit.content.camera";
 /** where the tool sits over the camera, and whether its controls show: kept in this browser */
 const LOOK_KEY = "musickit.content.toolLook";
 const CONTROLS_KEY = "musickit.content.toolControls";
+/** tools far narrower than a Free box (a row of chord boxes): laid out at their own width there, not `FREE_WIDTH` */
+const NARROW_TOOLS: readonly string[] = ["chord-shapes"];
 const stored = (key: string): unknown => { try { const v = localStorage.getItem(key); return v === null ? null : JSON.parse(v); } catch { return null; } };
 const store = (key: string, v: unknown) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* this visit only */ } };
 const btn = "rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-40";
@@ -89,6 +91,9 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const [controlsShown, setControlsShownState] = useState(() => stored(CONTROLS_KEY) !== false);
   const setControlsShown = (on: boolean) => { setControlsShownState(on); store(CONTROLS_KEY, on); };
   const free = look.place === "free";
+  // a narrow tool is laid out at its own width when Free, so it fills the box instead of sitting in its corner
+  const narrow = drawn !== null && NARROW_TOOLS.includes(drawn.type);
+  const unsetBox = narrow ? NARROW_BOX : DEFAULT_BOX;
   const frame = useRef<HTMLDivElement | null>(null);
   // Free: the bar on top of the tool moves it, the corner sizes it, as shares of the camera's picture; kept when let go
   const dragBox = (mode: "move" | "size") => (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -98,7 +103,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     const el = e.currentTarget;
     const panel = el.parentElement?.getBoundingClientRect();
     // the height follows the scaled tool (`Scaled`): read it off the screen, and keep the tool's proportions when sizing
-    const box0 = look.box ?? DEFAULT_BOX;
+    const box0 = look.box ?? unsetBox;
     const from = panel?.height ? { ...box0, h: panel.height / rect.height } : box0;
     const tall = from.h / from.w;
     const [sx, sy] = [e.clientX, e.clientY];
@@ -396,9 +401,9 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
         {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live fit="cover" />}
         {/* one tree for every place, so changing the place never restarts the tool */}
-        <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look)}>
+        <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look, unsetBox)}>
           <div className={free ? `${panelBg(look)} pt-4` : undefined}>
-            <Scaled on={free} className="p-2"><NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll></Scaled>
+            <Scaled on={free} fit={narrow} className="p-2"><NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll></Scaled>
           </div>
           {free && <div onPointerDown={dragBox("move")} title="Drag to move the tool" className="absolute inset-x-0 top-0 h-4 cursor-move touch-none bg-slate-600/80 hover:bg-slate-500/90"><span className="mx-auto mt-1.5 block h-1 w-10 rounded-full bg-slate-300/70" /></div>}
           {free && <div onPointerDown={dragBox("size")} title="Drag to size the tool" className="absolute bottom-0 right-0 size-5 cursor-se-resize touch-none border-b-4 border-r-4 border-slate-300/80 hover:border-white" />}

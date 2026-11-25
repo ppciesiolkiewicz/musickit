@@ -6,11 +6,11 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 export const FREE_WIDTH = 640;
 
 /**
- * A Free tool, laid out at `FREE_WIDTH` and scaled as a whole to the width it is given, so sizing the box shrinks or grows
+ * A Free tool, laid out at `FREE_WIDTH` (with `fit`, at its own width up to that, so a narrow tool fills the box) and scaled as a whole to the width it is given, so sizing the box shrinks or grows
  * the tool proportionally instead of reflowing it. Its height follows. With `on` false it adds two plain boxes and nothing
  * else, so a tool that moves between Free and another place keeps its tree and never restarts.
  */
-export default function Scaled({ on, className = "", children }: { on: boolean; className?: string; children: ReactNode }) {
+export default function Scaled({ on, fit = false, className = "", children }: { on: boolean; fit?: boolean; className?: string; children: ReactNode }) {
   const outer = useRef<HTMLDivElement | null>(null);
   const inner = useRef<HTMLDivElement | null>(null);
   const [size, setSize] = useState({ scale: 1, height: 0 });
@@ -21,7 +21,7 @@ export default function Scaled({ on, className = "", children }: { on: boolean; 
     if (!on || !o || !i) return;
     // layout sizes (clientWidth, offsetHeight) are the unscaled ones, so this never feeds on itself
     const read = () => {
-      const scale = o.clientWidth / FREE_WIDTH;
+      const scale = o.clientWidth / (i.offsetWidth || FREE_WIDTH);
       const height = i.offsetHeight;
       setSize((s) => (s.scale === scale && s.height === height ? s : { scale, height }));
     };
@@ -30,12 +30,12 @@ export default function Scaled({ on, className = "", children }: { on: boolean; 
     ro.observe(o);
     ro.observe(i);
     return () => ro.disconnect();
-  }, [on]);
+  }, [on, fit]);
 
   if (!on) return <div><div>{children}</div></div>;
   return (
     <div ref={outer} className="relative overflow-hidden" style={{ height: size.height * size.scale }}>
-      <div ref={inner} className={className} style={{ width: FREE_WIDTH, transform: `scale(${size.scale})`, transformOrigin: "top left" }}>{children}</div>
+      <div ref={inner} className={className} style={{ width: fit ? "max-content" : FREE_WIDTH, maxWidth: FREE_WIDTH, transform: `scale(${size.scale})`, transformOrigin: "top left" }}>{children}</div>
     </div>
   );
 }
