@@ -9,8 +9,8 @@ const require = createRequire(import.meta.url);
 const { AR } = require("js-aruco2");
 
 const FIRST_ID = 51;
-const SIZES = [24, 22, 20, 18, 16, 14, 12]; // black square, mm
-const ONE_ROW = 14; // this size and smaller get one row each: few players put markers that high
+// black square, mm. A group of several sizes shares one row: few players put markers that high up the neck.
+const GROUPS = [[40], [24], [22], [20], [18], [16, 14, 12]];
 const SCALE = 648; // 25.5" scale, mm
 const PAGE = { w: 297, h: 420, margin: 10 };
 const GAP = 3; // mm between pieces
@@ -18,7 +18,7 @@ const GAP = 3; // mm between pieces
 const dict = new AR.Dictionary("ARUCO_MIP_36h12");
 const fretWidth = (f) => SCALE * (2 ** (-(f - 1) / 12) - 2 ** (-f / 12));
 /** Highest wire a piece can be centred on with a neighbour on each next wire: the narrower fret beside it is at least as wide as the piece. */
-const upToWire = (piece) => { let f = 1; while (fretWidth(f + 1) >= piece) f++; return f; };
+const upToWire = (piece) => { if (fretWidth(1) < piece) return 0; let f = 1; while (fretWidth(f + 1) >= piece) f++; return f; };
 
 function markerSvg(id) {
   const code = dict.codeList[id];
@@ -51,26 +51,37 @@ const usable = PAGE.w - 2 * PAGE.margin;
 const sections = [];
 const HEADER = 30, LABEL = 4, HEAD = 7; // mm
 let room = PAGE.h - 2 * PAGE.margin - HEADER;
-const plan = SIZES.map((s) => {
-  const pw = s * 1.25, ph = pw + LABEL;
-  const perRow = Math.floor((usable + GAP) / (pw + GAP));
-  return { s, pw, ph, perRow };
+const piece = (s) => s * 1.25; // with the white edge
+const plan = GROUPS.map((sizes) => {
+  // the same number of each size in a row, as many as fit
+  const set = sizes.reduce((t, s) => t + piece(s) + GAP, 0);
+  const each = Math.floor((usable + GAP) / set);
+  return { sizes, ph: piece(sizes[0]) + LABEL, row: sizes.flatMap((s) => Array(each).fill(s)) };
 });
-// rows per size: one each, then fill what's left with the larger sizes, largest first
+// rows per group: one each, then fill what's left with the one-size groups, largest first
 const rows = plan.map(() => 1);
 const used = () => plan.reduce((t, p, i) => t + HEAD + rows[i] * (p.ph + GAP), 0);
 for (let grew = true; grew;) {
   grew = false;
-  for (let i = 0; i < plan.length; i++) if (plan[i].s > ONE_ROW && used() + plan[i].ph + GAP <= room) { rows[i]++; grew = true; }
+  for (let i = 0; i < plan.length; i++) if (plan[i].sizes.length === 1 && used() + plan[i].ph + GAP <= room) { rows[i]++; grew = true; }
 }
+const fits = (s) => upToWire(piece(s))
+  ? `fret ${upToWire(piece(s))}`
+  : null;
 for (const [i, p] of plan.entries()) {
   const items = [];
-  for (let k = 0; k < rows[i] * p.perRow; k++) {
+  for (let r = 0; r < rows[i]; r++) for (const s of p.row) {
     if (!decodes(id)) throw new Error(`marker ${id} does not decode`);
-    items.push(`<div class="piece" style="width:${p.pw}mm"><div class="cut" style="width:${p.pw}mm;height:${p.pw}mm">${markerSvg(id)}</div><div class="label">${id} · ${p.s} mm</div></div>`);
+    items.push(`<div class="piece" style="width:${piece(s)}mm"><div class="cut" style="width:${piece(s)}mm;height:${piece(s)}mm">${markerSvg(id)}</div><div class="label">${id} · ${s} mm</div></div>`);
     id++;
   }
-  sections.push(`<h2>${p.s} mm <span>fits a marker on every fret wire up to fret ${upToWire(p.pw)}</span></h2><div class="row" style="gap:${GAP}mm">${items.join("")}</div>`);
+  const names = p.sizes.join(", ").replace(/, (\d+)$/, " and $1");
+  const note = p.sizes.length > 1
+    ? `fit a marker on every fret wire up to frets ${p.sizes.map((s) => upToWire(piece(s))).join(", ").replace(/, (\d+)$/, " and $1")}, in that order`
+    : fits(p.sizes[0])
+      ? `fits a marker on every fret wire up to ${fits(p.sizes[0])}`
+      : "wider than the first fret: for the headstock or the body, or to test how far away the camera reads it";
+  sections.push(`<h2>${names} mm <span>${note}</span></h2><div class="row" style="gap:${GAP}mm;align-items:flex-end">${items.join("")}</div>`);
 }
 y = used();
 
