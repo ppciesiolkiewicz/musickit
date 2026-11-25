@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { openRecordInput, type RecordInput } from "@/features/sound";
+import { getAudioContext, openRecordInput, wakeAudio, type RecordInput } from "@/features/sound";
 import RecordInputSelect from "@/components/RecordInputSelect";
 import RecordSoundSelect, { useRecordSound } from "@/components/RecordSoundSelect";
 import { clockTime } from "@/features/recorder/recorder";
-import { MAX_TAKE_SECONDS, pickVideoType } from "@/features/videos/recording";
+import { MAX_TAKE_SECONDS, pickVideoType, videoFileName } from "@/features/videos/recording";
 import { ToolClockListener } from "@/components/practice/toolClock";
 import { NoAutoScroll } from "@/components/practice/bringIntoView";
 import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls";
@@ -16,30 +16,39 @@ import { saveContentVideo } from "../client/api";
 import { startFaceCam, type FaceCam } from "../client/faceCam";
 import { FACE_CORNERS, FACE_SIZES, readFaceLook, type FaceLook } from "../model/faceCircle";
 import { burnOverlay, canBurn, noChange, type Burned } from "../client/burn";
+import { startClick } from "../client/click";
+import { deleteKeptTake, getKeptTake, saveKeptTake, type KeptTake, type NeckRead, type TakeLog } from "../client/takes";
 import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
-import { squeeze, type Sample } from "../model/clock";
-import { BGS, DEFAULT_BOX, DEFAULT_LOOK, NARROW_BOX, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
+import type { Sample } from "../model/clock";
+import { BGS, DEFAULT_BOX, DEFAULT_LOOK, NARROW_BOX, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look } from "../model/overlay";
+import { takeKey } from "../model/takeKey";
+import { takeOverlay } from "../model/takeClock";
 import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelBg, panelClass, panelStyle } from "./lookPanel";
 import Scaled from "./Scaled";
+import BeatView from "./BeatView";
+import DetectLog, { addNeckRead } from "./DetectLog";
 import { stepGroups, toolName, wouldLose } from "../model/coverage";
 import type { ContentVideoInfo } from "../server/access";
 
 /**
  * The record page's recorder (/admin/content/videos/record): the camera fills the frame and the tool (`children`, drawn by
- * the page) sits over it, started and stopped with its own controls. Record and Stop (or R), the take to watch back, its
- * title and note, the levels it is for (or This block only, when opened from a block's tool) with which video loses a
- * level, and Save for players. The take stays on this page until it is saved: a failed save can be tried again.
+ * the page) sits over it, started and stopped with its own controls, or played to the click. Record and Stop (or R), the
+ * take to watch back, its title and note, the levels it is for (or This block only, when opened from a block's tool) with
+ * which video loses a level, and Save for players. The take is kept in this browser, one per target (`takeKey`), until the
+ * next one replaces it; the one it replaced can be brought back until the page closes.
  */
 
 type Phase = "off" | "starting" | "ready" | "recording";
-interface Take {
-  id: string; blob: Blob; type: string; seconds: number; url: string; width: number; height: number; fileUp: boolean; saved: boolean; overlay: Overlay | null;
-  /** Export with overlay: the take with the tool and the neck effects burned in, saved for players in its place */
-  burned: Burned | null;
-}
+/** where the take on screen stands in this browser's storage */
+type Stored = "saving" | "saved" | "failed";
 
 /** how often the tool's beat is read while a take records */
 const SAMPLE_MS = 50;
+/** the click's on/off (one choice for tools with a tempo, one for tools without) and its typed tempo: kept in this browser */
+const CLICK_KEY = "musickit.content.click";
+interface ClickChoice { withTempo?: boolean; noTempo?: boolean; bpm?: number }
+const clampBpm = (n: number) => Math.min(300, Math.max(30, Math.round(n) || 80));
+const clampBars = (n: number) => Math.min(32, Math.max(1, Math.round(n) || 1));
 
 const CAMERA_KEY = "musickit.content.camera";
 /** the second camera, on the face, and where its circle sits: kept in this browser */
@@ -59,6 +68,8 @@ const rec = "inline-flex items-center gap-2 rounded-md bg-rose-700 px-3 py-1 tex
 const input = "rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200";
 const group = "flex min-w-0 flex-col gap-2 rounded-lg border border-slate-800 p-3 text-slate-300";
 const legend = "px-1 text-xs font-medium uppercase tracking-wide text-slate-500";
+/** Show the take at `t` seconds, paused. */
+const seek = (v: HTMLVideoElement, t: number) => { v.currentTime = t; v.pause(); };
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 export interface RecordFor {
@@ -69,22 +80,49 @@ export interface RecordFor {
   block: { id: string; cell: number; title: string } | null;
 }
 
-export default function RecordVideo({ target, videos, children, drawn }: {
+export default function RecordVideo({ target, videos, children, drawn, tempo, oldTakeKey }: {
   target: RecordFor;
   videos: ContentVideoInfo[];
   /** the tool drawn over the camera, or a line saying why there is none */
   children: ReactNode;
   /** the settings of the tool in `children`: a tool with an overlay has its beat saved with the take, to be drawn over the video in step */
   drawn: PlanTool | null;
+  /** the tool's tempo and length: the click plays at it, on by default. None: the click is off by default and its tempo is typed */
+  tempo?: { bpm: number; bars: number };
+  /** where an older page kept this target's take (a riff's block id): opened when none is kept under its take key */
+  oldTakeKey?: string;
 }) {
   const { tool, block } = target;
+  const key = takeKey(target);
   const groups = stepGroups(tool);
   const all = groups.flatMap((g) => g.steps);
   const laddered = all.some((s) => s.step !== null);
   const names = new Map(all.map((s) => [s.step, s.name]));
   const [phase, setPhase] = useState<Phase>("off");
   const [problem, setProblem] = useState("");
-  const [take, setTake] = useState<Take | null>(null);
+  // the take on screen and its address for the player (this page only, let go of when replaced)
+  const [shown, setShown] = useState<{ take: KeptTake; url: string } | null>(null);
+  const take = shown?.take ?? null;
+  const url = shown?.url ?? "";
+  const [inBrowser, setInBrowser] = useState<Stored>("saved");
+  // the take a new recording replaced, kept in memory until the next recording, so a worse retake can be undone
+  const [previous, setPrevious] = useState<KeptTake | null>(null);
+  // the take on screen for `record`'s stop, which runs after renders it didn't see
+  const latest = useRef<KeptTake | null>(null);
+  useEffect(() => { latest.current = take; }, [take]);
+  const [clickChoice, setClickChoice] = useState<ClickChoice>(() => { const v = stored(CLICK_KEY); return v && typeof v === "object" ? (v as ClickChoice) : {}; });
+  const pickClick = (part: ClickChoice) => setClickChoice((c) => { const next = { ...c, ...part }; store(CLICK_KEY, next); return next; });
+  const click = tempo ? clickChoice.withTempo ?? true : clickChoice.noTempo ?? false;
+  const bpm = tempo?.bpm ?? clampBpm(clickChoice.bpm ?? 80);
+  const [countIn, setCountIn] = useState(1);
+  // the expected length follows the tool's until it is typed in
+  const [typedLength, setLength] = useState<number | null>(null);
+  const length = typedLength ?? tempo?.bars ?? 4;
+  const stopClick = useRef<(() => void) | null>(null);
+  const endClick = () => { stopClick.current?.(); stopClick.current = null; };
+  // the click's grid while recording to it, and where the playing stands on it, read every frame
+  const grid = useRef<{ anchor: number; period: number; countIn: number; bars: number } | null>(null);
+  const [beatNow, setBeatNow] = useState<{ beat: number; bars: number; countIn: number } | null>(null);
   const [seconds, setSeconds] = useState(0);
   const [title, setTitle] = useState(`${toolName(tool)}${block ? ` · ${block.title}` : ""}`);
   const [note, setNote] = useState("");
@@ -188,7 +226,40 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const pickCamera = (id: string) => { setCameraId(id); try { localStorage.setItem(CAMERA_KEY, id); } catch { /* this visit only */ } };
   const pickFace = (id: string) => { setFaceId(id); try { localStorage.setItem(FACE_CAMERA_KEY, id); } catch { /* this visit only */ } };
 
+  /** Put a take (or none) on screen, letting go of the last one's address. */
+  const show = useCallback((t: KeptTake | null) => {
+    if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
+    takeUrl.current = t ? URL.createObjectURL(t.blob) : "";
+    setShown(t ? { take: t, url: takeUrl.current } : null);
+  }, []);
+  const keep = async (t: KeptTake) => {
+    setInBrowser("saving");
+    try { await saveKeptTake(t); setInBrowser("saved"); } catch (e) { setInBrowser("failed"); setProblem(`The browser didn't store this take: ${message(e)}. Press Save to try again, or Save file to keep it on disk.`); }
+  };
+  /** Change the shown take's detection log; it is stored in this browser a moment after the last change. */
+  const onNeckRead = useCallback((r: NeckRead) => setShown((s) => {
+    if (!s) return s;
+    const log: TakeLog = s.take.log ?? {};
+    const neck = addNeckRead(log.neck ?? [], r);
+    return neck === log.neck ? s : { ...s, take: { ...s.take, log: { ...log, neck } } };
+  }), []);
+  const loggedTake = take?.log ? take : null;
+  useEffect(() => {
+    if (!loggedTake) return;
+    const id = window.setTimeout(() => {
+      saveKeptTake(loggedTake).catch((e: unknown) => setProblem(`The detection log wasn't saved in this browser: ${message(e)}. Copy log keeps it.`));
+    }, 1000);
+    return () => window.clearTimeout(id);
+  }, [loggedTake]);
+
+  // the take kept for this target; one an older page kept (`oldTakeKey`) is kept under the take key from its next change
+  useEffect(() => {
+    let gone = false;
+    void getKeptTake(key, oldTakeKey).then((t) => { if (!gone && t) { show({ ...t, id: key }); setInBrowser("saved"); } });
+    return () => { gone = true; };
+  }, [key, oldTakeKey, show]);
   useEffect(() => () => {
+    endClick();
     if (recorder.current?.state === "recording") { recorder.current.onstop = null; recorder.current.stop(); }
     stopCamera();
     if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
@@ -217,8 +288,20 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     }, 250);
     return () => window.clearInterval(id);
   }, [phase]);
-  // a take not saved for players yet is lost when the page closes: the browser asks first
-  const unsaved = take !== null && !take.saved;
+  useEffect(() => {
+    if (phase !== "recording") return;
+    let id = 0;
+    const frame = () => {
+      const g = grid.current;
+      // beats from beat 1: negative in the count-in
+      setBeatNow(g ? { beat: (getAudioContext().currentTime - g.anchor) / g.period - g.countIn * 4, bars: g.bars, countIn: g.countIn } : null);
+      id = requestAnimationFrame(frame);
+    };
+    id = requestAnimationFrame(frame);
+    return () => { cancelAnimationFrame(id); setBeatNow(null); };
+  }, [phase]);
+  // a take neither saved for players nor kept in this browser is lost when the page closes: the browser asks first
+  const unsaved = take !== null && !take.saved && inBrowser !== "saved";
   useEffect(() => {
     if (!unsaved) return;
     const ask = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -291,7 +374,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     }
   };
 
-  const record = () => {
+  const record = async () => {
     const cam = stream.current;
     if (!cam) return;
     // with the face camera, the canvas holding both cameras; else the camera itself
@@ -301,33 +384,60 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     const chunks: Blob[] = [];
     let r: MediaRecorder;
     try { r = new MediaRecorder(s, type ? { mimeType: type } : undefined); } catch (e) { setProblem(`The recording didn't start: ${message(e)}.`); return; }
+    // with the click on: beat 1 after the count-in, and the take stops itself a moment after the expected length
+    const timed = click;
+    const ctx = getAudioContext();
+    if (timed) await wakeAudio();
+    const period = 60 / bpm;
+    const anchor = ctx.currentTime + 0.15;
+    const downbeatAt = anchor + countIn * 4 * period;
+    let recStart = ctx.currentTime;
+    let stopTimer = 0;
     let from = 0;
     let sampler = 0;
-    const tool = drawn && hasOverlay(drawn) ? drawn : null;
+    // to the click, the tool needn't be started: its overlay follows the click (`takeOverlay`)
+    const sampled = !timed && drawn !== null && hasOverlay(drawn);
     r.ondataavailable = (e) => e.data.size && chunks.push(e.data);
     r.onerror = () => setProblem("The recording stopped with an error. Record the take again.");
     r.onstart = () => {
+      recStart = ctx.currentTime;
       from = performance.now();
       samples.current = [];
-      if (!tool) return;
+      if (!sampled) return;
       const read = () => samples.current.push({ t: (performance.now() - from) / 1000, beat: beat.current });
       read();
       sampler = window.setInterval(read, SAMPLE_MS);
     };
     r.onstop = () => {
       window.clearInterval(sampler);
-      // a tool never started in the take has nothing to show in step: the video plays without it
-      const overlay = tool && samples.current.some((x) => x.beat !== null) ? { tool, clock: squeeze(samples.current) } : null;
+      window.clearTimeout(stopTimer);
+      grid.current = null;
+      endClick();
       const recorded = r.mimeType || type || "video/webm";
-      const blob = new Blob(chunks, { type: recorded });
-      if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
-      takeUrl.current = URL.createObjectURL(blob);
+      // a note played on the click reaches the take late by the output and input latency
+      const lag = (ctx.outputLatency || ctx.baseLatency || 0) + (mic.current?.latency ?? 0);
+      const clicked = timed ? { downbeat: Math.max(0, downbeatAt - recStart + lag), bpm, bars: length } : undefined;
       const settings = faceCam.current ? { width: faceCam.current.canvas.width, height: faceCam.current.canvas.height } : cam.getVideoTracks()[0]?.getSettings();
-      setTake({ id: crypto.randomUUID(), blob, type: recorded, seconds: Math.max(1, Math.round((performance.now() - from) / 1000)), url: takeUrl.current, width: settings?.width ?? 0, height: settings?.height ?? 0, fileUp: false, saved: false, overlay, burned: null });
+      const t: KeptTake = {
+        id: key, at: Date.now(), blob: new Blob(chunks, { type: recorded }), type: recorded, seconds: Math.max(1, Math.round((performance.now() - from) / 1000)),
+        width: settings?.width ?? 0, height: settings?.height ?? 0, fileUp: false, saved: false,
+        // a tool never started in a take without the click has nothing to show in step: the video plays without it
+        overlay: takeOverlay(drawn, clicked, samples.current), burned: null,
+        ...(clicked ? { click: clicked } : {}),
+      };
+      if (latest.current) setPrevious(latest.current);
+      show(t);
+      void keep(t);
       setDone("");
+      // the camera stays open, so the next take is one press away
       setPhase(stream.current ? "ready" : "off");
     };
     recorder.current = r;
+    if (timed) {
+      stopClick.current = startClick(bpm, anchor);
+      grid.current = { anchor, period, countIn, bars: length };
+      stopTimer = window.setTimeout(() => { if (r.state === "recording") r.stop(); }, (downbeatAt - ctx.currentTime + length * 4 * period + 0.5) * 1000);
+    }
     r.start(1000);
     setSeconds(0);
     setProblem("");
@@ -340,7 +450,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       const el = e.target as HTMLElement | null;
       if (e.key.toLowerCase() !== "r" || e.repeat || e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true]")) return;
       e.preventDefault();
-      if (phase === "ready" && !sending && exporting === null) record();
+      if (phase === "ready" && !sending && exporting === null) void record();
       else if (phase === "recording") recorder.current?.stop();
     };
     window.addEventListener("keydown", onKey);
@@ -353,6 +463,16 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const levelsOf = (list: string[]) => list.map((s) => names.get(s) ?? s).join(", ");
   const nothingTicked = !own && laddered && !steps?.length;
 
+  /** Set fields on the take recorded at `at`, on screen and in this browser (over what is stored, so a newer log is kept). */
+  const mark = async (at: number, fields: Partial<KeptTake>) => {
+    setShown((s) => (s && s.take.at === at ? { ...s, take: { ...s.take, ...fields } } : s));
+    setPrevious((p) => (p && p.at === at ? { ...p, ...fields } : p));
+    // never over another take: a newer recording may be stored for this target now. The take as pressed only when none is stored.
+    const kept = await getKeptTake(key);
+    const base = kept ? (kept.at === at ? kept : null) : take && take.at === at ? take : null;
+    if (base) { await saveKeptTake({ ...base, ...fields, id: key }); setInBrowser("saved"); }
+  };
+
   /** Play the take once and record it with the tool and the neck effects over it burned in. */
   const exportTake = async () => {
     const box = takeBox.current;
@@ -361,45 +481,87 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     const ctrl = new AbortController();
     stopExport.current = ctrl;
     setExporting(0);
+    let burned: Burned;
     try {
-      const burned = await burnOverlay(box, takeVideo, take.seconds, { onProgress: setExporting, signal: ctrl.signal });
-      // a new file: an upload of the plain take started before is not reused
-      setTake((t) => (t && t.id === take.id ? { ...t, burned, id: crypto.randomUUID(), fileUp: false } : t));
+      burned = await burnOverlay(box, takeVideo, take.seconds, { onProgress: setExporting, signal: ctrl.signal });
     } catch (e) {
       setProblem(e instanceof Error && e.name === "NotAllowedError"
         ? "The export didn't start: the share dialog was closed. Press Export with overlay, then pick this tab."
         : `The take wasn't exported: ${message(e)}`);
+      return;
     } finally {
       stopExport.current = null;
       setExporting(null);
     }
+    // a new file for players: an upload of the plain take started before is not reused
+    await mark(take.at, { burned, videoId: undefined, fileUp: false }).catch((e: unknown) => setProblem(`The browser didn't store the take: ${message(e)}.`));
+  };
+  const dropOverlay = () => {
+    if (!take || sending) return;
+    void mark(take.at, { burned: null, videoId: undefined, fileUp: false }).catch((e: unknown) => setProblem(`The browser didn't store the take: ${message(e)}.`));
   };
 
+  /** Upload the take: its video id is given and stored first, so a retry reuses it. */
   const save = async () => {
     if (!take || sending || nothingTicked || exporting !== null) return;
     if (!take.width || !take.height) { setProblem("The take's picture size couldn't be read. Record the take again."); return; }
     setProblem("");
     setSending(true);
-    // the exported take has the tool in its picture: it is saved with no overlay, so the tool isn't drawn twice
-    const file = take.burned ?? take;
-    const out = await saveContentVideo({
-      id: take.id, blob: file.blob, type: file.type, title: title.trim() || toolName(tool), note, seconds: take.seconds, width: file.width, height: file.height,
-      madeFor: own && block ? block.id : `tool:${tool}`,
-      target: own && block ? { kind: "cell", blockId: block.id, cell: block.cell, tool } : { kind: "tool", tool, steps },
-      fileUp: take.fileUp,
-      // where the tool sits now: the video plays back with it there
-      overlay: take.burned ? null : take.overlay && { ...take.overlay, look },
-    });
-    setSending(false);
-    if (!out.ok) {
-      setTake((t) => (t && t.id === take.id ? { ...t, fileUp: out.fileUp } : t));
-      setProblem(out.error);
-      return;
+    try {
+      const at = take.at;
+      const videoId = take.videoId ?? crypto.randomUUID();
+      if (!take.videoId) {
+        try { await mark(at, { videoId }); } catch (e) { setProblem(`The browser didn't store this take, so it wasn't uploaded: ${message(e)}. Press Save for players again.`); return; }
+      }
+      // the exported take has the tool in its picture: it is saved with no overlay, so the tool isn't drawn twice
+      const file = take.burned ?? take;
+      const out = await saveContentVideo({
+        id: videoId, blob: file.blob, type: file.type, title: title.trim() || toolName(tool), note, seconds: take.seconds, width: file.width, height: file.height,
+        madeFor: own && block ? block.id : `tool:${tool}`,
+        target: own && block ? { kind: "cell", blockId: block.id, cell: block.cell, tool } : { kind: "tool", tool, steps },
+        fileUp: take.fileUp,
+        // where the tool sits now: the video plays back with it there
+        overlay: take.burned ? null : take.overlay && { ...take.overlay, look },
+      });
+      const fields: Partial<KeptTake> = out.ok ? { fileUp: true, saved: true } : { fileUp: out.fileUp };
+      await mark(at, fields).catch((e: unknown) => setProblem(`${out.ok ? "" : `${out.error} `}The browser didn't store where the upload stands: ${message(e)}.`));
+      if (!out.ok) { setProblem((p) => p || out.error); return; }
+      const where = own && block ? `with ${block.title} only` : steps === null ? `with every exercise that uses ${toolName(tool)}` : `with ${toolName(tool)} at ${levelsOf(steps)}`;
+      const lost = out.lost.map((l) => `“${l.title}” no longer shows at ${l.steps.length ? levelsOf(l.steps) : "this tool"}${l.emptied ? " and now shows nowhere" : ""}.`).join(" ");
+      setDone(`Saved. Players see it now ${where}. ${lost}`.trim());
+    } finally {
+      setSending(false);
     }
-    setTake((t) => (t && t.id === take.id ? { ...t, fileUp: true, saved: true } : t));
-    const where = own && block ? `with ${block.title} only` : steps === null ? `with every exercise that uses ${toolName(tool)}` : `with ${toolName(tool)} at ${levelsOf(steps)}`;
-    const lost = out.lost.map((l) => `“${l.title}” no longer shows at ${l.steps.length ? levelsOf(l.steps) : "this tool"}${l.emptied ? " and now shows nowhere" : ""}.`).join(" ");
-    setDone(`Saved. Players see it now ${where}. ${lost}`.trim());
+  };
+
+  const remove = async () => {
+    setProblem("");
+    try {
+      await deleteKeptTake(key);
+      if (oldTakeKey) await deleteKeptTake(oldTakeKey);
+      show(null);
+      setInBrowser("saved");
+      setDone("");
+    } catch (e) { setProblem(`The take wasn't deleted: ${message(e)}.`); }
+  };
+
+  const download = () => {
+    if (!take) return;
+    const a = document.createElement("a");
+    const file = take.burned;
+    const name = title.trim() || toolName(tool);
+    a.href = file ? URL.createObjectURL(file.blob) : url;
+    a.download = videoFileName(file ? `${name} with overlay` : name, file?.type ?? take.type);
+    a.click();
+    if (file) window.setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
+  };
+
+  const undo = () => {
+    if (!previous || sending) return;
+    show(previous);
+    void keep(previous);
+    setPrevious(null);
+    setDone("");
   };
 
   const camera = phase === "ready" || phase === "recording";
@@ -408,10 +570,11 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       <div className="flex flex-wrap items-center gap-2">
         {phase === "off" && <button type="button" onClick={() => void startCamera()} className={btn}>Start camera</button>}
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
-        {phase === "ready" && <button type="button" onClick={record} disabled={sending || exporting !== null} className={rec}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className="rounded bg-rose-900/80 px-1 text-xs font-normal">R</kbd></button>}
+        {phase === "ready" && <button type="button" onClick={() => void record()} disabled={sending || exporting !== null} className={rec}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className="rounded bg-rose-900/80 px-1 text-xs font-normal">R</kbd></button>}
         {phase === "recording" && <button type="button" onClick={() => recorder.current?.stop()} className={rec}><span className="size-2 bg-white" />Stop <kbd className="rounded bg-rose-900/80 px-1 text-xs font-normal">R</kbd></button>}
         {phase === "recording" && <span className="font-mono tabular-nums text-rose-300">{clockTime(seconds)}</span>}
         {phase === "ready" && <button type="button" onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
+        {previous && phase !== "recording" && <button type="button" onClick={undo} disabled={sending || exporting !== null} className={btn} title={`Recorded ${new Date(previous.at).toLocaleTimeString()}, ${clockTime(previous.seconds)}`}>Back to the previous take</button>}
       </div>
       <div className="grid max-w-5xl gap-3 md:grid-cols-2">
         {phase !== "recording" && (
@@ -450,6 +613,24 @@ export default function RecordVideo({ target, videos, children, drawn }: {
             <legend className={legend}>Sound</legend>
             <RecordInputSelect onPick={() => void switchMic()} />
             <RecordSoundSelect sound={sound} />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="flex items-center gap-1.5" title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
+                <label className="flex items-center gap-1.5"><input type="checkbox" checked={click} onChange={(e) => pickClick(tempo ? { withTempo: e.target.checked } : { noTempo: e.target.checked })} className="accent-sky-500" /> Click at{tempo ? ` ${bpm} bpm` : ""}</label>
+                {!tempo && <><input type="number" min={30} max={300} value={clickChoice.bpm ?? bpm} onChange={(e) => pickClick({ bpm: +e.target.value })} onBlur={() => pickClick({ bpm })} aria-label="Click tempo in bpm" className={`${input} w-16`} /> bpm</>}
+              </span>
+              {click && (
+                <>
+                  <label className="flex items-center gap-1.5">Count-in
+                    <select value={countIn} onChange={(e) => setCountIn(+e.target.value)} className={input}>
+                      {[0, 1, 2].map((n) => <option key={n} value={n}>{n} {n === 1 ? "bar" : "bars"}</option>)}
+                    </select>
+                  </label>
+                  <label className="flex items-center gap-1.5" title="The recording stops by itself after this many bars.">Length
+                    <input type="number" min={1} max={32} value={length} onChange={(e) => setLength(clampBars(+e.target.value))} className={`${input} w-16`} /> bars
+                  </label>
+                </>
+              )}
+            </div>
           </fieldset>
         )}
         <fieldset className={group}>
@@ -486,8 +667,9 @@ export default function RecordVideo({ target, videos, children, drawn }: {
           {readCv && <CvControls cv={cvFx} set={setCvFx} />}
         </fieldset>
       </div>
-      {phase === "ready" && take && !take.saved && <p className="text-xs text-slate-500">A new recording replaces the take below.</p>}
+      {phase === "ready" && take && !take.saved && !previous && <p className="text-xs text-slate-500">A new recording replaces the take below.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
+      {phase === "recording" && beatNow && <BeatView {...beatNow} />}
 
       <div ref={frame} className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
         {camera ? <video ref={liveRef} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
@@ -511,16 +693,22 @@ export default function RecordVideo({ target, videos, children, drawn }: {
 
       {take && phase !== "recording" && (
         <section className="flex flex-col gap-3 rounded-xl border border-slate-800 p-3">
-          <h2 className="font-semibold text-slate-100">The take · {clockTime(take.seconds)}</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="mr-auto font-semibold text-slate-100">The take · {clockTime(take.seconds)}</h2>
+            <span role="status" className={`text-xs ${inBrowser === "failed" ? "text-rose-400" : "text-slate-400"}`}>{inBrowser === "saved" ? "Saved in this browser" : inBrowser === "saving" ? "Saving…" : "Not saved"}</span>
+            {inBrowser === "failed" && <button type="button" onClick={() => void keep(take)} className={btn}>Save</button>}
+            <button type="button" onClick={download} className={btn}>Save file</button>
+            <button type="button" onClick={() => void remove()} disabled={sending || exporting !== null} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
+          </div>
           {/* framed like the camera above, so the tool sits where it sat there */}
           <div ref={takeBox} className="relative isolate aspect-video w-full max-w-3xl overflow-hidden rounded bg-black">
-            <video key={take.url} ref={setTakeVideo} src={take.url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
-              onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setTake((t) => (t && t.url === take.url ? { ...t, width: videoWidth, height: videoHeight } : t)); }} />
-            {readNeck && <NeckView key={take.url} video={takeVideo} fx={fx} fit="cover" bare={exporting !== null} />}
-            {readCv && <NeckCvView key={take.url} video={takeVideo} markers={fx.markers} cv={cvFx} fit="cover" bare={exporting !== null} />}
+            <video key={url} ref={setTakeVideo} src={url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
+              onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setShown((s) => (s && s.url === url ? { ...s, take: { ...s.take, width: videoWidth, height: videoHeight } } : s)); }} />
+            {readNeck && <NeckView key={url} video={takeVideo} fx={fx} fit="cover" onRead={onNeckRead} bare={exporting !== null} />}
+            {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} cv={cvFx} fit="cover" bare={exporting !== null} />}
             {take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}
           </div>
-          <p className="text-xs text-slate-400">{take.burned ? "Exported with overlay: players see this take with the tool and the effects in the picture." : overlayWords(take.overlay, drawn)}</p>
+          <p className="text-xs text-slate-400">{take.burned ? "Exported with overlay: players see this take with the tool and the effects in the picture." : overlayWords(take, drawn, bpm)}</p>
           {!take.saved && (
             <div className="flex flex-wrap items-center gap-2">
               {exporting !== null ? (
@@ -531,7 +719,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
               ) : burnable ? (
                 <button type="button" onClick={() => void exportTake()} disabled={sending} className={btn}>{take.burned ? "Export with overlay again" : "Export with overlay"}</button>
               ) : <span className="text-xs text-slate-500">This browser can&apos;t export the overlay. Use Chrome 132 or newer.</span>}
-              {take.burned && exporting === null && <button type="button" onClick={() => setTake((t) => (t && t.id === take.id ? { ...t, burned: null, id: crypto.randomUUID(), fileUp: false } : t))} disabled={sending} className={btn}>Use the take without overlay</button>}
+              {take.burned && exporting === null && <button type="button" onClick={dropOverlay} disabled={sending} className={btn}>Use the take without overlay</button>}
               {exporting === null && <span className="text-xs text-slate-500">Export plays the take once and records it with what is over it now: the tool, and the neck effects with Read the neck on. Pick this tab in the share dialog and keep it in front until the take ends.</span>}
             </div>
           )}
@@ -577,6 +765,9 @@ export default function RecordVideo({ target, videos, children, drawn }: {
             {done && <p role="status" className="text-slate-200">{done}</p>}
             {take.saved && <Link href={`/admin/content/videos#${encodeURIComponent(tool)}`} className="text-sky-400 hover:underline">Back to Tools videos</Link>}
           </div>
+          {(readNeck || !!take.log?.neck?.length) && (
+            <DetectLog log={take.log ?? {}} notes={[]} markers={fx.markers} onSeek={(t) => takeVideo && seek(takeVideo, t)} />
+          )}
         </section>
       )}
     </div>
@@ -584,8 +775,9 @@ export default function RecordVideo({ target, videos, children, drawn }: {
 }
 
 /** What the take panel says about the tool over the video. */
-function overlayWords(overlay: Overlay | null, drawn: PlanTool | null): string {
-  if (overlay) return "The tool's Play and Stop are saved with the take: players see the tool move with the video.";
-  if (drawn && hasOverlay(drawn)) return "The tool wasn't started during the take, so players see the video without it. To show it, record again and press Play on the tool.";
+function overlayWords(take: KeptTake, drawn: PlanTool | null, bpm: number): string {
+  if (take.overlay && take.click) return "Recorded to the click: players see the tool move with the video, from beat 1 after the count-in.";
+  if (take.overlay) return "The tool's Play and Stop are saved with the take: players see the tool move with the video.";
+  if (drawn && hasOverlay(drawn)) return `The tool wasn't started during the take, so players see the video without it. To show it, record again with Click at ${bpm} bpm ticked, or press Play on the tool.`;
   return "Players see the video without the tool: only the guitar play-along and the melody singer are drawn over a video.";
 }
