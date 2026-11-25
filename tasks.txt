@@ -1500,14 +1500,24 @@ ContentVideos1: [DONE 2026-11-25] Permissions: role is student/teacher from the 
 migration moves today's admin accounts; ticks per person on /admin/admin/users.
 ContentVideos2: [DONE 2026-11-25] /admin split: /admin/admin (today's /admin), /admin/content (the Content group of /dev
 without the Sampler); library always lists everything with Seed / Database only / Off tags.
-ContentVideos3: [NEW 2026-11-25] content_videos table (with tool and step: a video belongs to a tool at a step of its
-ladder, or at any step), private Blob at content/videos/<made_for>/<id>.<ext>, upload and file routes, blocks.videos
-cells for a block's own video, kept by the seed; the lookup (block's own, tool at step, tool at any step; each video
-once per block); /dev/riff's Take panel saves there.
+ContentVideos3: [DONE 2026-11-25] content_videos table (a video belongs to a tool and covers the steps of its ladder
+ticked when it is saved, stored `<ladder id>:<key>`, plus `none` for No level; null steps for a tool with no ladder; one
+video per tool and step: saving takes the ticked steps off the tool's other videos; guitar-play-along is one tool per
+shape), private Blob at content/videos/<made_for>/<id>.<ext>, upload, save, edit, delete, file and lookup routes,
+blocks.videos cells for a block's own video, kept by the seed (dropped and printed when the cell moves); the lookup
+(block's own, then the tool's video holding the cell's step, `none` when no step is read; no borrowing from the nearest
+step; each video once per block); /dev/riff's Take panel saves there.
+Plan: docs/superpowers/plans/2026-11-25-content-videos-3-storage.md
+Not checked yet (no Blob token locally): an upload end to end, Save for players on screen, a ranged read answering 206,
+and a path with a colon (content/videos/tool:picking-drill/...) in the real store. Migration 0046 is applied only to
+the local Docker database. Left for ContentVideos5: PATCH without `note` clears the note.
 ContentVideos4: [NEW 2026-11-25] Video icon on plan exercises, looked up when drawn; one video shown once per day.
-ContentVideos5: [NEW 2026-11-25] Video strip under each tool cell in the library (for the tool at this step, at any step,
-or this block only) and a Tools view of every tool step and its video: record with the tool over the camera, its start/stop saved,
-replayed in step; VideoOverlay for the riff and the melody singer.
+ContentVideos5: [NEW 2026-11-25] Tools videos page (/admin/content/videos, its own nav item, laid out like Component
+stories: every tool, its steps and No level, each with its video or Missing and how many seed blocks use it; Record,
+Change steps, Edit, Delete). Record page (/admin/content/videos/record, the only page with the camera and the tool: tick
+the steps, All levels, No level, or This block only; says which video loses a step). Library strip under each tool cell
+(the video it shows and where from, play, a Record link; nothing records there). The tool over the camera, its
+start/stop saved, replayed in step; VideoOverlay for the riff and the melody singer.
 ContentVideos6: [NEW 2026-11-25] Notes in the database for content people (author, deployed commit).
 ContentVideos7: [NEW 2026-11-25] Later: course sections with empty video spots a content person records into (a video field
 on a section).
