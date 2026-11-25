@@ -78,3 +78,17 @@ export function coveredCount(tool: string, videos: ToolVideo[]): { covered: numb
 
 /** A tool key as a person reads it: `picking-drill`, `guitar-play-along: riff`. */
 export const toolName = (tool: string): string => tool.replace(":", ": ");
+
+/**
+ * What saving a tool video for `steps` would take off the tool's other videos, as the repo will (`takeSteps`): each video
+ * that holds one of them, with the steps it would lose (by id; `steps` null for a tool with no ladder: the video that holds
+ * the tool loses it). `except` is the video being re-ticked, never its own loser.
+ */
+export function wouldLose(tool: string, steps: string[] | null, videos: ToolVideo[], except?: string): { id: string; steps: string[] | null }[] {
+  return videos.flatMap((v): { id: string; steps: string[] | null }[] => {
+    if (v.id === except || v.tool !== tool) return [];
+    if (steps === null) return v.steps === null ? [{ id: v.id, steps: null }] : [];
+    const lost = (v.steps ?? []).filter((s) => steps.includes(s));
+    return lost.length ? [{ id: v.id, steps: lost }] : [];
+  });
+}

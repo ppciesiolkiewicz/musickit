@@ -49,3 +49,16 @@ test("coverage gives each step its video and blocks; counts what is covered", ()
   assert.deepEqual(coveredCount("backing-band", videos), { covered: 1, of: 1 });
   assert.deepEqual(coverage("backing-band", videos, {})[0].steps[0].video, "band");
 });
+
+test("wouldLose names the videos a save takes steps from", async () => {
+  const { wouldLose } = await import("./coverage");
+  const videos = [
+    { id: "all", tool: "picking-drill", steps: ["picking-drill:new", "picking-drill:beginner", "none"] },
+    { id: "adv", tool: "picking-drill", steps: ["picking-drill:advanced"] },
+    { id: "band", tool: "backing-band", steps: null },
+  ];
+  assert.deepEqual(wouldLose("picking-drill", ["picking-drill:beginner", "none"], videos), [{ id: "all", steps: ["picking-drill:beginner", "none"] }]);
+  assert.deepEqual(wouldLose("picking-drill", ["picking-drill:intermediate"], videos), []);
+  assert.deepEqual(wouldLose("picking-drill", ["picking-drill:advanced"], videos, "adv"), []);
+  assert.deepEqual(wouldLose("backing-band", null, videos), [{ id: "band", steps: null }]);
+});
