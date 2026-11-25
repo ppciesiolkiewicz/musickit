@@ -17,6 +17,9 @@ const SHAPES: Record<string, (raw: unknown) => Timeline | null> = {
   progression, "two-scales": twoScales, "chord-steps": chordSteps, "arpeggio-part": arpeggioPart, melody, "solo-over": soloOver, interval, riff,
 };
 
+/** The names of the shapes a guitar-play-along can hold. */
+export const SHAPE_NAMES: string[] = Object.keys(SHAPES);
+
 /** An AI-written shape (`{ shape: "progression", ... }`) expanded to a timeline; null when unknown or unusable. */
 export function expandShape(raw: unknown): Timeline | null {
   if (!isObj(raw) || typeof raw.shape !== "string" || !Object.hasOwn(SHAPES, raw.shape)) return null;
