@@ -61,3 +61,10 @@ test("a plan row shows Seed and never Off", () => {
   assert.equal(html.match(/>Seed</g)?.length, 1);
   assert.equal(html.match(/>Off</g)?.length ?? 0, 0);
 });
+
+test("a plan a demo shows is tagged Demo with a link to its page; one no demo shows is not", () => {
+  const demo = SEED_PLANS.find((p) => p.id === "voice-guitar-advanced-first-week")!;
+  const other = SEED_PLANS.find((p) => p.id === "theory-only-first-week")!;
+  assert.match(renderToStaticMarkup(<PlansTable plans={[demo]} params={{}} />), /href="\/demo\/voice-guitar-advanced"[^>]*>Demo</);
+  assert.equal(renderToStaticMarkup(<PlansTable plans={[other]} params={{}} />).match(/>Demo</g)?.length ?? 0, 0);
+});

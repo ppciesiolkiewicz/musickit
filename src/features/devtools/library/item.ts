@@ -7,6 +7,7 @@ import { parseExercise } from "@/features/plan/model/config";
 import type { Moves } from "@/features/plan/model/moves";
 import { levelOfSteps } from "@/features/plan/model/path";
 import { SHOWCASE_FEATURE } from "@/features/plan/model/prompt";
+import { DEMO_PLANS } from "@/features/plan/demos";
 
 /** The versions an item was written to; null where it was not recorded. */
 export interface ItemVersions {
@@ -107,13 +108,21 @@ export function databaseItem(b: BlockDetail, choiceId?: string): DrawnItem {
   };
 }
 
-/** How a row is labelled: where it comes from (exactly one of `seed`, `database`) and whether players are offered it (`off`). */
-export type LibraryTag = "seed" | "database" | "off";
+/**
+ * How a row is labelled: where it comes from (exactly one of `seed`, `database`), whether players are offered it (`off`),
+ * and, for a plan, whether `/demo` shows it (`demo`).
+ */
+export type LibraryTag = "seed" | "database" | "off" | "demo";
 
 /**
  * A block's tags. A curated block with choices and no active one is `off`. A hashed block is `database` and never `off`:
  * it is not a seed item, and whether a player sees it is a matter of who owns it.
  */
+/** The `/demo/<slug>` slug that shows a seed plan (`DEMO_PLANS`), or null when no demo uses it. */
+export function demoSlugOf(planId: string): string | null {
+  return Object.entries(DEMO_PLANS).find(([, d]) => d.plan === planId)?.[0] ?? null;
+}
+
 export function blockTags(b: BlockSummary, seedIds: { has(id: string): boolean }): LibraryTag[] {
   const tags: LibraryTag[] = [seedIds.has(b.id) ? "seed" : "database"];
   if (b.choices.length > 0 && !b.choices.some((c) => c.active)) tags.push("off");

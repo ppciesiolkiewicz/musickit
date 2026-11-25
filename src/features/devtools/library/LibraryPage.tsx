@@ -3,7 +3,7 @@ import type { ItemResult, LibraryResult } from "./load";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { SEED_BLOCKS, SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
-import { blockTags, seedBlocksById, type LibraryTag } from "./item";
+import { blockTags, demoSlugOf, seedBlocksById, type LibraryTag } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
 import ScrollToItem from "./ScrollToItem";
 import { libraryHref, minutes, orDash, type LibraryParams } from "./params";
@@ -43,14 +43,21 @@ const TAG_STYLE: Record<LibraryTag, { label: string; cls: string }> = {
   seed: { label: "Seed", cls: "border-sky-500/40 bg-sky-500/10 text-sky-200" },
   database: { label: "Database only", cls: "border-slate-500/40 bg-slate-500/10 text-slate-300" },
   off: { label: "Off", cls: "border-amber-500/40 bg-amber-500/10 text-amber-200" },
+  demo: { label: "Demo", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" },
 };
 
-/** Small tags after a title: where the row comes from and whether players are offered it. */
-const Tags = ({ tags }: { tags: LibraryTag[] }) => (
+const TAG = "ml-2 rounded-full border px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider";
+
+/** Small tags after a title: where the row comes from and whether players are offered it. A Demo tag links to its demo page. */
+const Tags = ({ tags, demo }: { tags: LibraryTag[]; demo?: string | null }) => (
   <>
-    {tags.map((t) => (
-      <span key={t} className={`ml-2 rounded-full border px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider ${TAG_STYLE[t].cls}`}>{TAG_STYLE[t].label}</span>
-    ))}
+    {tags.map((t) =>
+      t === "demo" && demo ? (
+        <a key={t} href={`/demo/${demo}`} title={`/demo/${demo}`} className={`${TAG} hover:underline ${TAG_STYLE[t].cls}`}>{TAG_STYLE[t].label}</a>
+      ) : (
+        <span key={t} className={`${TAG} ${TAG_STYLE[t].cls}`}>{TAG_STYLE[t].label}</span>
+      ),
+    )}
   </>
 );
 
@@ -101,7 +108,7 @@ function ItemLink({ id, title, params }: { id: string; title: string; params: Li
   return <a className={LINK} href={`${libraryHref(params, { item: id })}#item`}>{title || id}</a>;
 }
 
-/** The plans, read from their files (no plan is stored in the database), each tagged Seed; each links to its drawing below the tables. */
+/** The plans, read from their files (no plan is stored in the database), each tagged Seed, and Demo when `/demo` shows it; each links to its drawing below the tables. */
 export function PlansTable({ plans = SEED_PLANS, params }: { plans?: SeedPlanFile[]; params: LibraryParams }) {
   if (plans.length === 0) return <Muted>No seed plans.</Muted>;
   return (
@@ -109,14 +116,17 @@ export function PlansTable({ plans = SEED_PLANS, params }: { plans?: SeedPlanFil
       <table className="w-full text-left text-sm text-slate-200">
         <Head cols={["Title", "Model", "Versions", "Days"]} />
         <tbody>
-          {plans.map((f) => (
+          {plans.map((f) => {
+            const demo = demoSlugOf(f.id);
+            return (
             <tr key={f.id} className={ROW}>
-              <td className="p-2"><ItemLink id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} params={params} /><Tags tags={["seed"]} /></td>
+              <td className="p-2"><ItemLink id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} params={params} /><Tags tags={demo ? ["seed", "demo"] : ["seed"]} demo={demo} /></td>
               <td className="p-2">{f.model}</td>
               <td className="p-2"><Versions p={{ promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching }} /></td>
               <td className="p-2">{Array.isArray(f.plan.days) ? f.plan.days.length : 0}</td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -252,7 +262,7 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
         Player: {params.player ?? "none"} (add <code>?player=</code> and a user id).
       </p>
       <p className="mb-3 text-sm text-slate-400">
-        Every block and plan is listed. Seed: from a seed file. Database only: no seed file (a player&apos;s or the AI&apos;s). Off: a block that is not offered to players.
+        Every block and plan is listed. Seed: from a seed file. Database only: no seed file (a player&apos;s or the AI&apos;s). Off: a block that is not offered to players. Demo: a plan shown at /demo.
       </p>
       <H>Coverage by topic and level</H>
       <CoverageTable rows={data.topics} params={params} />
