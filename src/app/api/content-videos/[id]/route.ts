@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-/** Change a content video's title and note: JSON { title, note }. No such video is a 404. */
+/** Change a content video's title or note: JSON { title?, note? }; one left out stays. No such video is a 404. */
 export async function PATCH(req: Request, { params }: Ctx) {
   const { id } = await params;
   const gate = await permissionCheck(req, "content");
@@ -18,7 +18,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const store = contentVideos();
   if (!store) return json({ error: NO_ACCOUNTS }, 503);
   const body = await readJson(req);
-  if (!body || typeof body.title !== "string") return json({ error: "Send { title, note }." }, 400);
+  if (!body || (body.title !== undefined && typeof body.title !== "string") || (body.note !== undefined && typeof body.note !== "string")) return json({ error: "Send { title, note }." }, 400);
   const video = await editContentVideo(store.repo, id, body);
   if (!video) return json({ error: "Not found." }, 404);
   return json({ video });

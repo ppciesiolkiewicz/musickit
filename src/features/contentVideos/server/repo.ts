@@ -30,6 +30,13 @@ export interface ContentVideoRepo {
    * block's tool cells. Nothing is changed then.
    */
   create(row: ContentVideoRow, target: Target): Promise<{ ok: true; lost: Lost[] } | { ok: false; reason: "taken" | "no-block" | "no-cell" }>;
+  /**
+   * Re-ticks a tool video (**Change steps**), with `create`'s rule: in one transaction, takes the target's steps off the tool's
+   * other videos (for a tool with no ladder, the tool) and gives them to this one, its own steps replaced. `null` takes every
+   * step off it: its `tool` and `steps` are then null and it shows nowhere. The video must be one made for that tool
+   * (`made_for` `tool:<key>`). `no-video`: no such id. `not-tool`: a block's own video, or one made for another tool.
+   */
+  retarget(id: string, target: { tool: string; steps: string[] | null } | null): Promise<{ ok: true; row: ContentVideoRow; lost: Lost[] } | { ok: false; reason: "no-video" | "not-tool" }>;
   get(id: string): Promise<ContentVideoRow | null>;
   /** every video, newest first (ties by id) */
   list(): Promise<ContentVideoRow[]>;

@@ -97,6 +97,39 @@ export function drizzleContentVideoRepo(db: Db): ContentVideoRepo {
         throw e;
       }
     },
+    async retarget(id, target) {
+      return db.transaction(async (tx) => {
+        const [found] = await tx.select().from(contentVideos).where(idIs(id));
+        if (!found) return { ok: false as const, reason: "no-video" as const };
+        if (!found.madeFor.startsWith("tool:") || (target && found.madeFor !== `tool:${target.tool}`)) return { ok: false as const, reason: "not-tool" as const };
+        const name = target?.tool ?? found.madeFor.slice(5);
+        // the same lock as create's, so a save and a re-tick at once still leave each step on one video
+        await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${"content_videos:" + name}))`);
+        const lost: Lost[] = [];
+        if (target) {
+          const others = await tx
+            .select()
+            .from(contentVideos)
+            .where(and(eq(contentVideos.tool, target.tool), sql`${contentVideos.id} <> ${found.id}`))
+            .orderBy(sql`${contentVideos.id}::text collate "C"`);
+          for (const other of others) {
+            const taken = takeSteps(other, target);
+            if (!taken) continue;
+            await tx
+              .update(contentVideos)
+              .set({ steps: taken.steps, ...(taken.emptied ? { tool: null } : {}) })
+              .where(eq(contentVideos.id, other.id));
+            lost.push({ id: other.id, title: other.title, steps: taken.lost, emptied: taken.emptied });
+          }
+        }
+        const [r] = await tx
+          .update(contentVideos)
+          .set({ tool: target ? target.tool : null, steps: target?.steps ?? null })
+          .where(eq(contentVideos.id, found.id))
+          .returning();
+        return { ok: true as const, row: rowOf(r), lost };
+      });
+    },
     async get(id) {
       const [r] = await db.select().from(contentVideos).where(idIs(id));
       return r ? rowOf(r) : null;

@@ -25,7 +25,7 @@ const NOT_YOURS = "This upload isn't in your account.";
 const TAKEN = "This video is already saved.";
 const NO_BLOCK = "This exercise isn't in the library here yet. Run db:seed-blocks, then save again.";
 const NO_CELL = "This exercise has changed and that tool isn't where it was. Reload and save again.";
-export const STILL_SHOWN = "A tool or an exercise still shows this video. Give its levels to another video first.";
+export const STILL_SHOWN = "A tool or an exercise still shows this video. Take its levels off with Change levels, then delete it.";
 
 export const contentVideoInfo = (v: ContentVideoRow): ContentVideoInfo => ({
   id: v.id, title: v.title, note: v.note, madeFor: v.madeFor, tool: v.tool, steps: v.steps ? [...v.steps] : null,
@@ -103,12 +103,42 @@ export async function completeContentUpload(repo: ContentVideoRepo, userId: stri
 /** Every video, newest first. */
 export const listContentVideos = async (repo: ContentVideoRepo): Promise<ContentVideoInfo[]> => (await repo.list()).map(contentVideoInfo);
 
-/** Sets the title and the note (both trimmed); null when no video has this id. */
+/** Sets the title and the note (both trimmed); one left out of the body stays as it is. Null when no video has this id. */
 export async function editContentVideo(repo: ContentVideoRepo, id: string, raw: unknown): Promise<ContentVideoInfo | null> {
   if (!isVideoId(id)) return null;
+  const now = await repo.get(id);
+  if (!now) return null;
   const b = objectOf(raw) ?? {};
-  const row = await repo.edit(id, { title: cleanTitle(b.title), note: cleanNote(b.note) });
+  const title = b.title === undefined ? now.title : cleanTitle(b.title);
+  const note = b.note === undefined ? now.note : cleanNote(b.note);
+  const row = await repo.edit(id, { title, note });
   return row ? contentVideoInfo(row) : null;
+}
+
+const OWN_VIDEO = "This video belongs to one exercise, so it has no levels to change.";
+
+/**
+ * **Change steps**: `{ steps }`, the steps the tool video covers from now on, with the save's rule (they are taken off the
+ * tool's other videos). `[]` takes every step off it, so it shows nowhere; `null` is the tool itself for a tool with no
+ * ladder. The tool is the one the video was made for. Null when no video has this id.
+ */
+export async function retargetContentVideo(repo: ContentVideoRepo, id: string, raw: unknown): Promise<{ ok: true; video: ContentVideoInfo; lost: Lost[] } | Refused | null> {
+  if (!isVideoId(id)) return null;
+  const now = await repo.get(id);
+  if (!now) return null;
+  if (!now.madeFor.startsWith("tool:")) return refuse(409, OWN_VIDEO);
+  const b = objectOf(raw);
+  if (!b || !Object.hasOwn(b, "steps")) return refuse(400, BAD);
+  const tool = now.madeFor.slice(5);
+  let target: { tool: string; steps: string[] | null } | null = null;
+  if (!(Array.isArray(b.steps) && b.steps.length === 0)) {
+    const t = readTarget({ kind: "tool", tool, steps: b.steps }, now.madeFor);
+    if (!t || t.kind !== "tool") return refuse(400, BAD);
+    target = { tool, steps: t.steps };
+  }
+  const out = await repo.retarget(id, target);
+  if (!out.ok) return out.reason === "no-video" ? null : refuse(409, OWN_VIDEO);
+  return { ok: true, video: contentVideoInfo(out.row), lost: out.lost };
 }
 
 /** Removes the row when nothing points at it and returns it, so the route can delete its file. */

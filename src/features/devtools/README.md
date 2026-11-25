@@ -1,7 +1,8 @@
 # Dev tools
 
 Pages for working on the app: under `/dev` the autoplan prompt (studio), player data, the code; under `/admin/content`
-the tools for writing and recording lessons (the library, the learning path, the stories, the riff maker, the video
+the tools for writing and recording lessons (the library, the learning path, the tools videos (its page is
+`src/features/contentVideos`'s, `ui/ToolVideos.tsx`), the stories, the riff maker, the video
 studio, the copy notes). Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.md`.
 
 ## Rules

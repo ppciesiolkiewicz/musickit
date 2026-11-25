@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import type { BlobLookup } from "@/features/videos/server/access";
-import { completeContentUpload, deleteContentVideo, editContentVideo, lookUp, planContentUpload, readLookup } from "./access";
+import { completeContentUpload, deleteContentVideo, editContentVideo, lookUp, planContentUpload, readLookup, retargetContentVideo } from "./access";
 import { memoryContentVideoRepo } from "./repo.memory";
 import { contractBlocks, V } from "./repoContract";
 import { contentVideoPath } from "./rules";
@@ -107,13 +107,39 @@ describe("content video access", () => {
     assert.equal(await editContentVideo(repo, "not-an-id", { title: "x", note: "" }), null);
   });
 
+  test("edit keeps a title or a note left out of the body", async () => {
+    const repo = fresh();
+    await save(repo);
+    assert.equal((await editContentVideo(repo, V.a, { title: "Renamed" }))?.note, "slow");
+    assert.equal((await editContentVideo(repo, V.a, { note: "fast" }))?.title, "Renamed");
+  });
+
+  test("change levels re-ticks a tool video; [] takes them all off; a bad step or a block's own video is refused", async () => {
+    const repo = fresh();
+    await save(repo);
+    await completeContentUpload(repo, "user-1", body({ id: V.b, path: contentVideoPath(MADE, V.b, "video/webm"), target: { kind: "tool", tool: "picking-drill", steps: ["picking-drill:advanced"] } }), blobs(), NOW);
+    const out = await retargetContentVideo(repo, V.b, { steps: ["picking-drill:beginner", "picking-drill:advanced"] });
+    assert.ok(out && out.ok);
+    assert.deepEqual(out.video.steps, ["picking-drill:beginner", "picking-drill:advanced"]);
+    assert.deepEqual(out.lost, [{ id: V.a, title: "Picking", steps: ["picking-drill:beginner"], emptied: false }]);
+    const off = await retargetContentVideo(repo, V.b, { steps: [] });
+    assert.ok(off && off.ok);
+    assert.deepEqual([off.video.tool, off.video.steps], [null, null]);
+    assert.deepEqual(await retargetContentVideo(repo, V.a, { steps: ["interval-ears:1"] }), { ok: false, status: 400, error: "Bad request." });
+    assert.deepEqual(await retargetContentVideo(repo, V.a, {}), { ok: false, status: 400, error: "Bad request." });
+    assert.equal(await retargetContentVideo(repo, V.unknown, { steps: [] }), null);
+    await save(repo, { id: V.riff, madeFor: "riff-x", path: contentVideoPath("riff-x", V.riff, "video/webm"), target: { kind: "cell", blockId: "riff-x", cell: 0, tool: "picking-drill" } });
+    const own = await retargetContentVideo(repo, V.riff, { steps: [] });
+    assert.deepEqual(own && !own.ok && own.status, 409);
+  });
+
   test("delete names what points at it", async () => {
     const repo = fresh();
     await save(repo);
     const out = await deleteContentVideo(repo, V.a);
     assert.ok(out && !out.ok);
     assert.equal(out.status, 409);
-    assert.equal(out.error, "A tool or an exercise still shows this video. Give its levels to another video first.");
+    assert.equal(out.error, "A tool or an exercise still shows this video. Take its levels off with Change levels, then delete it.");
     assert.deepEqual(out.pointers, await repo.pointers(V.a));
     assert.ok(await repo.get(V.a));
   });

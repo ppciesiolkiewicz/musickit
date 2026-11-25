@@ -51,6 +51,25 @@ export function memoryContentVideoRepo(blocks: MemoryBlock[]): ContentVideoRepo 
       rows.push({ ...copy(row), tool: target.tool, steps: target.steps ? [...target.steps] : null });
       return { ok: true, lost };
     },
+    async retarget(id, target) {
+      const r = find(id);
+      if (!r) return { ok: false, reason: "no-video" };
+      if (!r.madeFor.startsWith("tool:") || (target && r.madeFor !== `tool:${target.tool}`)) return { ok: false, reason: "not-tool" };
+      const lost: Lost[] = [];
+      if (target) {
+        for (const other of [...rows].sort((a, b) => bytewise(a.id, b.id))) {
+          if (other === r || other.tool !== target.tool) continue;
+          const taken = takeSteps(other, target);
+          if (!taken) continue;
+          other.steps = taken.steps;
+          if (taken.emptied) other.tool = null;
+          lost.push({ id: other.id, title: other.title, steps: taken.lost, emptied: taken.emptied });
+        }
+      }
+      r.tool = target ? target.tool : null;
+      r.steps = target?.steps ? [...target.steps] : null;
+      return { ok: true, row: copy(r), lost };
+    },
     async get(id) {
       const r = find(id);
       return r ? copy(r) : null;

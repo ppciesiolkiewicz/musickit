@@ -1,6 +1,6 @@
 # Content videos
 
-Videos the app shows players with a tool: a video for a tool at the steps it covers, or a curated block's own video for one of its tool cells. They are made by people with the `content` permission (today the riff maker's Take panel saves a take as its block's video) and watched by anyone, signed in or not. A plan's day shows them (below); the library and the content pages come with tasks.txt ContentVideos5.
+Videos the app shows players with a tool: a video for a tool at the steps it covers, or a curated block's own video for one of its tool cells. They are made by people with the `content` permission (today the riff maker's Take panel saves a take as its block's video) and watched by anyone, signed in or not. A plan's day shows them (below), and the Tools videos page (`/admin/content/videos`) lists every tool and level with its video. The record page and the library strip come with the rest of tasks.txt ContentVideos5.
 
 This is not `src/features/videos` (a player's or teacher's own takes, per account, in notes) and not `VIDEO_LIBRARY` or the `video` tool, which stay as they are. It shares only the pure upload rules (`videos/server/rules`), the recorder's pure parts (`videos/recording`, `videos/ref`) and the Range streaming (`videos/server/stream`).
 
@@ -22,6 +22,10 @@ Every day of a plan (`DayPanel` in `plan/ui/WeekView.tsx`: today's plan, a past 
 
 A tool with a video gets **Watch video** right above it (`ui/CellVideo.tsx`, through `BlockBody`'s `beforeTool`): it opens the video in place, above the tool, which stays on screen and playable; **Hide video** closes it. Nothing loads until it is opened. A file that won't play says "The video could not be played. Check your connection, then press Watch video again." A failed lookup puts one line under the day's heading, "The exercise videos could not be loaded. The exercises work without them.", with **Try again**.
 
+## Tools videos (`/admin/content/videos`)
+
+`ui/ToolVideos.tsx`, laid out like Component stories: every tool a video can be for (`videoTools`: the plan's tools but `video`, a guitar-play-along once per shape) on the left, each with how many of its levels have a video (`coveredCount`); the picked one (`#<tool key>` in the address) on the right. Its levels, one group per ladder then **No level** (`stepGroups`; a tool with no ladder is the tool alone), each with the video covering it or **Missing**, how many seed exercises use the tool there (`seedToolUse`: every choice of every seed block file, as written, each block once) and **Record** (to `/admin/content/videos/record?tool=<key>&steps=<step>`). Under them every video made for the tool (`made_for` `tool:<key>`), with **Play** (the player loads only then), **Change levels** (re-ticks it with the save's rule: a level another video holds moves to this one, and the line under the heading says which video lost it; none ticked: it shows nowhere), **Edit** (title, note) and **Delete** (only once it covers nothing; the file goes too).
+
 ## The seed and `blocks.videos`
 
 `db:seed-blocks` (`upsertCurated` in `userData/server`) never writes `blocks.videos` in its insert or update. The one write is a drop: when a block's tool cells moved (`model/keptCells.ts`: a changed count of tool cells drops every entry; another tool key at an index drops that entry), the moved entries are removed and printed (`video dropped  <block>  cell N  <video>  (the video is kept; point the cell at it again)`, and `N cell videos dropped` in the summary). The video's row and file stay. Text edits and a changed level keep the entry.
@@ -33,15 +37,18 @@ A tool with a video gets **Watch video** right above it (`ui/CellVideo.tsx`, thr
 | `model/slot.ts` | Pure. `TOOL_LADDERS` (each laddered tool key's ladder ids, in the order tried; the steps come from `LADDERS`), `NO_LEVEL`, `toolKeyOf`, `isToolKey`, `stepsOfTool` (every step a tool's video can cover, then `none`; null with no ladder), `stepOf` (a cell's step), `toolCells`, `CellAsk` and `asksOf` (a block's tool cells as `{ cell, tool, step }`). |
 | `model/lookup.ts` | Pure. `videoFor`, `firstShown`, `blockVideos`: which video each tool cell shows (above). |
 | `model/drawn.ts` | Pure. `drawnAsks` (a block's tool cells as the reader draws them, chips and version applied) and `dayVideos` (a day's videos, each at its first place). |
+| `model/coverage.ts` | Pure. What the Tools videos page lists: `videoTools`, `stepGroups`, `seedUse`, `coverage`, `coveredCount`. |
 | `model/keptCells.ts` | Pure. Which of a block's own video entries stay when its cells change (the seed's rule). |
 | `server/rules.ts` | Pure. `BlockVideos` (the `blocks.videos` shape), `contentVideoPath`, `isMadeFor`, `Target` and `readTarget` (a save's target, checked against `madeFor`; a tool target is `{ kind: "tool", tool, steps }`, a cell target `{ kind: "cell", blockId, cell, tool }`, where `tool` is the tool key the Take panel read at that cell, and the repo answers no-cell when the stored block has another tool there; tool steps put in the tool's order), `cleanNote`. |
 | `server/repo.ts` | `ContentVideoRepo`, `ContentVideoRow`, `Lost` (a video that lost steps to a new one), `Pointers` (what points at a video), and helpers both repos share. |
 | `server/repo.memory.ts`, `server/repo.drizzle.ts` | The repo in memory (tests) and over Postgres. The Drizzle `create` runs in a transaction; a tool target takes `pg_advisory_xact_lock` on the tool, so two saves at once still leave each step on one video. |
 | `server/repoContract.ts` | One contract for both repos: `repo.memory.test.ts` runs it in memory, `scripts/test-library-db.ts` (`npm run test:library-db`) on a local Postgres. |
-| `server/access.ts` | Who may do what, over the repo, with Blob lookups passed in: `planContentUpload`, `completeContentUpload`, `listContentVideos`, `editContentVideo`, `deleteContentVideo`, `readLookup`, `lookUp`, `contentVideoInfo` (no store path, no author), `PlayInfo`, `CONTENT_VIDEO_CACHE`. Tested in `access.test.ts` over the memory repo. |
+| `server/access.ts` | Who may do what, over the repo, with Blob lookups passed in: `planContentUpload`, `completeContentUpload`, `listContentVideos`, `editContentVideo`, `retargetContentVideo`, `deleteContentVideo`, `readLookup`, `lookUp`, `contentVideoInfo` (no store path, no author), `PlayInfo`, `CONTENT_VIDEO_CACHE`. Tested in `access.test.ts` over the memory repo. |
+| `server/seedCells.ts` | Every tool cell of every seed block's choices as written (`seedCells`, cached) and `seedToolUse`. Server only: it parses the seed files. |
 | `server/http.ts` | `contentVideos()`: the Drizzle repo, or null on a site without a database. |
+| `ui/ToolVideos.tsx` | React. The Tools videos page. |
 | `ui/CellVideo.tsx` | React. Watch video / Hide video and the inline player above a tool on a plan card. |
-| `client/api.ts` | The browser side: `saveContentVideo` (the file with `upload()` from `@vercel/blob/client`, then the row; never throws; `fileUp` when the file is up and only the row is missing; a 409 counts as saved when `GET /api/content-videos` lists the id), `lookUpVideos`, `contentVideoFileUrl`, `UPLOADED_NOT_SAVED`. Every fetch has a timeout except the file transfer itself (up to 1 GB). |
+| `client/api.ts` | The browser side: `listContentVideos`, `editContentVideo`, `retickContentVideo`, `deleteContentVideo` (never throw: `{ ok, value }` or `{ ok: false, error }`), `saveContentVideo` (the file with `upload()` from `@vercel/blob/client`, then the row; never throws; `fileUp` when the file is up and only the row is missing; a 409 counts as saved when `GET /api/content-videos` lists the id), `lookUpVideos`, `contentVideoFileUrl`, `UPLOADED_NOT_SAVED`. Every fetch has a timeout except the file transfer itself (up to 1 GB). |
 
 ## Routes (`src/app/api/content-videos`)
 
@@ -50,7 +57,8 @@ A tool with a video gets **Watch video** right above it (`ui/CellVideo.tsx`, thr
 | `upload` POST | `content` and signed in | The client-upload token. `clientPayload` `{ id, type, size, madeFor }`; only `content/videos/<madeFor>/<id>.<ext>`, WebM or MP4 up to 1 GB, never over an existing file; a taken id is 409. 503 without a Blob token. |
 | `/` GET | `content` | Every video, newest first: `{ videos }`. |
 | `/` POST | `content` and signed in | After the upload: `{ id, title, note, type, seconds, width, height, path, madeFor, target }`. The file must be in the store and private (a public one is deleted and refused); its size is the store's. Saves the row: `{ video, lost }`. 409 for a taken id, a block not in the database, a cell past the block's tool cells, or a cell whose stored tool is not the target's `tool`. |
-| `[id]` PATCH | `content` | `{ title, note }`. |
+| `[id]` PATCH | `content` | `{ title?, note? }`; one left out stays as it is. |
+| `[id]/steps` PUT | `content` | **Change levels**: `{ steps }` (the save's rule; `[]` takes them all off, `null` is the whole tool for a tool with no ladder): `{ video, lost }`. A block's own video is 409. |
 | `[id]` DELETE | `content` | Refused (409 with `pointers`) while a tool step or a block's cell points at the video; else the row, then the file (a file that can't be deleted is logged, the answer stays 200). |
 | `[id]/file` GET | anyone | The file with Range, no session, no cookies, cached `public, max-age=3600` (a deleted video may play from a cache for up to an hour). A bad or unknown id, or a site with no database or store, is a 404. |
 | `lookup` POST | anyone | `{ blocks: [{ key, blockId?, cells: [{ cell, tool, step }] }] }` (at most 60 blocks) answers `{ blocks: { [key]: [{ cell, id, from, repeat }] }, videos: { [id]: PlayInfo } }`, never cached. No database: empty. 400 for a bad body; 502 (logged) when the repo throws. |

@@ -125,3 +125,41 @@ export async function lookUpVideos(blocks: LookupAsk[]): Promise<{ blocks: Recor
   if (!body || !obj(body.blocks) || !obj(body.videos)) throw new Error(LOOKUP_FAILED);
   return body as { blocks: Record<string, CellVideo[]>; videos: Record<string, PlayInfo> };
 }
+
+const EDIT_MS = 15_000;
+const NOT_REACHED = "The server couldn't be reached. Check your connection and try again.";
+
+export type Done<T> = { ok: true; value: T } | { ok: false; error: string };
+
+/** One request to a content-video route: the JSON body on success, else the server's words or a line saying it wasn't reached. Never throws. */
+async function call<T>(url: string, init: RequestInit, ms: number, read: (body: Record<string, unknown>) => T | null, failed: string): Promise<Done<T>> {
+  let res: Response;
+  try {
+    res = await fetch(url, { ...init, signal: AbortSignal.timeout(ms) });
+  } catch {
+    return { ok: false, error: NOT_REACHED };
+  }
+  if (!res.ok) return { ok: false, error: (await wordsOf(res)) || failed };
+  const body = (await res.json().catch(() => null)) as Record<string, unknown> | null;
+  const value = body ? read(body) : null;
+  return value === null ? { ok: false, error: failed } : { ok: true, value };
+}
+
+const sendJson = (method: string, body: unknown): RequestInit => ({ method, headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+
+/** Every content video, newest first. */
+export const listContentVideos = (): Promise<Done<ContentVideoInfo[]>> =>
+  call("/api/content-videos", {}, LIST_MS, (b) => (Array.isArray(b.videos) ? (b.videos as ContentVideoInfo[]) : null), "The videos could not be loaded.");
+
+/** A video's title and note. */
+export const editContentVideo = (id: string, to: { title: string; note: string }): Promise<Done<ContentVideoInfo>> =>
+  call(`/api/content-videos/${id}`, sendJson("PATCH", to), EDIT_MS, (b) => (b.video as ContentVideoInfo) ?? null, "The video wasn't changed.");
+
+/** The steps a tool video covers from now on (`[]`: none; `null`: the whole tool, for a tool with no ladder), and the videos that lost steps to it. */
+export const retickContentVideo = (id: string, steps: string[] | null): Promise<Done<{ video: ContentVideoInfo; lost: Lost[] }>> =>
+  call(`/api/content-videos/${id}/steps`, sendJson("PUT", { steps }), EDIT_MS,
+    (b) => (b.video ? { video: b.video as ContentVideoInfo, lost: Array.isArray(b.lost) ? (b.lost as Lost[]) : [] } : null), "The levels weren't changed.");
+
+/** Deletes a video nothing points at, and its file. */
+export const deleteContentVideo = (id: string): Promise<Done<true>> =>
+  call(`/api/content-videos/${id}`, { method: "DELETE" }, EDIT_MS, () => true, "The video wasn't deleted.");

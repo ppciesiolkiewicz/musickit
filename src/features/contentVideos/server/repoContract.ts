@@ -136,6 +136,44 @@ export function contentVideoRepoContract(makeRepo: (blocks: ContractBlock[]) => 
     });
   });
 
+  describe("content video repo: change steps", () => {
+    test("re-ticking takes the new steps off the tool's other videos and replaces the video's own", async () => {
+      const repo = await fresh();
+      await repo.create(video(V.all, "All"), tool(ALL_STEPS));
+      await repo.create(video(V.beg, "Beginner"), tool(["picking-drill:beginner"]));
+      const res = await repo.retarget(V.beg, { tool: "picking-drill", steps: ["picking-drill:new", "picking-drill:beginner"] });
+      assert.equal(res.ok, true);
+      assert.deepEqual(res.ok && res.lost, [{ id: V.all, title: "All", steps: ["picking-drill:new"], emptied: false }]);
+      assert.deepEqual(res.ok && res.row.steps, ["picking-drill:new", "picking-drill:beginner"]);
+      assert.deepEqual(await stepsOf(repo), { All: ["picking-drill:intermediate", "picking-drill:advanced", "none"], Beginner: ["picking-drill:new", "picking-drill:beginner"] });
+      // a step dropped is left uncovered: nothing gets it back
+      await repo.retarget(V.beg, { tool: "picking-drill", steps: ["picking-drill:new"] });
+      assert.deepEqual((await repo.list()).filter((v) => v.steps?.includes("picking-drill:beginner")), []);
+    });
+
+    test("null takes every step off; a video with none gets them back; another tool's or a block's video is not-tool", async () => {
+      const repo = await fresh();
+      await repo.create(video(V.beg, "Beginner"), tool(["picking-drill:beginner"]));
+      const off = await repo.retarget(V.beg, null);
+      assert.deepEqual(off.ok && [off.row.tool, off.row.steps, off.lost], [null, null, []]);
+      const back = await repo.retarget(V.beg, { tool: "picking-drill", steps: ["picking-drill:advanced"] });
+      assert.deepEqual(back.ok && [back.row.tool, back.row.steps], ["picking-drill", ["picking-drill:advanced"]]);
+      assert.deepEqual(await repo.retarget(V.beg, { tool: "interval-ears", steps: ["interval-ears:1"] }), { ok: false, reason: "not-tool" });
+      await repo.create(video(V.riff, "Riff", { madeFor: "riff-x" }), cell("riff-x", 0));
+      assert.deepEqual(await repo.retarget(V.riff, null), { ok: false, reason: "not-tool" });
+      assert.deepEqual(await repo.retarget(V.unknown, null), { ok: false, reason: "no-video" });
+    });
+
+    test("a tool with no ladder: re-ticking takes the tool off the other video", async () => {
+      const repo = await fresh();
+      await repo.create(video(V.band1, "Band one", { madeFor: "tool:backing-band" }), tool(null, "backing-band"));
+      await repo.create(video(V.band2, "Band two", { madeFor: "tool:backing-band" }), tool(null, "backing-band"));
+      const res = await repo.retarget(V.band1, { tool: "backing-band", steps: null });
+      assert.deepEqual(res.ok && res.lost, [{ id: V.band2, title: "Band two", steps: [], emptied: true }]);
+      assert.deepEqual((await repo.list()).filter((v) => v.tool === "backing-band").map((v) => v.id), [V.band1]);
+    });
+  });
+
   describe("content video repo: a block's own video", () => {
     test("a cell target points the curated block's cell at the video", async () => {
       const repo = await fresh();
