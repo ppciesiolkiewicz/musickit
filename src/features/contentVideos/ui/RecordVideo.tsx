@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import Link from "next/link";
 import { getAudioContext, openRecordInput, wakeAudio, type RecordInput } from "@/features/sound";
 import RecordInputSelect from "@/components/RecordInputSelect";
@@ -20,11 +20,12 @@ import { startClick } from "../client/click";
 import { deleteKeptTake, getKeptTake, saveKeptTake, type KeptTake, type NeckRead, type TakeLog } from "../client/takes";
 import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
 import type { Sample } from "../model/clock";
-import { BGS, DEFAULT_BOX, DEFAULT_LOOK, NARROW_BOX, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look } from "../model/overlay";
+import { BGS, DEFAULT_BOX, DEFAULT_LOOK, NARROW_BOX, PLACES, SIZES, hasOverlay, readLook, type Look } from "../model/overlay";
 import { takeKey } from "../model/takeKey";
 import { takeOverlay } from "../model/takeClock";
-import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelBg, panelClass, panelStyle } from "./lookPanel";
-import Scaled from "./Scaled";
+import { BG_WORDS, PLACE_WORDS, SIZE_WORDS } from "./lookPanel";
+import ToolBox, { LiveView, ViewOverTake } from "./ToolBox";
+import { TOOL_VIEW, takeClock, useKitView, useTakeNotes, type RecordKit } from "./kit";
 import BeatView from "./BeatView";
 import DetectLog, { addNeckRead } from "./DetectLog";
 import { stepGroups, toolName, wouldLose } from "../model/coverage";
@@ -80,7 +81,7 @@ export interface RecordFor {
   block: { id: string; cell: number; title: string } | null;
 }
 
-export default function RecordVideo({ target, videos, children, drawn, tempo, oldTakeKey }: {
+export default function RecordVideo({ target, videos, children, drawn, tempo, oldTakeKey, kit }: {
   target: RecordFor;
   videos: ContentVideoInfo[];
   /** the tool drawn over the camera, or a line saying why there is none */
@@ -91,6 +92,8 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
   tempo?: { bpm: number; bars: number };
   /** where an older page kept this target's take (a riff's block id): opened when none is kept under its take key */
   oldTakeKey?: string;
+  /** what the tool gives beside its drawing: other views for its box, its notes for the neck readers, what to offer on a take */
+  kit?: RecordKit;
 }) {
   const { tool, block } = target;
   const key = takeKey(target);
@@ -151,40 +154,8 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
   const narrow = drawn !== null && NARROW_TOOLS.includes(drawn.type);
   const unsetBox = narrow ? NARROW_BOX : DEFAULT_BOX;
   const frame = useRef<HTMLDivElement | null>(null);
-  // Free: the bar on top of the tool moves it, a bottom corner sizes it, as shares of the camera's picture; kept when let go
-  const dragBox = (mode: "move" | "size" | "sizeLeft") => (e: ReactPointerEvent<HTMLDivElement>) => {
-    const rect = frame.current?.getBoundingClientRect();
-    if (!rect?.width || !rect.height || e.button !== 0) return;
-    e.preventDefault();
-    const el = e.currentTarget;
-    const panel = el.parentElement?.getBoundingClientRect();
-    // the height follows the scaled tool (`Scaled`): read it off the screen, and keep the tool's proportions when sizing
-    const box0 = look.box ?? unsetBox;
-    const from = panel?.height ? { ...box0, h: panel.height / rect.height } : box0;
-    const tall = from.h / from.w;
-    const [sx, sy] = [e.clientX, e.clientY];
-    el.setPointerCapture(e.pointerId);
-    const move = (m: PointerEvent) => {
-      const dx = (m.clientX - sx) / rect.width;
-      const dy = (m.clientY - sy) / rect.height;
-      // the corner follows whichever way the pointer went further, across or down
-      // the bottom left corner sizes it the other way across, keeping its right edge where it was
-      const left = mode === "sizeLeft";
-      const right = from.x + from.w;
-      const w = Math.min(left ? right : 1 - from.x, (1 - from.y) / tall, Math.max(from.w + (left ? -dx : dx), from.w + dy / tall));
-      const box = fitBox(mode === "move" ? { ...from, x: from.x + dx, y: from.y + dy } : { ...from, x: left ? right - w : from.x, w, h: w * tall });
-      setLookState((l) => ({ ...l, box }));
-    };
-    const up = () => {
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerup", up);
-      el.removeEventListener("pointercancel", up);
-      setLookState((l) => { store(LOOK_KEY, l); return l; });
-    };
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerup", up);
-    el.addEventListener("pointercancel", up);
-  };
+  // a kit view picked in the View list is drawn in the tool's box instead of the tool, which stays mounted, hidden
+  const [kitView, viewId, pickView] = useKitView(tool, kit);
   const canHide = drawn !== null && CONTROLS_TOOLS.includes(drawn.type);
   const stream = useRef<MediaStream | null>(null);
   // the input recorded with the camera, opened apart from it (`openRecordInput`)
@@ -215,6 +186,14 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
   const beat = useRef<number | null>(null);
   const samples = useRef<Sample[]>([]);
   const onBeat = useCallback((b: number | null) => { beat.current = b; }, []);
+  // a kit view's beat over the camera: the click's while recording to it, else the tool's
+  const liveBeat = useCallback(() => {
+    const g = grid.current;
+    return g ? (getAudioContext().currentTime - g.anchor) / g.period - g.countIn * 4 : beat.current;
+  }, []);
+  // the take's clock (its overlay's, else the click's grid) and the kit's notes timed onto it, for the neck readers and the log
+  const clock = useMemo(() => takeClock(take?.overlay, take?.click), [take?.overlay, take?.click]);
+  const notes = useTakeNotes(kit, clock, take?.seconds ?? 0);
 
   const stopCamera = () => {
     stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; mic.current?.close(); mic.current = null;
@@ -637,6 +616,14 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
           <legend className={legend}>Tool</legend>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-300">
             <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
+            {!!kit?.views?.length && (
+              <label className="flex items-center gap-1.5" title="What the tool's box shows over the camera and the take. Players see this view only in a take saved after Export with overlay; otherwise they see Tool.">View
+                <select value={viewId} onChange={(e) => pickView(e.target.value)} className={input}>
+                  <option value={TOOL_VIEW}>Tool</option>
+                  {kit.views.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
+                </select>
+              </label>
+            )}
             <label className="flex items-center gap-1.5">Place
               <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
             </label>
@@ -679,16 +666,12 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
         {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
         {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live fit="cover" />}
-        {/* one tree for every place, so changing the place never restarts the tool */}
-        <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look, unsetBox)}>
-          <div className={free ? `${panelBg(look)} pt-2.5` : undefined}>
-            <Scaled on={free} fit={narrow} className="p-2"><NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll></Scaled>
-          </div>
-          {free && <div onPointerDown={dragBox("move")} title="Drag to move the tool" className="absolute inset-x-0 top-0 h-2.5 cursor-move touch-none bg-slate-600/40 hover:bg-slate-500/80"><span className="mx-auto mt-1 block h-0.5 w-8 rounded-full bg-slate-300/50" /></div>}
-          {/* faint until pointed at: they sit over the camera's picture */}
-          {free && <div onPointerDown={dragBox("sizeLeft")} title="Drag to size the tool" className="absolute bottom-0 left-0 size-4 cursor-sw-resize touch-none border-b-2 border-l-2 border-slate-300/25 hover:border-white/80" />}
-          {free && <div onPointerDown={dragBox("size")} title="Drag to size the tool" className="absolute bottom-0 right-0 size-4 cursor-se-resize touch-none border-b-2 border-r-2 border-slate-300/25 hover:border-white/80" />}
-        </div>
+        {/* one tree for every place and every view, so changing either never restarts the tool */}
+        <ToolBox look={look} unsetBox={unsetBox} narrow={narrow} shown={toolShown} frame={frame}
+          onBox={(box) => setLookState((l) => ({ ...l, box }))} onLetGo={() => setLookState((l) => { store(LOOK_KEY, l); return l; })}>
+          <NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}><div className={kitView ? "hidden" : "contents"}>{children}</div></ToolClockListener></ToolControls></NoAutoScroll>
+          {kitView && <LiveView view={kitView} read={liveBeat} />}
+        </ToolBox>
       </div>
 
       {take && phase !== "recording" && (
@@ -704,9 +687,11 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
           <div ref={takeBox} className="relative isolate aspect-video w-full max-w-3xl overflow-hidden rounded bg-black">
             <video key={url} ref={setTakeVideo} src={url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
               onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setShown((s) => (s && s.url === url ? { ...s, take: { ...s.take, width: videoWidth, height: videoHeight } } : s)); }} />
-            {readNeck && <NeckView key={url} video={takeVideo} fx={fx} fit="cover" onRead={onNeckRead} bare={exporting !== null} />}
-            {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} cv={cvFx} fit="cover" bare={exporting !== null} />}
-            {take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}
+            {readNeck && <NeckView key={url} video={takeVideo} fx={fx} notes={notes} fit="cover" onRead={onNeckRead} bare={exporting !== null} />}
+            {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} cv={cvFx} notes={notes} fit="cover" bare={exporting !== null} />}
+            {kitView
+              ? <ViewOverTake video={takeVideo} clock={clock} view={kitView} look={look} hidden={!toolShown} />
+              : take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}
           </div>
           <p className="text-xs text-slate-400">{take.burned ? "Exported with overlay: players see this take with the tool and the effects in the picture." : overlayWords(take, drawn, bpm)}</p>
           {!take.saved && (
@@ -765,8 +750,9 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
             {done && <p role="status" className="text-slate-200">{done}</p>}
             {take.saved && <Link href={`/admin/content/videos#${encodeURIComponent(tool)}`} className="text-sky-400 hover:underline">Back to Tools videos</Link>}
           </div>
+          {kit?.afterTake?.(take, takeVideo)}
           {(readNeck || !!take.log?.neck?.length) && (
-            <DetectLog log={take.log ?? {}} notes={[]} markers={fx.markers} onSeek={(t) => takeVideo && seek(takeVideo, t)} />
+            <DetectLog log={take.log ?? {}} notes={notes ?? []} markers={fx.markers} onSeek={(t) => takeVideo && seek(takeVideo, t)} />
           )}
         </section>
       )}

@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import type { PlanTool } from "@/features/plan/model/tools";
 import { contentVideoFileUrl } from "../client/api";
-import { beatAt } from "../model/clock";
+import { beatAt, type Piece } from "../model/clock";
 import { PLAYBACK_LOOK, readOverlay, type Overlay } from "../model/overlay";
 import { panelClass, panelStyle } from "./lookPanel";
 import Scaled from "./Scaled";
@@ -25,21 +25,15 @@ export const TOOL_OVER = "Tool over the video";
 export const useDrawTool = () => useContext(Draw);
 
 /**
- * A content video, with its tool drawn over the top of it when the video saved one (`model/overlay.ts`) and the page
- * gives a way to draw it (`OverlayDrawProvider`). The tool follows the video's own clock (`beatAt`): it moves while the
- * video plays, holds while it is paused, follows a seek exactly, and makes no sound. **Tool over the video** hides it.
+ * The tool's beat at `video`'s time through `clock` (`beatAt`), read each frame while it plays, once on a pause or a seek.
  */
-/**
- * The tool drawn over a video at the video's own clock (`beatAt`): it moves while the video plays, holds while it is paused,
- * follows a seek exactly, and makes no sound. Sits in the video's `relative` box, where its look puts it.
- */
-export function ToolOverVideo({ video, overlay, draw, hidden = false }: { video: HTMLVideoElement | null; overlay: Overlay; draw: DrawTool; hidden?: boolean }) {
+export function useVideoBeat(video: HTMLVideoElement | null, clock: Piece[] | null): number | null {
   const [beat, setBeat] = useState<number | null>(null);
   useEffect(() => {
     const v = video;
-    if (!v) return;
+    if (!v || !clock) return;
     let raf = 0;
-    const read = () => setBeat(beatAt(overlay.clock, v.currentTime));
+    const read = () => setBeat(beatAt(clock, v.currentTime));
     const loop = () => { read(); raf = requestAnimationFrame(loop); };
     const play = () => { cancelAnimationFrame(raf); loop(); };
     const hold = () => { cancelAnimationFrame(raf); read(); };
@@ -57,7 +51,16 @@ export function ToolOverVideo({ video, overlay, draw, hidden = false }: { video:
       v.removeEventListener("seeked", read);
       v.removeEventListener("loadedmetadata", read);
     };
-  }, [video, overlay]);
+  }, [video, clock]);
+  return clock ? beat : null;
+}
+
+/**
+ * The tool drawn over a video at the video's own clock (`beatAt`): it moves while the video plays, holds while it is paused,
+ * follows a seek exactly, and makes no sound. Sits in the video's `relative` box, where its look puts it.
+ */
+export function ToolOverVideo({ video, overlay, draw, hidden = false }: { video: HTMLVideoElement | null; overlay: Overlay; draw: DrawTool; hidden?: boolean }) {
+  const beat = useVideoBeat(video, overlay.clock);
   const look = overlay.look ?? PLAYBACK_LOOK;
   // where it sat over the camera (older takes: at the top), clear of the video's own controls
   return (
