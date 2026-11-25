@@ -1,5 +1,5 @@
 import type { FxSpec, LooperAction } from "./actions";
-import { INPUT_PRESETS } from "./inputPresets";
+import { GUITAR_AMPS, INPUT_PRESETS, ampEffects } from "./inputPresets";
 
 /**
  * Starter rigs. An input (a guitar, a piano) gets a few buses of its own, each with effects; one is open at a time (radio) and each bus
@@ -9,32 +9,10 @@ import { INPUT_PRESETS } from "./inputPresets";
  */
 export const RIG_PRESETS = ["sparkle", "crunch", "lead"] as const;
 
-/**
- * The amps of the guitar rig, one bus each, named after the amp. `find` holds words of the model's file name; the app looks for it among
- * the .nam files the player has loaded on this device. Without a match the bus has an empty amp.
- */
-export const GUITAR_AMPS: { name: string; find: string; gain: "clean" | "drive" | "high" }[] = [
-  { name: "Fender Twin Reverb", find: "twin reverb clean", gain: "clean" },
-  { name: "Fender Super Reverb", find: "fndr bfsr", gain: "clean" },
-  { name: "Vox AC15 Top Boost", find: "ac15", gain: "drive" },
-  { name: "Marshall JCM800", find: "jcm800", gain: "drive" },
-  { name: "Marshall JCM2000 Crunch", find: "jcm2000 crunch", gain: "drive" },
-  { name: "Mesa Dual Rectifier", find: "dualrec classic", gain: "high" },
-  { name: "5150 Stealth Red", find: "5150 stealth red", gain: "high" },
-  { name: "Mesa Mark IV Lead", find: "mark iv lead", gain: "high" },
-];
+export { GUITAR_AMPS };
 
-const gate = (threshold: number): FxSpec => ({ kind: "denoise", params: { threshold, reduction: 36, release: 30, hum: 70, hiss: 14000 } });
-
-/** The effects of an amp bus: a gate (tighter for more gain), the amp, and a room after the fader. */
-const ampBus = (a: (typeof GUITAR_AMPS)[number]): BusSpec => ({
-  name: a.name,
-  effects: [
-    gate(a.gain === "high" ? -56 : a.gain === "drive" ? -60 : -64),
-    { kind: "nam", amp: a.find },
-    { kind: "reverb", post: true, params: { decay: a.gain === "clean" ? 2 : 1.4, mix: a.gain === "clean" ? 0.2 : 0.14 } },
-  ],
-});
+/** An amp bus of the guitar rig: named after the amp, with its gate, the amp and a room. */
+const ampBus = (a: (typeof GUITAR_AMPS)[number]): BusSpec => ({ name: a.name, effects: ampEffects(a) });
 
 let counter = 0;
 const stamp = () => `${Date.now().toString(36)}${(counter++).toString(36)}`;

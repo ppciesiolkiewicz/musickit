@@ -13,13 +13,20 @@ export interface RecordInput {
   close(): void;
 }
 
+export interface RecordInputOptions {
+  /** effects the take is recorded through (the caller's own nodes, e.g. an `EffectChain`): the input goes into `input`, the take records `output` */
+  through?: { input: AudioNode; output: AudioNode };
+}
+
 /**
  * Opens the app's chosen input (`DeviceChoice.input`, exactly, falling back to the system default) for a recorder, untouched: no echo
  * cancelling, noise removal or level riding, which smear the picks and bend the pitch. A two-input device (an audio interface) goes
  * through the app's channel choice, so a take with the guitar on Input 1 has it in both ears and not the other socket; the choice is
- * followed live. While open, each input's level is published (`openLiveInput`) for the input chip and the record pages' meter.
+ * followed live. While open, each input's level is published (`openLiveInput`) for the input chip and the record pages' meter. With
+ * `through` the take records the input after those effects (in stereo: a reverb is wide); the nodes stay the caller's, so their
+ * settings can change while the input is open, and closing only takes the input off them.
  */
-export async function openRecordInput(): Promise<RecordInput> {
+export async function openRecordInput({ through }: RecordInputOptions = {}): Promise<RecordInput> {
   const stream = await openInputStream({ channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false });
   const raw = stream.getAudioTracks()[0];
   const stopRaw = () => stream.getTracks().forEach((t) => t.stop());
@@ -33,8 +40,11 @@ export async function openRecordInput(): Promise<RecordInput> {
   const src = ctx.createMediaStreamSource(stream);
   const tap = tapChannels(ctx, src, channels);
   // a two-input device is recorded as the app hears it; a mic straight from the browser, with nothing in between
-  const out = tap.channels > 1 ? ctx.createMediaStreamDestination() : null;
-  if (out) {
+  const out = through || tap.channels > 1 ? ctx.createMediaStreamDestination() : null;
+  if (out && through) {
+    tap.output.connect(through.input);
+    through.output.connect(out);
+  } else if (out) {
     out.channelCount = 1;
     tap.output.connect(out);
   }
@@ -55,6 +65,9 @@ export async function openRecordInput(): Promise<RecordInput> {
       closed = true;
       cancelAnimationFrame(frame);
       live.close();
+      if (through && out) {
+        try { tap.output.disconnect(through.input); through.output.disconnect(out); } catch { /* already gone */ }
+      }
       tap.close();
       out?.stream.getTracks().forEach((t) => t.stop());
       try { src.disconnect(); } catch { /* already gone */ }

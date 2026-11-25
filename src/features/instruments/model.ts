@@ -10,6 +10,7 @@ export { BASS, DEFAULT_KEY, DRONE, DRONE_ID, DRUMS, INSTRUMENTS, Sequencer, bass
 export * from "./effects/effects";
 export * from "./effects/choices";
 export { EffectChain } from "./effects/chain";
+export * from "./effects/presets";
 export { MAX_BPM, MIN_BPM } from "./jam/clock";
 export type { GridFollower, GridHost } from "./jam/rig";
 export { loadJamPage, saveJamPage, type JamPageSave } from "./jam/page";

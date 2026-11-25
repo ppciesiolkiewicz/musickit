@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Po
 import Link from "next/link";
 import { openRecordInput, type RecordInput } from "@/features/sound";
 import RecordInputSelect from "@/components/RecordInputSelect";
+import RecordSoundSelect, { useRecordSound } from "@/components/RecordSoundSelect";
 import { clockTime } from "@/features/recorder/recorder";
 import { MAX_TAKE_SECONDS, pickVideoType } from "@/features/videos/recording";
 import { ToolClockListener } from "@/components/practice/toolClock";
@@ -125,6 +126,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const stream = useRef<MediaStream | null>(null);
   // the input recorded with the camera, opened apart from it (`openRecordInput`)
   const mic = useRef<RecordInput | null>(null);
+  // the looper's guitar and vocal effects on that input: the take records it through them
+  const sound = useRecordSound();
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement | null>(null);
   // the live video as state too, so NeckView can read the camera
@@ -186,7 +189,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const openMic = async () => {
     mic.current?.close();
     mic.current = null;
-    const m = await openRecordInput();
+    const m = await openRecordInput({ through: sound.through() });
     mic.current = m;
     const video = stream.current?.getVideoTracks() ?? [];
     stream.current = new MediaStream([...video, m.track]);
@@ -358,6 +361,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
           </label>
         )}
         {phase !== "recording" && <RecordInputSelect onPick={() => void switchMic()} />}
+        {phase !== "recording" && <RecordSoundSelect sound={sound} />}
         <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
         <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera and the take. Not while recording: Export with overlay puts them in the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
           <input type="checkbox" checked={readNeck} onChange={(e) => { setReadNeck(e.target.checked); if (e.target.checked) setReadCv(false); }} className="accent-sky-500" /> Read the neck
