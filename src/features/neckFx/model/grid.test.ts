@@ -41,3 +41,10 @@ test("a sized marker at the nut sits half its size up the headstock", () => {
   near(fretAt(g, { x: 0.1, y: 0.5 }), -12 * Math.log2(1 + 12.5 / 648));
   assert.ok(fretAt(g, { x: xOf(5), y: 0.5 }) < 5); // the nut is past the marker, so the same spot is nearer the nut
 });
+test("a gap past the nut moves a headstock marker that much further up", () => {
+  const p = parsePlaced("3@0/30+8, 7@17");
+  assert.deepEqual(p[0], { id: 3, fret: 0, mm: 30, gap: 8 });
+  const g = gridOf([{ id: 3, c: { x: 0.1, y: 0.5 } }, { id: 7, c: { x: 0.9, y: 0.5 } }], p)!;
+  near(fretAt(g, { x: 0.1, y: 0.5 }), -12 * Math.log2(1 + 23 / 648));
+  assert.deepEqual(parsePlaced("3@0/30+"), []);
+});

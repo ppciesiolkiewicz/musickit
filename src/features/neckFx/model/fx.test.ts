@@ -75,6 +75,6 @@ test("the A3 layout uses each fret sheet marker once, at its printed size, insid
     if (m.fret && m.fret < 17) assert.ok(m.mm * 1.25 <= width(m.fret), `marker ${m.id} is too wide for fret ${m.fret}`);
   }
   assert.equal(parsePlaced(A3_MARKERS).length, 7);
-  assert.deepEqual(parsePlaced(A3_MARKERS)[0], { id: 56, fret: 0, mm: 30 });
+  assert.deepEqual(parsePlaced(A3_MARKERS)[0], { id: 56, fret: 0, mm: 30, gap: 8 });
   assert.equal(parseButtons(A3_BUTTONS).length, 2);
 });

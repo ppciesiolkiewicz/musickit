@@ -36,7 +36,7 @@ export default function FxControls({ fx, set }: { fx: FxSettings; set: (part: Pa
   return (
     <div className="flex flex-col gap-2 text-sm">
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      <label className={field} title="For each marker, its number and the fret space its centre is in the middle of. A headstock marker touching the nut is fret 0 with its size in mm: 0@0/25.">
+      <label className={field} title="For each marker, its number and the fret space its centre is in the middle of. A headstock marker by the nut is fret 0 with its size in mm, 0@0/25, and how far its edge is past the nut after a +, 0@0/30+8.">
         Markers
         <input value={fx.markers} onChange={(e) => set({ markers: e.target.value })} placeholder="0@0/25, 1@17" className={`${input} w-32`} />
       </label>

@@ -39,22 +39,23 @@ export interface FxSettings {
 }
 /**
  * The layout on the test guitar (a Strat), from the fret sheet (`public/riff/neck-markers-frets-a3.pdf`): 30 mm on the
- * headstock touching the nut, one marker in each of fret spaces 1, 3, 5, 7 and 9, 40 mm on the body above the neck, level
- * with fret 17, and two 40 mm buttons under the picking hand. `fret` is the fret space (0 is the nut); `mm` is the black
- * square's side, as printed under the marker.
+ * headstock just past the nut (the truss-rod nut between them), one marker in each of fret spaces 1, 3, 5, 7 and 9, 40 mm on
+ * the body above the neck, level with fret 19, and two 40 mm buttons under the picking hand. `fret` is the fret space (0 is
+ * the nut); `mm` is the black square's side, as printed under the marker; `gap` how far a headstock marker's near edge is
+ * past the nut, in mm.
  */
-export const A3_LAYOUT: { id: number; mm: number; fret: number | null; where: string; filter?: Filter }[] = [
-  { id: 56, mm: 30, fret: 0, where: "headstock, edge touching the nut" },
+export const A3_LAYOUT: { id: number; mm: number; fret: number | null; gap?: number; where: string; filter?: Filter }[] = [
+  { id: 56, mm: 30, fret: 0, gap: 8, where: "headstock, its edge about 8 mm past the nut, beyond the truss-rod nut" },
   { id: 62, mm: 24, fret: 1, where: "fret 1" },
   { id: 70, mm: 24, fret: 3, where: "fret 3, by the dot" },
   { id: 87, mm: 20, fret: 5, where: "fret 5, by the dot" },
   { id: 97, mm: 18, fret: 7, where: "fret 7, by the dot" },
   { id: 107, mm: 16, fret: 9, where: "fret 9, by the dot" },
-  { id: 51, mm: 40, fret: 17, where: "body above the neck, level with fret 17" },
+  { id: 51, mm: 40, fret: 19, where: "body above the neck, level with fret 19" },
   { id: 52, mm: 40, fret: null, where: "body, under your picking hand", filter: "mono" },
   { id: 53, mm: 40, fret: null, where: "body, under your picking hand", filter: "neon" },
 ];
-export const A3_MARKERS = A3_LAYOUT.flatMap((m) => (m.fret === null ? [] : [`${m.id}@${m.fret}${m.fret === 0 ? `/${m.mm}` : ""}`])).join(", ");
+export const A3_MARKERS = A3_LAYOUT.flatMap((m) => (m.fret === null ? [] : [`${m.id}@${m.fret}${m.fret === 0 ? `/${m.mm}${m.gap ? `+${m.gap}` : ""}` : ""}`])).join(", ");
 export const A3_BUTTONS = A3_LAYOUT.flatMap((m) => (m.filter ? [`${m.id}=${m.filter}`] : [])).join(", ");
 
 export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["markers", "frets"] };

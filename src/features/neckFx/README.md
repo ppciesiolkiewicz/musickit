@@ -10,7 +10,8 @@ saved into a take, and it doesn't run while a take records (the hand model would
 - **Markers** (dictionary ARUCO_MIP_36h12, via js-aruco2) are printed from `public/riff` (`neck-markers-a4.pdf`,
   `neck-markers-a3.pdf`, `neck-markers-frets-a3.pdf`, the last printed by `scripts/neck-markers-frets.mjs`). Each one placed is
   typed into **Markers** as `id@fret`: fret N is the middle of fret space N, level with the dot inlays; fret 0 is the nut, with
-  the marker's size after a slash when its edge touches the nut (`0@0/25`).
+  the marker's size after a slash when its edge is by the nut (`0@0/25`), and how far that edge is past the nut after a plus
+  (`0@0/30+8`, in mm).
 - **Hands**: MediaPipe Hand Landmarker, its runtime and model fetched from jsDelivr and Google storage on first use.
 - **The grid** (`model/grid.ts`): a straight line through the placed markers seen, fitted to where a 25.5" scale puts their
   frets. No perspective and no strings yet: it gives the fret along the neck only. Two placed markers in view are enough.
@@ -37,8 +38,8 @@ Warm, Cold, Invert, Blur. A marker counts as covered once it has been missing 0.
 (`coveredNow`). **Covering**: Hold keeps the filter on while covered; Toggle flips it on each new cover.
 
 **The A3 layout** (`A3_LAYOUT`, the default Markers and Buttons), as stuck on the test Strat from the fret sheet: 56 (30 mm)
-on the headstock touching the nut; 62 and 70 (24 mm) in fret spaces 1 and 3, 87 (20 mm) in 5, 97 (18 mm) in 7, 107 (16 mm)
-in 9; 51 (40 mm) on the body above the neck, level with fret 17; and two buttons under the picking hand, 52 Mono and 53 Neon.
+on the headstock, its edge about 8 mm past the nut (the truss-rod nut between them); 62 and 70 (24 mm) in fret spaces 1 and 3,
+87 (20 mm) in 5, 97 (18 mm) in 7, 107 (16 mm) in 9; 51 (40 mm) on the body above the neck, level with fret 19; and two buttons under the picking hand, 52 Mono and 53 Neon.
 **Where each marker goes** under the controls lists it, and **Use the A3 layout** puts it back in Markers and Buttons.
 
 Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
