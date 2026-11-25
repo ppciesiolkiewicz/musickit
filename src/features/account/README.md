@@ -124,9 +124,9 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   `inviteEmail(link, kind)` has the words for each.
 - Join codes (`JOIN_CODES` in `server/invites.ts`, 2026-11-25): a word in place of a token in a `/join/<code>` link,
   for a place we list the app. `INDIEAPPCIRCLE` (`/join/INDIEAPPCIRCLE`, any case) puts the account on the IndieAppCircle
-  plan (`INDIEAPPCIRCLE_PLAN_ID`: teacher, 15 students, free, `enabled` false, migration `0049_indieappcircle_code`) for 60
-  days, with no Stripe even with payments on (`FREE_PLAN_IDS`). The same page and flow as a teacher invite, with "Free for
-  60 days" in place of a year (`days` in the GET). Opening the link stores nothing; joining makes the person their own
+  plan (`INDIEAPPCIRCLE_PLAN_ID`: student, free, `enabled` false, migration `0049_indieappcircle_code`) for 60 days,
+  with no Stripe even with payments on (`FREE_PLAN_IDS`). The same page and flow as a personal invite (a teacher who
+  joins becomes a student), with "Free for 60 days" in place of a year (`days` in the GET). Opening the link stores nothing; joining makes the person their own
   one-use invite noted `INDIEAPPCIRCLE` and claims it, so /admin/admin/invites lists who joined with it. Once per
   account: joining again on the plan changes nothing; after it ended the page says so ("ended") and sends them to
   choose a plan. The end is `users.plan_ends_at`, set only by a code and cleared by any other plan change; past it

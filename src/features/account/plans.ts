@@ -59,8 +59,8 @@ export const TEACHER_DEMO_PLAN_ID = "teacher-demo";
 export const PERSONAL_DEMO_PLAN_ID = "personal-demo";
 
 /**
- * IndieAppCircle: a teacher plan like Solo, free and never offered (`enabled` false). A teacher gets it only from the
- * INDIEAPPCIRCLE join code (`/join/INDIEAPPCIRCLE`, `JOIN_CODES` in server/invites.ts), for 60 days. Migration 0049.
+ * IndieAppCircle: a player's own plan like Student, free and never offered (`enabled` false). A player gets it only from
+ * the INDIEAPPCIRCLE join code (`/join/INDIEAPPCIRCLE`, `JOIN_CODES` in server/invites.ts), for 60 days. Migration 0049.
  */
 export const INDIEAPPCIRCLE_PLAN_ID = "indieappcircle";
 

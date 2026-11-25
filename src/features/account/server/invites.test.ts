@@ -10,8 +10,8 @@ const PLANS: Plan[] = [
   { ...BASE, id: "student", name: "Student", role: "student", students: 0, enabled: true },
   { ...BASE, id: TEACHER_DEMO_PLAN_ID, name: "Teacher Demo", role: "teacher", students: 2, enabled: false },
   { ...BASE, id: PERSONAL_DEMO_PLAN_ID, name: "Personal Demo", role: "student", students: 0, enabled: false },
-  { ...BASE, id: INDIEAPPCIRCLE_PLAN_ID, name: "IndieAppCircle", role: "teacher", students: 15, enabled: false },
-  { ...BASE, id: "teacher-basic", name: "Solo", role: "teacher", students: 15, enabled: true, monthCents: 1199, yearCents: 7200 },
+  { ...BASE, id: INDIEAPPCIRCLE_PLAN_ID, name: "IndieAppCircle", role: "student", students: 0, enabled: false },
+  { ...BASE, id: "student-paid", name: "Student", role: "student", students: 0, enabled: true, monthCents: 599, yearCents: 3600 },
   { ...BASE, id: TAUGHT_PLAN_ID, name: "Student of a teacher", role: "student", students: 0, enabled: false },
 ];
 
@@ -155,15 +155,15 @@ const DAY = 24 * 60 * 60 * 1000;
 /** The same repo with the clock moved on by `days`. */
 const later = (deps: AuthDeps, days: number): AuthDeps => ({ ...deps, now: () => new Date(deps.now().getTime() + days * DAY) });
 
-test("the INDIEAPPCIRCLE code: a new account joins as a teacher, free for 60 days, on its own invite", async () => {
+test("the INDIEAPPCIRCLE code: a new account joins as a student, free for 60 days, on its own invite", async () => {
   const { deps, person, invites } = setup();
   const ann = await person("ann@school.com");
-  assert.deepEqual(await viewInvite(deps, ann, "indieappcircle"), { state: "open", kind: "teacher", plan: { name: "IndieAppCircle", students: 15 }, name: null, days: 60 });
+  assert.deepEqual(await viewInvite(deps, ann, "indieappcircle"), { state: "open", kind: "personal", plan: { name: "IndieAppCircle", students: 0 }, name: null, days: 60 });
   assert.equal(invites.length, 0, "opening the link stores nothing");
 
   const r = await joinWithInvite(deps, ann, "INDIEAPPCIRCLE", { name: "Ann", acceptTerms: true }, true);
   assert.ok(r.ok);
-  assert.equal(r.account.role, "teacher");
+  assert.equal(r.account.role, "student");
   assert.equal(r.account.needsSetup, false);
   assert.equal(r.account.needsPayment, false, "no Stripe with payments on");
   const user = (await deps.repo.userById(ann.id))!;
@@ -178,12 +178,14 @@ test("the INDIEAPPCIRCLE code: a new account joins as a teacher, free for 60 day
   assert.equal((await deps.repo.userById(ann.id))!.planEndsAt?.getTime(), deps.now().getTime() + 60 * DAY, "and doesn't add days");
 });
 
-test("the code is for anyone, once each: a second account gets its own invite", async () => {
+test("the code is for anyone, once each: a second account gets its own invite, and a teacher becomes a student", async () => {
   const { deps, person } = setup();
   await joinWithInvite(deps, await person("ann@school.com"), "INDIEAPPCIRCLE", { name: "Ann", acceptTerms: true });
-  const bob = await person("bob@school.com");
+  const bob = await person("bob@school.com", TEACHER_DEMO_PLAN_ID, "teacher");
   assert.equal((await viewInvite(deps, bob, "INDIEAPPCIRCLE")).state, "open");
-  assert.ok((await joinWithInvite(deps, bob, "INDIEAPPCIRCLE", { name: "Bob", acceptTerms: true })).ok);
+  const r = await joinWithInvite(deps, bob, "INDIEAPPCIRCLE", {});
+  assert.ok(r.ok);
+  assert.equal(r.account.role, "student");
   assert.equal((await listInvites(deps)).length, 2);
 });
 
@@ -207,7 +209,7 @@ test("after 60 days the plan has ended: held on setup, can't join again, chooses
   assert.equal(await choosePlan(day60, ann, INDIEAPPCIRCLE_PLAN_ID, "month"), null, "nor kept by paying the other way");
   assert.deepEqual(await setUpAccount(day60, ann, { name: "Ann", planId: INDIEAPPCIRCLE_PLAN_ID, billing: "year", acceptTerms: true }), { ok: false, error: "plan" });
 
-  const r = await setUpAccount(day60, ann, { name: "Ann", planId: "teacher-basic", billing: "month", acceptTerms: true }, true);
+  const r = await setUpAccount(day60, ann, { name: "Ann", planId: "student-paid", billing: "month", acceptTerms: true }, true);
   assert.ok(r.ok);
   assert.equal(r.account.needsPayment, true, "a paid plan goes to Checkout");
   assert.equal((await deps.repo.userById(ann.id))!.planEndsAt, null, "a new plan has no end");
