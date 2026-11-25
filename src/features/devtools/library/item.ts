@@ -119,10 +119,3 @@ export function blockTags(b: BlockSummary, seedIds: { has(id: string): boolean }
   if (b.choices.length > 0 && !b.choices.some((c) => c.active)) tags.push("off");
   return tags;
 }
-
-/** A plan's tags: `seed` or `database` by its file, `off` when it is in `off` (not enabled for reuse). */
-export function planTags(id: string, seedIds: { has(id: string): boolean }, off: ReadonlySet<string>): LibraryTag[] {
-  const tags: LibraryTag[] = [seedIds.has(id) ? "seed" : "database"];
-  if (off.has(id)) tags.push("off");
-  return tags;
-}

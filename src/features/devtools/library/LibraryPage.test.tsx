@@ -56,9 +56,8 @@ test("a hashed block is Database only", () => {
   assert.equal(html.match(/>Off</g)?.length ?? 0, 0);
 });
 
-test("a plan off for reuse is Off", () => {
-  const f = SEED_PLANS[0];
-  const html = renderToStaticMarkup(<PlansTable plans={[f]} off={new Set([f.id])} params={{}} />);
+test("a plan row shows Seed and never Off", () => {
+  const html = renderToStaticMarkup(<PlansTable plans={[SEED_PLANS[0]]} params={{}} />);
   assert.equal(html.match(/>Seed</g)?.length, 1);
-  assert.equal(html.match(/>Off</g)?.length, 1);
+  assert.equal(html.match(/>Off</g)?.length ?? 0, 0);
 });

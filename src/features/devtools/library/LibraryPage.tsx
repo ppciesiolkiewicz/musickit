@@ -3,7 +3,7 @@ import type { ItemResult, LibraryResult } from "./load";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { SEED_BLOCKS, SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
-import { blockTags, planTags, seedBlocksById, type LibraryTag } from "./item";
+import { blockTags, seedBlocksById, type LibraryTag } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
 import ScrollToItem from "./ScrollToItem";
 import { libraryHref, minutes, orDash, type LibraryParams } from "./params";
@@ -101,9 +101,8 @@ function ItemLink({ id, title, params }: { id: string; title: string; params: Li
   return <a className={LINK} href={`${libraryHref(params, { item: id })}#item`}>{title || id}</a>;
 }
 
-/** The plans, read from their files (no plan is stored in the database), each tagged; each links to its drawing below the tables. `off` holds the ids not enabled for reuse. */
-export function PlansTable({ plans = SEED_PLANS, off = new Set<string>(), params }: { plans?: SeedPlanFile[]; off?: ReadonlySet<string>; params: LibraryParams }) {
-  const seedIds = new Set(plans.map((f) => f.id));
+/** The plans, read from their files (no plan is stored in the database), each tagged Seed; each links to its drawing below the tables. */
+export function PlansTable({ plans = SEED_PLANS, params }: { plans?: SeedPlanFile[]; params: LibraryParams }) {
   if (plans.length === 0) return <Muted>No seed plans.</Muted>;
   return (
     <div className="overflow-x-auto">
@@ -112,7 +111,7 @@ export function PlansTable({ plans = SEED_PLANS, off = new Set<string>(), params
         <tbody>
           {plans.map((f) => (
             <tr key={f.id} className={ROW}>
-              <td className="p-2"><ItemLink id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} params={params} /><Tags tags={planTags(f.id, seedIds, off)} /></td>
+              <td className="p-2"><ItemLink id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} params={params} /><Tags tags={["seed"]} /></td>
               <td className="p-2">{f.model}</td>
               <td className="p-2"><Versions p={{ promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching }} /></td>
               <td className="p-2">{Array.isArray(f.plan.days) ? f.plan.days.length : 0}</td>
@@ -253,7 +252,7 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
         Player: {params.player ?? "none"} (add <code>?player=</code> and a user id).
       </p>
       <p className="mb-3 text-sm text-slate-400">
-        Every block and plan is listed. Seed: from a seed file. Database only: no seed file (a player&apos;s or the AI&apos;s). Off: not offered to players.
+        Every block and plan is listed. Seed: from a seed file. Database only: no seed file (a player&apos;s or the AI&apos;s). Off: a block that is not offered to players.
       </p>
       <H>Coverage by topic and level</H>
       <CoverageTable rows={data.topics} params={params} />
