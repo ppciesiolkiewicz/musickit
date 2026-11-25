@@ -95,8 +95,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const narrow = drawn !== null && NARROW_TOOLS.includes(drawn.type);
   const unsetBox = narrow ? NARROW_BOX : DEFAULT_BOX;
   const frame = useRef<HTMLDivElement | null>(null);
-  // Free: the bar on top of the tool moves it, the corner sizes it, as shares of the camera's picture; kept when let go
-  const dragBox = (mode: "move" | "size") => (e: ReactPointerEvent<HTMLDivElement>) => {
+  // Free: the bar on top of the tool moves it, a bottom corner sizes it, as shares of the camera's picture; kept when let go
+  const dragBox = (mode: "move" | "size" | "sizeLeft") => (e: ReactPointerEvent<HTMLDivElement>) => {
     const rect = frame.current?.getBoundingClientRect();
     if (!rect?.width || !rect.height || e.button !== 0) return;
     e.preventDefault();
@@ -112,8 +112,11 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       const dx = (m.clientX - sx) / rect.width;
       const dy = (m.clientY - sy) / rect.height;
       // the corner follows whichever way the pointer went further, across or down
-      const w = Math.min(1 - from.x, (1 - from.y) / tall, Math.max(from.w + dx, from.w + dy / tall));
-      const box = fitBox(mode === "move" ? { ...from, x: from.x + dx, y: from.y + dy } : { ...from, w, h: w * tall });
+      // the bottom left corner sizes it the other way across, keeping its right edge where it was
+      const left = mode === "sizeLeft";
+      const right = from.x + from.w;
+      const w = Math.min(left ? right : 1 - from.x, (1 - from.y) / tall, Math.max(from.w + (left ? -dx : dx), from.w + dy / tall));
+      const box = fitBox(mode === "move" ? { ...from, x: from.x + dx, y: from.y + dy } : { ...from, x: left ? right - w : from.x, w, h: w * tall });
       setLookState((l) => ({ ...l, box }));
     };
     const up = () => {
@@ -192,7 +195,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const openMic = async () => {
     mic.current?.close();
     mic.current = null;
-    const m = await openRecordInput({ through: sound.through() });
+    const m = await openRecordInput({ through: sound.through });
     mic.current = m;
     const video = stream.current?.getVideoTracks() ?? [];
     stream.current = new MediaStream([...video, m.track]);
@@ -379,7 +382,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         <label className="flex items-center gap-1.5">Place
           <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
         </label>
-        <label className="flex items-center gap-1.5" title={free ? "With Free, drag the corner of the tool to size it." : undefined}>Size
+        <label className="flex items-center gap-1.5" title={free ? "With Free, drag a bottom corner of the tool to size it." : undefined}>Size
           <select value={look.size} disabled={free} onChange={(e) => setLook({ size: e.target.value as Look["size"] })} className={`${input} disabled:opacity-40`}>{SIZES.map((s) => <option key={s} value={s}>{SIZE_WORDS[s]}</option>)}</select>
         </label>
         <label className="flex items-center gap-1.5">Background
@@ -388,7 +391,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         <label className="flex items-center gap-1.5" title={canHide ? "With the controls hidden, press Space to start and stop the tool." : "This tool's controls can't be hidden yet."}>
           <input type="checkbox" checked={canHide ? controlsShown : true} disabled={!canHide} onChange={(e) => setControlsShown(e.target.checked)} className="accent-emerald-500" /> Tool controls
         </label>
-        {free && <span className="text-xs text-slate-500">Drag the bar on top of the tool to move it, and its corner to size it.</span>}
+        {free && <span className="text-xs text-slate-500">Drag the bar on top of the tool to move it, and a bottom corner to size it.</span>}
         {canHide && !controlsShown && <span className="text-xs text-slate-500">Press Space to start and stop the tool.</span>}
       </div>
       {phase === "ready" && take && !take.saved && <p className="text-xs text-slate-500">A new recording replaces the take below.</p>}
@@ -402,11 +405,13 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live fit="cover" />}
         {/* one tree for every place, so changing the place never restarts the tool */}
         <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look, unsetBox)}>
-          <div className={free ? `${panelBg(look)} pt-4` : undefined}>
+          <div className={free ? `${panelBg(look)} pt-2.5` : undefined}>
             <Scaled on={free} fit={narrow} className="p-2"><NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll></Scaled>
           </div>
-          {free && <div onPointerDown={dragBox("move")} title="Drag to move the tool" className="absolute inset-x-0 top-0 h-4 cursor-move touch-none bg-slate-600/80 hover:bg-slate-500/90"><span className="mx-auto mt-1.5 block h-1 w-10 rounded-full bg-slate-300/70" /></div>}
-          {free && <div onPointerDown={dragBox("size")} title="Drag to size the tool" className="absolute bottom-0 right-0 size-5 cursor-se-resize touch-none border-b-4 border-r-4 border-slate-300/80 hover:border-white" />}
+          {free && <div onPointerDown={dragBox("move")} title="Drag to move the tool" className="absolute inset-x-0 top-0 h-2.5 cursor-move touch-none bg-slate-600/40 hover:bg-slate-500/80"><span className="mx-auto mt-1 block h-0.5 w-8 rounded-full bg-slate-300/50" /></div>}
+          {/* faint until pointed at: they sit over the camera's picture */}
+          {free && <div onPointerDown={dragBox("sizeLeft")} title="Drag to size the tool" className="absolute bottom-0 left-0 size-4 cursor-sw-resize touch-none border-b-2 border-l-2 border-slate-300/25 hover:border-white/80" />}
+          {free && <div onPointerDown={dragBox("size")} title="Drag to size the tool" className="absolute bottom-0 right-0 size-4 cursor-se-resize touch-none border-b-2 border-r-2 border-slate-300/25 hover:border-white/80" />}
         </div>
       </div>
 
