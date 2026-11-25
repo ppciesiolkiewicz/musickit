@@ -19,11 +19,11 @@ export function blobRangeHeaders(range: string | null): { range: string } | unde
 
 const FORWARD = ["content-range", "content-length", "accept-ranges", "content-type"] as const;
 
-/** The answer to the browser: 404 when there is no blob, 206 when Blob sent a part, else 200, with only the headers a player needs and never cached. */
-export function streamAnswer(read: BlobRead | null): Response {
+/** The answer to the browser: 404 when there is no blob, 206 when Blob sent a part, else 200, with only the headers a player needs and cached as `cache` says (private, never stored by default); an error is never cached. */
+export function streamAnswer(read: BlobRead | null, cache: string = "private, no-store"): Response {
   if (!read) return Response.json({ error: "Not found." }, { status: 404, headers: { "cache-control": "no-store" } });
   if (!read.stream) return Response.json({ error: "The video could not be read." }, { status: 502, headers: { "cache-control": "no-store" } });
-  const headers = new Headers({ "cache-control": "private, no-store", "x-content-type-options": "nosniff" });
+  const headers = new Headers({ "cache-control": cache, "x-content-type-options": "nosniff" });
   for (const h of FORWARD) {
     const v = read.headers.get(h);
     if (v) headers.set(h, v);

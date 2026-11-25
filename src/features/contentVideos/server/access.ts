@@ -1,7 +1,10 @@
+import { MAX_CELLS } from "@/features/plan/model/tools";
 import { cleanTitle } from "@/features/videos/ref";
 import { MAX_TAKE_SECONDS } from "@/features/videos/recording";
 import type { BlobLookup, Refused } from "@/features/videos/server/access";
 import { checkUpload, isPrivateBlobUrl, isVideoId } from "@/features/videos/server/rules";
+import { blockVideos, type CellVideo } from "../model/lookup";
+import type { CellAsk } from "../model/slot";
 import type { ContentVideoRepo, ContentVideoRow, Lost, Pointers } from "./repo";
 import { cleanNote, contentVideoPath, isMadeFor, readTarget } from "./rules";
 
@@ -114,4 +117,60 @@ export async function deleteContentVideo(repo: ContentVideoRepo, id: string): Pr
   const out = await repo.remove(id);
   if (!out) return null;
   return out.ok ? out : { ok: false, status: 409, error: STILL_SHOWN, pointers: out.pointers };
+}
+
+/** What a page may know of a video to play it: no store path, recorder or size. */
+export interface PlayInfo { id: string; title: string; note: string; seconds: number; width: number; height: number; overlay: unknown | null }
+
+/** An id's file never changes; a deleted video may still play from a cache for up to an hour. */
+export const CONTENT_VIDEO_CACHE = "public, max-age=3600";
+
+/** One block of a lookup: the caller's own `key` for it, the block's id when it has one, and its tool cells. */
+export interface LookupAsk { key: string; blockId?: string; cells: CellAsk[] }
+
+const MAX_BLOCKS = 60;
+const short = (v: unknown, max: number): v is string => typeof v === "string" && v.length <= max;
+
+/** `{ blocks: [{ key, blockId?, cells: [{ cell, tool, step }] }] }`, or null when it isn't that or is too large. */
+export function readLookup(raw: unknown): LookupAsk[] | null {
+  const b = objectOf(raw);
+  if (!b || !Array.isArray(b.blocks) || b.blocks.length > MAX_BLOCKS) return null;
+  const keys = new Set<string>();
+  const out: LookupAsk[] = [];
+  for (const item of b.blocks) {
+    const o = objectOf(item);
+    if (!o || typeof o.key !== "string" || o.key.length < 1 || o.key.length > 200 || keys.has(o.key)) return null;
+    if (o.blockId !== undefined && !short(o.blockId, 200)) return null;
+    if (!Array.isArray(o.cells) || o.cells.length > MAX_CELLS) return null;
+    const cells: CellAsk[] = [];
+    for (const c of o.cells) {
+      const k = objectOf(c);
+      if (!k || !Number.isInteger(k.cell) || (k.cell as number) < 0 || (k.cell as number) >= MAX_CELLS) return null;
+      if (!short(k.tool, 80) || !(k.step === null || short(k.step, 80))) return null;
+      cells.push({ cell: k.cell as number, tool: k.tool, step: k.step });
+    }
+    keys.add(o.key);
+    out.push(o.blockId === undefined ? { key: o.key, cells } : { key: o.key, blockId: o.blockId, cells });
+  }
+  return out;
+}
+
+/** Which video each tool cell of each block shows, and the play details of those videos only. A cell whose video's row is gone is left out. */
+export async function lookUp(repo: ContentVideoRepo, asks: LookupAsk[]): Promise<{ blocks: Record<string, CellVideo[]>; videos: Record<string, PlayInfo> }> {
+  const blockIds = [...new Set(asks.flatMap((a) => (a.blockId === undefined ? [] : [a.blockId])))];
+  const tools = [...new Set(asks.flatMap((a) => a.cells.map((c) => c.tool)))];
+  const { own, rows } = await repo.forLookup(blockIds, tools);
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  const blocks: Record<string, CellVideo[]> = {};
+  const videos: Record<string, PlayInfo> = {};
+  for (const a of asks) {
+    const mine = a.blockId !== undefined && Object.hasOwn(own, a.blockId) ? own[a.blockId] : {};
+    const found = blockVideos(a.cells, mine, rows).filter((v) => byId.has(v.id));
+    blocks[a.key] = found;
+    for (const v of found) {
+      const r = byId.get(v.id)!;
+      videos[v.id] = { id: r.id, title: r.title, note: r.note, seconds: r.seconds, width: r.width, height: r.height, overlay: r.overlay ?? null };
+    }
+  }
+  return { blocks, videos };
 }

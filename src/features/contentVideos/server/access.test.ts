@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import type { BlobLookup } from "@/features/videos/server/access";
-import { completeContentUpload, deleteContentVideo, editContentVideo, planContentUpload } from "./access";
+import { completeContentUpload, deleteContentVideo, editContentVideo, lookUp, planContentUpload, readLookup } from "./access";
 import { memoryContentVideoRepo } from "./repo.memory";
 import { contractBlocks, V } from "./repoContract";
 import { contentVideoPath } from "./rules";
@@ -127,5 +127,67 @@ describe("content video access", () => {
     assert.equal(await repo.get(V.a), null);
     assert.equal(await deleteContentVideo(repo, V.a), null);
     assert.equal(await deleteContentVideo(repo, "nope"), null);
+  });
+});
+
+const okCell = { cell: 0, tool: "picking-drill", step: "picking-drill:beginner" };
+const okBlock = { key: "a", blockId: "riff-x", cells: [okCell] };
+
+describe("the lookup", () => {
+  test("readLookup refuses junk and anything too large", () => {
+    const bad: unknown[] = [null, [], {}, { blocks: "x" }, { blocks: Array(61).fill(okBlock) }, { blocks: [{ ...okBlock, cells: Array(25).fill(okCell) }] }, { blocks: [okBlock, okBlock] },
+      { blocks: [{ ...okBlock, cells: [{ cell: -1, tool: "x", step: null }] }] }, { blocks: [{ ...okBlock, cells: [{ cell: 24, tool: "x", step: null }] }] },
+      { blocks: [{ ...okBlock, cells: [{ cell: 1.5, tool: "x", step: null }] }] }, { blocks: [{ ...okBlock, key: "" }] }, { blocks: [{ ...okBlock, key: "k".repeat(201) }] },
+      { blocks: [{ ...okBlock, blockId: 5 }] }, { blocks: [{ ...okBlock, cells: [{ cell: 0, tool: "t".repeat(81), step: null }] }] },
+      { blocks: [{ ...okBlock, cells: [{ cell: 0, tool: "x", step: 3 }] }] }];
+    for (const b of bad) assert.equal(readLookup(b), null, JSON.stringify(b).slice(0, 80));
+    assert.deepEqual(readLookup({ blocks: [okBlock, { key: "b", cells: [] }] }), [okBlock, { key: "b", cells: [] }]);
+  });
+
+  const setup = async () => {
+    const repo = fresh();
+    await repo.create({ ...rowOf(V.all), title: "All" }, { kind: "tool", tool: "picking-drill", steps: STEPS });
+    await repo.create({ ...rowOf(V.riff), title: "Riff" }, { kind: "cell", blockId: "riff-x", cell: 0 });
+    return repo;
+  };
+  const rowOf = (id: string) => ({ id, title: "t", note: "n", recordedBy: "user-1", madeFor: MADE, tool: null, steps: null, type: "video/webm", seconds: 30, width: 1280, height: 720, size: 99, blobPath: `content/videos/${MADE}/${id}.webm`, overlay: null, createdAt: NOW });
+  const cells = [{ cell: 0, tool: "picking-drill", step: "picking-drill:beginner" }];
+
+  test("lookUp answers per block key, each video once", async () => {
+    const repo = await setup();
+    const out = await lookUp(repo, [{ key: "one", blockId: "song-y", cells }, { key: "two", blockId: "song-y", cells }]);
+    assert.deepEqual(out.blocks, { one: [{ cell: 0, id: V.all, from: "tool", repeat: false }], two: [{ cell: 0, id: V.all, from: "tool", repeat: false }] });
+    assert.deepEqual(Object.keys(out.videos), [V.all]);
+  });
+
+  test("a block's own video shows only under that block's id", async () => {
+    const repo = await setup();
+    const own = await lookUp(repo, [{ key: "k", blockId: "riff-x", cells }]);
+    assert.deepEqual(own.blocks.k, [{ cell: 0, id: V.riff, from: "block", repeat: false }]);
+    assert.deepEqual(Object.keys(own.videos), [V.riff]);
+    for (const blockId of [undefined, "hashed-x", "other"]) {
+      const out = await lookUp(repo, [{ key: "k", blockId, cells }]);
+      assert.deepEqual(out.blocks.k, [{ cell: 0, id: V.all, from: "tool", repeat: false }]);
+    }
+  });
+
+  test("an unknown tool or block id is simply empty", async () => {
+    const repo = await setup();
+    const out = await lookUp(repo, [{ key: "k", blockId: "nope", cells: [{ cell: 0, tool: "no-such-tool", step: null }] }, { key: "e", cells: [] }]);
+    assert.deepEqual(out, { blocks: { k: [], e: [] }, videos: {} });
+  });
+
+  test("the repo is asked once, with unique block ids and tools", async () => {
+    const repo = await setup();
+    const asked: unknown[] = [];
+    const spy = { ...repo, forLookup: (b: string[], t: string[]) => (asked.push([b, t]), repo.forLookup(b, t)) };
+    await lookUp(spy, [{ key: "1", blockId: "a", cells }, { key: "2", blockId: "a", cells: [...cells, { cell: 1, tool: "backing-band", step: null }] }, { key: "3", cells }]);
+    assert.deepEqual(asked, [[["a"], ["picking-drill", "backing-band"]]]);
+  });
+
+  test("the answer carries no path, recorder or size", async () => {
+    const repo = await setup();
+    const out = await lookUp(repo, [{ key: "k", cells }]);
+    assert.deepEqual(Object.keys(out.videos[V.all]).sort(), ["height", "id", "note", "overlay", "seconds", "title", "width"]);
   });
 });

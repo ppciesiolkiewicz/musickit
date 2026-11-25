@@ -57,3 +57,11 @@ test("failedStream: a range past the end is a 416, other failures a 502", () => 
   assert.equal(failedStream(new Error("Failed to fetch blob: 500 Internal")).status, 502);
   assert.equal(failedStream("boom").status, 502);
 });
+
+test("a content video's answer may be cached; an error never is", () => {
+  const read206 = () => ({ statusCode: 206, stream: body(), headers: new Headers({ "content-range": "bytes 0-2/3", "content-type": "video/webm" }) });
+  assert.equal(streamAnswer(read206(), "public, max-age=3600").headers.get("cache-control"), "public, max-age=3600");
+  assert.equal(streamAnswer(read206()).headers.get("cache-control"), "private, no-store");
+  assert.equal(streamAnswer(null, "public, max-age=3600").headers.get("cache-control"), "no-store");
+  assert.equal(streamAnswer({ statusCode: 200, stream: null, headers: new Headers() }, "public, max-age=3600").headers.get("cache-control"), "no-store");
+});
