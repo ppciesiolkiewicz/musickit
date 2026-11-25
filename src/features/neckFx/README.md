@@ -46,7 +46,7 @@ The effects:
   breaking off. Where the board is: the fret markers sit just inside its near edge, and it runs `neckWidthMm` (42 mm at the
   nut to 56 mm at fret 22) toward the fretting hand's side. Across the neck a mm is measured from how wide the markers look
   (`acrossPxPerMm`, their printed size from Markers or the A3 layout), since the board is seen at a slant. The flames start
-  8 mm out from the board's edges. Between beats they burn low (a quarter, at Beat 100%); on each beat they leap, throw more
+  8 mm out from the board's edges, half see-through and with few licks, so they stay subtle. Between beats they burn low (a quarter, at Beat 100%); on each beat they leap, throw more
   licks and run a couple of frets past the hand. At Beat 0% they burn full all the time.
   The flames flow: slow waves roll along the neck toward the bridge, the tips sway and lean, the beat swells them and lets
   them settle (quick up, slow down), and the licks drift and curl.

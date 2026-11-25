@@ -351,9 +351,9 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
         }
         // flames off both edges of the fretboard between two frets, the board itself left clear: a wide glow, then tongues
         // hotter and paler toward the board; `swell` makes them taller toward `to`, `size` is their height in mm, `gap` how far
-        // out from the board's edge they start (mm), `rest` how big they are between beats (1 = full); licks break off, a burst
-        // on each beat
-        const burn = (g: Grid, from: number, to: number, c: { hue: number; sat: number; light: number }, size: number, swell: boolean, kick: number, heat: number, strong: number, gap = 0, rest = 1) => {
+        // out from the board's edge they start (mm), `rest` how big they are between beats (1 = full), `soft` how see-through and
+        // how few licks (1 = full); licks break off, a burst on each beat
+        const burn = (g: Grid, from: number, to: number, c: { hue: number; sat: number; light: number }, size: number, swell: boolean, kick: number, heat: number, strong: number, gap = 0, rest = 1, soft = 1) => {
           // mm along the neck sizes the flames; mm across it (often shorter: the board is seen at a slant) places the board
           const mm = pxPerMm(g), cross = crossMm ?? mm, n = across(g);
           // the markers sit just inside the board's near edge, so its middle is half a board's width on from there, on the
@@ -372,9 +372,9 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           };
           const STEPS = Math.max(12, Math.round(span * 6));
           ctx.save(); ctx.globalCompositeOperation = "lighter";
-          ctx.shadowBlur = Math.min(60, (10 + 30 * kick) * strong);
+          ctx.shadowBlur = Math.min(60, (10 + 30 * kick) * strong * soft);
           for (const [reach, alpha, lift, hueShift] of [[rest < 1 ? 2.8 : 2.2, 0.14, -10, -15], [1, 0.5, 0, 0], [0.6, 0.55, 18, 25], [0.28, 0.7, 35, 45]] as const) {
-            const col = `hsla(${(c.hue + hueShift * (c.hue > 180 ? -1 : 1) + 360) % 360} ${c.sat}% ${Math.min(92, c.light + lift + 10 * kick)}% / ${Math.min(1, alpha * (0.6 + 0.4 * heat) * Math.min(1.6, rest + 1.2 * kick))})`;
+            const col = `hsla(${(c.hue + hueShift * (c.hue > 180 ? -1 : 1) + 360) % 360} ${c.sat}% ${Math.min(92, c.light + lift + 10 * kick)}% / ${Math.min(1, soft * alpha * (0.6 + 0.4 * heat) * Math.min(1.6, rest + 1.2 * kick))})`;
             ctx.fillStyle = col; ctx.shadowColor = col;
             for (const side of [1, -1]) {
               ctx.beginPath();
@@ -396,7 +396,7 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
             }
           }
           ctx.restore();
-          const rate = (15 + 60 * heat) * strong * (rest + 6 * kick) * Math.min(1, span / 4);
+          const rate = (15 + 60 * heat) * strong * soft * (rest + 6 * kick) * Math.min(1, span / 4);
           for (let i = Math.floor(rate * dt + Math.random()); i > 0 && flames.length < MAX_FLAMES; i--) {
             const f = from + span * (swell ? Math.sqrt(Math.random()) : Math.random()), side = Math.random() < 0.5 ? 1 : -1;
             const p = edgeAt(f, side, tongue(f, side) * 0.5), v = (20 + Math.random() * 60) * (1 + 1.2 * kick) * mm, drift = (Math.random() * 30 + 10) * mm;
@@ -409,7 +409,7 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           flare.heat = easeFlare(flare.heat, beat.beat * follows.heat, dt);
           const kick = flare.heat, to = Math.max(1, handFret + 0.5 + 2.5 * kick), heat = Math.min(1, to / 14);
           const rest = 1 - 0.75 * Math.min(1, follows.heat);
-          burn(grid, 0, to, colourOf(fxNow.colour.heat), 16 + 36 * heat, true, kick, heat, strength.heat, 8, rest);
+          burn(grid, 0, to, colourOf(fxNow.colour.heat), 11 + 24 * heat, true, kick, heat, strength.heat, 8, rest, 0.5);
         }
         if (on.has("glow") && grid) {
           // round the frets under the fingertips, in the last note's colour
