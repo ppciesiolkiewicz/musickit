@@ -27,7 +27,7 @@ This is not `src/features/videos` (a player's or teacher's own takes, per accoun
 | `model/slot.ts` | Pure. `TOOL_LADDERS` (each laddered tool key's ladder ids, in the order tried; the steps come from `LADDERS`), `NO_LEVEL`, `toolKeyOf`, `isToolKey`, `stepsOfTool` (every step a tool's video can cover, then `none`; null with no ladder), `stepOf` (a cell's step), `toolCells`, `CellAsk` and `asksOf` (a block's tool cells as `{ cell, tool, step }`). |
 | `model/lookup.ts` | Pure. `videoFor`, `firstShown`, `blockVideos`: which video each tool cell shows (above). |
 | `model/keptCells.ts` | Pure. Which of a block's own video entries stay when its cells change (the seed's rule). |
-| `server/rules.ts` | Pure. `BlockVideos` (the `blocks.videos` shape), `contentVideoPath`, `isMadeFor`, `Target` and `readTarget` (a save's target, checked against `madeFor`; tool steps put in the tool's order), `cleanNote`. |
+| `server/rules.ts` | Pure. `BlockVideos` (the `blocks.videos` shape), `contentVideoPath`, `isMadeFor`, `Target` and `readTarget` (a save's target, checked against `madeFor`; a tool target is `{ kind: "tool", tool, steps }`, a cell target `{ kind: "cell", blockId, cell, tool }`, where `tool` is the tool key the Take panel read at that cell, and the repo answers no-cell when the stored block has another tool there; tool steps put in the tool's order), `cleanNote`. |
 | `server/repo.ts` | `ContentVideoRepo`, `ContentVideoRow`, `Lost` (a video that lost steps to a new one), `Pointers` (what points at a video), and helpers both repos share. |
 | `server/repo.memory.ts`, `server/repo.drizzle.ts` | The repo in memory (tests) and over Postgres. The Drizzle `create` runs in a transaction; a tool target takes `pg_advisory_xact_lock` on the tool, so two saves at once still leave each step on one video. |
 | `server/repoContract.ts` | One contract for both repos: `repo.memory.test.ts` runs it in memory, `scripts/test-library-db.ts` (`npm run test:library-db`) on a local Postgres. |
@@ -41,11 +41,11 @@ This is not `src/features/videos` (a player's or teacher's own takes, per accoun
 | --- | --- | --- |
 | `upload` POST | `content` and signed in | The client-upload token. `clientPayload` `{ id, type, size, madeFor }`; only `content/videos/<madeFor>/<id>.<ext>`, WebM or MP4 up to 1 GB, never over an existing file; a taken id is 409. 503 without a Blob token. |
 | `/` GET | `content` | Every video, newest first: `{ videos }`. |
-| `/` POST | `content` and signed in | After the upload: `{ id, title, note, type, seconds, width, height, path, madeFor, target }`. The file must be in the store and private (a public one is deleted and refused); its size is the store's. Saves the row: `{ video, lost }`. 409 for a taken id, a block not in the database, or a cell past the block's tool cells. |
+| `/` POST | `content` and signed in | After the upload: `{ id, title, note, type, seconds, width, height, path, madeFor, target }`. The file must be in the store and private (a public one is deleted and refused); its size is the store's. Saves the row: `{ video, lost }`. 409 for a taken id, a block not in the database, a cell past the block's tool cells, or a cell whose stored tool is not the target's `tool`. |
 | `[id]` PATCH | `content` | `{ title, note }`. |
 | `[id]` DELETE | `content` | Refused (409 with `pointers`) while a tool step or a block's cell points at the video; else the row, then the file (a file that can't be deleted is logged, the answer stays 200). |
 | `[id]/file` GET | anyone | The file with Range, no session, no cookies, cached `public, max-age=3600` (a deleted video may play from a cache for up to an hour). A bad or unknown id, or a site with no database or store, is a 404. |
-| `lookup` POST | anyone | `{ blocks: [{ key, blockId?, cells: [{ cell, tool, step }] }] }` (at most 60 blocks) answers `{ blocks: { [key]: [{ cell, id, from, repeat }] }, videos: { [id]: PlayInfo } }`, never cached. No database: empty. |
+| `lookup` POST | anyone | `{ blocks: [{ key, blockId?, cells: [{ cell, tool, step }] }] }` (at most 60 blocks) answers `{ blocks: { [key]: [{ cell, id, from, repeat }] }, videos: { [id]: PlayInfo } }`, never cached. No database: empty. 400 for a bad body; 502 (logged) when the repo throws. |
 
 Signed out with the `content` permission (development opens it to everyone), a save answers 401 "Log in to save a video.": `recorded_by` needs an account. A request that isn't a GET and doesn't come from this site is treated as signed out (`permissionCheck`), so in production it is a 404.
 

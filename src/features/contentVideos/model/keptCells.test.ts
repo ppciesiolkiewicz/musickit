@@ -22,6 +22,12 @@ test("same tools in the same places: kept, also when a text cell is added or a l
   assert.deepEqual(keptCells(map, before, [text("new"), drill("advanced"), text("x"), ears()]), { kept: map, dropped: [] });
 });
 
+test("a key that is not a canonical index is dropped", () => {
+  const r = keptCells({ "0": "v0", "01": "v1" }, [drill("beginner"), ears()], [drill("beginner"), ears()]);
+  assert.deepEqual(r.kept, { "0": "v0" });
+  assert.deepEqual(r.dropped.map((d) => d.videoId), ["v1"]);
+});
+
 test("another tool at the index: that entry is dropped, the others kept", () => {
   const r = keptCells(map, [drill("beginner"), ears()], [drill("beginner"), chordSteps()]);
   assert.deepEqual(r, { kept: { "0": "v0" }, dropped: [{ cell: 1, videoId: "v1" }] });

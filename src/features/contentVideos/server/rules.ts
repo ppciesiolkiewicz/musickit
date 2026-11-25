@@ -18,7 +18,7 @@ export function isMadeFor(v: unknown): v is string {
 }
 
 /** Where a saved video goes: a tool at the steps ticked, or one tool cell of one curated block. */
-export type Target = { kind: "tool"; tool: string; steps: string[] | null } | { kind: "cell"; blockId: string; cell: number };
+export type Target = { kind: "tool"; tool: string; steps: string[] | null } | { kind: "cell"; blockId: string; cell: number; tool: string };
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
@@ -36,10 +36,11 @@ export function readTarget(raw: unknown, madeFor: string): Target | null {
     return { kind: "tool", tool, steps: all.filter((s) => steps.includes(s)) };
   }
   if (raw.kind === "cell") {
-    const { blockId, cell } = raw;
+    const { blockId, cell, tool } = raw;
     if (typeof blockId !== "string" || blockId !== madeFor || !isMadeFor(blockId) || blockId.startsWith("tool:")) return null;
     if (typeof cell !== "number" || !Number.isInteger(cell) || cell < 0 || cell >= MAX_CELLS) return null;
-    return { kind: "cell", blockId, cell };
+    if (typeof tool !== "string" || !isToolKey(tool)) return null;
+    return { kind: "cell", blockId, cell, tool };
   }
   return null;
 }

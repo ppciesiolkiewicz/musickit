@@ -2,7 +2,7 @@
 
 Videos a note or an exercise plays: the app's library of practice videos, and the videos a teacher records in the notes creator.
 
-The videos the app shows with a tool (one per tool and step, or a curated block's own) are content videos, in `src/features/contentVideos`. They share this feature's pure upload rules (`server/rules.ts`), `recording.ts`, `ref.ts` and `server/stream.ts`, and nothing else.
+The videos the app shows with a tool (one per tool and step, or a curated block's own) are content videos, in `src/features/contentVideos`. They share this feature's pure upload rules (`server/rules.ts`), `recording.ts`, `ref.ts` and `server/stream.ts`, and also `server/words` (`NO_VIDEO_STORE`) and the `BlobLookup` and `Refused` types of `server/access`.
 
 | File | What |
 | --- | --- |

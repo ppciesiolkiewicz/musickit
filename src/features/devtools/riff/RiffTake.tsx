@@ -298,7 +298,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
       const out = await saveContentVideo({
         id: videoId, blob: take.blob, type: take.type, title: name, note: "", seconds: take.seconds,
         width: size.width, height: size.height,
-        madeFor: riff, target: { kind: "cell", blockId: riff, cell }, fileUp: take.fileUp,
+        madeFor: riff, target: { kind: "cell", blockId: riff, cell, tool: "guitar-play-along:riff" }, fileUp: take.fileUp,
       });
       // a cell target takes no steps from other videos, so `lost` is always empty here
       const fields: Partial<Take> = out.ok ? { fileUp: true, uploaded: true } : { fileUp: out.fileUp };

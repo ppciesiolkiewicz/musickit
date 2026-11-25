@@ -49,7 +49,7 @@ const video = (id: string, title: string, over: Partial<ContentVideoRow> = {}): 
   createdAt: new Date(Date.UTC(2026, 10, 25, 12, 0, clock++)), ...over,
 });
 const tool = (steps: string[] | null, name = "picking-drill"): Target => ({ kind: "tool", tool: name, steps });
-const cell = (blockId: string, n: number): Target => ({ kind: "cell", blockId, cell: n });
+const cell = (blockId: string, n: number, tool = "picking-drill"): Target => ({ kind: "cell", blockId, cell: n, tool });
 
 /** What every `ContentVideoRepo` must do, run against `make(blocks)`: the memory repo and Postgres (`npm run test:library-db`). */
 export function contentVideoRepoContract(makeRepo: (blocks: ContractBlock[]) => Promise<ContentVideoRepo>): void {
@@ -140,7 +140,7 @@ export function contentVideoRepoContract(makeRepo: (blocks: ContractBlock[]) => 
     test("a cell target points the curated block's cell at the video", async () => {
       const repo = await fresh();
       await repo.create(video(V.all, "All"), tool(ALL_STEPS));
-      const res = await repo.create(video(V.riff, "Riff", { madeFor: "riff-x", tool: "picking-drill", steps: ["none"] }), cell("riff-x", 1));
+      const res = await repo.create(video(V.riff, "Riff", { madeFor: "riff-x", tool: "picking-drill", steps: ["none"] }), cell("riff-x", 1, "backing-band"));
       assert.deepEqual(res, { ok: true, lost: [] });
       const row = (await repo.get(V.riff))!;
       assert.deepEqual([row.tool, row.steps], [null, null]);
@@ -149,7 +149,7 @@ export function contentVideoRepoContract(makeRepo: (blocks: ContractBlock[]) => 
       // the tool's video is untouched
       assert.deepEqual((await repo.get(V.all))!.steps, ALL_STEPS);
       // a new video for the same cell takes it over; the old one keeps its row
-      assert.deepEqual(await repo.create(video(V.riff2, "Riff two", { madeFor: "riff-x" }), cell("riff-x", 1)), { ok: true, lost: [] });
+      assert.deepEqual(await repo.create(video(V.riff2, "Riff two", { madeFor: "riff-x" }), cell("riff-x", 1, "backing-band")), { ok: true, lost: [] });
       assert.deepEqual((await repo.forLookup(["riff-x"], [])).own, { "riff-x": { 1: V.riff2 } });
       assert.equal((await repo.get(V.riff))!.title, "Riff");
       assert.deepEqual(await repo.pointers(V.riff), { tool: null, cells: [] });
@@ -163,6 +163,15 @@ export function contentVideoRepoContract(makeRepo: (blocks: ContractBlock[]) => 
       assert.deepEqual(await repo.create(video(V.a, "A", { madeFor: "riff-x" }), cell("riff-x", 2)), { ok: false, reason: "no-cell" });
       assert.deepEqual(await repo.list(), []);
       assert.deepEqual((await repo.forLookup(["riff-x", "hashed-x"], [])).own, {});
+    });
+
+    test("a cell target whose tool differs from the stored cell's is no-cell", async () => {
+      const repo = await fresh();
+      // riff-x's cell 0 is a picking drill, cell 1 a backing band
+      assert.deepEqual(await repo.create(video(V.a, "A", { madeFor: "riff-x" }), cell("riff-x", 0, "backing-band")), { ok: false, reason: "no-cell" });
+      assert.deepEqual(await repo.create(video(V.a, "A", { madeFor: "riff-x" }), cell("riff-x", 1, "guitar-play-along:riff")), { ok: false, reason: "no-cell" });
+      assert.deepEqual(await repo.list(), []);
+      assert.deepEqual((await repo.forLookup(["riff-x"], [])).own, {});
     });
   });
 
@@ -206,7 +215,7 @@ export function contentVideoRepoContract(makeRepo: (blocks: ContractBlock[]) => 
       await repo.create(video(V.ears, "Ears", { madeFor: "tool:interval-ears" }), tool(["interval-ears:1"], "interval-ears"));
       await repo.create(video(V.band1, "Band", { madeFor: "tool:backing-band" }), tool(null, "backing-band"));
       await repo.create(video(V.riff, "Riff", { madeFor: "riff-x" }), cell("riff-x", 0));
-      await repo.create(video(V.b, "Song", { madeFor: "song-y" }), cell("song-y", 1));
+      await repo.create(video(V.b, "Song", { madeFor: "song-y" }), cell("song-y", 1, "backing-band"));
       const { own, rows } = await repo.forLookup(["riff-x", "hashed-x", "nowhere"], ["picking-drill", "backing-band"]);
       assert.deepEqual(own, { "riff-x": { 0: V.riff } });
       // newest first: the riff, the band, every step

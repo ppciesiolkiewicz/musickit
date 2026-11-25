@@ -203,7 +203,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         const changed = new Set<string>();
         // a block's own videos: an entry whose cell's tool moved is dropped (and only that; the seed writes no other `videos`)
         const droppedVideos: DroppedVideo[] = [];
-        const withVideos = list.length ? await tx.select({ id: blocks.id, content: blocks.content, videos: blocks.videos }).from(blocks).where(and(inArray(blocks.id, list.map((b) => b.id)), isNotNull(blocks.videos))) : [];
+        const withVideos = list.length ? await tx.select({ id: blocks.id, content: blocks.content, videos: blocks.videos }).from(blocks).where(and(inArray(blocks.id, list.map((b) => b.id)), isNotNull(blocks.videos))).for("update") : [];
         for (const r of withVideos) {
           const next = list.find((b) => b.id === r.id)!;
           const out = dropMovedVideos(r.videos, r.content, next.content);

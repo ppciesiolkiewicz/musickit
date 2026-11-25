@@ -6,7 +6,7 @@ import { UPLOADED_NOT_SAVED, contentVideoFileUrl, lookUpVideos, saveContentVideo
 const input: SaveInput = {
   id: "3f1c2b8e-1d2a-4c3b-9e8f-0a1b2c3d4e5f", blob: new Blob(["x"], { type: "video/webm" }), type: "video/webm",
   title: "Funk riff on E9", note: "", seconds: 12, width: 1280, height: 720,
-  madeFor: "guitar-advanced-funk-riff-on-e9", target: { kind: "cell", blockId: "guitar-advanced-funk-riff-on-e9", cell: 0 },
+  madeFor: "guitar-advanced-funk-riff-on-e9", target: { kind: "cell", blockId: "guitar-advanced-funk-riff-on-e9", cell: 0, tool: "picking-drill" },
 };
 const video = { id: input.id, title: input.title, note: "", madeFor: input.madeFor, tool: null, steps: null, type: input.type, seconds: 12, width: 1280, height: 720, size: 1, savedAt: 1, overlay: null };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });

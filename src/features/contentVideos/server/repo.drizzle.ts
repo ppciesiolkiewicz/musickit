@@ -2,7 +2,7 @@ import { and, desc, eq, inArray, or, sql, type SQL } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
 import { blocks, contentVideos } from "@/lib/db/schema";
 import type { Cell } from "@/features/plan/model/tools";
-import { toolCells } from "../model/slot";
+import { toolCells, toolKeyOf } from "../model/slot";
 import { bytewise, cellsOf, takeSteps, type ContentVideoRepo, type ContentVideoRow, type Lost, type Pointers } from "./repo";
 import type { BlockVideos } from "./rules";
 
@@ -65,7 +65,8 @@ export function drizzleContentVideoRepo(db: Db): ContentVideoRepo {
               .for("update");
             if (!block) return { ok: false as const, reason: "no-block" as const };
             const cells = (block.content as { cells?: unknown } | null)?.cells;
-            if (target.cell >= toolCells(Array.isArray(cells) ? (cells as Cell[]) : []).length) return { ok: false as const, reason: "no-cell" as const };
+            const there = toolCells(Array.isArray(cells) ? (cells as Cell[]) : []);
+            if (target.cell >= there.length || toolKeyOf(there[target.cell]) !== target.tool) return { ok: false as const, reason: "no-cell" as const };
             if (!(await insert(tx, row, null, null))) throw new Taken();
             const videos: BlockVideos = { ...block.videos, cells: { ...block.videos?.cells, [String(target.cell)]: row.id } };
             await tx.update(blocks).set({ videos }).where(eq(blocks.id, target.blockId));

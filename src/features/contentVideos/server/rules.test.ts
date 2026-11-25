@@ -27,7 +27,8 @@ test("a tool with no ladder takes null steps only", () => {
   assert.equal(readTarget({ kind: "tool", tool: "backing-band", steps: ["none"] }, "tool:backing-band"), null);
 });
 test("a cell target is a block and a whole index under MAX_CELLS", () => {
-  assert.deepEqual(readTarget({ kind: "cell", blockId: "riff-x", cell: 0 }, "riff-x"), { kind: "cell", blockId: "riff-x", cell: 0 });
-  for (const cell of [-1, 1.5, 24, "0"]) assert.equal(readTarget({ kind: "cell", blockId: "riff-x", cell }, "riff-x"), null);
-  assert.equal(readTarget({ kind: "cell", blockId: "riff-x", cell: 0 }, "riff-y"), null);
+  assert.deepEqual(readTarget({ kind: "cell", blockId: "riff-x", cell: 0, tool: "picking-drill" }, "riff-x"), { kind: "cell", blockId: "riff-x", cell: 0, tool: "picking-drill" });
+  for (const tool of [undefined, "nope", 3]) assert.equal(readTarget({ kind: "cell", blockId: "riff-x", cell: 0, tool }, "riff-x"), null);
+  for (const cell of [-1, 1.5, 24, "0"]) assert.equal(readTarget({ kind: "cell", blockId: "riff-x", cell, tool: "picking-drill" }, "riff-x"), null);
+  assert.equal(readTarget({ kind: "cell", blockId: "riff-x", cell: 0, tool: "picking-drill" }, "riff-y"), null);
 });

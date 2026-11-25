@@ -161,16 +161,17 @@ export async function lookUp(repo: ContentVideoRepo, asks: LookupAsk[]): Promise
   const tools = [...new Set(asks.flatMap((a) => a.cells.map((c) => c.tool)))];
   const { own, rows } = await repo.forLookup(blockIds, tools);
   const byId = new Map(rows.map((r) => [r.id, r]));
-  const blocks: Record<string, CellVideo[]> = {};
-  const videos: Record<string, PlayInfo> = {};
+  // entries, not keyed writes: a key like "__proto__" must stay an own key
+  const blocks: [string, CellVideo[]][] = [];
+  const videos = new Map<string, PlayInfo>();
   for (const a of asks) {
     const mine = a.blockId !== undefined && Object.hasOwn(own, a.blockId) ? own[a.blockId] : {};
     const found = blockVideos(a.cells, mine, rows).filter((v) => byId.has(v.id));
-    blocks[a.key] = found;
+    blocks.push([a.key, found]);
     for (const v of found) {
       const r = byId.get(v.id)!;
-      videos[v.id] = { id: r.id, title: r.title, note: r.note, seconds: r.seconds, width: r.width, height: r.height, overlay: r.overlay ?? null };
+      videos.set(v.id, { id: r.id, title: r.title, note: r.note, seconds: r.seconds, width: r.width, height: r.height, overlay: r.overlay ?? null });
     }
   }
-  return { blocks, videos };
+  return { blocks: Object.fromEntries(blocks), videos: Object.fromEntries(videos) };
 }

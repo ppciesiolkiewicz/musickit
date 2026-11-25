@@ -88,12 +88,12 @@ describe("content video access", () => {
   });
 
   test("a cell save on a block that isn't stored says to seed", async () => {
-    const done = await save(fresh(), { madeFor: "no-such-riff", path: contentVideoPath("no-such-riff", V.a, "video/webm"), target: { kind: "cell", blockId: "no-such-riff", cell: 0 } });
+    const done = await save(fresh(), { madeFor: "no-such-riff", path: contentVideoPath("no-such-riff", V.a, "video/webm"), target: { kind: "cell", blockId: "no-such-riff", cell: 0, tool: "picking-drill" } });
     assert.deepEqual(done, { ok: false, status: 409, error: "This exercise isn't in the library here yet. Run db:seed-blocks, then save again." });
   });
 
   test("a cell past the block's tool cells says it has changed", async () => {
-    const done = await save(fresh(), { madeFor: "riff-x", path: contentVideoPath("riff-x", V.a, "video/webm"), target: { kind: "cell", blockId: "riff-x", cell: 5 } });
+    const done = await save(fresh(), { madeFor: "riff-x", path: contentVideoPath("riff-x", V.a, "video/webm"), target: { kind: "cell", blockId: "riff-x", cell: 5, tool: "picking-drill" } });
     assert.deepEqual(done, { ok: false, status: 409, error: "This exercise has changed and that tool isn't where it was. Reload and save again." });
   });
 
@@ -147,7 +147,7 @@ describe("the lookup", () => {
   const setup = async () => {
     const repo = fresh();
     await repo.create({ ...rowOf(V.all), title: "All" }, { kind: "tool", tool: "picking-drill", steps: STEPS });
-    await repo.create({ ...rowOf(V.riff), title: "Riff" }, { kind: "cell", blockId: "riff-x", cell: 0 });
+    await repo.create({ ...rowOf(V.riff), title: "Riff" }, { kind: "cell", blockId: "riff-x", cell: 0, tool: "picking-drill" });
     return repo;
   };
   const rowOf = (id: string) => ({ id, title: "t", note: "n", recordedBy: "user-1", madeFor: MADE, tool: null, steps: null, type: "video/webm", seconds: 30, width: 1280, height: 720, size: 99, blobPath: `content/videos/${MADE}/${id}.webm`, overlay: null, createdAt: NOW });
@@ -169,6 +169,13 @@ describe("the lookup", () => {
       const out = await lookUp(repo, [{ key: "k", blockId, cells }]);
       assert.deepEqual(out.blocks.k, [{ cell: 0, id: V.all, from: "tool", repeat: false }]);
     }
+  });
+
+  test("a block key of __proto__ is answered like any other", async () => {
+    const repo = await setup();
+    const out = await lookUp(repo, [{ key: "__proto__", blockId: "song-y", cells }]);
+    assert.deepEqual(Object.keys(out.blocks), ["__proto__"]);
+    assert.deepEqual(Object.getOwnPropertyDescriptor(out.blocks, "__proto__")?.value, [{ cell: 0, id: V.all, from: "tool", repeat: false }]);
   });
 
   test("an unknown tool or block id is simply empty", async () => {

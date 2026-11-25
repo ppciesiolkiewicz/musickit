@@ -1,5 +1,5 @@
 import type { Cell } from "@/features/plan/model/tools";
-import { toolCells } from "../model/slot";
+import { toolCells, toolKeyOf } from "../model/slot";
 import { bytewise, cellsOf, newestFirst, takeSteps, type ContentVideoRepo, type ContentVideoRow, type Lost, type Pointers } from "./repo";
 import type { BlockVideos } from "./rules";
 
@@ -33,7 +33,8 @@ export function memoryContentVideoRepo(blocks: MemoryBlock[]): ContentVideoRepo 
         const block = blocks.find((b) => b.id === target.blockId && b.kind === "curated");
         if (!block) return { ok: false, reason: "no-block" };
         const cells = Array.isArray(block.content?.cells) ? block.content.cells : [];
-        if (target.cell >= toolCells(cells).length) return { ok: false, reason: "no-cell" };
+        const there = toolCells(cells);
+        if (target.cell >= there.length || toolKeyOf(there[target.cell]) !== target.tool) return { ok: false, reason: "no-cell" };
         block.videos = { ...block.videos, cells: { ...block.videos?.cells, [String(target.cell)]: row.id } };
         rows.push({ ...copy(row), tool: null, steps: null });
         return { ok: true, lost: [] };
