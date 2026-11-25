@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fretAt, parsePlaced } from "./grid";
-import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, grow, pxPerMm, readFx, ringColour, spaceAt, wireAt, DEFAULT_FX } from "./fx";
+import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, MARKER_MM, acrossPxPerMm, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, grow, pxPerMm, readFx, ringColour, spaceAt, wireAt, DEFAULT_FX } from "./fx";
 
 const near = (a: number, b: number, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} ≠ ${b}`);
 const g = gridThrough({ x: 0.1, y: 0.5 }, { x: 0.7, y: 0.5 });
@@ -97,4 +97,10 @@ test("a marker is painted out in the median colour around it", () => {
   assert.deepEqual(ringColour(px, w, h, quad), [120, 70, 30]);
   assert.equal(ringColour(px, w, h, quad.map((p) => ({ x: p.x + 100, y: p.y }))), null);
   near(grow(quad, 2)[0].x, 6);
+});
+test("the across-the-neck scale comes from how wide the markers look", () => {
+  // a 20 mm marker 40 units tall and 80 wide: seen at a slant, 2 units a mm across the neck (down)
+  const m = { id: 87, corners: [{ x: 0, y: 0 }, { x: 80, y: 0 }, { x: 80, y: 40 }, { x: 0, y: 40 }] };
+  near(acrossPxPerMm([m], { x: 0, y: 1 }, (id) => MARKER_MM.get(id))!, 2);
+  assert.equal(acrossPxPerMm([{ ...m, id: 999 }], { x: 0, y: 1 }, (id) => MARKER_MM.get(id)), null);
 });

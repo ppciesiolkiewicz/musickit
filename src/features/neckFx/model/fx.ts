@@ -127,6 +127,24 @@ export const pxPerMm = (g: Grid) => 1 / Math.abs(g.a) / SCALE_MM;
 /** How wide the fretboard is at a fret (mm): a Strat's 42 mm at the nut to about 56 mm at fret 22. */
 export const neckWidthMm = (fret: number) => 42 + (14 * Math.min(22, Math.max(0, fret))) / 22;
 
+/** Each A3 layout marker's printed size (mm), by id. */
+export const MARKER_MM = new Map(A3_LAYOUT.map((m) => [m.id, m.mm] as const));
+
+/**
+ * How many frame units a millimetre is across the neck, from how wide the markers seen look across it (`n`, a unit vector)
+ * against their printed size. The camera sees the fretboard at a slant, so across it is often much shorter than along it.
+ * Null when no marker of known size is seen.
+ */
+export function acrossPxPerMm(seen: { id: number; corners: Pt[] }[], n: Pt, mmOf: (id: number) => number | undefined): number | null {
+  const r = seen.flatMap((m) => {
+    const mm = mmOf(m.id);
+    if (!mm) return [];
+    const d = m.corners.map((p) => p.x * n.x + p.y * n.y);
+    return [(Math.max(...d) - Math.min(...d)) / mm];
+  });
+  return r.length ? r.sort((a, b) => a - b)[Math.floor(r.length / 2)] : null;
+}
+
 /** Across the neck, a unit vector. */
 export const across = (g: Grid): Pt => ({ x: -g.dir.y, y: g.dir.x });
 

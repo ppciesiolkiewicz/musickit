@@ -34,13 +34,17 @@ notes heard (live) or passed (a take), and the fretting hand:
 
 The effects:
 
-- **Mood light**: grades the video (dull and dark when calm, saturated when wild), tints it the mood's colour and lights the
-  edges: dark when calm, the mood's colour breathing faster as the energy climbs. A pick washes the picture; landing on the
-  home note gives a soft light. On the beat the picture brightens and the edges close in.
-- **Neck heat**: the fretboard lit from the nut to the fretting hand, hotter and flickering more the higher up it is, with a
-  hot spot under the hand. It keeps to the board: the markers sit on its near edge, so the light is centred half a board's
-  width over (`neckWidthMm`, 42 mm at the nut to 56 mm at fret 22), on the side the fretting hand is. On the beat it flares,
-  widens a little and runs a couple of frets past the hand.
+- **Mood light**: grades the video (dull and dark when calm, saturated when wild). Lights drift over it in the mood's colour
+  and its neighbours (wider apart, faster and bigger as the energy climbs; a tense note brings one from across the wheel), and
+  the last note's colour glows from the hand. The edges are dark when calm, else a ring of those colours turning round the
+  picture and breathing. A pick washes the picture in its note's colour; landing on the home note gives a soft light. On the
+  beat the picture brightens, the lights swell and the edges close in.
+- **Neck heat**: flames off both edges of the fretboard from the nut to the fretting hand, the board itself left clear: a
+  wide glow, then tongues hotter and paler toward the board, taller toward the hand and the higher up it is, with licks
+  breaking off. Where the board is: the fret markers sit just inside its near edge, and it runs `neckWidthMm` (42 mm at the
+  nut to 56 mm at fret 22) toward the fretting hand's side. Across the neck a mm is measured from how wide the markers look
+  (`acrossPxPerMm`, their printed size from Markers or the A3 layout), since the board is seen at a slant. On the beat the
+  flames leap, throw more licks and run a couple of frets past the hand.
 - **Sparks**: a burst from the note's fret space (or the hand) on each pick, more and faster with energy; calm sparks fall,
   wild ones float up, and embers rise off the picture above half energy.
 - **Beat bump**: the picture (video and drawing) jumps a little on each pick, more when wild, and shakes on a tense note.

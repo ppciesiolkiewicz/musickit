@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
-import { gridOf, parsePlaced, placeByHand, type Grid, type NeckRead, type Pt } from "../model/grid";
+import { SCALE_MM, distOf, gridOf, parsePlaced, placeByHand, type Grid, type NeckRead, type Pt } from "../model/grid";
 import {
-  FILTER_CSS, across, coveredNow, easeGrid, filtersOn, frettingTips, grow, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
+  FILTER_CSS, across, coveredNow, easeGrid, filtersOn, MARKER_MM, acrossPxPerMm, frettingTips, grow, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
   ringColour, spaceAt, wireAt, type Filter, type FxSettings,
 } from "../model/fx";
 import { CALM, QUIET, easeMood, keyOf, moodColour, moodFilter, moodTarget, stepBeat, type Beat, type Heard, type Mood } from "../model/mood";
@@ -20,7 +20,7 @@ const DOTS = [3, 5, 7, 9, 12, 15, 17, 19, 21];
 /** How long a grid is kept once its markers are gone, and how long a flash and a pulse last (s). */
 const KEEP_GRID = 0.5, FLASH = 0.6, PULSE = 0.5, TRAIL = 14;
 /** How long notes are kept for the mood (s), the most sparks at once, and how fast a beat bump settles (per s). */
-const KEEP_HEARD = 8, MAX_SPARKS = 700, BUMP_DECAY = 10;
+const KEEP_HEARD = 8, MAX_SPARKS = 700, MAX_FLAMES = 300, BUMP_DECAY = 10;
 /** How long a marker stays painted out after it was last seen (s): detection drops a frame now and then. */
 const KEEP_PATCH = 0.4;
 /** Effects that need the picks heard live. */
@@ -112,6 +112,8 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
     const drawn = canvas.current;
     const scratch = document.createElement("canvas");
     const sctx = scratch.getContext("2d", { willReadFrequently: true })!;
+    // the Mood light's edge ring, drawn small and scaled up
+    const edgeCv = document.createElement("canvas");
     // what the last frame read: drawn every animation frame, so effects fade while the video is paused
     let found: Marker[] = [], k = 1, handsSeen: Pt[][] = [], landmarks: { x: number; y: number }[][] = [];
     let grid: Grid | null = null, gridAt = -Infinity;
@@ -126,10 +128,15 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
     let mood: Mood = CALM, moodAt = -1, handFret: number | null = null, keyName = "", keyTonic: number | null = null;
     const sparks: Spark[] = [];
     // each marker seen lately, painted out in the colour around it (Hide markers)
+    // licks of flame flying off Neck heat
+    const flames: Spark[] = [];
     const patches = new Map<number, { corners: Pt[]; rgb: [number, number, number]; at: number }>();
     let bump = 0, beat: Beat = QUIET, pickedNow = 0;
     // which side of the markers' line the neck is on: the side the fretting hand is (+1 or −1), kept once seen
     let neckSide = 1;
+    // how many frame units a mm is across the neck, from the markers' size on screen, and how far in from the board's near
+    // edge their middles are (mm): eased over frames
+    let crossMm: number | null = null, insetMm = 10;
     void Promise.all([loadHands(), loadMarkers()]).then(([hand, markers]) => {
       if (gone) return;
       setStatus("Play the take to read it.");
@@ -199,6 +206,16 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           while (heard.length && now - heard[0].t > KEEP_HEARD) heard.shift();
           const tipsNow = grid ? frettingTips(grid, handsSeen) : null;
           handFret = tipsNow ? [...tipsNow.frets].sort((a, b) => a - b)[Math.floor(tipsNow.frets.length / 2)] : null;
+          if (grid && found.length) {
+            const placed = parsePlaced(fxNow.markers);
+            const mmOf = (id: number) => placed.find((p) => p.id === id)?.mm ?? MARKER_MM.get(id);
+            const seen = found.map((m) => ({ id: m.id, corners: m.corners.map((p) => ({ x: p.x / k, y: p.y / k })) }));
+            const fresh = acrossPxPerMm(seen, across(grid), mmOf);
+            if (fresh) crossMm = crossMm === null ? fresh : crossMm + (fresh - crossMm) * 0.2;
+            // fret markers sit just inside the board's near edge
+            const onBoard = placed.filter((p) => p.fret > 0 && found.some((m) => m.id === p.id)).map((p) => mmOf(p.id)).filter((v): v is number => !!v);
+            if (onBoard.length) insetMm = onBoard.reduce((t, v) => t + v, 0) / onBoard.length / 2 + 1;
+          }
           if (grid && tipsNow) {
             const n = across(grid);
             const off = tipsNow.tips.reduce((t, p) => t + (p.x - grid!.origin.x) * n.x + (p.y - grid!.origin.y) * n.y, 0);
@@ -265,53 +282,128 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
         };
 
         if (on.has("mood")) {
-          const sm = strength.mood, kick = beat.beat * follows.mood;
-          // the whole picture tinted the mood's colour, more as the energy climbs and on the beat
-          ctx.fillStyle = col(Math.min(0.45, sm * (0.06 + 0.12 * e + 0.12 * kick))); ctx.fillRect(0, 0, w, h);
-          // edges: dark and still when calm, the mood's colour breathing faster as the energy climbs, pushed in on the beat
+          const sm = strength.mood, kick = beat.beat * follows.mood, r = Math.hypot(w, h) / 2;
+          // lights drifting over the picture in the mood's colour and its neighbours, faster and bigger as the energy climbs,
+          // swelling on the beat; a tense note brings in a light across the colour wheel
+          const spread = 30 + 25 * e;
+          const lights = [-spread, 0, spread, ...(mood.tension > 0.3 ? [150] : [])];
+          lights.forEach((dh, i) => {
+            const sp = (0.12 + 0.45 * e) * (1 + 0.35 * i), ph = i * 2.1;
+            const x = w * (0.5 + 0.42 * Math.sin(now * sp + ph)), y = h * (0.5 + 0.38 * Math.cos(now * sp * 1.3 + ph * 1.7));
+            const rad = r * (0.35 + 0.2 * e + 0.25 * kick);
+            const a = Math.min(0.7, sm * (0.1 + 0.2 * e + 0.25 * kick) * (dh === 150 ? mood.tension : 1));
+            const g = ctx.createRadialGradient(x, y, 0, x, y, rad);
+            g.addColorStop(0, `hsla(${(mc.hue + dh + 360) % 360} ${mc.sat}% ${mc.light + 5}% / ${a})`);
+            g.addColorStop(1, `hsla(${(mc.hue + dh + 360) % 360} ${mc.sat}% ${mc.light}% / 0)`);
+            ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+          });
+          // the last note's colour glows from the hand and fades
+          const struck = [...flashes].reverse().find((f) => f.midi !== null);
+          if (struck && struck.midi !== null) {
+            const age = now - struck.at, at = struck.hand ?? { x: w / 2, y: h / 2 };
+            if (age < 1.2) {
+              const g = ctx.createRadialGradient(at.x, at.y, 0, at.x, at.y, r * (0.3 + 0.3 * kick));
+              g.addColorStop(0, `hsla(${noteHue(struck.midi)} 95% 60% / ${Math.min(0.6, sm * 0.35 * (1 - age / 1.2) * (0.5 + struck.level))})`);
+              g.addColorStop(1, `hsla(${noteHue(struck.midi)} 95% 60% / 0)`);
+              ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+            }
+          }
+          // edges: dark when calm; else a ring of the mood's colours turning round the picture, faster as the energy
+          // climbs, pushed in on the beat
+          const ew = Math.max(1, Math.round(w / 4)), eh = Math.max(1, Math.round(h / 4));
+          if (edgeCv.width !== ew || edgeCv.height !== eh) { edgeCv.width = ew; edgeCv.height = eh; }
+          const ec = edgeCv.getContext("2d")!;
+          ec.globalCompositeOperation = "source-over"; ec.clearRect(0, 0, ew, eh);
+          const calm = e < 0.3 && kick < 0.3;
+          if (calm) { ec.fillStyle = `rgba(5,5,20,${Math.min(0.9, sm * (0.75 * (1 - e / 0.3) + 0.3))})`; ec.fillRect(0, 0, ew, eh); }
+          else {
+            const ring = ec.createConicGradient(now * (0.2 + 1.5 * e), ew / 2, eh / 2);
+            const ea = Math.min(0.95, sm * (0.4 + 0.45 * e + 0.35 * kick));
+            [0, spread, 0, -spread, 0].forEach((dh, i, all) => ring.addColorStop(i / (all.length - 1), `hsla(${(mc.hue + dh + 360) % 360} ${mc.sat}% ${Math.min(90, mc.light + 5 * kick)}% / ${ea})`));
+            ec.fillStyle = ring; ec.fillRect(0, 0, ew, eh);
+          }
+          // cut the middle out: clear in the centre, the ring only at the edges
+          const er = Math.hypot(ew, eh) / 2;
+          const hole = ec.createRadialGradient(ew / 2, eh / 2, 0, ew / 2, eh / 2, er);
+          hole.addColorStop(0, "rgba(0,0,0,1)");
+          hole.addColorStop(Math.max(0.1, 0.55 - 0.2 * e - 0.15 * kick), "rgba(0,0,0,1)");
+          hole.addColorStop(1, "rgba(0,0,0,0)");
+          ec.globalCompositeOperation = "destination-out"; ec.fillStyle = hole; ec.fillRect(0, 0, ew, eh);
+          ctx.drawImage(edgeCv, 0, 0, w, h);
           const breath = 0.5 + 0.5 * Math.sin(now * (0.8 + 5 * e) * Math.PI);
-          const r = Math.hypot(w, h) / 2;
-          const g = ctx.createRadialGradient(w / 2, h / 2, r * Math.max(0.1, 0.55 - 0.2 * e - 0.15 * kick), w / 2, h / 2, r);
-          g.addColorStop(0, "rgba(0,0,0,0)");
-          g.addColorStop(1, e < 0.3 && kick < 0.3
-            ? `rgba(5,5,20,${Math.min(0.9, sm * (0.75 * (1 - e / 0.3) + 0.3))})`
-            : col(Math.min(0.95, sm * (0.35 + 0.45 * e * (0.6 + 0.4 * breath) + 0.35 * kick)), 5 * kick));
-          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+          if (!calm) { ctx.globalAlpha = 0.25 * breath * sm; ctx.drawImage(edgeCv, 0, 0, w, h); ctx.globalAlpha = 1; }
           // a wash on each pick, stronger when wild
           const last = flashes[flashes.length - 1];
-          if (last && now - last.at < 0.3) { ctx.fillStyle = col(Math.min(0.6, sm * (0.12 + 0.25 * e) * last.level * (1 - (now - last.at) / 0.3)), 20); ctx.fillRect(0, 0, w, h); }
+          if (last && now - last.at < 0.3) {
+            const wa = Math.min(0.6, sm * (0.12 + 0.25 * e + 0.15 * kick) * last.level * (1 - (now - last.at) / 0.3));
+            ctx.fillStyle = last.midi === null ? col(wa, 20) : `hsla(${noteHue(last.midi)} 90% 70% / ${wa})`; ctx.fillRect(0, 0, w, h);
+          }
           // landing on the home note: a soft light that settles
           if (last && last.midi !== null && keyTonic !== null && ((last.midi - keyTonic) % 12 + 12) % 12 === 0 && now - last.at < 0.8) {
             ctx.fillStyle = `rgba(255,250,235,${Math.min(0.5, 0.18 * sm * (1 - (now - last.at) / 0.8))})`; ctx.fillRect(0, 0, w, h);
           }
         }
         if (on.has("heat") && grid && handFret !== null) {
-          // the fretboard lit from the nut to the hand, hotter the higher up it is; on the beat it flares and runs past the hand
+          // flames off both edges of the fretboard, from the nut to the hand, the board itself left clear: taller and hotter
+          // toward the hand and the higher up it is; on the beat they leap, and run a couple of frets past the hand
           const sh = strength.heat, kick = beat.beat * follows.heat;
           const to = Math.max(1, handFret + 0.5 + 2.5 * kick), heat = Math.min(1, to / 14);
-          const flicker = 0.85 + 0.15 * Math.sin(now * (6 + 20 * e));
-          const mm = pxPerMm(grid), n = across(grid);
-          // the markers sit on the fretboard's near edge: its middle is half a board's width over, on the hand's side
-          const edge = (f: number) => { const p = wireAt(grid!, f), d = neckSide * (neckWidthMm(f) / 2) * mm; return { x: p.x + n.x * d, y: p.y + n.y * d }; };
-          const halfAt = (f: number) => (neckWidthMm(f) / 2) * mm * (0.9 + 0.25 * kick);
-          const a = edge(0), b = edge(to), ha = halfAt(0), hb = halfAt(to);
-          const g = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-          g.addColorStop(0, col(0));
-          g.addColorStop(0.6, col(Math.min(1, sh * (0.12 + 0.3 * heat) * flicker * (1 + kick)), 15 * heat));
-          g.addColorStop(1, col(Math.min(1, sh * (0.25 + 0.5 * heat) * flicker * (1 + 1.2 * kick)), 25 * heat + 20 * kick));
-          ctx.save();
-          ctx.shadowColor = col(Math.min(1, 0.8 * sh), 10); ctx.shadowBlur = Math.min(hb * 1.2, (8 + 25 * Math.max(heat, e) + 40 * kick) * sh);
-          ctx.globalCompositeOperation = "lighter"; ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.moveTo(a.x + n.x * ha, a.y + n.y * ha); ctx.lineTo(b.x + n.x * hb, b.y + n.y * hb);
-          ctx.lineTo(b.x - n.x * hb, b.y - n.y * hb); ctx.lineTo(a.x - n.x * ha, a.y - n.y * ha);
-          ctx.closePath(); ctx.fill();
-          // a hot spot under the hand that pops on the beat
-          const spot = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, hb * (1.2 + kick));
-          spot.addColorStop(0, col(Math.min(1, sh * (0.3 + 0.6 * kick)), 30));
-          spot.addColorStop(1, col(0));
-          ctx.shadowBlur = 0; ctx.fillStyle = spot;
-          ctx.beginPath(); ctx.arc(b.x, b.y, hb * (1.2 + kick), 0, Math.PI * 2); ctx.fill();
+          // mm along the neck sizes the flames; mm across it (often shorter: the board is seen at a slant) places the board
+          const mm = pxPerMm(grid), cross = crossMm ?? mm, n = across(grid);
+          // the markers sit just inside the board's near edge, so its middle is half a board's width on from there, on the
+          // fretting hand's side
+          const mid = (f: number) => {
+            const p = wireAt(grid!, f), d = neckSide * (neckWidthMm(f) / 2 - insetMm) * cross;
+            return { x: p.x + n.x * d, y: p.y + n.y * d };
+          };
+          const edgeAt = (f: number, side: number, out: number) => {
+            const p = mid(f), d = side * ((neckWidthMm(f) / 2) * cross + out);
+            return { x: p.x + n.x * d, y: p.y + n.y * d };
+          };
+          // a flame's height (px) at fret f: flickering tongues, swelling toward the hand, tapering at both ends
+          const tongue = (f: number, side: number) => {
+            const u = (distOf(f) * SCALE_MM) / 12 + side * 3.7;
+            const flick = 0.55 + 0.25 * Math.sin(u * 0.9 + now * 7) + 0.15 * Math.sin(u * 2.3 - now * 11) + 0.12 * Math.sin(u * 5.3 + now * 19);
+            const along = f / to, ends = Math.min(1, along * 4) * Math.min(1, (1 - along) * 6 + 0.15);
+            return Math.max(0, flick) * ends * (0.5 + 0.5 * along) * (10 + 28 * heat) * sh * (1 + 2.5 * kick) * mm;
+          };
+          const STEPS = 72;
+          ctx.save(); ctx.globalCompositeOperation = "lighter";
+          ctx.shadowBlur = Math.min(60, (10 + 30 * kick) * sh);
+          // three layers: the outer flame in the mood's colour, then hotter and paler toward the board
+          for (const [reach, alpha, lift, hueShift] of [[2.2, 0.14, -10, -15], [1, 0.5, 0, 0], [0.6, 0.55, 18, 25], [0.28, 0.7, 35, 45]] as const) {
+            const c = `hsla(${(mc.hue + hueShift * (mc.hue > 180 ? -1 : 1) + 360) % 360} ${mc.sat}% ${Math.min(92, mc.light + lift + 10 * kick)}% / ${Math.min(1, alpha * (0.6 + 0.4 * heat) * (1 + 0.6 * kick))})`;
+            ctx.fillStyle = c; ctx.shadowColor = c;
+            for (const side of [1, -1]) {
+              ctx.beginPath();
+              for (let i = 0; i <= STEPS; i++) { const f = (to * i) / STEPS, p = edgeAt(f, side, 0); if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y); }
+              for (let i = STEPS; i >= 0; i--) { const f = (to * i) / STEPS, p = edgeAt(f, side, tongue(f, side) * reach); ctx.lineTo(p.x, p.y); }
+              ctx.closePath(); ctx.fill();
+            }
+          }
+          ctx.restore();
+          // licks that break off the flames and fly out, a burst on each beat
+          const rate = (15 + 60 * heat) * sh * (1 + 6 * kick);
+          for (let i = Math.floor(rate * dt + Math.random()); i > 0 && flames.length < MAX_FLAMES; i--) {
+            const f = to * Math.sqrt(Math.random()), side = Math.random() < 0.5 ? 1 : -1;
+            const p = edgeAt(f, side, tongue(f, side) * 0.5), v = (30 + Math.random() * 90) * (1 + 1.5 * kick) * mm;
+            flames.push({ x: p.x, y: p.y, vx: n.x * side * v + (Math.random() - 0.5) * 20 * mm, vy: n.y * side * v + (Math.random() - 0.5) * 20 * mm, age: 0, life: 0.25 + Math.random() * 0.35, size: (2 + Math.random() * 4) * (1 + kick) * mm, hue: mc.hue });
+          }
+        }
+        if (flames.length) {
+          ctx.save(); ctx.globalCompositeOperation = "lighter";
+          for (let i = flames.length - 1; i >= 0; i--) {
+            const p = flames[i];
+            p.age += dt;
+            if (p.age > p.life || !on.has("heat")) { flames.splice(i, 1); continue; }
+            p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= Math.exp(-2 * dt); p.vy *= Math.exp(-2 * dt);
+            const fade = 1 - p.age / p.life;
+            const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * (0.6 + fade));
+            g.addColorStop(0, `hsla(${p.hue} 100% ${55 + 35 * fade}% / ${0.8 * fade})`);
+            g.addColorStop(1, `hsla(${p.hue} 100% 50% / 0)`);
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (0.6 + fade), 0, Math.PI * 2); ctx.fill();
+          }
           ctx.restore();
         }
         if (on.has("sparks")) {
