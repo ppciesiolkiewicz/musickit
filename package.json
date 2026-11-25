@@ -23,6 +23,7 @@
     "gen:json-index": "node scripts/gen-json-index.mjs",
     "seed": "npx tsx scripts/seed.ts",
     "db:seed-blocks": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-blocks.ts",
+    "db:pull-riffs": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-pull-riffs.ts",
     "db:wipe": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe.mjs",
     "db:wipe-plans": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe-plans.mjs",
     "db:reset-library": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-reset-library.mjs",

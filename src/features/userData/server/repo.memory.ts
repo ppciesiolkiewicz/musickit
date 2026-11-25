@@ -17,11 +17,13 @@ interface StoredBlock {
   revision: number;
   /** `blocks.videos`: only the seed's drop writes it; kept as it is otherwise */
   videos?: unknown;
+  /** `riff_edit`, `riff_edited_at`, `riff_edited_by`: only `saveRiff` writes them */
+  riff?: { edit: unknown; at: Date; by: string };
 }
 
 const NO_PROVENANCE: Provenance = { model: null, promptVersion: null, docsAgents: null, docsTeaching: null };
 /** Two block rows that store the same, their `revision` aside. */
-const sameRow = (a: StoredBlock, b: StoredBlock) => JSON.stringify({ ...a, revision: 0, videos: 0 }) === JSON.stringify({ ...b, revision: 0, videos: 0 });
+const sameRow = (a: StoredBlock, b: StoredBlock) => JSON.stringify({ ...a, revision: 0, videos: 0, riff: 0 }) === JSON.stringify({ ...b, revision: 0, videos: 0, riff: 0 });
 const isBare = (p: Provenance) => p.model === null && p.promptVersion === null && p.docsAgents === null && p.docsTeaching === null;
 
 /** A `choices` row, as the memory repo keeps it. */
@@ -192,7 +194,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
           videos = out.videos;
           for (const d of out.dropped) droppedVideos.push({ blockId: b.id, ...d });
         }
-        const row: StoredBlock = { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}), revision: was?.revision ?? 1, ...(videos !== undefined ? { videos } : {}) };
+        const row: StoredBlock = { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}), revision: was?.revision ?? 1, ...(videos !== undefined ? { videos } : {}), ...(was?.riff ? { riff: was.riff } : {}) };
         // like the `is distinct from` guard in Postgres: an unchanged block is not written
         if (was && !sameRow(was, row)) changed.add(b.id);
         blocks.set(b.id, row);
@@ -219,6 +221,20 @@ export function memoryUserDataRepo(): UserDataRepo & {
       }
       for (const id of changed) blocks.get(id)!.revision += 1;
       return { blocks: list.length, choices: listed.size, deactivated, revised: changed.size, droppedVideos };
+    },
+    async riffEdits() {
+      return [...blocks].flatMap(([blockId, b]) => (b.kind === "curated" && b.riff ? [{ blockId, edit: structuredClone(b.riff.edit), at: b.riff.at, by: b.riff.by, byName: null }] : []));
+    },
+    async saveRiff(save, edit, by, now) {
+      const b = blocks.get(save.id);
+      if (!b || b.kind !== "curated") return false;
+      b.key = { ...b.key, content: structuredClone(save.content) };
+      b.riff = { edit: structuredClone(edit), at: now, by };
+      for (const m of save.moves) {
+        const c = choices.get(m.id);
+        if (c && c.blockId === save.id) choices.set(m.id, { ...c, moves: structuredClone(m.moves), updatedAt: now });
+      }
+      return true;
     },
     async createVideo(row) {
       if (videos.has(row.id) || [...videos.values()].some((v) => v.blobPath === row.blobPath)) return false;

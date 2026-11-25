@@ -310,6 +310,14 @@ export const blocks = pgTable(
     revision: integer("revision").notNull().default(1),
     /** The videos of a curated block's tool cells (`cells`: cell index to content video id). The seed never writes it. Null when it has none. */
     videos: jsonb("videos").$type<BlockVideos>(),
+    /**
+     * A curated block's riff as last saved in the riff maker (`RiffEdit` in `features/devtools/riff/blocks.ts`: key, scale,
+     * tempo, notes, amp), checked again where it is read. The seed lays it over the file's riff while `riff_edited_at` is set;
+     * `db:pull-riffs` writes it into the file. Null for a riff never edited in the app.
+     */
+    riffEdit: jsonb("riff_edit"),
+    riffEditedAt: at("riff_edited_at"),
+    riffEditedBy: uuid("riff_edited_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("blocks_area").on(t.area), index("blocks_topic").on(t.topic)],

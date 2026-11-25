@@ -112,7 +112,7 @@ export function databaseItem(b: BlockDetail, choiceId?: string): DrawnItem {
  * How a row is labelled: where it comes from (exactly one of `seed`, `database`), whether players are offered it (`off`),
  * and, for a plan, whether `/demo` shows it (`demo`).
  */
-export type LibraryTag = "seed" | "database" | "off" | "demo";
+export type LibraryTag = "seed" | "database" | "off" | "demo" | "riff";
 
 /** The `/demo/<slug>` slug that shows a seed plan (`DEMO_PLANS`), or null when no demo uses it. */
 export function demoSlugOf(planId: string): string | null {
@@ -121,10 +121,12 @@ export function demoSlugOf(planId: string): string | null {
 
 /**
  * A block's tags. A curated block with choices and no active one is `off`. A hashed block is `database` and never `off`:
- * it is not a seed item, and whether a player sees it is a matter of who owns it.
+ * it is not a seed item, and whether a player sees it is a matter of who owns it. A block in `riffEdited` (its riff saved
+ * in the app and not yet pulled into its file) is `riff`.
  */
-export function blockTags(b: BlockSummary, seedIds: { has(id: string): boolean }): LibraryTag[] {
+export function blockTags(b: BlockSummary, seedIds: { has(id: string): boolean }, riffEdited: { has(id: string): boolean } = new Set()): LibraryTag[] {
   const tags: LibraryTag[] = [seedIds.has(b.id) ? "seed" : "database"];
   if (b.choices.length > 0 && !b.choices.some((c) => c.active)) tags.push("off");
+  if (riffEdited.has(b.id)) tags.push("riff");
   return tags;
 }

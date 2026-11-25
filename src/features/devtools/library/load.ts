@@ -5,6 +5,8 @@ import { devScope } from "@/features/library/server/mcp";
 import { blockOfChoice } from "@/features/plan/model/blockId";
 import { drizzleUserDataRepo } from "@/features/userData/server/repo.drizzle";
 import type { Db } from "@/lib/db/client";
+import { SEED_BLOCKS } from "@/features/library/seed";
+import { riffInFile } from "../riff/blocks";
 import { databaseItem, seedItem, type DrawnItem } from "./item";
 import { devArgs, type LibraryParams } from "./params";
 
@@ -33,6 +35,8 @@ export interface BlocksData {
   topic: string | null;
   /** null until a topic is chosen */
   blocks: BlockSummary[] | null;
+  /** the blocks whose riff was saved in the app and isn't in their seed file yet (`db:pull-riffs` writes it) */
+  riffEdited: string[];
 }
 
 export type ItemResult =
@@ -74,6 +78,12 @@ export function topicCounts(rows: CoverageRow[]): TopicCount[] {
   return [...by].filter(([, n]) => n > 0).map(([topic, blocks]) => ({ topic, blocks }));
 }
 
+/** The ids of the blocks whose riff saved in the app differs from their seed file's (a block with no file is left out). */
+async function riffsNotInFile(deps: Deps): Promise<string[]> {
+  const files = new Map(SEED_BLOCKS.map((f) => [f.id, f]));
+  return (await deps.userData.riffEdits()).filter((e) => files.has(e.blockId) && !riffInFile(files.get(e.blockId), e.edit)).map((e) => e.blockId);
+}
+
 /**
  * The Blocks page: the topics to pick from and the blocks of one. Without a topic in the address, an open item's own
  * topic is listed, so a bare `?item=<block id>` link opens it in its row.
@@ -84,7 +94,7 @@ export const loadBlocks = (db: Db | null, params: LibraryParams): Promise<Loaded
     let topic = params.topic ?? null;
     if (topic === null && params.item !== undefined) topic = (await getBlock(deps, scope, blockOfChoice(params.item) ?? params.item))?.topic ?? null;
     const blocks = topic === null ? null : await findBlocks(deps, scope, { topic }, "newest", BLOCK_LIMIT.max);
-    return { topics: topicCounts(topics), topic, blocks };
+    return { topics: topicCounts(topics), topic, blocks, riffEdited: await riffsNotInFile(deps) };
   });
 
 /**

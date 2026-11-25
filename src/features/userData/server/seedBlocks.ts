@@ -47,6 +47,9 @@ export function curatedBlocks(files: SeedBlockFile[] = SEED_BLOCKS): { blocks: C
   return { blocks, skipped };
 }
 
+/** A seed block file with a riff saved in the app laid over its own; null when the saved riff can't be read. */
+export type KeepRiff = (file: SeedBlockFile, edit: unknown) => SeedBlockFile | null;
+
 function secs(since: number): string {
   return `${((Date.now() - since) / 1000).toFixed(1)}s`;
 }
@@ -57,19 +60,37 @@ function secs(since: number): string {
  * stored block whose file changed, in its exercise or in a choice, gets the next `revision`, counted in `revised`). Seed plans
  * are not stored: they stay files (the demos read them). A block's own videos (`blocks.videos`) are kept, except an entry whose
  * tool cell's tool moved: it is dropped and returned in `droppedVideos`, with a line in the log. Returns the counts and the skipped block files.
+ * With `keepRiff` (the script passes the riff maker's `keptRiff`), a block whose riff was saved in the app (`riffEdits`) is
+ * stored with that riff over its file's, and named in `keptRiffs` with a `riff kept` line; everything else is the file's.
  * When a block file doesn't parse it writes nothing and returns that file in `skipped` with every count 0: storing the
  * rest would make the skipped block's choices inactive (and an empty list every choice).
  */
 export async function seedBlocks(
   repo: UserDataRepo,
   now: Date,
-  { files = SEED_BLOCKS, log = () => {} }: { files?: SeedBlockFile[]; log?: (line: string) => void } = {},
-): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; droppedVideos: DroppedVideo[]; skipped: string[] }> {
+  { files = SEED_BLOCKS, log = () => {}, keepRiff }: { files?: SeedBlockFile[]; log?: (line: string) => void; keepRiff?: KeepRiff } = {},
+): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; droppedVideos: DroppedVideo[]; keptRiffs: string[]; skipped: string[] }> {
+  const keptRiffs: string[] = [];
+  if (keepRiff) {
+    const edits = new Map((await repo.riffEdits()).map((e) => [e.blockId, e]));
+    files = files.map((f) => {
+      const e = edits.get(f.id);
+      if (!e) return f;
+      const kept = keepRiff(f, e.edit);
+      if (!kept) {
+        log(`riff not kept  ${f.id}  (the riff saved in the app can't be read; the file's riff is stored)`);
+        return f;
+      }
+      keptRiffs.push(f.id);
+      log(`riff kept  ${f.id}  (saved in the app ${e.at.toISOString().slice(0, 10)}${e.byName ? ` by ${e.byName}` : ""})`);
+      return kept;
+    });
+  }
   const { blocks, skipped } = curatedBlocks(files);
   for (const id of skipped) log(`skipped  ${id}  (exercise does not parse)`);
   if (skipped.length) {
     log(`${skipped.length} block file${skipped.length === 1 ? "" : "s"} did not parse; nothing written`);
-    return { blocks: 0, choices: 0, deactivated: 0, revised: 0, droppedVideos: [], skipped };
+    return { blocks: 0, choices: 0, deactivated: 0, revised: 0, droppedVideos: [], keptRiffs, skipped };
   }
   for (const b of blocks) log(`block  ${b.id}  ${b.choices.map((c) => `${c.name}${c.active ? "" : " (draft)"}`).join(", ")}`);
   log(`${blocks.length} curated blocks, ${blocks.reduce((n, b) => n + b.choices.length, 0)} choices from ${files.length} block files; storing in one transaction…`);
@@ -77,5 +98,5 @@ export async function seedBlocks(
   const stored = await repo.upsertCurated(blocks, now);
   log(`stored blocks and choices in ${secs(t)}; ${stored.revised} changed block${stored.revised === 1 ? "" : "s"} got a new revision, ${stored.deactivated} choice${stored.deactivated === 1 ? "" : "s"} made inactive`);
   for (const d of stored.droppedVideos) log(`video dropped  ${d.blockId}  cell ${d.cell}  ${d.videoId}  (the video is kept; point the cell at it again)`);
-  return { ...stored, skipped };
+  return { ...stored, keptRiffs, skipped };
 }

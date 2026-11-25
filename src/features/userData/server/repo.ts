@@ -80,6 +80,22 @@ export interface CuratedChoice {
 }
 
 /** A seed block file as a curated block (`blocks.kind` 'curated'): the id is the file's, `content` holds no moves, and level, steps, moves and minutes sit on its choices. */
+/** A riff saved in the riff maker, on its curated block: the edit as stored (check it before use), when and by whom. `byName` is null once that account is gone. */
+export interface RiffEditRow {
+  blockId: string;
+  edit: unknown;
+  at: Date;
+  by: string | null;
+  byName: string | null;
+}
+
+/** What saving a riff writes into its curated block: the content with the riff in it, and the moves of each of its choices (by choice id). */
+export interface RiffSave {
+  id: string;
+  content: Block;
+  moves: { id: string; moves: Moves | null }[];
+}
+
 /** A block's own video the seed took off a tool cell whose tool moved. */
 export interface DroppedVideo {
   blockId: string;
@@ -174,6 +190,15 @@ export interface UserDataRepo {
    * `droppedVideos`. The video itself is kept. That write alone doesn't raise `revision`.
    */
   upsertCurated(blocks: CuratedBlock[], now: Date): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; droppedVideos: DroppedVideo[] }>;
+  /** Every curated block with a riff saved in the riff maker (`riff_edited_at` set), by block id. */
+  riffEdits(): Promise<RiffEditRow[]>;
+  /**
+   * Saves a riff edited in the riff maker into its curated block, in one transaction: the block's `content`, the `moves`
+   * of each named choice of that block (a choice of another block is left), and `riff_edit`, `riff_edited_at` and
+   * `riff_edited_by`. No other column, and not `revision` (only the seed writes it). False when no curated block has
+   * the id; nothing is written then. `upsertCurated` never writes the three riff columns.
+   */
+  saveRiff(save: RiffSave, edit: unknown, by: string, now: Date): Promise<boolean>;
   /** Stores a new video row; false when its id (or its path) is taken, and then nothing is changed. */
   createVideo(row: VideoRow): Promise<boolean>;
   /** The user's videos, newest first. */

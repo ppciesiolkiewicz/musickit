@@ -165,6 +165,27 @@ describe("user data repo on Postgres: block provenance", () => {
     const [c] = await db.select().from(schema.choices).where(eq(schema.choices.id, "guitar-a-b/new"));
     assert.deepEqual([c.blockId, c.name, c.level, c.steps, c.moves, c.minutes, c.active, c.place], ["guitar-a-b", "new", "beginner", ["picking:1"], null, 5, true, 1]);
   });
+  test("saveRiff writes the content, the named choices' moves and who saved it; the seed and riffEdits keep it", async () => {
+    await fresh();
+    await db.insert(schema.users).values({ id: PLAYER_A, email: "a@test.local", name: "A", role: "student" });
+    await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW);
+    assert.equal(await repo.saveRiff({ id: "guitar-x-y", content: { title: "x", cells: [] } as unknown as CuratedBlock["content"], moves: [] }, {}, PLAYER_A, NOW), false);
+    const moves = { bpm: { from: 70, to: 90 } } as unknown as CuratedBlock["choices"][number]["moves"];
+    const content = { title: "Saved riff", cells: [] } as unknown as CuratedBlock["content"];
+    const edit = { tonic: 4, scale: "Dorian", bpm: 70, notes: [] };
+    assert.equal(await repo.saveRiff({ id: "guitar-a-b", content, moves: [{ id: "guitar-a-b/new", moves }, { id: "other/beginner", moves }] }, edit, PLAYER_A, NOW), true);
+    const [b] = await db.select().from(schema.blocks);
+    assert.deepEqual([b.content, b.riffEdit, b.riffEditedAt?.getTime(), b.riffEditedBy, b.revision], [content, edit, NOW.getTime(), PLAYER_A, 1]);
+    const cs = await db.select({ id: schema.choices.id, moves: schema.choices.moves }).from(schema.choices).orderBy(schema.choices.id);
+    assert.deepEqual(cs, [{ id: "guitar-a-b/beginner", moves: null }, { id: "guitar-a-b/new", moves }]);
+    assert.deepEqual(await repo.riffEdits(), [{ blockId: "guitar-a-b", edit, at: NOW, by: PLAYER_A, byName: "A" }]);
+    // the seed overwrites the content (the caller lays the riff over the file first) but never the riff columns
+    await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW);
+    assert.deepEqual((await repo.riffEdits()).map((e) => e.edit), [edit]);
+    // the account gone: the riff stays, with no one named
+    await db.delete(schema.users).where(eq(schema.users.id, PLAYER_A));
+    assert.deepEqual((await repo.riffEdits()).map((e) => [e.by, e.byName]), [[null, null]]);
+  });
   test("upsertCurated twice changes nothing; a text edit and new provenance overwrite the block under the same id", async () => {
     await fresh();
     await repo.upsertCurated([curated("guitar-a-b", ["beginner"])], NOW);

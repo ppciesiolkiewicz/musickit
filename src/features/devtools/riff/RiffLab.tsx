@@ -12,11 +12,10 @@ import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNea
 import { PlayAlongTimeline } from "@/features/exercises/play-along/PlayAlong";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { GENRES } from "@/features/library/seed/genres";
-import { devOnly } from "@/features/devtools/gate";
 import type { RiffBlock } from "./blocks";
 import { gearOf, groupByGear, type KindFilter } from "./ampCatalog";
 
-/** What this browser remembers of the riff maker: the riff that was open and the sound. The riffs themselves are in seed block files. */
+/** What this browser remembers of the riff maker: the riff that was open and the sound. The riffs are in seed block files, and a riff saved here in the database (`/api/dev/riffs`). */
 const PREFS = "musickit.dev.riffPrefs";
 interface Prefs { cur?: string; sound?: RiffSound; model?: number }
 const readPrefs = (): Prefs => { try { return (JSON.parse(localStorage.getItem(PREFS) ?? "null") as Prefs | null) ?? {}; } catch { return {}; } };
@@ -32,7 +31,7 @@ const noteIcon = (beats: number) => <svg width={16} height={22} viewBox="-1 0 16
 /** Add a dot to a length, or take it off a dotted one. */
 const toggleDot = (beats: number) => (isDotted(beats) ? beats / 1.5 : beats * 1.5);
 
-/** A block's riff as the editor holds it: `id` is the block's, `name` its title, `mode` an index of MODE_LIST, `pos` the fret the hand sits at. Changes stay in this page until saved to the block's file. */
+/** A block's riff as the editor holds it: `id` is the block's, `name` its title, `mode` an index of MODE_LIST, `pos` the fret the hand sits at. Changes stay in this page until saved. */
 interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number; amp: string | null }
 interface Library { riffs: Saved[]; cur: string }
 const AEOLIAN = MODE_LIST.findIndex((m) => m.name === "Aeolian");
@@ -50,6 +49,13 @@ const fromBook = (r: RiffBlock): Saved => {
 const fileFields = (r: { tonic: number; scale: string; bpm: number; notes: RiffNote[]; amp: string | null }) =>
   JSON.stringify([r.tonic, r.scale, r.bpm, r.notes.map((n) => [n.string, n.fret, n.beats, !!n.with]), r.amp]);
 
+/** Where the saved riff is: only in its seed file, or saved in the app (when, by whom) and whether the file has it yet. */
+const savedLine = (b: RiffBlock): string => {
+  if (!b.edited) return "Same as the seed file";
+  const when = new Date(b.edited.at).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  const saved = `Saved in the app on ${when}${b.edited.by ? ` by ${b.edited.by}` : ""}`;
+  return b.edited.inFile ? `${saved}, and in the seed file` : `${saved}. Not in the seed file yet: run npm run db:pull-riffs`;
+};
 const scaleOf = (r: Saved) => MODE_LIST[r.mode]?.name ?? "Aeolian";
 const changed = (r: Saved, book: RiffBlock[]) => { const b = book.find((x) => x.id === r.id); return !!b && fileFields(b) !== fileFields({ ...r, scale: scaleOf(r) }); };
 const scaleName = (r: Saved) => `${TONICS.find((t) => t.pc === r.tonic)?.name ?? "?"} ${MODE_LIST[r.mode]?.name ?? "?"}`;
@@ -123,8 +129,8 @@ export default function RiffLab() {
   const [disk, setDisk] = useState<{ file: string; name: string; licence: string }[]>([]);
   /** whether this server has the folders of .nam files at all (a production server doesn't) */
   const [diskHere, setDiskHere] = useState(true);
-  /** Save to block writes the seed file, which only a developer's computer has */
-  const canSaveSeed = devOnly();
+  /** whether the site can save riffs (it has a database); the riffs answer says */
+  const [canSave, setCanSave] = useState(true);
   /** the amp picker's filters: which kind of gear it lists, and the words searched for */
   const [ampKind, setAmpKind] = useState<KindFilter>("amp");
   const [ampSearch, setAmpSearch] = useState("");
@@ -193,10 +199,11 @@ export default function RiffLab() {
   const readBook = useCallback(async (): Promise<RiffBlock[] | null> => {
     try {
       const res = await fetch("/api/dev/riffs", { cache: "no-store", signal: AbortSignal.timeout(10000) });
-      const body = (await res.json().catch(() => null)) as { riffs?: RiffBlock[]; problems?: string[]; error?: string } | null;
-      if (!res.ok || !body?.riffs) throw new Error(body?.error ?? `Seed blocks: ${res.status}`);
+      const body = (await res.json().catch(() => null)) as { riffs?: RiffBlock[]; problems?: string[]; saving?: boolean; error?: string } | null;
+      if (!res.ok || !body?.riffs) throw new Error(body?.error ?? `The riffs couldn't be loaded (${res.status}).`);
       const riffs = body.riffs;
       setBook(riffs);
+      setCanSave(body.saving !== false);
       // a riff being edited keeps its changes; the riff that was open last time opens again
       setLib((l) => {
         const list = riffs.map((b) => l.riffs.find((x) => x.id === b.id) ?? fromBook(b));
@@ -380,7 +387,7 @@ export default function RiffLab() {
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [anyDirty]);
-  /** Write the riff in the editor into its file. */
+  /** Save the riff in the editor into its block in the database. */
   const saveSeed = async () => {
     if (!seedRiff) return;
     setBookState("Saving…");
@@ -390,12 +397,12 @@ export default function RiffLab() {
       if (!res.ok || !body?.riff) throw new Error(body?.error ?? `Something went wrong (${res.status}).`);
       const saved = body.riff;
       setBook((b) => b.map((x) => (x.id === saved.id ? saved : x)));
-      setBookState(`Saved to ${saved.id}.json`);
+      setBookState("Saved. Plans made from now on get this riff.");
     } catch (e) {
       setBookState(`Error: ${e instanceof Error ? e.message : String(e)}`);
     }
   };
-  /** Throw away the editor's changes: the riff as its file has it now. */
+  /** Throw away the editor's changes: the riff as last saved (or as its file has it, if never saved here). */
   const reloadSeed = async () => {
     const id = state.id;
     const from = (await readBook())?.find((b) => b.id === id);
@@ -426,8 +433,8 @@ export default function RiffLab() {
               {book.filter((b) => b.genre === g).map((b) => (
                 <li key={b.id}>
                   <button onClick={() => pick(b.id)} title={`${b.id}.json`} className={`w-full rounded px-2 py-1 text-left text-sm ${state.id === b.id ? "bg-sky-900/50" : "hover:bg-slate-800"}`}>
-                    <span className="block">{b.title}{lib.riffs.some((r) => r.id === b.id && changed(r, book)) && <span title="Changes not in the file yet" className="text-amber-300"> •</span>}</span>
-                    <span className={`block text-xs ${b.draft ? "text-amber-400" : "text-slate-500"}`}>{b.draft ? "switched off" : "in the library"} · {b.steps.length ? b.steps.join(", ") : "no path step"}</span>
+                    <span className="block">{b.title}{lib.riffs.some((r) => r.id === b.id && changed(r, book)) && <span title="Changes not saved yet" className="text-amber-300"> •</span>}</span>
+                    <span className={`block text-xs ${b.draft ? "text-amber-400" : "text-slate-500"}`}>{b.draft ? "switched off" : "in the library"} · {b.steps.length ? b.steps.join(", ") : "no path step"}{b.edited && !b.edited.inFile && " · edited in the app"}</span>
                   </button>
                 </li>
               ))}
@@ -441,13 +448,13 @@ export default function RiffLab() {
       {state.id && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-slate-400">Seed block: <a href={`/admin/content/library?item=${state.id}`} className="font-mono text-sky-300 underline">{state.id}</a>{seedRiff?.draft && " (switched off)"}</span>
-          {!seedRiff ? <span className="text-amber-300">No seed block with this id holds a riff.</span> : !canSaveSeed ? (
-            <span className="text-slate-500">Save to block writes the seed file, so it works only on a developer&apos;s computer.</span>
+          {!seedRiff ? <span className="text-amber-300">No seed block with this id holds a riff.</span> : !canSave ? (
+            <span className="text-slate-500">Riffs can&apos;t be saved on this site: it has no database.</span>
           ) : (
             <>
-              <button onClick={() => void saveSeed()} disabled={!seedDirty} className="rounded bg-sky-700 px-3 py-1 text-white disabled:bg-slate-800 disabled:text-slate-500">Save to block</button>
-              <button onClick={() => void reloadSeed()} disabled={!seedDirty} className="rounded bg-slate-800 px-3 py-1 disabled:opacity-40">Reload from block</button>
-              <span className="text-slate-500">{seedDirty ? "Changes not in the file yet" : "Same as the file"}</span>
+              <button onClick={() => void saveSeed()} disabled={!seedDirty} className="rounded bg-sky-700 px-3 py-1 text-white disabled:bg-slate-800 disabled:text-slate-500">Save</button>
+              <button onClick={() => void reloadSeed()} disabled={!seedDirty} className="rounded bg-slate-800 px-3 py-1 disabled:opacity-40">Reload</button>
+              <span className="text-slate-500">{seedDirty ? "Changes not saved yet" : savedLine(seedRiff)}</span>
             </>
           )}
         </div>

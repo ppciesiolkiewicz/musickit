@@ -54,7 +54,7 @@ test("a block file that doesn't parse is reported, and nothing is written or mad
   const broken = fileOf("guitar-c-d", {}, [{ name: "beginner", steps: [], minutes: 4 }]);
   const lines: string[] = [];
   const r = await seedBlocks(repo, LATER, { files: [one("guitar-a-b"), broken], log: (l) => lines.push(l) });
-  assert.deepEqual(r, { blocks: 0, choices: 0, deactivated: 0, revised: 0, droppedVideos: [], skipped: ["guitar-c-d"] });
+  assert.deepEqual(r, { blocks: 0, choices: 0, deactivated: 0, revised: 0, droppedVideos: [], keptRiffs: [], skipped: ["guitar-c-d"] });
   assert.ok(lines.some((l) => l.includes("guitar-c-d")));
   assert.deepEqual({ blocks: repo.peekBlocks(), choices: repo.peekChoices() }, before);
   assert.equal(repo.peekChoices().get("guitar-c-d/beginner")!.active, true);
@@ -63,7 +63,7 @@ test("a block file that doesn't parse is reported, and nothing is written or mad
 test("seeding stores curated blocks, their choices and the app's owner row", async () => {
   const repo = memoryUserDataRepo();
   const r = await seedBlocks(repo, NOW, { files: [one("guitar-a-b")] });
-  assert.deepEqual(r, { blocks: 1, choices: 1, deactivated: 0, revised: 0, droppedVideos: [], skipped: [] });
+  assert.deepEqual(r, { blocks: 1, choices: 1, deactivated: 0, revised: 0, droppedVideos: [], keptRiffs: [], skipped: [] });
   const b = repo.peekBlocks().get("guitar-a-b")!;
   assert.equal(b.kind, "curated");
   assert.equal(b.revision, 1);
@@ -211,4 +211,25 @@ test("a stored videos that is not an object is read as no entries", async () => 
   repo.pokeVideos("guitar-a-b", "oops");
   const r = await seedBlocks(repo, LATER, { files: [withTools(pitch)] });
   assert.deepEqual([r.droppedVideos, repo.peekBlocks().get("guitar-a-b")!.videos], [[], "oops"]);
+});
+
+test("a riff saved in the app is kept by the seed over its file's, and only while keepRiff is given", async () => {
+  const f = SEED_BLOCKS.find((x) => x.id === "guitar-beginner-rock-power-chords-and-a-riff")!;
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, NOW, { files: [f] });
+  assert.equal(await repo.saveRiff({ id: "nope", content: { title: "x", cells: [] } as never, moves: [] }, {}, "u1", NOW), false);
+  // a keeper that swaps the title in, standing in for the riff maker's keptRiff
+  const keepRiff = (file: SeedBlockFile, edit: unknown) => ({ ...file, exercise: { ...file.exercise, title: String((edit as { title: string }).title) } });
+  const [b] = curatedBlocks([keepRiff(f, { title: "Saved" })]).blocks;
+  assert.equal(await repo.saveRiff({ id: f.id, content: b.content, moves: b.choices.map((c) => ({ id: c.id, moves: c.moves })) }, { title: "Saved" }, "u1", NOW), true);
+  assert.deepEqual((await repo.riffEdits()).map((e) => [e.blockId, e.edit, e.by]), [[f.id, { title: "Saved" }, "u1"]]);
+
+  const r = await seedBlocks(repo, LATER, { files: [f], keepRiff });
+  assert.deepEqual(r.keptRiffs, [f.id]);
+  assert.equal(r.revised, 0, "the seed stores what the save stored: no change");
+  assert.equal((await repo.riffEdits()).length, 1, "the seed leaves the saved riff");
+
+  const plainRun = await seedBlocks(repo, LATER, { files: [f] });
+  assert.deepEqual(plainRun.keptRiffs, []);
+  assert.equal(plainRun.revised, 1, "without the keeper the file's riff is stored again");
 });

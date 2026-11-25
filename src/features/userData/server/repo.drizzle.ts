@@ -1,7 +1,7 @@
 import { and, desc, eq, exists, inArray, isNotNull, isNull, notInArray, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
-import { blockOwners, blocks, choices, planClaims, planDayTimes, progressEntries, shareVideos, shares, userDocuments, userVoices, videos } from "@/lib/db/schema";
+import { blockOwners, blocks, choices, planClaims, planDayTimes, progressEntries, shareVideos, shares, userDocuments, userVoices, users, videos } from "@/lib/db/schema";
 import { cleanVoice } from "@/features/theory/voiceRange";
 import type { ProgressEntry } from "@/features/progress/log";
 import { levelOfSteps } from "@/features/plan/model/path";
@@ -322,6 +322,33 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         for (const r of off) changed.add(r.blockId);
         if (changed.size) await tx.update(blocks).set({ revision: sql`${blocks.revision} + 1` }).where(inArray(blocks.id, [...changed]));
         return { blocks: list.length, choices: listed.length, deactivated: off.length, revised: changed.size, droppedVideos };
+      });
+    },
+    async riffEdits() {
+      const rows = await db
+        .select({ blockId: blocks.id, edit: blocks.riffEdit, at: blocks.riffEditedAt, by: blocks.riffEditedBy, byName: users.name })
+        .from(blocks)
+        .leftJoin(users, eq(users.id, blocks.riffEditedBy))
+        .where(and(eq(blocks.kind, "curated"), isNotNull(blocks.riffEditedAt)))
+        .orderBy(blocks.id);
+      return rows.map((r) => ({ ...r, at: r.at! }));
+    },
+    async saveRiff(save, edit, by, now) {
+      return db.transaction(async (tx) => {
+        const done = await tx
+          .update(blocks)
+          .set({ content: save.content, riffEdit: edit, riffEditedAt: now, riffEditedBy: by })
+          .where(and(eq(blocks.id, save.id), eq(blocks.kind, "curated")))
+          .returning({ id: blocks.id });
+        if (!done.length) return false;
+        for (const m of save.moves) {
+          await tx
+            .update(choices)
+            .set({ moves: m.moves, updatedAt: now })
+            // only a choice whose moves change, so updated_at says when they last did
+            .where(and(eq(choices.id, m.id), eq(choices.blockId, save.id), m.moves === null ? isNotNull(choices.moves) : sql`${choices.moves} is distinct from ${JSON.stringify(m.moves)}::jsonb`));
+        }
+        return true;
       });
     },
     async createVideo(row) {

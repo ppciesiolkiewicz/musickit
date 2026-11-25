@@ -50,6 +50,7 @@ const TAG_STYLE: Record<LibraryTag, { label: string; cls: string }> = {
   database: { label: "Database only", cls: "border-slate-500/40 bg-slate-500/10 text-slate-300" },
   off: { label: "Off", cls: "border-amber-500/40 bg-amber-500/10 text-amber-200" },
   demo: { label: "Demo", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" },
+  riff: { label: "Edited in the app", cls: "border-violet-500/40 bg-violet-500/10 text-violet-200" },
 };
 
 const TAG = "ml-2 rounded-full border px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider";
@@ -276,12 +277,13 @@ const BLOCK_COLS = ["Title", "Choices", "Level", "Concepts", "Model", "Versions"
 export const openBlockId = (item: string | undefined): string | undefined => (item === undefined ? undefined : blockOfChoice(item) ?? item);
 
 /** The blocks of a topic. A title opens the block under its row; `open` is what that row shows. */
-export function BlocksTable({ blocks, params, open }: { blocks: BlockSummary[]; params: LibraryParams; open?: ReactNode }) {
+export function BlocksTable({ blocks, params, open, riffEdited = [] }: { blocks: BlockSummary[]; params: LibraryParams; open?: ReactNode; riffEdited?: string[] }) {
   if (blocks.length === 0) return <Muted>No blocks for this topic.</Muted>;
   const hashed = seedBlocksById();
   const curated = new Set(SEED_BLOCKS.map((f) => f.id));
   const seed = { has: (id: string) => curated.has(id) || hashed.has(id) };
   const openId = openBlockId(params.item);
+  const edited = new Set(riffEdited);
   return (
     <Scroll>
       <table className="w-full text-left text-sm text-slate-200">
@@ -291,7 +293,7 @@ export function BlocksTable({ blocks, params, open }: { blocks: BlockSummary[]; 
             const isOpen = openId === b.id;
             return [
               <tr key={b.id} className={ROW}>
-                <td className="p-2"><ItemLink tab="blocks" id={b.id} title={b.title} open={isOpen} params={params} /><Tags tags={blockTags(b, seed)} /></td>
+                <td className="p-2"><ItemLink tab="blocks" id={b.id} title={b.title} open={isOpen} params={params} /><Tags tags={blockTags(b, seed, edited)} /></td>
                 <td className="p-2"><ChoiceLinks choices={b.choices} params={params} /></td>
                 <td className="p-2">{orDash(b.level)}</td>
                 <td className="p-2">{b.concepts.join(", ") || "–"}</td>
@@ -412,7 +414,7 @@ export function BlocksPage({ result, item, params, canNamePlayer = true }: { res
       {data && (
         <>
           <H>{data.topic === null ? "Blocks" : `Blocks for ${data.topic}`}</H>
-          {data.blocks === null ? <Muted>Choose a topic above.</Muted> : <BlocksTable blocks={data.blocks} params={shown} open={<Opened result={item} params={shown} />} />}
+          {data.blocks === null ? <Muted>Choose a topic above.</Muted> : <BlocksTable blocks={data.blocks} params={shown} riffEdited={data.riffEdited} open={<Opened result={item} params={shown} />} />}
         </>
       )}
     </Frame>

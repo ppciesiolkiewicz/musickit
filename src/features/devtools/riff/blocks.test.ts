@@ -6,7 +6,7 @@ import { GENRES } from "@/features/library/seed/genres";
 import { columnsOf } from "@/features/exercises/riffs/riff";
 import { toolCells } from "@/features/contentVideos/model/slot";
 import type { Cell } from "@/features/plan/model/tools";
-import { blockFileText, checkEdit, riffBlockOf, riffsOf, withRiff, type RiffBlock } from "./blocks";
+import { blockFileText, checkEdit, keptRiff, riffBlockOf, riffInFile, riffsOf, withRiff, type RiffBlock } from "./blocks";
 
 const riffs = SEED_BLOCKS.flatMap((f) => { const r = riffBlockOf(f); return r ? [{ f, r }] : []; });
 
@@ -113,5 +113,26 @@ describe("a riff block's tool cell", () => {
       assert.equal(tools[at]?.type, "guitar-play-along", f.id);
       assert.equal(tools.findIndex((t) => t.type === "guitar-play-along" && t.shape.shape === "riff"), at, f.id);
     }
+  });
+});
+
+describe("a riff saved in the app", () => {
+  const { f } = riffs.find((x) => x.f.id === "guitar-beginner-rock-power-chords-and-a-riff")!;
+  const b = riffBlockOf(f) as RiffBlock;
+  const same = { tonic: b.tonic, scale: b.scale, bpm: b.bpm, notes: b.notes, amp: b.amp };
+
+  it("is laid over the file's riff, and the file's own riff counts as in the file", () => {
+    assert.equal(riffInFile(f, same), true);
+    const edit = { ...same, tonic: (b.tonic + 2) % 12 };
+    const kept = keptRiff(f, edit)!;
+    assert.equal((riffBlockOf(kept) as RiffBlock).tonic, (b.tonic + 2) % 12);
+    assert.equal(riffInFile(f, edit), false);
+    assert.equal(riffInFile(kept, edit), true);
+  });
+
+  it("is not kept when it doesn't read", () => {
+    assert.equal(keptRiff(f, { ...same, bpm: 999 }), null);
+    assert.equal(keptRiff(f, "notes"), null);
+    assert.equal(riffInFile(f, null), false);
   });
 });

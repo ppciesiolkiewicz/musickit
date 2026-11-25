@@ -6,7 +6,9 @@ import type { Cell } from "@/features/plan/model/tools";
 
 /*
  * A riff lives in a seed block (`src/features/library/seed/blocks`), as the `riff` shape of its guitar-play-along tool. The
- * riff maker lists those blocks, opens the riff of one and writes it back into the file; the words of the block are not its.
+ * riff maker lists those blocks and opens the riff of one; its Save writes the riff into the block in the database
+ * (`blocks.riff_edit`), the seed keeps it over the file's (`keptRiff`) and `npm run db:pull-riffs` writes it into the file.
+ * The words of the block are not the riff maker's.
  */
 
 /** A seed block that holds a riff, as the riff maker lists it. */
@@ -29,6 +31,8 @@ export interface RiffBlock {
   notes: RiffNote[];
   /** the riff tool's index among the exercise's tool cells in reading order, sections flattened (as `toolCells` counts): where the block's own video goes */
   cell: number;
+  /** set when the riff shown is one saved in the app: when (ISO), who (null once the account is gone), and whether the seed file holds it yet */
+  edited?: { at: string; by: string | null; inFile: boolean };
 }
 
 /** What the riff maker writes into a block. `amp` left out keeps the block's amp; null takes it away. */
@@ -139,3 +143,18 @@ export function withRiff(file: unknown, edit: RiffEdit): Obj | null {
 
 /** A seed block file's text on disk. */
 export const blockFileText = (file: unknown): string => `${JSON.stringify(file, null, 2)}\n`;
+
+/**
+ * The block file with a riff saved in the app over its own (`withRiff`), as the seed stores it and `db:pull-riffs`
+ * writes it; null when the saved riff doesn't pass `checkEdit` or the file holds no riff.
+ */
+export function keptRiff<T>(file: T, edit: unknown): T | null {
+  if (checkEdit(edit).length) return null;
+  return withRiff(file, edit as RiffEdit) as T | null;
+}
+
+/** Whether the block file already holds a riff saved in the app (so `db:pull-riffs` has nothing to write for it). */
+export function riffInFile(file: unknown, edit: unknown): boolean {
+  const kept = keptRiff(file, edit);
+  return kept !== null && blockFileText(kept) === blockFileText(file);
+}
