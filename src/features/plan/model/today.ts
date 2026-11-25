@@ -80,8 +80,8 @@ export function hasNewPicks(today: StoredPlan | null, day: ComposedDay): boolean
   return day.exercises.some((e) => e.kind !== "warm-up" && (!e.blockId || !rated.has(e.blockId)));
 }
 
-/** How many past days `/plan` lists. Every day is kept (`history`, up to its cap); the page shows the newest. */
-export const PAST_DAYS = 14;
+/** How many past days `/plan` links to. Every day is kept (`history`, up to its cap); the page shows the newest. */
+export const PAST_DAYS = 7;
 
 /**
  * The past days, newest first, the last `PAST_DAYS`: the composed days of the history, and the composed `current` when it is

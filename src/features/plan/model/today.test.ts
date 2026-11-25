@@ -64,13 +64,13 @@ test("hasNewPicks: any exercise not rated today is a new pick", () => {
   assert.equal(hasNewPicks(null, answer(["a"])), true);
 });
 
-test("pastDays: composed days only, newest first, the last 14", () => {
+test("pastDays: composed days only, newest first, the last PAST_DAYS", () => {
   const day = (on: string, composed = true): StoredPlan => ({ ...plan([], []), id: on, startedOn: on, ...(composed ? {} : { composed: undefined }) });
   const days = Array.from({ length: 20 }, (_, i) => day(`2026-10-${String(i + 1).padStart(2, "0")}`));
   const shuffled = [days[3], day("2026-11-01", false), ...days.slice(4).reverse(), ...days.slice(0, 3)];
   const got = pastDays(shuffled, null, "2026-11-18");
   assert.equal(got.length, PAST_DAYS);
-  assert.deepEqual(got.map((p) => p.startedOn), days.slice(6).reverse().map((p) => p.startedOn));
+  assert.deepEqual(got.map((p) => p.startedOn), days.slice(20 - PAST_DAYS).reverse().map((p) => p.startedOn));
 });
 
 test("pastDays: a composed current from before today (today's plan didn't come) is a past day; today's is not", () => {
