@@ -2,6 +2,8 @@
 
 Videos a note or an exercise plays: the app's library of practice videos, and the videos a teacher records in the notes creator.
 
+The videos the app shows with a tool (one per tool and step, or a curated block's own) are content videos, in `src/features/contentVideos`. They share this feature's pure upload rules (`server/rules.ts`), `recording.ts`, `ref.ts` and `server/stream.ts`, and nothing else.
+
 | File | What |
 | --- | --- |
 | `library.ts` | `VIDEO_LIBRARY`: the practice videos rendered from `videos/<id>.json` (`npm run video`), with title, line, area, length and the formats uploaded (`published`). Files are `VIDEO_BASE/<id>-<format>.mp4`; `VIDEO_BASE` is `NEXT_PUBLIC_VIDEO_BASE` or `/videos` (`public/videos/`, git-ignored). A video with nothing published is offered nowhere. Pure. |

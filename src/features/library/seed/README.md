@@ -49,7 +49,9 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
    level or stage, and no exercise names another day or week.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
 4. A block: `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first). A block
-   already in the database whose file changed gets its `revision` raised by one; an unchanged file changes nothing. A plan is never stored: it stays a file, read by /demo, /dev/library and tests.
+   already in the database whose file changed gets its `revision` raised by one; an unchanged file changes nothing.
+   A block's own videos (`blocks.videos`) are kept; one whose tool cell moved (a tool added, removed or swapped) is
+   dropped and printed, and its cell has to be pointed at a video again (`src/features/contentVideos/README.md`). A plan is never stored: it stays a file, read by /demo, /dev/library and tests.
 
 A tool whose concept has steps sets `level` (or picks the tune or run by stage), never raw settings, so the step can
 be read back. Every file meets the writing rules below.
