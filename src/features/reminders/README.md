@@ -18,7 +18,7 @@ A player's daily practice reminder, by email, sent with no attunr tab open.
   send one email; a failed send is unclaimed so a retry in the same 15 minutes tries again. The route answers 500 when
   any email failed (the counts are in the body), so the scheduler marks the run failed.
   Players are read one after another: past a few thousand enabled rows it wants a `next_due_at` column.
-- **The email** (`server/mail.ts`): "Time to practice", the plan's line, Open today's plan, and Stop these emails
+- **The email** (`server/mail.ts`): "Time to practice", the plan's line, Open today's plan, and Stop reminder emails
   (`/reminders/off?token=`, one button, so a mail scanner changes nothing) plus `List-Unsubscribe` and
   `List-Unsubscribe-Post` headers posting to `/api/reminders/off?token=` with no login. The token is the account id and
   an HMAC with `SERVER_SIGNING_KEY` (`server/token.ts`).

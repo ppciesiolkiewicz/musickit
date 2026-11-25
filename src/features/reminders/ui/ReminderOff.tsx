@@ -23,7 +23,7 @@ export default function ReminderOff({ token }: { token: string }) {
     );
   return (
     <Card>
-      <p className="text-base text-slate-100">Stop the daily email that reminds you to practise?</p>
+      <p className="text-base text-slate-100">Stop the daily email that reminds you to practice?</p>
       <button type="button" className={PRIMARY} onClick={stop} disabled={state.kind === "sending"}>
         {state.kind === "sending" ? "Stopping…" : "Stop reminder emails"}
       </button>

@@ -27,9 +27,9 @@ export function planWantsReminder(state: PlanState, today: string, taught: boole
 /** The reminder's words: today's plan and its topic, that the plan page makes it, or which day of a teacher's plan today is. */
 export function reminderBody(state: PlanState, today: string, taught: boolean): string {
   const w = taught ? weekDay(state, today) : null;
-  if (w) return `Today is day ${practiceDays(w.week).indexOf(w.day) + 1} of ${practiceDays(w.week).length} of your plan.`;
+  if (w) return `Today is day ${practiceDays(w.week).indexOf(w.day) + 1} of ${practiceDays(w.week).length} in your plan.`;
   const own = ownDay(state, today);
-  if (!own) return "Open the Practice plan page, and attunr puts today's plan together.";
+  if (!own) return "Open the Practice plan page and attunr puts today's plan together.";
   const theme = own.config.days[0]?.theme;
   return `Today's plan${theme ? `: ${theme}` : ""}`;
 }

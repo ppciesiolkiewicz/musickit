@@ -33,6 +33,6 @@ test("planWantsReminder, a teacher's student with no answers: today's teacher da
 
 test("reminderBody: the three wordings", () => {
   assert.equal(reminderBody(stateOf(dayPlan("2026-11-18")), "2026-11-18", false), "Today's plan: Scales");
-  assert.equal(reminderBody(stateOf(dayPlan("2026-11-17")), "2026-11-18", false), "Open the Practice plan page, and attunr puts today's plan together.");
-  assert.equal(reminderBody(taught(teacherWeek("2026-11-16")), "2026-11-18", true), "Today is day 3 of 7 of your plan.");
+  assert.equal(reminderBody(stateOf(dayPlan("2026-11-17")), "2026-11-18", false), "Open the Practice plan page and attunr puts today's plan together.");
+  assert.equal(reminderBody(taught(teacherWeek("2026-11-16")), "2026-11-18", true), "Today is day 3 of 7 in your plan.");
 });
