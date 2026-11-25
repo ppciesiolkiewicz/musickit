@@ -25,7 +25,8 @@ import { useClockDate, useTodayPlan } from "./ui/useTodayPlan";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
 import { FixedLabelRoot } from "@/features/theory/useLabelSystem";
 import { useAccount } from "@/features/account/useAccount";
-import { taughtView } from "./model/today";
+import { pastDays, taughtView } from "./model/today";
+import { ratingNudge } from "./model/ratingNudge";
 import TaughtPlanView from "./ui/TaughtPlan";
 import { LiveGivenPlan } from "./GivenPlan";
 
@@ -109,6 +110,16 @@ export default function PlanApp() {
   // the browser AI's block tools, while a plan runs
   usePlanAgentTools(loaded ? plan : null, (next) => setPlan(() => next), editingDay);
   const rate = rateHandler(plan, setPlan, progress);
+
+  // too few of the exercises practised on past days are rated: asked once a date, over today's plan, when nothing else is open
+  const { history, current } = state;
+  const nudge = useMemo(
+    () => (all.loaded ? ratingNudge(pastDays(history, current, day.date), allTimes) : null),
+    [all.loaded, history, current, day.date, allTimes],
+  );
+  const [nudgeShown, setNudgeShown] = useState<string | null>(() => nudgeSeen());
+  const nudgeOpen = !!nudge && !!plan && !flow && !tracking && nudgeShown !== day.date;
+  const closeNudge = () => { setNudgeShown(day.date); markNudgeSeen(day.date); };
 
   // a player who came by a shared plan (invited) and hasn't answered the questions: the questionnaire opens by itself,
   // once a page view, so Close leaves them on the intro
@@ -226,8 +237,33 @@ export default function PlanApp() {
         </div>
         {modal}
         {tracker}
+        {nudgeOpen && nudge && <RateNudge rated={nudge.rated} practised={nudge.practised} onClose={closeNudge} />}
       </div>
     </FixedLabelRoot>
+  );
+}
+
+const NUDGE_KEY = "musickit.plan.rateNudge";
+/** The date the rating nudge was last closed on this browser; a convenience only, so a refused read just shows it again. */
+function nudgeSeen(): string | null {
+  try { return typeof window === "undefined" ? null : window.localStorage.getItem(NUDGE_KEY); } catch { return null; }
+}
+function markNudgeSeen(date: string) {
+  try { window.localStorage.setItem(NUDGE_KEY, date); } catch { /* shown again next time: harmless */ }
+}
+
+/** Asks for stars: how many of the practised exercises were rated, and why the stars matter. */
+function RateNudge({ rated, practised, onClose }: { rated: number; practised: number; onClose: () => void }) {
+  return (
+    <Modal title="Rate each exercise" narrow onClose={onClose}>
+      <div className="flex flex-col gap-3 text-sm text-slate-300">
+        <p>Your stars decide what goes into your next plan. On your past days you rated {rated} of the {practised} exercises you practised.</p>
+        <p>When you finish an exercise, give it stars under How did it go?</p>
+        <div className="flex justify-end">
+          <Button onClick={onClose} className={BIG}>Got it</Button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 
