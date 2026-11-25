@@ -1,3 +1,4 @@
+import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { SCALE_MM, distOf, type Placed, type Pt } from "./grid";
 import { neckWidthMm } from "./fx";
 
@@ -187,7 +188,7 @@ export function stripOf(ax: Axis): Strip | null {
 export const toFrame = (st: Strip, p: Pt): Pt => ({ x: st.toFrame[0] * p.x + st.toFrame[1] * p.y + st.toFrame[2], y: st.toFrame[3] * p.x + st.toFrame[4] * p.y + st.toFrame[5] });
 
 /** Kept from the last frame read, for when this one doesn't find an edge or the lean. */
-export interface Carry { top?: [number, number]; bottom?: [number, number]; lean?: [number, number] }
+export interface Carry { top?: [number, number]; bottom?: [number, number]; lean?: [number, number]; strings?: [number, number][] }
 /** Each wire, nut (0) to 22, where it meets the board's two edges, in the strip. */
 export type Wires = { top: Pt; bottom: Pt }[];
 
@@ -294,6 +295,118 @@ export function readStrip(ax: Axis, st: Strip, gray: ArrayLike<number>, gy: Arra
     const meet = ([m, q]: [number, number]): Pt => { const y = (m * (c - k * ymid) + q) / (1 - m * k); return { x: c + k * (y - ymid), y }; };
     return { top: meet(top), bottom: meet(bottom) };
   });
+}
+
+/** Where the six strings sit across the board, edge to edge (7.5% in from each edge, evenly between). */
+export const STRING_AT = Array.from({ length: 6 }, (_, i) => 0.075 + (i * 0.85) / 5);
+
+/**
+ * The six strings in a strip read by `readStrip` (its edges are in `carry`): rows down the board where a thin line runs along
+ * it (a ridge up-down in `gray`), looked for in windows of columns near where each string sits on a real board. Each string is
+ * then a fraction of the way across the board, fitted along the neck through most of what was found and kept within 5% of
+ * where a string sits (so a hand or a marker can't pull it across the board); one not found keeps last frame's place, else
+ * where it should be. In strip order (row by row), as `row = m·col + q`.
+ */
+export function stringsOf(st: Strip, gray: ArrayLike<number>, wires: Wires, carry: Carry, skip: (col: number) => boolean = () => false): [number, number][] {
+  const W = st.len, H = 2 * STRIP_HALF, top = carry.top, bottom = carry.bottom;
+  if (!top || !bottom) return [];
+  const yTop = (c: number) => top[0] * c + top[1], yBot = (c: number) => bottom[0] * c + bottom[1];
+  const ends = [wires[0].top.x, wires[wires.length - 1].top.x].sort((a, b) => a - b);
+  const xs: number[][] = STRING_AT.map(() => []), fs: number[][] = STRING_AT.map(() => []);
+  const SPAN = 12;
+  for (let c = Math.max(2, Math.floor(ends[0]) + 4); c < Math.min(W - SPAN - 2, ends[1] - SPAN); c += SPAN) {
+    const mid = c + SPAN / 2;
+    if (skip(mid)) continue;
+    const yt = Math.max(2, Math.floor(yTop(mid))), yb = Math.min(H - 3, Math.ceil(yBot(mid)));
+    if (yb - yt < 12) continue;
+    const prof = new Float32Array(yb - yt + 1);
+    for (let r = yt; r <= yb; r++) {
+      let t = 0;
+      for (let k = 0; k < SPAN; k++) { const i = c + k; t += Math.abs(gray[r * W + i] - 0.5 * (gray[(r - 2) * W + i] + gray[(r + 2) * W + i])); }
+      prof[r - yt] = t / SPAN;
+    }
+    const span = yBot(mid) - yTop(mid), half = ((span * 0.85) / 5) * 0.3;
+    STRING_AT.forEach((f, si) => {
+      const at = yTop(mid) + f * span - yt;
+      const a = Math.max(0, Math.floor(at - half)), b = Math.min(prof.length, Math.ceil(at + half));
+      if (b - a < 3) return;
+      let j = a, mean = 0;
+      for (let r = a; r < b; r++) { if (prof[r] > prof[j]) j = r; mean += prof[r]; }
+      mean /= b - a;
+      if (prof[j] > 2 && prof[j] > 1.6 * mean) { xs[si].push(mid); fs[si].push((yt + j - yTop(mid)) / span); }
+    });
+  }
+  // each string as a fraction across the board at the two ends of the neck, then the line through those two places
+  const lines = STRING_AT.map((f0, si): [number, number] => {
+    const fit = ransacLine(xs[si], fs[si], 0.03);
+    const frac = (c: number) => Math.min(f0 + 0.05, Math.max(f0 - 0.05, fit ? fit[0] * c + fit[1] : f0));
+    if (!fit && carry.strings?.[si]) return carry.strings[si];
+    const row = (c: number) => yTop(c) + frac(c) * (yBot(c) - yTop(c));
+    const m = (row(ends[1]) - row(ends[0])) / (ends[1] - ends[0] || 1);
+    return [m, row(ends[0]) - m * ends[0]];
+  });
+  carry.strings = lines;
+  return lines;
+}
+
+/** The neck in the frame: each wire across the board (nut first) and each string from the nut to wire 22, low E first. */
+export interface Neck { wires: { top: Pt; bottom: Pt }[]; strings: { a: Pt; b: Pt }[] }
+
+/** Where lines p1–p2 and p3–p4 cross; null when they run side by side. */
+export function meet(p1: Pt, p2: Pt, p3: Pt, p4: Pt): Pt | null {
+  const d = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x);
+  if (Math.abs(d) < 1e-9) return null;
+  const a = p1.x * p2.y - p1.y * p2.x, b = p3.x * p4.y - p3.y * p4.x;
+  return { x: (a * (p3.x - p4.x) - (p1.x - p2.x) * b) / d, y: (a * (p3.y - p4.y) - (p1.y - p2.y) * b) / d };
+}
+/** Where string `s` crosses wire `f`. */
+export const onWire = (n: Neck, s: number, f: number): Pt =>
+  meet(n.strings[s].a, n.strings[s].b, n.wires[f].top, n.wires[f].bottom) ?? n.strings[s].a;
+/** The middle of fret space `f` on string `s` (fret 0: on the nut). */
+export const spotOf = (n: Neck, s: number, f: number): Pt => {
+  if (f <= 0) return onWire(n, s, 0);
+  const a = onWire(n, s, f - 1), b = onWire(n, s, f);
+  // a finger sits nearer the wire than the middle of the space
+  return { x: a.x + (b.x - a.x) * 0.6, y: a.y + (b.y - a.y) * 0.6 };
+};
+const side = (a: Pt, b: Pt, p: Pt) => (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
+const distTo = (a: Pt, b: Pt, p: Pt) => Math.abs(side(a, b, p)) / (Math.hypot(b.x - a.x, b.y - a.y) || 1);
+
+/** The fret space (1 to 22) and string (0 low E to 5) a point is over, or null off the board. */
+export function placeOnNeck(n: Neck, p: Pt): { fret: number; string: number } | null {
+  const w = n.wires, sgn = (f: number) => Math.sign(side(w[f].top, w[f].bottom, p));
+  let fret = 0;
+  for (let f = 1; f < w.length; f++) if (sgn(f - 1) !== sgn(f) && sgn(f) !== 0) { fret = f; break; }
+  if (!fret) return null;
+  const d = n.strings.map((s) => distTo(s.a, s.b, p));
+  let string = 0;
+  for (let i = 1; i < d.length; i++) if (d[i] < d[string]) string = i;
+  // off the board: outside the outer strings by more than most of a string's gap
+  const s0 = n.strings[0], s5 = n.strings[5];
+  if (Math.sign(side(s0.a, s0.b, p)) === Math.sign(side(s5.a, s5.b, p))) {
+    const gap = distTo(s0.a, s0.b, onWire(n, 1, Math.max(1, fret - 1)));
+    if (Math.min(d[0], d[5]) > 0.8 * gap) return null;
+  }
+  return { fret, string };
+}
+
+/** The note a place sounds (standard tuning). */
+export const midiAt = (string: number, fret: number) => OPEN_MIDI[string] + fret;
+
+/**
+ * Where a heard pitch was most likely played: a finger on a place that sounds it; else the place that sounds it nearest the
+ * fingers (an open string only when no finger is near a fretted one). Null when the guitar can't play it.
+ */
+export function guessPlace(midi: number, fingers: { fret: number; string: number }[]): { string: number; fret: number } | null {
+  const under = fingers.filter((f) => midiAt(f.string, f.fret) === midi).sort((a, b) => b.fret - a.fret);
+  if (under.length) return { string: under[0].string, fret: under[0].fret };
+  const places = OPEN_MIDI.map((open, string) => ({ string, fret: midi - open })).filter((p) => p.fret >= 0 && p.fret <= TOP_WIRE);
+  if (!places.length) return null;
+  if (!fingers.length) return places.find((p) => p.fret === 0) ?? places.sort((a, b) => a.fret - b.fret)[0];
+  const far = (p: { fret: number }) => Math.min(...fingers.map((f) => Math.abs(f.fret - p.fret)));
+  const fretted = places.filter((p) => p.fret > 0).sort((a, b) => far(a) - far(b))[0];
+  const open = places.find((p) => p.fret === 0);
+  return open && (!fretted || far(fretted) > 2) ? open : fretted ?? open ?? null;
 }
 
 function median(v: number[]): number {

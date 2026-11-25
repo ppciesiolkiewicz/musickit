@@ -1,4 +1,4 @@
-import { axisOf, keepMarkers, readStrip, stripOf, toFrame, STRIP_HALF, type BoardMarker, type Carry, type Seen } from "../model/cvFrets";
+import { axisOf, keepMarkers, meet, readStrip, stringsOf, stripOf, toFrame, STRIP_HALF, type BoardMarker, type Carry, type Neck, type Seen } from "../model/cvFrets";
 import type { Pt } from "../model/grid";
 
 /**
@@ -35,8 +35,8 @@ function loadCv(): Promise<{ cv: Cv }> {
   return loading;
 }
 
-/** A frame read: the markers seen (and which were followed, not found), and each wire's two ends on the board's edges. */
-export interface CvRead { markers: Seen[]; followed: number[]; wires: { top: Pt; bottom: Pt }[] | null; ms: number }
+/** A frame read: the markers seen (and which were followed, not found), and the neck: its wires and strings. */
+export interface CvRead { markers: Seen[]; followed: number[]; neck: Neck | null; ms: number }
 export interface CvReader { read(img: ImageData, board: BoardMarker[]): CvRead; close(): void }
 
 export async function loadCvReader(): Promise<CvReader> {
@@ -102,7 +102,7 @@ export async function loadCvReader(): Promise<CvReader> {
       gray.copyTo(prev); hasPrev = true;
       const markers = [...next].map(([id, l]) => ({ id, corners: l.corners }));
 
-      let wires: CvRead["wires"] = null;
+      let neck: Neck | null = null;
       const ax = axisOf(markers, board), st = ax && stripOf(ax);
       if (ax && st) {
         const size = new cv.Size(st.len, 2 * STRIP_HALF);
@@ -119,9 +119,21 @@ export async function loadCvReader(): Promise<CvReader> {
         const g = gy.data32F as Float32Array, v = valid.data as Uint8Array;
         for (let i = 0; i < g.length; i++) if (!v[i]) g[i] = 0;
         const read = readStrip(ax, st, strip.data as Uint8Array, g, carry);
-        wires = read && read.map((w) => ({ top: toFrame(st, w.top), bottom: toFrame(st, w.bottom) }));
+        if (read) {
+          const nearMark = (c: number) => ax.marks.some((m) => Math.abs(c + st.start - m.s) < m.half + 4);
+          const lines = stringsOf(st, strip.data as Uint8Array, read, carry, nearMark);
+          const first = read[0], last = read[read.length - 1];
+          const strings = lines.map(([m, q]) => {
+            const on = (w: { top: Pt; bottom: Pt }) => meet({ x: 0, y: q }, { x: 1, y: m + q }, w.top, w.bottom) ?? w.top;
+            return { a: toFrame(st, on(first)), b: toFrame(st, on(last)) };
+          });
+          // low E first: the string higher on the screen (a right-handed player, filmed from the front)
+          const y = (l: { a: Pt; b: Pt }) => l.a.y + l.b.y;
+          if (strings.length === 6 && y(strings[0]) > y(strings[5])) strings.reverse();
+          neck = { wires: read.map((w) => ({ top: toFrame(st, w.top), bottom: toFrame(st, w.bottom) })), strings };
+        }
       }
-      return { markers, followed, wires, ms: performance.now() - t0 };
+      return { markers, followed, neck, ms: performance.now() - t0 };
     },
     close() {
       for (const m of [rgba, gray, prev, med, ids, corners, rejected, strip, blur, blurF, gy, valid, kernel, det, p]) m.delete();

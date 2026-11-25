@@ -4,6 +4,7 @@
  */
 export { default as NeckView } from "./ui/NeckView";
 export { default as NeckCvView } from "./ui/NeckCvView";
+export { default as CvControls, useCv } from "./ui/CvControls";
 export { default as FxControls, useFx } from "./ui/FxControls";
 export { fretAt, gridOf, parsePlaced, placeByHand, type Grid, type NeckRead, type Placed, type Pt } from "./model/grid";
 export type { FxSettings } from "./model/fx";

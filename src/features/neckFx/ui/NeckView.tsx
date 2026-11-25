@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { SCALE_MM, distOf, gridOf, parsePlaced, placeByHand, type Grid, type NeckRead, type Pt } from "../model/grid";
 import {
   FILTER_CSS, across, coveredNow, easeGrid, filtersOn, MARKER_MM, acrossPxPerMm, frettingTips, grow, hexHue, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
@@ -9,10 +8,8 @@ import {
 } from "../model/fx";
 import { CALM, QUIET, easeMood, keyOf, moodColour, moodFilter, moodTarget, stepBeat, type Beat, type Heard, type Mood } from "../model/mood";
 import { listenForPicks, type Pick } from "../client/listen";
+import { loadHands } from "../client/hands";
 
-/** The hand model and its runtime, fetched on first use (dev tool only). */
-const WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
-const HAND_MODEL = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
 /** Marker detection runs on a frame this wide, for speed. */
 const DETECT_WIDTH = 640;
 const TIPS = [4, 8, 12, 16, 20];
@@ -30,15 +27,6 @@ type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: 
 type Marker = { id: number; corners: { x: number; y: number }[] };
 type Detector = { detect: (img: ImageData) => Marker[] };
 
-let hands: Promise<HandLandmarker> | null = null;
-function loadHands() {
-  hands ??= import("@mediapipe/tasks-vision").then(async ({ FilesetResolver, HandLandmarker }) =>
-    HandLandmarker.createFromOptions(await FilesetResolver.forVisionTasks(WASM), {
-      baseOptions: { modelAssetPath: HAND_MODEL }, runningMode: "VIDEO", numHands: 2,
-    }));
-  hands.catch(() => { hands = null; });
-  return hands;
-}
 async function loadMarkers(): Promise<Detector> {
   // CommonJS: the library puts AR on `this`, which is its exports under Turbopack and the page's global under webpack
   type Lib = { AR?: { Detector: new (o: object) => Detector } };

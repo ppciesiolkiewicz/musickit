@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  STRIP_HALF, TOP_WIRE, axisOf, boardMarkers, keepMarkers, lineFit, peakNear, proj, projFit, projInv, ransacLine, readStrip, stripOf, wireMm,
-  type BoardMarker, type Seen,
+  STRIP_HALF, TOP_WIRE, axisOf, boardMarkers, guessPlace, keepMarkers, lineFit, midiAt, peakNear, placeOnNeck, proj, projFit, projInv, ransacLine,
+  readStrip, spotOf, stringsOf, stripOf, wireMm, type BoardMarker, type Neck, type Seen,
 } from "./cvFrets";
+import { DEFAULT_CV, flicker, heatAt, numbered, readCv } from "./cvFx";
 import { parsePlaced, type Pt } from "./grid";
 
 const close = (a: number, b: number, tol: number, what = "") => assert.ok(Math.abs(a - b) <= tol, `${what} ${a} ≠ ${b} (±${tol})`);
@@ -82,4 +83,63 @@ test("frets from a drawn strip: wires on their columns, ends on the board's edge
     close(read[f].top.y, topRow, 3, `top ${f}`);
     close(read[f].bottom.y, botRow(read[f].bottom.x), 3, `bottom ${f}`);
   }
+});
+
+test("strings found in a drawn strip sit where they are drawn, and a hand across them doesn't move them", () => {
+  const ax = axisOf(seenLevel(), BOARD)!, st = stripOf(ax)!;
+  const W = st.len, H = 2 * STRIP_HALF, topRow = 100, botRow = 220;
+  const gray = new Uint8Array(W * H).fill(40);
+  for (let c = 0; c < W; c++) for (let r = topRow; r <= botRow; r++) gray[r * W + c] = 150;
+  const fracs = [0.09, 0.25, 0.42, 0.58, 0.75, 0.91];
+  for (const f of fracs) for (let c = 0; c < W; c++) gray[Math.round(topRow + f * (botRow - topRow)) * W + c] = 230;
+  // a hand: a bright block over a third of the strings
+  for (let c = 300; c < 420; c++) for (let r = topRow; r <= botRow; r++) gray[r * W + c] = 200;
+  const carry = { top: [0, topRow] as [number, number], bottom: [0, botRow] as [number, number] };
+  const wires = [{ top: { x: 70, y: topRow }, bottom: { x: 70, y: botRow } }, { top: { x: W - 70, y: topRow }, bottom: { x: W - 70, y: botRow } }];
+  const lines = stringsOf(st, gray, wires, carry);
+  assert.equal(lines.length, 6);
+  lines.forEach(([m, q], i) => { close(m, 0, 0.01, `slope ${i}`); close(q, topRow + fracs[i] * (botRow - topRow), 1.5, `string ${i}`); });
+});
+
+// a level neck in the frame: wires straight up at x 100 + 20·f, strings across at y 100 + 10·s (low E on top)
+const flat: Neck = {
+  wires: Array.from({ length: TOP_WIRE + 1 }, (_, f) => ({ top: { x: 100 + 20 * f, y: 90 }, bottom: { x: 100 + 20 * f, y: 160 } })),
+  strings: Array.from({ length: 6 }, (_, s) => ({ a: { x: 100, y: 100 + 10 * s }, b: { x: 100 + 20 * TOP_WIRE, y: 100 + 10 * s } })),
+};
+
+test("a point on the neck: its fret space and string; off the board, nothing", () => {
+  assert.deepEqual(placeOnNeck(flat, { x: 155, y: 121 }), { fret: 3, string: 2 });
+  assert.deepEqual(placeOnNeck(flat, { x: 105, y: 96 }), { fret: 1, string: 0 });
+  assert.equal(placeOnNeck(flat, { x: 155, y: 40 }), null);
+  assert.equal(placeOnNeck(flat, { x: 60, y: 120 }), null);
+  const spot = spotOf(flat, 2, 3);
+  close(spot.x, 152, 1e-9); close(spot.y, 120, 1e-9);
+  assert.equal(midiAt(1, 5), 50);
+});
+
+test("a heard note goes where a finger plays it, else nearest the fingers, else open", () => {
+  // A on the D string at fret 7 under a finger
+  assert.deepEqual(guessPlace(57, [{ string: 2, fret: 7 }, { string: 3, fret: 9 }]), { string: 2, fret: 7 });
+  // no finger on it: the place nearest the fingers (A at fret 5 on the low E, fingers at 5)
+  assert.deepEqual(guessPlace(45, [{ string: 3, fret: 5 }]), { string: 0, fret: 5 });
+  // fingers far up the neck, nowhere near a fretted A: the open A string
+  assert.deepEqual(guessPlace(45, [{ string: 3, fret: 12 }]), { string: 1, fret: 0 });
+  // no fingers: open when it can be
+  assert.deepEqual(guessPlace(45, []), { string: 1, fret: 0 });
+  assert.equal(guessPlace(30, []), null);
+});
+
+test("Neck fire is hottest by the hand and leaps on a note", () => {
+  assert.ok(heatAt(7, 7, 0, 0) > heatAt(15, 7, 0, 0));
+  assert.ok(heatAt(7, 7, 0, 1) > heatAt(7, 7, 0, 0));
+  assert.ok(heatAt(3, null, 1, 0) > heatAt(3, null, 0, 0));
+  for (let x = 0; x < 20; x += 0.7) assert.ok(Math.abs(flicker(x, x * 1.3)) <= 1);
+});
+
+test("OpenCV settings read back, with the default for what's unreadable", () => {
+  assert.deepEqual(readCv(null), DEFAULT_CV);
+  assert.deepEqual(readCv({ numbers: "all", strings: false, fire: "yes", fireStrength: 9 }), { ...DEFAULT_CV, numbers: "all", strings: false, fireStrength: 2 });
+  assert.deepEqual(numbered("dots"), [3, 5, 7, 9, 12, 15, 17, 19, 21]);
+  assert.equal(numbered("all").length, 22);
+  assert.deepEqual(numbered("off"), []);
 });

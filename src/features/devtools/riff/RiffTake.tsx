@@ -9,7 +9,7 @@ import { saveContentVideo } from "@/features/contentVideos/client/api";
 import { burnOverlay, canBurn, noChange } from "@/features/contentVideos/client/burn";
 import { riffTimes, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
-import { FxControls, NeckCvView, NeckView, useFx } from "@/features/neckFx";
+import { CvControls, FxControls, NeckCvView, NeckView, useCv, useFx } from "@/features/neckFx";
 import { LiveNote, StillNotes, OVERLAY_MODES, TakeNotes, WINDOW_BARS, barGrid, type OverlayMode, type WindowBars } from "./NoteOverlay";
 import DetectLog, { addNeckRead } from "./DetectLog";
 import type { NeckRead, TakeLog } from "./takes";
@@ -120,6 +120,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   const [readNeck, setReadNeck] = useState(false);
   // or the OpenCV reader instead: frets and their numbers (NeckCvView); one reader at a time
   const [readCv, setReadCv] = useState(false);
+  const [cvFx, setCvFx] = useCv();
   // which marker sits at which fret, the buttons and the effects: shared with the content video record page
   const [fx, setFx] = useFx();
   const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
@@ -561,6 +562,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
             )}
           </fieldset>
           {(camera || take) && phase !== "recording" && readNeck && <FxControls fx={fx} set={setFx} />}
+          {(camera || take) && phase !== "recording" && readCv && <CvControls cv={cvFx} set={setCvFx} />}
       </div>
       {phase === "ready" && take && !previous && <p className="text-xs text-slate-500">A new recording replaces this riff&apos;s take.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
@@ -574,7 +576,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
               <video key={url} ref={setTakeVideo} src={url} controls playsInline
                 onLoadedMetadata={(e) => setFrame({ url, width: e.currentTarget.videoWidth, height: e.currentTarget.videoHeight })} className="max-h-[32rem] w-full rounded bg-black" />
               {readNeck && <NeckView key={url} video={takeVideo} fx={fx} notes={takeNotes} onRead={onNeckRead} bare={exporting !== null} />}
-              {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} bare={exporting !== null} />}
+              {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} cv={cvFx} notes={takeNotes} bare={exporting !== null} />}
               <TakeNotes video={takeVideo} notes={takeNotes} mode={overlay} grid={barGrid(take.bpm ?? bpm, take.downbeat ?? 0, windowBars)} />
             </div>
           )}
@@ -584,7 +586,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
               {phase === "recording" && beatNow && <LiveNote notes={liveNotes} t={beatNow.beat * 60 / bpm} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
               {phase === "ready" && !take && <StillNotes notes={liveNotes} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
               {/* not while recording: the hand model would compete with the recorder and the beat */}
-              {readNeck && phase !== "recording" ? <NeckView video={liveVideo} fx={fx} live /> : readCv && phase !== "recording" ? <NeckCvView video={liveVideo} markers={fx.markers} /> : (
+              {readNeck && phase !== "recording" ? <NeckView video={liveVideo} fx={fx} live /> : readCv && phase !== "recording" ? <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live /> : (
                 <span className={`absolute left-2 top-2 rounded px-1.5 text-xs ${phase === "recording" ? "bg-rose-700 text-white" : "bg-slate-900/80 text-slate-300"}`}>{phase === "recording" ? "● Recording" : "Camera"}</span>
               )}
             </div>

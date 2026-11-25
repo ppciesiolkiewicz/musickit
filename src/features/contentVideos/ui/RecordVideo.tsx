@@ -10,7 +10,7 @@ import { ToolClockListener } from "@/components/practice/toolClock";
 import { NoAutoScroll } from "@/components/practice/bringIntoView";
 import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls";
 import type { PlanTool } from "@/features/plan/model/tools";
-import { FxControls, NeckCvView, NeckView, useFx } from "@/features/neckFx";
+import { CvControls, FxControls, NeckCvView, NeckView, useCv, useFx } from "@/features/neckFx";
 import { saveContentVideo } from "../client/api";
 import { burnOverlay, canBurn, noChange, type Burned } from "../client/burn";
 import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
@@ -133,6 +133,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const [readNeck, setReadNeck] = useState(false);
   // or the OpenCV reader instead: frets and their numbers (NeckCvView); one reader at a time
   const [readCv, setReadCv] = useState(false);
+  const [cvFx, setCvFx] = useCv();
   const [fx, setFx] = useFx();
   const takeUrl = useRef("");
   // the take's video and its box (the video and what is drawn over it): what Export with overlay records
@@ -364,6 +365,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         </label>
       </div>
       {readNeck && <FxControls fx={fx} set={setFx} />}
+      {readCv && <CvControls cv={cvFx} set={setCvFx} />}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-300">
         <label className="flex items-center gap-1.5">Place
           <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
@@ -388,7 +390,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
         {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
-        {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} fit="cover" />}
+        {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live fit="cover" />}
         {/* one tree for every place, so changing the place never restarts the tool */}
         <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look)}>
           <div className={free ? `${panelBg(look)} pt-4` : undefined}>
@@ -407,7 +409,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
             <video key={take.url} ref={setTakeVideo} src={take.url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
               onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setTake((t) => (t && t.url === take.url ? { ...t, width: videoWidth, height: videoHeight } : t)); }} />
             {readNeck && <NeckView key={take.url} video={takeVideo} fx={fx} fit="cover" bare={exporting !== null} />}
-            {readCv && <NeckCvView key={take.url} video={takeVideo} markers={fx.markers} fit="cover" bare={exporting !== null} />}
+            {readCv && <NeckCvView key={take.url} video={takeVideo} markers={fx.markers} cv={cvFx} fit="cover" bare={exporting !== null} />}
             {take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}
           </div>
           <p className="text-xs text-slate-400">{take.burned ? "Exported with overlay: players see this take with the tool and the effects in the picture." : overlayWords(take.overlay, drawn)}</p>
