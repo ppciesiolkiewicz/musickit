@@ -119,7 +119,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 - Personal invites: the same table, link and page, onto the Personal Demo plan (`PERSONAL_DEMO_PLAN_ID`, migration
   `0038_personal_demo_plan`: student, free, `enabled` false). `makeInvite(deps, note, "personal")`; the invite's kind is
   read from its plan's role (`kindOf`), and the GET says it (`kind`). A new account doesn't join by itself: it sets up on
-  the page (`ui/JoinSetup.tsx`: name, email updates, the voice-care box, `ui/VoiceCare.tsx`, shared with setup; terms agreed by logging in), then joins and
+  the page (`ui/JoinSetup.tsx`: name, email updates, the voice-care box, `ui/VoiceCare.tsx`, shared with setup, whose notes are on their own public page, `/voice-care`; terms agreed by logging in), then joins and
   goes to /plan. A set-up account presses Join. A teacher who joins becomes a student (an owner stays an owner).
   `inviteEmail(link, kind)` has the words for each.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
