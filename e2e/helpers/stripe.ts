@@ -1,4 +1,4 @@
-import { expect, type APIRequestContext } from "@playwright/test";
+import { expect, test, type APIRequestContext, type PlaywrightWorkerArgs } from "@playwright/test";
 import postgres from "postgres";
 import Stripe from "stripe";
 
@@ -47,6 +47,23 @@ export function subscription(o: { id: string; customer: string; status: string; 
       data: [{ id: `si_${o.id}`, object: "subscription_item", price: { id: `price_${o.id}`, object: "price", metadata: { planId: o.planId ?? "student", billing: o.billing ?? "year" } } }],
     },
   };
+}
+
+/**
+ * Has `next dev` compile the payment pages and routes before a test needs them. A first compile mid-test reloads the
+ * page, which can cut off Continue to payment's request before it answers.
+ */
+export async function warmUp(playwright: PlaywrightWorkerArgs["playwright"]) {
+  test.setTimeout(300_000);
+  const request = await playwright.request.newContext({ baseURL: test.info().project.use.baseURL });
+  for (const path of ["/account/setup", "/account", "/plan"]) await request.get(path, { timeout: 120_000 });
+  for (const path of ["/api/account/checkout", "/api/account/portal", "/api/stripe/webhook", "/api/account/setup", "/api/auth/email-link", "/api/auth/email-code"]) {
+    await request.post(path, { data: "{}", timeout: 120_000 });
+  }
+  await request.get("/api/account/checkout/done", { maxRedirects: 0, timeout: 120_000 });
+  await request.get("/api/account/plan", { timeout: 120_000 });
+  await request.get("/api/auth/session", { timeout: 120_000 });
+  await request.dispose();
 }
 
 /** The sandbox client (only when .env.e2e.local has a test key). */

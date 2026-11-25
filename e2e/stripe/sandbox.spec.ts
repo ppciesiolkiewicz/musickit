@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { account, newEmail, signIn } from "../helpers/auth";
-import { forward, forwardUntil, paymentRows, planCents, sandbox, sandboxKey, userRow } from "../helpers/stripe";
+import { forward, forwardUntil, paymentRows, planCents, sandbox, sandboxKey, userRow, warmUp } from "../helpers/stripe";
 
 // Payments against Stripe's sandbox (E2E7, second half of Paid13): the real Checkout page, the billing portal, the
 // trial ending and a failing card. Runs only with a test key in .env.e2e.local (see playwright.config.ts). Stripe can't
@@ -8,6 +8,7 @@ import { forward, forwardUntil, paymentRows, planCents, sandbox, sandboxKey, use
 
 test.skip(!sandboxKey(), "no Stripe test key in .env.e2e.local");
 test.describe.configure({ mode: "serial" });
+test.beforeAll(async ({ playwright }) => warmUp(playwright));
 
 const GOOD_CARD = "4242 4242 4242 4242";
 // attaches to the customer, then every charge on it is declined
@@ -18,12 +19,14 @@ async function setUpToCheckout(page: Page) {
   const email = newEmail("pay");
   await signIn(page, email);
   await page.goto("/account/setup");
+  // settled first: a reload while Continue to payment waits on Stripe would cut its request off
+  await page.waitForLoadState("networkidle");
   await page.getByLabel("Your name").fill("Test Payer");
   await page.locator('input[name="plan"][value="student"]').check();
   await page.getByRole("checkbox", { name: /terms of use/ }).check();
   await page.getByRole("checkbox", { name: /gentle with my voice/ }).check();
   await page.getByRole("button", { name: "Continue to payment" }).click();
-  await page.waitForURL(/checkout\.stripe\.com/, { timeout: 60_000 });
+  await page.waitForURL(/checkout\.stripe\.com/, { timeout: 90_000 });
   return email;
 }
 

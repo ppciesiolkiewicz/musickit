@@ -76,6 +76,8 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: false,
     timeout: 180_000,
-    env: { ...e2eEnv, ...payments, NEXT_DIST_DIR: STRIPE ? ".next-e2e-stripe" : ".next-e2e", E2E: "1" },
+    // AUTH_URL: the address in mailed links and in Stripe's return address. Without it `next dev` names itself
+    // localhost, whose cookies aren't 127.0.0.1's, so a person coming back from Checkout would be signed out.
+    env: { ...e2eEnv, ...payments, AUTH_URL: baseURL, NEXT_DIST_DIR: STRIPE ? ".next-e2e-stripe" : ".next-e2e", E2E: "1" },
   },
 });

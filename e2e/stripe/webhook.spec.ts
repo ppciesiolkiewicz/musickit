@@ -1,27 +1,37 @@
 import { expect, test, type Page } from "@playwright/test";
 import { account, asNewPlayer } from "../helpers/auth";
-import { event, postEvent, subscription, userRow } from "../helpers/stripe";
+import { event, postEvent, subscription, userRow, warmUp } from "../helpers/stripe";
 
 // Payments with no Stripe key (E2E7, first half of Paid13): the test signs its own webhook events and posts them, so
 // this runs on every release. Run with `npm run e2e:stripe`.
+
+test.beforeAll(async ({ playwright }) => warmUp(playwright));
 
 const ids = () => {
   const r = Math.random().toString(36).slice(2, 10);
   return { customer: `cus_e2e_${r}`, sub: `sub_e2e_${r}` };
 };
 
-/** /plan opens, or the gate sends the page to /account/setup. */
-async function landsOn(page: Page, path: string) {
-  await page.goto(path);
+/** The login guard sends /plan on to /account/setup (it does so in the browser, after reading the session). */
+async function heldOnSetup(page: Page) {
+  await page.goto("/plan");
+  // a dev server's first load of a page can take a while
+  await expect(page).toHaveURL(/\/account\/setup/, { timeout: 30_000 });
+}
+
+/** /plan opens and stays open once the page has read the session. */
+async function letIn(page: Page) {
+  await page.goto("/plan");
   await page.waitForLoadState("networkidle");
-  return new URL(page.url()).pathname;
+  await page.waitForTimeout(1_000);
+  await expect(page).not.toHaveURL(/\/account\/setup/);
 }
 
 test("a new account on Student must pay: /plan sends it to setup, with Continue to payment", async ({ page }) => {
   const { account: a } = await asNewPlayer(page);
   expect(a.needsPayment).toBe(true);
   expect(a.needsSetup).toBe(true);
-  expect(await landsOn(page, "/plan")).toBe("/account/setup");
+  await heldOnSetup(page);
   await expect(page.getByRole("button", { name: "Continue to payment" })).toBeVisible();
 });
 
@@ -37,13 +47,14 @@ test("a trialing subscription lets it in; a deleted one sends it back to pay", a
   expect(inTrial.needsPayment).toBe(false);
   expect(inTrial.needsSetup).toBe(false);
   expect(inTrial.subscribed).toBe(true);
-  expect(await landsOn(page, "/plan")).not.toBe("/account/setup");
+  await letIn(page);
 
   const deleted = await postEvent(page.request, event("customer.subscription.deleted", subscription({ id: sub, customer, status: "canceled", userId: a.id })));
   expect(deleted.status()).toBe(200);
   expect((await userRow(a.id)).subscription_status).toBe("canceled");
-  expect((await account(page)).needsPayment).toBe(true);
-  expect(await landsOn(page, "/plan")).toBe("/account/setup");
+  const after = await account(page);
+  expect(after).toMatchObject({ needsPayment: true, needsSetup: true });
+  await heldOnSetup(page);
 });
 
 test("past_due still gives access while Stripe retries the card", async ({ page }) => {
