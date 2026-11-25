@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-join-positions-1-and-2",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 1.",
+  "note": "Joining two positions with one word for the way across, \"the crossing\": position 2 alone, then the crossing on a position-neck with cross, then phrases that use it over drums and bass. Two positions are on the screen, so each is numbered with its scale the first time. The old Key selector is now moves (any key, 70 to 90 bpm), so the title and text name the key and tempo only as params, and the last line says what stays the same in another key.",
   "exercise": {
-    "title": "Join positions 1 and 2",
+    "title": "{{=key}} minor pentatonic: join positions 1 and 2",
     "area": "guitar",
     "tags": [
       "technique"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Play position 2 of A minor pentatonic up and back down, one note per beat, and notice where its ringed {{1}} notes sit. Keep going until the shape feels as familiar as position 1."
+            "text": "Press the first Play below to start the metronome at {{=bpm}}. Under it is the neck with position 2 of the {{=key}} minor pentatonic scale: each dot is a note to play, and the ringed dots are the {{1}} notes.\nStart on the lowest dot on the low E string and play both dots on each string up to the high e string, then come back down the same way, one note per beat.\nStay with it until your fingers find the ringed {{1}} notes without you looking."
           },
           {
             "type": "tool",
@@ -66,7 +66,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows only the crossing from position 1 to position 2. Climb position 1 from the low {{1}}. On the G string, slide from {{4}} up to {{5}} and finish the climb in position 2. Come back down the same way, sliding from {{5}} to {{4}}."
+            "text": "The neck below shows only the crossing: position 1 of the {{=key}} minor pentatonic scale on the low strings, position 2 on the high strings. Start on {{1}} on the low E string and climb position 1. On the G string, slide from the ringed {{4}} up to the ringed {{5}} and finish the climb in position 2.\nCome back down the same way, sliding from {{5}} down to {{4}}.\nIf the slide lands on the wrong fret, slow your hand down and let your ear tell you when the note matches the dot."
           },
           {
             "type": "tool",
@@ -79,7 +79,8 @@
                 "to": 2
               },
               "highlight": [
-                "1"
+                "4",
+                "5"
               ]
             }
           }
@@ -87,12 +88,24 @@
       },
       {
         "type": "section",
-        "heading": "The same in G and C",
+        "heading": "Phrases across",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Play the same crossing in other keys. Use the Key selector below to change the key.\nWhen you change the key, the notes change but the slide on the G string is still {{4}} to {{5}}. Stay in each key until the slide lands without you looking for it."
+            "text": "Press the first Play below to start the backing track: drums and bass in {{=key}}. Make up short phrases that start in position 1 and use the crossing to end in position 2, then phrases that go back the other way. End each phrase on one of the ringed {{1}} notes.\nIn another key both positions sit on other frets, and the crossing is still the slide from {{4}} to {{5}} on the G string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
           },
           {
             "type": "tool",
@@ -100,29 +113,16 @@
               "type": "position-neck",
               "scale": "minor-pentatonic",
               "key": "a",
-              "cross": {
-                "from": 1,
-                "to": 2
-              },
+              "positions": [
+                1,
+                2
+              ],
               "highlight": [
                 "1"
               ]
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "c"
-            }
-          ]
-        }
+        ]
       }
     ]
   },
@@ -133,6 +133,14 @@
       "steps": [
         "pentatonic-positions:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

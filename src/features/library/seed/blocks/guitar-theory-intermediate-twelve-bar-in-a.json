@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-twelve-bar-in-a",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 6.",
+  "note": "The twelve-bar form in A on open 7th chords: the chord boxes show the three grips, then two strum-alongs carry the form, first downs on the beat while counting bars aloud, then a shuffle strum with no counting. The boxes show the form, so the text never lists it. The open shapes are the lesson, so it moves in tempo only (80 to 100), never in key.",
   "exercise": {
-    "title": "Twelve-bar in A",
+    "title": "Twelve-bar blues in A",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,7 +17,7 @@
     "concepts": [
       "seventh-shapes"
     ],
-    "why": "The twelve-bar form is a fixed road map: learn it once and you can join any blues jam.",
+    "why": "A twelve-bar blues changes chord in the same bars every time round, so once your hands know where D7 and E7 come you can follow any blues without counting.",
     "learnBefore": [
       "/course/7/twelve-bar"
     ],
@@ -29,7 +29,22 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below; the lit block shows the chord: four bars of A7, two of D7, two of A7, then E7, D7, A7, E7. Strum along. Count the bars out loud."
+            "text": "Fret A7, D7 and E7 as the chord boxes below show them. Press Play under a chord box to hear it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "A7",
+                "D7",
+                "E7"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at {{=bpm}}: after a bar of count-in, the lit box shows the chord to play. Strum down on every beat and count the bars out loud as you go round.\nKeep going until you feel the change to D7 coming before the box lights."
           },
           {
             "type": "tool",
@@ -49,19 +64,20 @@
                 "A7",
                 "E7"
               ],
-              "bpm": 90
+              "bpm": 80,
+              "pattern": "D D D D"
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "Without counting",
+        "heading": "A shuffle, no counting",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Same form. Pick the bass note on beats 1 and 3. Strum on beats 2 and 4. Keep going without counting out loud."
+            "text": "Press Play below to start the metronome. Now the strum is a shuffle: a down on each beat and an up just before the next one, as the row in each box shows. Stop counting out loud and let the lit box tell you when a change comes.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -81,7 +97,8 @@
                 "A7",
                 "E7"
               ],
-              "bpm": 90
+              "bpm": 80,
+              "pattern": "D . U D . U D . U D . U"
             }
           }
         ]
@@ -95,7 +112,14 @@
       "steps": [
         "seventh-shapes:1"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

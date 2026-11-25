@@ -1,6 +1,8 @@
 import { keyName } from "@/features/theory/keySlug";
 import { applyPart, follows, isOpen, partsOf } from "./choice";
 import { cleanKeys, hasKeySelector, type PlayerKeys } from "./keys";
+import { writtenKeyOf } from "./transpose";
+import { numeralChord } from "@/features/exercises/shapes/numerals";
 import { toolsOf, type Cell, type Choice, type PlainCell, type PlanTool } from "./tools";
 import type { Block } from "./types";
 
@@ -59,6 +61,7 @@ export function parseMoves(raw: unknown, tools: PlanTool[]): { moves: Moves | nu
   if (o.key !== undefined) {
     if (o.key !== "any") warnings.push('moves: left out key (write "any", or leave it out).');
     else if (!tools.some((t) => follows(t, "key"))) warnings.push("moves: no tool that can change key.");
+    else if (!tools.some((t) => follows(t, "key") && writtenKeyOf(t) !== null)) warnings.push("moves: left out key (no tool says the key it is written in; give the play-along's shape a key).");
     else out.key = "any";
   }
   if (o.bpm !== undefined) {
@@ -109,11 +112,11 @@ export function cleanGiven(raw: unknown, block: Pick<Block, "moves" | "choice" |
   return out;
 }
 
-/** The key and tempo a block is written in: those of its first tools that follow each. */
+/** The key and tempo a block is written in: those of its first tools that follow each (a play-along's key is its shape's, `writtenKeyOf`). */
 export function written(block: Pick<Block, "cells">): { key: number | null; bpm: number | null } {
   const tools = toolsOf(block.cells);
-  const keyed = tools.find((t) => follows(t, "key") && "key" in t && typeof t.key === "number") as { key: number } | undefined;
-  return { key: keyed ? keyed.key : null, bpm: writtenBpm(tools) };
+  const keyed = tools.find((t) => follows(t, "key") && writtenKeyOf(t) !== null);
+  return { key: keyed ? writtenKeyOf(keyed) : null, bpm: writtenBpm(tools) };
 }
 
 /** The chips of one part: its values, `now` first; `back` is where the earlier ones start (`values.length` when there are none). */
@@ -139,10 +142,16 @@ const PARAM = /\{\{=(key|bpm)\}\}/g;
 const fill = (text: string, values: Record<MovePart, string | null>): string =>
   text.includes("{{=") ? text.replace(/ ?\{\{=(key|bpm)\}\}/g, (m, p: MovePart) => (values[p] === null ? "" : `${m.startsWith(" ") ? " " : ""}${values[p]}`)) : text;
 
+const CHORD_PARAM = /\{\{chord:\s*([^{}\s]+)\}\}/g;
+/** A title or heading with its `{{chord:ii7}}` tokens as plain chord names in `key` (B♭m7); no key: as it was. Text keeps its tokens: the reader draws them with a card. */
+const fillChords = (text: string, key: number | null): string =>
+  key === null || !text.includes("{{chord:") ? text : text.replace(CHORD_PARAM, (m, n: string) => numeralChord(n, key)?.replace(/^([A-G])b/, "$1♭").replace(/^([A-G])#/, "$1♯") ?? m);
+
 /**
  * A block drawn in a version: every tool that follows a part moved to the value its selector is at (`at`; no selector:
  * the given `now`, or the block as written), by the distance from the block's written key or its starting tempo, and
- * the params in the title, headings, text and lists (`{{=key}}`, `{{=bpm}}`) filled with those values. A tool keeps its
+ * the params in the title, headings, text and lists (`{{=key}}`, `{{=bpm}}`) filled with those values, and the chords
+ * in the title and headings (`{{chord:ii7}}`) named in the key. A tool keeps its
  * own value for a part in `pinned`. A block with no `moves` is returned as it is. Never stored: drawn each time.
  */
 export function applyGiven<B extends Pick<Block, "title" | "moves" | "cells">>(block: B, given: Given | null | undefined, at: At = {}): B {
@@ -158,7 +167,7 @@ export function applyGiven<B extends Pick<Block, "title" | "moves" | "cells">>(b
   const move = (tool: PlanTool): PlanTool => {
     let out = tool;
     if (byKey && follows(out, "key")) {
-      const own = "key" in out && typeof out.key === "number" ? out.key : from.key!;
+      const own = writtenKeyOf(out) ?? from.key!;
       out = applyPart(out, "key", own + byKey, own);
     }
     if (byBpm && follows(out, "bpm") && "bpm" in out && typeof out.bpm === "number") out = applyPart(out, "bpm", Math.min(MAX_TOOL_BPM, Math.max(MIN_TOOL_BPM, out.bpm + byBpm)), out.bpm);
@@ -173,8 +182,8 @@ export function applyGiven<B extends Pick<Block, "title" | "moves" | "cells">>(b
     if (c.type === "list") return { ...c, items: c.items.map((i) => fill(i, values)) };
     return c;
   };
-  const cells = block.cells.map((c): Cell => (c.type === "section" ? { ...c, heading: fill(c.heading, values), cells: c.cells.map(plain) } : plain(c)));
-  return { ...block, title: fill(block.title, values), cells };
+  const cells = block.cells.map((c): Cell => (c.type === "section" ? { ...c, heading: fillChords(fill(c.heading, values), key), cells: c.cells.map(plain) } : plain(c)));
+  return { ...block, title: fillChords(fill(block.title, values), key), cells };
 }
 
 /** An exercise's title as the player reads it: its params filled with the version it was given (the first of its keys, its tempo), or with the block as written. */
@@ -182,11 +191,14 @@ export const shownTitle = (e: Pick<Block, "title" | "moves" | "cells"> & { given
 
 const PARAM_WORD: Record<MovePart, string> = { key: "key", bpm: "tempo" };
 
-/** What's wrong with a block's params: one that names a part the block has no move for. Worded to be pasted back. */
+/** What's wrong with a block's params: one that names a part the block has no move for, or a chord in a title or heading with no key to name it in. Worded to be pasted back. */
 export function paramWarnings(block: Pick<Block, "title" | "moves" | "cells">): string[] {
   const texts = [block.title, ...block.cells.flatMap((c) => (c.type === "section" ? [c.heading, ...c.cells] : [c])).flatMap((c) => (typeof c === "string" ? [c] : c.type === "text" ? [c.text] : c.type === "list" ? c.items : []))];
   const named = new Set(texts.flatMap((t) => [...t.matchAll(PARAM)].map((m) => m[1] as MovePart)));
-  return MOVE_PARTS.filter((p) => named.has(p) && !(p === "key" ? block.moves?.key : block.moves?.bpm)).map((p) => `text names {{=${p}}} but the block has no ${PARAM_WORD[p]} move.`);
+  const out = MOVE_PARTS.filter((p) => named.has(p) && !(p === "key" ? block.moves?.key : block.moves?.bpm)).map((p) => `text names {{=${p}}} but the block has no ${PARAM_WORD[p]} move.`);
+  const headings = [block.title, ...block.cells.flatMap((c) => (c.type === "section" ? [c.heading] : []))];
+  if (!block.moves?.key && headings.some((h) => h.includes("{{chord:"))) out.push("a title or heading names {{chord:…}} but the block has no key move: name the chord in words there.");
+  return out;
 }
 
 /**

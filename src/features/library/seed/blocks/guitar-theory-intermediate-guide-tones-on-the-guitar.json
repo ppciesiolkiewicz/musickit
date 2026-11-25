@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-guide-tones-on-the-guitar",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 2.",
+  "note": "Guide tones as two lines through a ii-V-I, each a guitar-play-along with chord-steps and a cue per chord, so the text names the degrees and what they do (stay put, drop a half step) and never lists the notes. The shapes carry the key, so the block moves in key as well as tempo; the chords are {{chord:…}} tokens, named in the player's key with a card that says which chord of the key each one is.",
   "exercise": {
-    "title": "Guide tones on the guitar",
+    "title": "Guide tones through {{chord:ii7}}, {{chord:V7}} and {{chord:Imaj7}}",
     "area": "guitar",
     "tags": [
       "technique"
@@ -24,12 +24,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The 3rd-7th line",
+        "heading": "From the 3rd of {{chord:ii7}}",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below and play along from the tab, one note per beat: F over Dm7 (its 3rd), F over G7 (its 7th), E over Cmaj7 (its 3rd)."
+            "text": "Press Play below: the backing track holds each chord softly, and the tab shows your line, one note per beat, with a cue over each new note. Play the line from the tab: the 3rd of {{chord:ii7}} stays put as the 7th of {{chord:V7}}, then drops a half step to the 3rd of {{chord:Imaj7}}.\nPlay it until your hand moves on the change while your ears follow the chords."
           },
           {
             "type": "tool",
@@ -37,6 +37,7 @@
               "type": "guitar-play-along",
               "shape": {
                 "shape": "chord-steps",
+                "key": "c",
                 "chords": [
                   {
                     "chord": "Dm7",
@@ -67,15 +68,15 @@
                   }
                 ],
                 "guide": [
-                  "F: 3rd of Dm7",
+                  "the 3rd",
                   "",
                   "",
                   "",
-                  "F: now the 7th of G7",
+                  "now the 7th",
                   "",
                   "",
                   "",
-                  "E: 3rd of Cmaj7"
+                  "the 3rd"
                 ]
               },
               "bpm": 70,
@@ -86,12 +87,12 @@
       },
       {
         "type": "section",
-        "heading": "The 7th-3rd line",
+        "heading": "From the 7th of {{chord:ii7}}",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Now the other line: C over Dm7 (its 7th), B over G7 (its 3rd), B over Cmaj7 (its 7th). Then switch between the two lines."
+            "text": "Press Play below to start the other line: the 7th of {{chord:ii7}} drops a half step to the 3rd of {{chord:V7}}, which stays put as the 7th of {{chord:Imaj7}}.\nListen for the half step in each line: it is the sound of the chord changing under you.\nIn another key the chords and frets are new, and each line still stays put and drops a half step in the same places."
           },
           {
             "type": "tool",
@@ -99,6 +100,7 @@
               "type": "guitar-play-along",
               "shape": {
                 "shape": "chord-steps",
+                "key": "c",
                 "chords": [
                   {
                     "chord": "Dm7",
@@ -127,6 +129,17 @@
                       "7"
                     ]
                   }
+                ],
+                "guide": [
+                  "the 7th",
+                  "",
+                  "",
+                  "",
+                  "now the 3rd",
+                  "",
+                  "",
+                  "",
+                  "the 7th"
                 ]
               },
               "bpm": 70,
@@ -144,7 +157,15 @@
       "steps": [
         "arpeggios:3"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      }
     }
   ]
 }

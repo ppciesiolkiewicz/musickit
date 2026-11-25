@@ -2,7 +2,7 @@ import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM } from "@/featur
 import { TOOL_LEVELS } from "@/features/exercises/basics/levels";
 import { keyName } from "@/features/theory/keySlug";
 import { PART_NAMES, canFollowPart, hasLevel, setLevel, toolsOf, type Cell, type Choice, type ChoiceOption, type PartName, type PlainCell, type PlanTool, type SectionCell } from "./tools";
-import { transposeTool } from "./transpose";
+import { transposeTool, writtenKeyOf } from "./transpose";
 import type { Block } from "./types";
 
 /**
@@ -27,7 +27,7 @@ interface Part {
 }
 
 const pc = (n: number) => ((n % 12) + 12) % 12;
-const writtenKey = (t: PlanTool): number | null => ("key" in t && typeof t.key === "number" ? t.key : null);
+const writtenKey = writtenKeyOf;
 const num = (v: PartValue): number => (typeof v === "number" ? v : Number(v));
 
 const PARTS: Record<PartName, Part> = {

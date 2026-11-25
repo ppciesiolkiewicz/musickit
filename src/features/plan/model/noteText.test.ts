@@ -1,7 +1,7 @@
-import { describe, it } from "node:test";
+import { describe, it, test } from "node:test";
 import assert from "node:assert/strict";
 import { explain } from "@/features/course/glossary";
-import { inlineNote, markRuns, noteRootFor, splitNotes } from "./noteText";
+import { inlineChord, inlineNote, markRuns, noteRootFor, splitNotes } from "./noteText";
 import type { PlainCell as Section } from "./tools";
 
 describe("note text", () => {
@@ -63,4 +63,19 @@ describe("note text", () => {
     assert.equal(typeof pieces[0], "string");
     assert.ok((pieces[0] as string).startsWith("{{3}}"));
   });
+});
+
+test("splitNotes: a chord numeral is a chord part; an unreadable one stays in the text", () => {
+  assert.deepEqual(splitNotes("From {{chord:ii7}} to {{chord:V7}}, not {{chord:xx}}."), ["From ", { chord: "ii7" }, " to ", { chord: "V7" }, ", not {{chord:xx}}."]);
+});
+
+test("inlineChord: the numeral named in the key, with its number and the syllable of its root", () => {
+  assert.deepEqual(inlineChord("ii7", { root: 0 }), { name: "Dm7", numeral: "ii7", key: "C", number: 2, ordinal: "2nd", syllable: "Re" });
+  assert.equal(inlineChord("ii7", { root: 7 })?.name, "Am7");
+  assert.equal(inlineChord("Imaj7", { root: 7 })?.name, "Gmaj7");
+  assert.equal(inlineChord("V7", { root: 5 })?.name, "C7");
+  assert.equal(inlineChord("ii7", { root: 10 })?.name, "Cm7");
+  assert.equal(inlineChord("I", { root: 10 })?.name, "B♭");
+  assert.equal(inlineChord("bVII", { root: 0 })?.syllable, "Te");
+  assert.equal(inlineChord("ii7", null), null);
 });

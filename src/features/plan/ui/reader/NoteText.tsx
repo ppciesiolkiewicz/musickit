@@ -3,18 +3,24 @@
 import { Fragment, type ReactNode } from "react";
 import Explained from "@/components/course/Explained";
 import { keepTogether, type Piece } from "@/features/course/glossary";
-import { inlineNote, markRuns, splitNotes, type NoteRoot } from "../../model/noteText";
+import { inlineChord, inlineNote, markRuns, splitNotes, type NoteRoot } from "../../model/noteText";
+import InlineChord from "../InlineChord";
 import InlineNote from "../InlineNote";
 
 /**
- * Explained text with its `{{3}}` / `{{c-sharp}}` notes drawn as dots; a note that can't be read stays as text. A line
+ * Explained text with its `{{3}}` / `{{c-sharp}}` notes drawn as dots and its `{{chord:ii7}}` chords as their names in the
+ * key, with a card on hover; a note or chord that can't be read stays as text. A line
  * written `_like this_` is a care line (don't reach for high notes): it sits on a low, half-transparent band of amber.
  */
 export function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) {
-  const parts = pieces.flatMap((p): (string | Exclude<Piece, string> | { note: string })[] => (typeof p === "string" ? splitNotes(p) : [p]));
+  const parts = pieces.flatMap((p): (string | Exclude<Piece, string> | { note: string } | { chord: string })[] => (typeof p === "string" ? splitNotes(p) : [p]));
   const draw = (part: (typeof parts)[number], key: string) => {
     if (typeof part === "string") return <span key={key}>{keepTogether(part)}</span>;
     if ("term" in part) return <Explained key={key} pieces={[part]} />;
+    if ("chord" in part) {
+      const chord = inlineChord(part.chord, root);
+      return chord ? <InlineChord key={key} info={chord} /> : <span key={key}>{part.chord}</span>;
+    }
     const info = inlineNote(part.note, root);
     return info ? <InlineNote key={key} info={info} /> : <span key={key}>{`{{${part.note}}}`}</span>;
   };

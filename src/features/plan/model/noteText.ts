@@ -1,20 +1,24 @@
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { keyName, parseKeySlug } from "@/features/theory/keySlug";
-import { spellAbove } from "@/features/theory/labels";
+import { solfegeOfSemis, spellAbove } from "@/features/theory/labels";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
+import { numeralChord } from "@/features/exercises/shapes/numerals";
 import type { PlainCell } from "./tools";
 
 /**
  * Notes written in an exercise's text as `{{3}}` (a degree) or `{{c-sharp}}` (a note name), drawn as the fretboard's dot
- * inline. Pure: which parts of a text are notes, what root they count from, and what each one is. Also the underlined
+ * inline, and chords written as `{{chord:ii7}}` (a Roman numeral in the major key), drawn as the chord's name in the key
+ * of the tool after the text, so the name moves with the key. Pure: which parts of a text are notes and chords, what
+ * root they count from, and what each one is. Also the underlined
  * line: `_Don't reach for high notes._`, a care line the page draws over a low band of colour.
  */
 
-export type TextPart = string | { note: string };
+export type TextPart = string | { note: string } | { chord: string };
 
 const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
 const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
-const TOKEN = /\{\{([^{}]{1,12})\}\}/g;
+const TOKEN = /\{\{([^{}]{1,16})\}\}/g;
+const CHORD = /^chord:\s*(\S+)$/;
 
 /** A note name token as written: "e-flat" is E♭, never D♯. */
 function writtenName(token: string): string | null {
@@ -29,7 +33,7 @@ export const notePc = (s: string): number | null => (/^\s*\d+\s*$/.test(s) ? nul
 
 const readable = (token: string) => degreeSemis(token) !== null || notePc(token) !== null;
 
-/** A text as plain runs and note tokens; a token that is neither a degree nor a note name stays in the text. */
+/** A text as plain runs, note tokens and chord tokens; a token that is none of a degree, a note name or a chord numeral stays in the text. */
 export function splitNotes(text: string): TextPart[] {
   const out: TextPart[] = [];
   let last = 0;
@@ -40,9 +44,10 @@ export function splitNotes(text: string): TextPart[] {
   };
   for (const m of text.matchAll(TOKEN)) {
     const token = m[1].trim();
-    if (!readable(token)) continue;
+    const chord = CHORD.exec(token)?.[1];
+    if (chord ? numeralChord(chord, 0) === null : !readable(token)) continue;
     push(text.slice(last, m.index));
-    out.push({ note: token });
+    out.push(chord ? { chord } : { note: token });
     last = m.index! + m[0].length;
   }
   push(text.slice(last));
@@ -116,6 +121,25 @@ export function inlineNote(token: string, ctx: NoteRoot | null): InlineNoteInfo 
   }
   const name = ctx ? spelled ?? SHARP[(root + semi) % 12] : SEMI_TEXT[semi];
   return { semi, name, degreeText: SEMI_TEXT[semi], degree, midi: 48 + root + semi };
+}
+
+const ORDINAL = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
+const MAJOR_SEMIS = [0, 2, 4, 5, 7, 9, 11];
+
+/** One chord named in a text: its name in the key, the key, its number in the key and the syllable of its root (movable Do). */
+export interface InlineChordInfo { name: string; numeral: string; key: string; number: number; ordinal: string; syllable: string }
+
+/** A `{{chord:…}}` numeral read in the key the text counts from: "ii7" in C is Dm7, built on Re. Null without a key or when unreadable. */
+export function inlineChord(numeral: string, ctx: NoteRoot | null): InlineChordInfo | null {
+  if (!ctx) return null;
+  const raw = numeralChord(numeral, ctx.root);
+  const m = /^([b#♭♯]?)([iv]+)/i.exec(numeral);
+  if (!raw || !m) return null;
+  const deg = ["i", "ii", "iii", "iv", "v", "vi", "vii"].indexOf(m[2].toLowerCase());
+  const shift = m[1] === "b" || m[1] === "♭" ? -1 : m[1] ? 1 : 0;
+  // the root's accidental drawn as the app writes it (B♭m7), the suffix as written
+  const name = raw.replace(/^([A-G])b/, "$1♭").replace(/^([A-G])#/, "$1♯");
+  return { name, numeral, key: keyName(ctx.root), number: deg + 1, ordinal: ORDINAL[deg], syllable: solfegeOfSemis(MAJOR_SEMIS[deg] + shift) };
 }
 
 /** A stretch of a text's parts: `marked` when it was written between underscores (`_…_`), to be drawn underlined. */

@@ -43,6 +43,18 @@ function transposeShape(v: unknown, by: number): unknown {
   return out;
 }
 
+/**
+ * The key a tool is written in, as a pitch class: its own `key`, or a guitar-play-along's shape key (`key`, or the
+ * first scale's for two-scales). Null when it has none: a tool with only chord names moves by a distance, not from a key.
+ */
+export function writtenKeyOf(tool: PlanTool): number | null {
+  if ("key" in tool && typeof tool.key === "number") return tool.key;
+  if (tool.type !== "guitar-play-along") return null;
+  const shape = tool.shape as { key?: unknown; a?: { key?: unknown } };
+  const slug = typeof shape.key === "string" ? shape.key : typeof shape.a?.key === "string" ? shape.a.key : null;
+  return slug === null ? null : parseKeySlug(slug);
+}
+
 /** Whether a tool has a key to move: the ones that don't (a note finder, an ear game, a run over the voice, a rhythm to clap, a note to read from the staff) stay as they are. */
 export function canTranspose(tool: PlanTool): boolean {
   return !["note-finder", "interval-ears", "run-singer", "string-singer", "breathwork", "voice-hill", "lip-roll", "vowel-guide", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "staff-reading", "video"].includes(tool.type);

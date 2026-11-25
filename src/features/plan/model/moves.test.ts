@@ -47,6 +47,14 @@ test("parseMoves: a part it can't read or use is dropped and named", () => {
 
 const block = (moves: Moves | undefined, cells: Cell[] = [tool(band(60)), tool(neck())]) => ({ title: "t", ...(moves ? { moves } : {}), cells });
 
+test("parseMoves: a key move with only chord names and no written key is left out and named", () => {
+  const along = { type: "guitar-play-along", bpm: 70, shape: { shape: "chord-steps", chords: [{ chord: "Dm7", steps: ["b3"] }] } } as PlanTool;
+  const p = parseMoves({ key: "any" }, [along]);
+  assert.equal(p.moves, null);
+  assert.deepEqual(p.warnings, ["moves: left out key (no tool says the key it is written in; give the play-along's shape a key)."]);
+  assert.deepEqual(parseMoves({ key: "any" }, [{ ...along, shape: { ...(along as { shape: object }).shape, key: "c" } } as PlanTool]).moves, { key: "any" });
+});
+
 test("cleanGiven: a part the block has no move for, or outside its range, is dropped", () => {
   assert.equal(cleanGiven({ keys: { now: [A], back: [] }, bpm: { now: 120, back: [60] } }, block({ bpm: BPM })), null);
   assert.deepEqual(cleanGiven({ keys: { now: [G, A], back: [] }, bpm: { now: 70, back: [60] } }, block({ key: "any", bpm: BPM })), { keys: { now: [G, A], back: [] }, bpm: { now: 70, back: [60] } });
@@ -133,6 +141,30 @@ test("applyGiven: the tools move to the key the selector is at; a pinned tool st
 test("applyGiven: a tool in another key than the block's keeps its distance", () => {
   const b = { title: "t", moves: { key: "any" } as Moves, cells: [tool(band(60, A)), tool(neck(2))] };
   assert.deepEqual(keysOfTools(applyGiven(b, { keys: { now: [G], back: [] } })), [G, 0], "A to G is two down, so D becomes C");
+});
+
+test("applyGiven: a play-along's shape key is the block's written key, so its chords and key move to the given one", () => {
+  const along = { type: "guitar-play-along", bpm: 70, shape: { shape: "chord-steps", key: "c", chords: [{ chord: "Dm7", steps: ["b3"] }, { chord: "G7", steps: ["b7"] }] } } as PlanTool;
+  const b = { title: "Guide tones in {{=key}}", moves: { key: "any" } as Moves, cells: [tool(along)] };
+  assert.equal(written(b).key, 0);
+  const g = applyGiven(b, { keys: { now: [G], back: [] } });
+  assert.equal(g.title, "Guide tones in G");
+  const shape = (toolsIn(g)[0] as Extract<PlanTool, { type: "guitar-play-along" }>).shape as { key: string; chords: { chord: string }[] };
+  assert.equal(shape.key, "g");
+  assert.deepEqual(shape.chords.map((c) => c.chord), ["Am7", "D7"]);
+});
+
+test("applyGiven: chords in the title and headings are named in the key; text keeps its tokens for the reader", () => {
+  const along = { type: "guitar-play-along", bpm: 70, shape: { shape: "chord-steps", key: "c", chords: [{ chord: "Dm7", steps: ["b3"] }] } } as PlanTool;
+  const b = { title: "Guide tones through {{chord:ii7}} and {{chord:V7}}", moves: { key: "any" } as Moves, cells: [{ type: "section", heading: "From the 3rd of {{chord:ii7}}", cells: [text("The 3rd of {{chord:ii7}}."), tool(along)] } as Cell] };
+  assert.equal(applyGiven(b, null).title, "Guide tones through Dm7 and G7");
+  const g = applyGiven(b, { keys: { now: [G], back: [] } });
+  assert.equal(g.title, "Guide tones through Am7 and D7");
+  const s = g.cells[0];
+  assert.ok(s.type === "section");
+  assert.equal(s.heading, "From the 3rd of Am7");
+  assert.deepEqual(s.cells[0], text("The 3rd of {{chord:ii7}}."));
+  assert.deepEqual(paramWarnings({ ...b, moves: undefined }), ["a title or heading names {{chord:…}} but the block has no key move: name the chord in words there."]);
 });
 
 test("applyGiven: the tempo moves every tool by the distance from the start, in headings and lists too", () => {
