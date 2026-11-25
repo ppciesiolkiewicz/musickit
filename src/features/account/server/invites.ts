@@ -1,6 +1,7 @@
 import { cleanName, type Account } from "../model";
 import { PERSONAL_DEMO_PLAN_ID, roleOnPlan, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
-import { TERMS_UPDATED } from "../terms";
+import { termsVersion } from "../terms";
+import { paymentsEnabled } from "./paymentsEnabled";
 import { hashToken, toAccount, type AuthDeps } from "./auth";
 import type { InviteKind } from "../emailHtml";
 import type { InviteRow } from "./repo";
@@ -84,6 +85,7 @@ export async function joinWithInvite(
   account: Account,
   token: unknown,
   input: { name?: unknown; acceptTerms?: unknown; emailUpdates?: unknown },
+  paymentsOn = paymentsEnabled(),
 ): Promise<{ ok: true; account: Account } | { ok: false; error: JoinError }> {
   const hash = hashOf(token);
   const invite = await find(deps, hash);
@@ -103,7 +105,7 @@ export async function joinWithInvite(
   if (!(await deps.repo.claimInvite(hash, user.id, now))) return { ok: false, error: "used" };
   if (setup) {
     await deps.repo.updateUserName(user.id, name, now);
-    await deps.repo.acceptTerms(user.id, TERMS_UPDATED, now);
+    await deps.repo.acceptTerms(user.id, termsVersion(paymentsOn), now);
     if (typeof input.emailUpdates === "boolean") await deps.repo.setEmailUpdates(user.id, input.emailUpdates, now);
   }
   const moved = await deps.repo.setUserPlan(user.id, plan.id, user.billing, roleOnPlan(user.role, plan), now);

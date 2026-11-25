@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import AutoplanHome, { PlayersEnding } from "@/components/landing/home/AutoplanHome";
 import { publicPlans } from "@/features/account/server/publicPlans";
+import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
+
+/** Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: no beta line then. */
+const PAYMENTS = paymentsEnabled();
 
 /* The home page for solo musicians: people who practise on their own. Music schools have theirs at /. The address stays /players. */
 
 export const metadata: Metadata = {
   title: "Daily Guitar & Voice Practice Plan for Solo Musicians · attunr",
-  description: "Answer a few questions and attunr puts together today's practice: short guitar or voice exercises for your level, each one something to play, sing or hear on the screen. Free while in beta.",
+  description: `Answer a few questions and attunr puts together today's practice: short guitar or voice exercises for your level, each one something to play, sing or hear on the screen.${PAYMENTS ? "" : " Free while in beta."}`,
   alternates: { canonical: "/players" },
 };
 
@@ -14,5 +18,5 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function PlayersPage() {
-  return <AutoplanHome audience="players" plans={await publicPlans()} ending={<PlayersEnding />} />;
+  return <AutoplanHome audience="players" plans={await publicPlans()} payments={paymentsEnabled()} ending={<PlayersEnding />} />;
 }

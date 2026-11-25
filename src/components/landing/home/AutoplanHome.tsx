@@ -81,8 +81,8 @@ const COPY: Record<Audience, {
   title: ReactNode;
   lead: ReactNode;
   planNote: ReactNode;
-  /** under the Open beta badge in the hero */
-  heroNote: ReactNode;
+  /** under the Open beta badge in the hero; `payments` on (`STRIPE_ENABLED`) drops the beta words */
+  heroNote: (payments: boolean) => ReactNode;
   notesTitle: ReactNode;
   notesText: ReactNode;
   notesPoints: string[];
@@ -99,7 +99,7 @@ const COPY: Record<Audience, {
     title: <>A week of practice <span className="ls-accent block italic text-sky-300">for every student.</span></>,
     lead: <>Add a student, and attunr puts together seven days of <Mark>short exercises that fit where they are</Mark>, each with the diagram, drone or backing it needs. Before each new week you set where the student is now, and the next plan follows.</>,
     planNote: <>You use the same app as your students, so you see exactly what a student practises at home, and <Mark tone="var(--color-violet-400)">how they rated each exercise</Mark>.</>,
-    heroNote: <>Free while in beta. Log in with your email or Google. <Link href="/kickstarter" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">Founding partners</Link> get a {FOUNDING_TRIAL_DAYS}-day trial and a locked-in price.</>,
+    heroNote: (payments) => <>{!payments && "Free while in beta. "}Log in with your email or Google. <Link href="/kickstarter" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">Founding partners</Link> get a {FOUNDING_TRIAL_DAYS}-day trial and a locked-in price.</>,
     notesTitle: <>Lesson notes <span className="ls-accent italic text-teal-300">before the student leaves.</span></>,
     notesText: <>In the last two minutes of a lesson, a teacher lays out today&apos;s chords, scales and positions on one page, then <Mark tone="var(--color-teal-400)">sends it to the student as a link</Mark>. Every diagram on it plays.</>,
     notesPoints: ["Necks, chord boxes, CAGED shapes, the circle of fifths", "Change the key and the whole page follows", "One link, nothing to install"],
@@ -114,7 +114,7 @@ const COPY: Record<Audience, {
     title: <>Know what to practise, <span className="ls-accent block italic text-sky-300">every day.</span></>,
     lead: <>Answer a few questions, and attunr puts your practice together: <Mark>short exercises for your level and your time</Mark>, each with the diagram, drone or backing it needs. Every plan builds on how the last one went.</>,
     planNote: <>A timer runs through the day&apos;s exercises, and a daily reminder can nudge you at the time you pick.</>,
-    heroNote: <>Free while in beta. When paid plans open, the first {FIRST_STUDENTS} people who sign up pay <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">{FIRST_STUDENTS_LINE}</a>.</>,
+    heroNote: (payments) => <>{payments ? "The" : "Free while in beta. When paid plans open, the"} first {FIRST_STUDENTS} people who sign up pay <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">{FIRST_STUDENTS_LINE}</a>.</>,
     notesTitle: <>Keep what you learn <span className="ls-accent italic text-teal-300">on one page.</span></>,
     notesText: <>Put the chords, scales and positions you are working on into one page of notes. <Mark tone="var(--color-teal-400)">Every diagram on it plays</Mark>, and you can share it as a link.</>,
     notesPoints: ["Necks, chord boxes, CAGED shapes, the circle of fifths", "Change the key and the whole page follows", "Opens on any device"],
@@ -165,7 +165,7 @@ function PlanButtons() {
   );
 }
 
-export default function AutoplanHome({ audience, plans, ending }: { audience: Audience; /** the plans anyone can choose (`publicPlans`), or null when the plans table can't be read */ plans: Plan[] | null; /** the page's own last part, before the footer */ ending: ReactNode }) {
+export default function AutoplanHome({ audience, plans, ending, payments = false }: { audience: Audience; /** payments are on (`STRIPE_ENABLED`): no open-beta badge or lines */ payments?: boolean; /** the plans anyone can choose (`publicPlans`), or null when the plans table can't be read */ plans: Plan[] | null; /** the page's own last part, before the footer */ ending: ReactNode }) {
   const c = COPY[audience];
   return (
     <div className="landing app-bg isolate min-h-screen overflow-clip text-slate-200">
@@ -188,10 +188,10 @@ export default function AutoplanHome({ audience, plans, ending }: { audience: Au
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>{c.title}</h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">{c.lead}</p>
             <PlanButtons />
-            <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
+            {!payments && <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
               <span className="size-1.5 rounded-full bg-sky-300" /> Open beta
-            </span>
-            <p className="mt-2 max-w-md text-sm text-slate-400">{c.heroNote}</p>
+            </span>}
+            <p className={`${payments ? "mt-5" : "mt-2"} max-w-md text-sm text-slate-400`}>{c.heroNote(payments)}</p>
           </div>
           <div className="landing-rise relative" style={{ animationDelay: "120ms" }}>
             {audience === "schools" ? (
@@ -298,7 +298,7 @@ export default function AutoplanHome({ audience, plans, ending }: { audience: Au
           </ul>
         </section>
 
-        <Pricing audience={audience} plans={plans} />
+        <Pricing audience={audience} plans={plans} payments={payments} />
 
         {ending}
 
@@ -317,7 +317,7 @@ export default function AutoplanHome({ audience, plans, ending }: { audience: Au
 /** "$3 a month or $18 a year": both at the early price (`EARLY_OFFER`). */
 const earlyBoth = (p: Plan) => `${dollars(earlyCents(p.monthCents))} a month or ${dollars(earlyCents(p.yearCents))} a year`;
 
-function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null }) {
+function Pricing({ audience, plans, payments }: { audience: Audience; plans: Plan[] | null; payments: boolean }) {
   const p = PRICING.player;
   const solo = plans?.find((x) => x.id === DEFAULT_PLAN_ID) ?? null;
   const teaching = plans?.filter((x) => x.role === "teacher") ?? [];
@@ -343,7 +343,7 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
       <div className="mx-auto max-w-2xl text-center">
         <Eyebrow tone="text-emerald-300">Pricing</Eyebrow>
         <H2 id="pricing-h">{schools ? <>Pay by student, <span className="ls-accent italic text-emerald-300">not by plan.</span></> : <>Pay by the month, <span className="ls-accent italic text-emerald-300">or by the year.</span></>}</H2>
-        <p className="mt-4 text-slate-300">Free while attunr is in beta. These are the prices from launch.</p>
+        {!payments && <p className="mt-4 text-slate-300">Free while attunr is in beta. These are the prices from launch.</p>}
         <p className="mt-3 inline-flex flex-wrap items-center justify-center gap-2 text-sm text-slate-300">
           <DiscountBadge percent={EARLY_OFFER.percentOff} />
           <span>Early price for the first {EARLY_OFFER.students} students and the first {EARLY_OFFER.schools} schools: half price, monthly or yearly, locked in.</span>

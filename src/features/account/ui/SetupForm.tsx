@@ -22,8 +22,10 @@ import { VOICE_CARE_ERROR, VoiceCareBox } from "./VoiceCare";
  * needs it; its link opens /terms in a new tab, so nothing typed here is lost. Another feature can add a box first among the
  * boxes (`boxes`) and fields to the saved body (`extra`): the daily reminder does (`reminders/ui/SetupWithReminder`).
  */
-export default function SetupForm({ next, start, boxes, extra }: {
+export default function SetupForm({ next, start, boxes, extra, payments = false }: {
   next: string;
+  /** payments are on (`STRIPE_ENABLED`): no open-beta box. From the server page, so it is right before the plans load. */
+  payments?: boolean;
   /** the side asked for (`?for=teachers`, from "Become a founding partner") */
   start?: Audience | null;
   /** shown first among the boxes, above the email and terms boxes */
@@ -157,7 +159,7 @@ export default function SetupForm({ next, start, boxes, extra }: {
           {/* the legend's visible twin */}
           <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
           {/* shown before the plans load too: it is the first thing to know about choosing one */}
-          <div className="flex max-w-xl flex-col gap-1.5 rounded-lg border border-sky-400/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
+          {!payments && <div className="flex max-w-xl flex-col gap-1.5 rounded-lg border border-sky-400/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
             <p className="flex flex-wrap items-center gap-2 font-semibold">
               Open beta: free while we build it with you
               <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-xs font-semibold text-slate-950">It&apos;s free now</span>
@@ -165,13 +167,13 @@ export default function SetupForm({ next, start, boxes, extra }: {
             <p>Every plan is free while we&apos;re in open beta, and picking one won&apos;t ask you to pay. Choose the one you&apos;d really want: it helps us decide what to build next.</p>
             <p>Sign up now to keep the early price and get a longer free trial when paid plans start.</p>
             <p>Something broken or confusing? Tell us with Send feedback in the profile menu. You can change your plan any time on your account page.</p>
-          </div>
+          </div>}
           {!plans && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
           {plans && (
             <>
               <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setPlanError(null); setError(null); }} />
               <EarlyOffer audience={shownAudience} open={early} />
-              {!plans?.payments && <NoChargeLine />}
+              {!payments && !plans?.payments && <NoChargeLine />}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <AudienceLead audience={shownAudience} />
                 <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} early={early} onChange={(b) => { setBilling(b); setError(null); }} /></div>

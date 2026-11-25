@@ -17,7 +17,7 @@ const go = (path: string) => window.location.assign(path);
  * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, and offers, their plan, feedback and, under
  * everything, Log out and Delete account (/terms and /privacy promise it on this page). Logged out, it points to Log in.
  */
-export default function AccountPanel({ start }: { /** the plans' side asked for in the address (`?for=teachers`) */ start?: Audience | null }) {
+export default function AccountPanel({ start, payments = false }: { /** the plans' side asked for in the address (`?for=teachers`) */ start?: Audience | null; /** payments are on (`STRIPE_ENABLED`): no open-beta line */ payments?: boolean }) {
   const { account, loaded } = useAccount();
   const store = useAccountStore();
   const [name, setName] = useState<string | null>(null);
@@ -66,10 +66,10 @@ export default function AccountPanel({ start }: { /** the plans' side asked for 
 
   return (
     <div className="flex w-full flex-col gap-5">
-      <p className="rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
+      {!payments && <p className="rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
         <span className="font-semibold">Open beta.</span> attunr is free while we fix bugs. If something breaks or doesn&apos;t make sense, please tell us.{" "}
         <a href={FEEDBACK_HREF} className={LINK}>Send feedback</a>
-      </p>
+      </p>}
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
         <div className="flex flex-col gap-5">

@@ -3,7 +3,8 @@ import PageShell from "@/components/PageShell";
 import { A, LegalSections, Mail, type LegalSection } from "@/components/legal";
 import { EARLY_OFFER, PRICING } from "@/features/account/pricing";
 import { FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
-import { TERMS_UPDATED } from "@/features/account/terms";
+import { TERMS_VERSIONS, termsVersion } from "@/features/account/terms";
+import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
 
 /*
  * The terms of use. Public, linked from the footer and from the box a new account ticks on /account/setup. Plain English,
@@ -18,9 +19,14 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-/** Last change to the words on this page (`TERMS_UPDATED`, also saved with each account that agrees to them). */
-const UPDATED = TERMS_UPDATED;
 const { player, school } = PRICING;
+/**
+ * Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: the paid terms then (version 2), with
+ * no beta section or beta lines; else the beta terms (version 1). The version's number is saved with each account that
+ * agrees (`TERMS_VERSIONS`), so a change to the words here is a new version there.
+ */
+const PAYMENTS = paymentsEnabled();
+const VERSION = termsVersion(PAYMENTS);
 
 const SECTIONS: LegalSection[] = [
   {
@@ -52,12 +58,12 @@ const SECTIONS: LegalSection[] = [
       </>
     ),
   },
-  {
+  ...(PAYMENTS ? [] : [{
     title: "The beta",
     body: (
       <p>While attunr is in open beta, everything is free and nothing is charged. You can choose a plan during the beta, and choosing one does not ask you to pay. Some parts are not ready yet. The beta can change or stop, and work made during it may be lost, so keep a copy of anything you need. The subscription terms below start when we open paid plans, and we will tell you by email before then.</p>
     ),
-  },
+  }]),
   {
     title: "The player subscription",
     body: (
@@ -92,7 +98,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>The first {EARLY_OFFER.students} people who sign up for a player subscription, and the first {EARLY_OFFER.schools} teachers or schools who join as founding partners, get the early price: {EARLY_OFFER.percentOff}% off the price of their plan, paid monthly or yearly. For a player that is {FIRST_STUDENTS_LINE}. A founding partner can choose any teacher plan, of any size.</p>
-                <p>&ldquo;First&rdquo; goes by the order people sign up: by when you made your account, or for a founding partner by when we agreed that you join. While places are left, the pricing page shows the early price. Nothing is charged during the beta, so the early price starts with your first payment after paid plans open.</p>
+                <p>&ldquo;First&rdquo; goes by the order people sign up: by when you made your account, or for a founding partner by when we agreed that you join. While places are left, the pricing page shows the early price.{!PAYMENTS && " Nothing is charged during the beta, so the early price starts with your first payment after paid plans open."}</p>
         <p>The early price is locked in: it does not go up for as long as you stay subscribed. If you cancel and subscribe again later, you pay the price shown at that time.</p>
         <p>For the plan priced by agreement, a founding partner pays {EARLY_OFFER.percentOff}% off the price we agree with them.</p>
         <p>A founding partner&apos;s agreement with us can give more than these terms do, such as a longer trial or a longer time to ask for all their money back. Where it does, the agreement applies.</p>
@@ -209,7 +215,7 @@ const SECTIONS: LegalSection[] = [
 
 export default function TermsPage() {
   return (
-    <PageShell active="/terms" column title="Terms of use" intro={`Plain words on what you get, what you pay and what we each promise. Last changed ${UPDATED}.`}>
+    <PageShell active="/terms" column title="Terms of use" intro={`Plain words on what you get, what you pay and what we each promise. Version ${VERSION}, last changed ${TERMS_VERSIONS[VERSION].updated}.`}>
       <LegalSections sections={SECTIONS} about="these terms" />
     </PageShell>
   );

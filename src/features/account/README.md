@@ -66,8 +66,10 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   boxes (`boxes`) and `reminder` to the body (`extra`); this folder imports no feature.
   Last, under the email box, "I agree to the terms of use" (the words link to `/terms`, in a new tab): never ticked for
   them, and Continue needs it. Sent as `acceptTerms: true`; `setUpAccount` refuses anything else (`error: "terms"`) before
-  it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`),
-  the date on `/terms` then (`TERMS_UPDATED` in `terms.ts`, which the terms page shows too).
+  it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`;
+  a number since `0047_terms_version_number`): the version shown on `/terms` then (`TERMS_VERSIONS` in `terms.ts`,
+  numbered, never edited: 1 the beta terms, 2 the paid terms; `termsVersion` picks by `STRIPE_ENABLED`, and the
+  terms page shows the number and its date). An invite's setup (`joinWithInvite`) saves it the same way.
 - The early price (`EARLY_OFFER` in `pricing.ts`): 50% off the monthly price of every plan, locked in while the person
   stays subscribed, for the first 20 schools and the first 500 students to sign up. It is for paying monthly only (user,
   2026-11-18, `earlyApplies`): a yearly price is shown and paid as it is, which is what twelve early months come to, so

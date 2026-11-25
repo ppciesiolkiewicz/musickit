@@ -1,7 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { PERSONAL_DEMO_PLAN_ID, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
-import { TERMS_UPDATED } from "../terms";
 import { hashToken, pathAfterSignIn, toAccount, type AuthDeps } from "./auth";
 import { joinWithInvite, listInvites, makeInvite, viewInvite } from "./invites";
 import { memoryRepo } from "./repo.memory";
@@ -77,7 +76,7 @@ test("a new account gives its name and agrees to the terms when it joins, before
   assert.equal(r.account.needsSetup, false);
   assert.equal(r.account.name, "Ann Lee");
   assert.equal(r.account.emailUpdates, true);
-  assert.equal((await deps.repo.userById(ann.id))?.termsVersion, TERMS_UPDATED);
+  assert.equal((await deps.repo.userById(ann.id))?.termsVersion, 1);
 });
 
 test("an owner stays an owner; a teacher's student can't join; a wrong token is not found", async () => {

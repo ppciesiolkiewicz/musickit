@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import AutoplanHome, { SchoolsEnding } from "@/components/landing/home/AutoplanHome";
 import { publicPlans } from "@/features/account/server/publicPlans";
+import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
 
 /* The home page, for music schools. Solo musicians have theirs at /players; a logged-in person is sent to /plan (src/proxy.ts). */
 
@@ -19,5 +20,5 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function Home() {
-  return <AutoplanHome audience="schools" plans={await publicPlans()} ending={<SchoolsEnding />} />;
+  return <AutoplanHome audience="schools" plans={await publicPlans()} payments={paymentsEnabled()} ending={<SchoolsEnding />} />;
 }

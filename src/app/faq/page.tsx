@@ -4,16 +4,23 @@ import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
 import { FAQ_TOUR } from "@/features/guide/tours/faq";
 import { EARLY_OFFER, PRICING } from "@/features/account/pricing";
+import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
+
+/** Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: the answers drop the beta. */
+const PAYMENTS = paymentsEnabled();
 
 const P = PRICING.player;
-const PRICE_LINE = `Free while attunr is in beta. From launch, ${P.monthPrice} a month or ${P.price} ${P.period} for your own practice: a new practice plan every day, as many as you like, and every tool and lesson. If your subscription ends you keep your plans, your notes and every tool, and only new practice plans need a subscription. Teachers pay by the number of students they give a plan each month. The first ${EARLY_OFFER.students} students and the first ${EARLY_OFFER.schools} schools get the early price: ${EARLY_OFFER.percentOff}% off any plan, monthly or yearly, locked in, so it doesn't go up while you stay subscribed.`;
+const PRICE_LINE = `${PAYMENTS ? "" : "Free while attunr is in beta. From launch, "}${P.monthPrice} a month or ${P.price} ${P.period} for your own practice: a new practice plan every day, as many as you like, and every tool and lesson. If your subscription ends you keep your plans, your notes and every tool, and only new practice plans need a subscription. Teachers pay by the number of students they give a plan each month. The first ${EARLY_OFFER.students} students and the first ${EARLY_OFFER.schools} schools get the early price: ${EARLY_OFFER.percentOff}% off any plan, monthly or yearly, locked in, so it doesn't go up while you stay subscribed.`;
 const SAVED_LINE = "In your account. Your plans, progress and notes are saved to it, so they are there when you log in on another device or browser. The setup of a device stays in its browser: the colour style, the microphone and speakers you chose, and each tool's settings.";
 const ACTIVE_LINE = `The students you gave a plan in the calendar month: you added them, made their next week or rotated their week. Students you didn't give a plan that month stay on your list and cost nothing, so you never have to remove anyone. Each plan also has a few extra students a month for free, for a busy month. The count starts again on the 1st.`;
+const FREE_LINE = PAYMENTS
+  ? "No, it is a subscription. A new subscription can start with a free trial, and if you cancel during the trial you pay nothing. A student whose teacher adds them pays nothing."
+  : "Yes, while it is in beta.";
 const REFUND_LINE = `Yes. Email us within ${P.guaranteeDays} days of paying for a full refund, no reason needed. That is on top of your rights under Australian Consumer Law.`;
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions · attunr",
-  description: "Answers to common questions about attunr: the beta, where your practice is saved, microphone setup, latency, the Practice plan, the price and the 30-day money-back guarantee.",
+  description: `Answers to common questions about attunr: ${PAYMENTS ? "" : "the beta, "}where your practice is saved, microphone setup, latency, the Practice plan, the price and the 30-day money-back guarantee.`,
   alternates: { canonical: "/faq" },
 };
 
@@ -26,7 +33,7 @@ const faqJsonLd = {
       name: "Is attunr free?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes, while it is in beta. You need an account: log in with your email or Google, and a new account is made the first time.",
+        text: `${FREE_LINE} You need an account: log in with your email or Google, and a new account is made the first time.`,
       },
     },
     {
@@ -99,7 +106,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "Getting started",
     items: [
-      { q: "Is attunr free?", a: <>Yes, while it is in beta. You need an account: <A href="/login">log in</A> with your email or Google, and a new account is made the first time.</> },
+      { q: "Is attunr free?", a: <>{FREE_LINE} You need an account: <A href="/login">log in</A> with your email or Google, and a new account is made the first time.</> },
       { q: "Where is my practice saved?", a: <>{SAVED_LINE}</> },
       { q: "Where do I start?", a: <>Open the <A href="/plan">Practice plan</A>: it makes a new set of exercises each day. Every other tool and lesson is in <A href="/practice">Practice</A>. Tune up first with the <A href="/tuner">tuner</A>.</> },
       { q: "I teach guitar or voice. Can I use attunr?", a: <>Yes. A teacher gets the same app as a student, and a Students page: add a student, and attunr makes them a week of practice that you steer before each new week. Notes is made for lessons: lay out what you taught on one page and send it to the student as a link.</> },

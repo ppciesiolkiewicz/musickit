@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import { AFTER_LOGIN, safeNext } from "@/features/account/server/auth";
 import { asksForTeachers } from "@/features/account/loginGuard";
+import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
 import SetupWithReminder from "@/features/reminders/ui/SetupWithReminder";
 
 export const metadata: Metadata = { title: "Set up your account · attunr", robots: { index: false } };
@@ -17,7 +18,7 @@ export default async function SetupPage({ searchParams }: { searchParams: Promis
   const start = q.for === "teachers" || asksForTeachers(next) ? "teachers" : null;
   return (
     <PageShell centered title="Set up your account" active="/account">
-      <SetupWithReminder next={next} start={start} />
+      <SetupWithReminder next={next} start={start} payments={paymentsEnabled()} />
     </PageShell>
   );
 }

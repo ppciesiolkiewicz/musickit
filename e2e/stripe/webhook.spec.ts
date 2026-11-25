@@ -115,11 +115,8 @@ test("an event with no signature is refused", async ({ request }) => {
   expect(res.status()).toBe(400);
 });
 
-// Paid11: with payments on, setup should drop its open-beta lines. Today SetupForm hides only the No charge line and
-// keeps the "Open beta: free while we build it with you" box above Continue to payment. Expected to fail until fixed;
-// Playwright reports it when it starts passing, so remove test.fail then.
+// Paid11: with payments on, setup drops its open-beta lines.
 test("setup shows no open-beta box when payments are on", async ({ page }) => {
-  test.fail(true, "Paid11: SetupForm still shows the open-beta box with payments on");
   await asNewPlayer(page);
   await page.goto("/account/setup");
   await expect(page.getByRole("button", { name: "Continue to payment" })).toBeVisible();

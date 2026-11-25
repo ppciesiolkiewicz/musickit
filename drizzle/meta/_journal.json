@@ -330,6 +330,13 @@
       "when": 1795589755585,
       "tag": "0046_content_videos",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1795594562349,
+      "tag": "0047_terms_version_number",
+      "breakpoints": true
     }
   ]
 }

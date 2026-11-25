@@ -10,12 +10,13 @@ import { ReminderSetupBox, zoneHere } from "./ReminderSetupBox";
  * /account/setup with the daily reminder among its boxes: on at 18:00 until they change it, saved with the account
  * (`reminder` in the setup body) in this browser's time zone, read when Continue is pressed.
  */
-export default function SetupWithReminder({ next, start }: { next: string; start?: Audience | null }) {
+export default function SetupWithReminder({ next, start, payments }: { next: string; start?: Audience | null; /** payments are on (`STRIPE_ENABLED`) */ payments?: boolean }) {
   const [reminder, setReminder] = useState<ReminderSettings>({ enabled: true, time: DEFAULT_TIME, zone: "" });
   return (
     <SetupForm
       next={next}
       start={start}
+      payments={payments}
       boxes={<ReminderSetupBox value={reminder} onChange={setReminder} />}
       extra={() => ({ reminder: { ...reminder, zone: zoneHere() } })}
     />

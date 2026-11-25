@@ -95,8 +95,8 @@ export const users = pgTable("users", {
   emailUpdatesAt: at("email_updates_at"),
   /** When they agreed to the terms of use, on /account/setup; null for an account that hasn't set up yet. */
   termsAcceptedAt: at("terms_accepted_at"),
-  /** Which terms they agreed to: the date on /terms then (`TERMS_UPDATED`). */
-  termsVersion: text("terms_version"),
+  /** Which terms they agreed to: the version's number (`TERMS_VERSIONS` in features/account/terms.ts). */
+  termsVersion: integer("terms_version"),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
 }, (t) => [check("users_permissions_known", sql`${t.permissions} <@ array['dev','content','admin']::text[]`)]).enableRLS();

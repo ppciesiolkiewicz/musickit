@@ -21,9 +21,9 @@ export interface UserRow {
   subscriptionStatus: string | null;
   /** When they agreed to emails about what we fix and add, and offers; null when they haven't. */
   emailUpdatesAt: Date | null;
-  /** When they agreed to the terms of use, and which (`TERMS_UPDATED`); null until they have. */
+  /** When they agreed to the terms of use, and which version (`TERMS_VERSIONS`); null until they have. */
   termsAcceptedAt: Date | null;
-  termsVersion: string | null;
+  termsVersion: number | null;
   createdAt: Date;
 }
 
@@ -106,8 +106,8 @@ export interface AuthRepo {
   updateUserName(id: string, name: string, now: Date): Promise<UserRow | null>;
   /** Turns the emails about what we fix and add, and offers on (from `now`) or off. Turning them on again keeps the first time. */
   setEmailUpdates(id: string, on: boolean, now: Date): Promise<UserRow | null>;
-  /** Records that they agreed to the terms of use `version`, at `now`. */
-  acceptTerms(id: string, version: string, now: Date): Promise<UserRow | null>;
+  /** Records that they agreed to the terms of use `version` (`TERMS_VERSIONS`), at `now`. */
+  acceptTerms(id: string, version: number, now: Date): Promise<UserRow | null>;
   /** Every plan, turned off or not. */
   listPlans(): Promise<Plan[]>;
   /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. */
