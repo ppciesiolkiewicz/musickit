@@ -69,6 +69,8 @@ tasks.txt
 # playwright
 /test-results/
 /playwright-report/
+/playwright-report-stripe/
 /playwright/.cache/
 /.next-e2e/
+/.next-e2e-stripe/
 !.env.e2e

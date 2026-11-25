@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 import { parseEnv } from "node:util";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 // The test server's settings, passed to it as env vars, which win over .env and .env.local.
 const e2eEnv = parseEnv(readFileSync(".env.e2e", "utf8")) as Record<string, string>;
@@ -13,32 +13,69 @@ if (!/@(127\.0\.0\.1|localhost):/.test(DATABASE_URL)) throw new Error("e2e needs
 // so a login here would replace the session in the user's real browser profile) and on its
 // own port and build folder (.next-e2e), so it runs beside a dev server on :3000. Its database is
 // musickit_e2e in the local Docker Postgres (.env.e2e), migrated before the server starts.
-const PORT = Number(process.env.E2E_PORT ?? 3210);
+//
+// Payments (E2E7, Paid13 in launch-checks.txt): `npm run e2e:stripe` sets E2E_STRIPE=1 and runs only e2e/stripe, on a
+// second server with STRIPE_ENABLED=true (its own port and build folder: payments on changes /account/setup for every
+// other test, so the two never share a server). The webhook spec signs its own events with STRIPE_WEBHOOK_SECRET below
+// and needs no key. The sandbox spec runs only with a Stripe test key in .env.e2e.local (git ignores it):
+//   STRIPE_SECRET_KEY=sk_test_…            (or rk_test_…; a live key is refused)
+//   STRIPE_EARLY_COUPON=…                  (optional)
+const STRIPE = process.env.E2E_STRIPE === "1";
+const local = existsSync(".env.e2e.local") ? (parseEnv(readFileSync(".env.e2e.local", "utf8")) as Record<string, string>) : {};
+const sandboxKey = local.STRIPE_SECRET_KEY ?? "";
+if (sandboxKey && !/^(sk|rk)_test_/.test(sandboxKey)) throw new Error("e2e takes only a Stripe test key (sk_test_ or rk_test_) in .env.e2e.local");
+
+// Only events these tests sign themselves reach the test server, so the secret needn't be Stripe's.
+const WEBHOOK_SECRET = "whsec_e2e_signed_by_the_tests";
+// The server needs some key to check signatures; with no sandbox key nothing it calls reaches Stripe in the webhook spec.
+const OFFLINE_KEY = "sk_test_e2e_offline";
+
+// The spec files read these (the config runs in every worker before the tests).
+process.env.E2E_DATABASE_URL = DATABASE_URL;
+process.env.E2E_STRIPE_WEBHOOK_SECRET = WEBHOOK_SECRET;
+process.env.E2E_STRIPE_SANDBOX_KEY = sandboxKey;
+
+const PORT = Number(process.env.E2E_PORT ?? (STRIPE ? 3211 : 3210));
 const baseURL = `http://127.0.0.1:${PORT}`;
 
+const payments = STRIPE
+  ? {
+      STRIPE_ENABLED: "true",
+      STRIPE_SECRET_KEY: sandboxKey || OFFLINE_KEY,
+      STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET,
+      STRIPE_EARLY_COUPON: local.STRIPE_EARLY_COUPON ?? "",
+    }
+  : // payments off, whatever .env.local says
+    { STRIPE_ENABLED: "", STRIPE_SECRET_KEY: "", STRIPE_WEBHOOK_SECRET: "", STRIPE_EARLY_COUPON: "" };
+
 export default defineConfig({
-  testDir: "e2e",
-  timeout: 60_000,
-  fullyParallel: true,
+  testDir: STRIPE ? "e2e/stripe" : "e2e",
+  testIgnore: STRIPE ? [] : ["stripe/**"],
+  // the sandbox tests wait on Stripe's pages and events
+  timeout: STRIPE ? 180_000 : 60_000,
+  fullyParallel: !STRIPE,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
+  reporter: [["list"], ["html", { open: "never", outputFolder: STRIPE ? "playwright-report-stripe" : "playwright-report" }]],
   use: {
     baseURL,
     trace: "retain-on-failure",
   },
-  projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    {
-      name: "phone",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
-    },
-  ],
+  projects: STRIPE
+    ? // one browser: every sandbox run makes customers and subscriptions in Stripe
+      [{ name: "desktop", use: { ...devices["Desktop Chrome"] } }]
+    : [
+        { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+        {
+          name: "phone",
+          use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
+        },
+      ],
   webServer: {
     command: `node scripts/db-migrate.mjs && npx next dev --webpack -H 127.0.0.1 -p ${PORT}`,
     url: baseURL,
     reuseExistingServer: false,
     timeout: 180_000,
-    env: { ...e2eEnv, NEXT_DIST_DIR: ".next-e2e", E2E: "1" },
+    env: { ...e2eEnv, ...payments, NEXT_DIST_DIR: STRIPE ? ".next-e2e-stripe" : ".next-e2e", E2E: "1" },
   },
 });

@@ -181,6 +181,11 @@ Paid13: End-to-end tests for payments pass before STRIPE_ENABLED is turned on (t
   - Signing in for tests (E2E2) comes first: the code from /api/auth/email-link's development answer (devCode) works
     when the test server has no RESEND_API_KEY.
   - The Stripe CLI is not installed on this machine (`brew install stripe/stripe-cli/stripe`), needed for Paid10.
+  [2026-11-25] Built, not yet run (the local Postgres on 5433 wasn't answering): `npm run e2e:stripe` (E2E_STRIPE=1,
+  server on 127.0.0.1:3211, .next-e2e-stripe). e2e/stripe/webhook.spec.ts signs its own events (8 tests, one a
+  test.fail for the open-beta box, Paid11); e2e/stripe/sandbox.spec.ts skips with no STRIPE_SECRET_KEY in
+  .env.e2e.local and forwards the sandbox's events itself (no Stripe CLI needed). Its Checkout field selectors are
+  untried against Stripe's page.
   [2026-11-24] Not built. Read the Stripe code instead, without running it against Stripe (no keys here). Found, each
   to confirm in the sandbox run:
   - /account/setup still shows the "Open beta: free while we build it with you" box with payments on, above a
