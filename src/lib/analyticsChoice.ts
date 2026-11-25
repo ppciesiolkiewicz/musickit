@@ -47,11 +47,12 @@ export const mustAsk = ({ region, choice, gpc }: { region: Region; choice: Choic
 
 /**
  * An address with its secrets taken out: an invite or a shared note's id in the path, and any `token` or `code` in the
- * query. Works on a full address, a path, or any text holding one.
+ * query. Works on a full address, a path, or any text holding one. A join code (`/join/INDIEAPPCIRCLE`, letters only, up to
+ * 30) is public and stays, so its visits can be counted; an invite token is 43 random characters and never is one.
  */
 export const scrubUrl = (url: string): string =>
   url
-    .replace(/\/join\/[^/?#\s]+/g, "/join/[token]")
+    .replace(/\/join\/(?![A-Za-z]{1,30}(?:[/?#\s]|$))[^/?#\s]+/g, "/join/[token]")
     .replace(/\/notes\/shared\/[^/?#\s]+/g, "/notes/shared/[id]")
     .replace(/([?&](?:token|code)=)[^&#\s]*/g, "$1[removed]");
 
