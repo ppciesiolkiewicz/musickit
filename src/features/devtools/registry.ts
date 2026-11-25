@@ -57,7 +57,7 @@ export const TONE_CLASSES: Record<DevTone, { tab: string; active: string; card: 
 export const CONTENT_TOOLS: DevTool[] = [
   { href: "/admin/content/library", label: "Library", desc: "The plans and blocks agents read: coverage by step, each one drawn as the player sees it, with the versions it was written to." },
   { href: "/admin/content/path", label: "Learning path", desc: "The path the plan maker reads: each skill's steps across the levels, the steps in the order they need each other, the keys each level adds, with a student laid over it." },
-  { href: "/admin/content/videos", label: "Tools videos", desc: "Every tool and level with the video players see, or Missing, and how many seed exercises use it. Record a missing one, change which levels a video covers, edit or delete it." },
+  { href: "/admin/content/videos", label: "Tools videos", desc: "The recording plan: which videos to record, in what order, and what goes in each. Every tool and level with the video players see, or Missing, and how many seed exercises use it. Record a missing one, change which levels a video covers, edit or delete it." },
   { href: "/admin/content/stories", label: "Component stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
   { href: "/admin/content/onboarding", label: "Onboarding coverage", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
   { href: "/admin/content/riff", label: "Riff maker", desc: "Write a riff note by note in a key and scale: click the neck or type degrees, see the tab, switch strings, copy JSON or tab. Record a video take of the riff and transcribe its notes." },

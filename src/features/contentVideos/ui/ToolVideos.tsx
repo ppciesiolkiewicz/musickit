@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import OverlayVideo from "./OverlayVideo";
+import VideoOutline, { Notes, Script } from "./VideoOutline";
 import { deleteContentVideo, editContentVideo, listContentVideos, retickContentVideo } from "../client/api";
 import { coverage, coveredCount, levelsText, stepGroups, toolName, type SeedUse } from "../model/coverage";
+import { minutesLeft, recordPlan } from "../model/recordPlan";
 import type { ContentVideoInfo } from "../server/access";
 import type { Lost } from "../server/repo";
 
@@ -12,8 +14,13 @@ import type { Lost } from "../server/repo";
  * The Tools videos page (/admin/content/videos), laid out like Component stories: every tool a video can be for on the
  * left with how many of its levels have a video, the picked one on the right. Its levels, each with the video that covers
  * it or Missing, how many seed exercises use the tool there and a Record link; under them every video made for the tool,
- * with Play, Change levels, Edit and Delete. No player loads until Play is pressed.
+ * with Play, Change levels, Edit and Delete. No player loads until Play is pressed. Recording plan, first on the left
+ * and shown when the address names no tool, lists the videos to record in order (`model/recordPlan.ts`); a tool's own
+ * page says what goes into its video.
  */
+
+/** The address of the Recording plan (`#plan`), and what `tool` holds while it shows. */
+const PLAN = "plan";
 
 const btn = "rounded-md border border-slate-700 px-2 py-0.5 text-xs text-slate-300 hover:border-slate-400 hover:text-slate-100 disabled:opacity-40";
 const input = "rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200";
@@ -37,12 +44,12 @@ function lostLine(tool: string, lost: Lost[]): string {
 export default function ToolVideos({ tools, use, initial, initialError }: { tools: string[]; use: SeedUse; initial: ContentVideoInfo[]; initialError: string }) {
   const [videos, setVideos] = useState(initial);
   const [error, setError] = useState(initialError);
-  const [tool, setTool] = useState(tools[0]);
+  const [tool, setTool] = useState(PLAN);
   const [filter, setFilter] = useState("");
   const [note, setNote] = useState("");
 
   useEffect(() => {
-    const pick = () => { const h = readHash(); if (tools.includes(h)) setTool(h); };
+    const pick = () => { const h = readHash(); if (tools.includes(h)) setTool(h); else if (h === PLAN || !h) setTool(PLAN); };
     pick();
     window.addEventListener("hashchange", pick);
     return () => window.removeEventListener("hashchange", pick);
@@ -67,6 +74,10 @@ export default function ToolVideos({ tools, use, initial, initialError }: { tool
     <div className="grid gap-4 lg:grid-cols-[17rem_1fr]">
       <nav className="flex flex-col gap-2 pr-3 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)] lg:self-start lg:overflow-y-auto" aria-label="Tools">
         <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter tools" className={input} />
+        <button type="button" onClick={() => choose(PLAN)} aria-current={tool === PLAN}
+          className={`rounded px-2 py-1 text-left text-sm ${tool === PLAN ? "bg-emerald-500/15 text-emerald-100" : "text-slate-300 hover:text-slate-100"}`}>
+          Recording plan
+        </button>
         <ul className="flex flex-col gap-0.5">
           {shown.map((t) => {
             const c = coveredCount(t, videos);
@@ -84,6 +95,7 @@ export default function ToolVideos({ tools, use, initial, initialError }: { tool
         </ul>
       </nav>
 
+      {tool === PLAN ? <PlanView tools={tools} videos={videos} use={use} error={error} onRetry={() => void reload()} onPick={choose} /> : (
       <div className="flex min-w-0 flex-col gap-4">
         <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 className="font-mono text-lg text-slate-100">{toolName(tool)}</h2>
@@ -91,6 +103,7 @@ export default function ToolVideos({ tools, use, initial, initialError }: { tool
         </header>
         {error && <p role="alert" className="text-sm text-rose-400">{error} <button type="button" onClick={() => void reload()} className={btn}>Try again</button></p>}
         {note && <p role="status" className="text-sm text-slate-300">{note}</p>}
+        <VideoOutline tool={tool} />
 
         {groups.map((g) => (
           <section key={g.ladder ?? g.label} className="flex flex-col gap-1">
@@ -141,6 +154,97 @@ export default function ToolVideos({ tools, use, initial, initialError }: { tool
           )}
         </section>
       </div>
+      )}
+    </div>
+  );
+}
+
+const allLevelsHref = (tool: string): string => recordHref(tool, stepGroups(tool).flatMap((g) => g.steps.map((s) => s.step)));
+
+/** The Recording plan: the first videos in the order to record them, stage by stage, each with its script; then the later ones with their notes, and the tools with no video planned. */
+function PlanView({ tools, videos, use, error, onRetry, onPick }: { tools: string[]; videos: ContentVideoInfo[]; use: SeedUse; error: string; onRetry: () => void; onPick: (tool: string) => void }) {
+  const plan = useMemo(() => recordPlan(tools, videos, use), [tools, videos, use]);
+  const first = plan.stages.flatMap((s) => s.rows);
+  const done = first.filter((r) => r.covered === r.of).length;
+  const left = minutesLeft(first);
+  return (
+    <div className="flex min-w-0 flex-col gap-4">
+      <header className="flex flex-col gap-1">
+        <h2 className="text-lg text-slate-100">Recording plan</h2>
+        <p className="max-w-3xl text-sm text-slate-400">
+          The first {first.length} videos, in the order to record them. Each one is for a tool at every level: it shows the tool, plays or sings one example, and invites the player to try things with it. Narrower videos for single levels come later.
+        </p>
+        <p className="text-sm text-slate-300">{done} of {first.length} recorded{left ? ` · about ${left} min of video still to record` : ""}</p>
+      </header>
+      {error && <p role="alert" className="text-sm text-rose-400">{error} <button type="button" onClick={onRetry} className={btn}>Try again</button></p>}
+      {plan.stages.map((st) => (
+        <section key={st.name} className="flex flex-col gap-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{st.name}</h3>
+          <p className="text-xs text-slate-400">{st.about}</p>
+          <ol className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-900/40">
+            {st.rows.map((r) => (
+              <li key={r.tool} className="flex flex-col gap-1 px-3 py-2 text-sm">
+                <RowHead n={r.n} title={r.plan.title} tool={r.tool} about={`about ${r.plan.minutes} min`} blocks={r.blocks} covered={r.covered} of={r.of} onPick={onPick} />
+                <details className="pl-8">
+                  <summary className="cursor-pointer text-xs text-slate-400">Script</summary>
+                  <Script beats={r.plan.script} />
+                </details>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+      {plan.later.length > 0 && (
+        <section className="flex flex-col gap-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Later</h3>
+          <p className="text-xs text-slate-400">After the first {first.length}. These have notes and no script yet.</p>
+          <ol className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-900/40">
+            {plan.later.map((r) => (
+              <li key={r.tool} className="flex flex-col gap-1 px-3 py-2 text-sm">
+                <RowHead title={r.plan.title} tool={r.tool} about="" blocks={r.blocks} covered={r.covered} of={r.of} onPick={onPick} />
+                <details>
+                  <summary className="cursor-pointer text-xs text-slate-400">Notes</summary>
+                  <Notes notes={r.plan.notes} />
+                </details>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+      {plan.none.length > 0 && (
+        <section className="flex flex-col gap-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">No video planned</h3>
+          <ul className="divide-y divide-slate-800 rounded-xl border border-slate-800 bg-slate-900/40">
+            {plan.none.map((r) => (
+              <li key={r.tool} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-2 text-sm">
+                <button type="button" onClick={() => onPick(r.tool)} className="font-mono text-xs text-sky-400 hover:underline">{toolName(r.tool)}</button>
+                <span className="text-slate-400">{r.why}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  );
+}
+
+/** The head of one line of the plan: its place in the order, the video's title, its tool, seed use, whether it is recorded, and Record. */
+function RowHead({ n, title, tool, about, blocks, covered, of, onPick }: { n?: number; title: string; tool: string; about: string; blocks: number; covered: number; of: number; onPick: (tool: string) => void }) {
+  const used = blocks ? `used by ${blocks} seed ${blocks === 1 ? "exercise" : "exercises"}` : "no seed exercise";
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      {n !== undefined && <span className="w-5 text-right text-xs text-slate-500">{n}</span>}
+      <span className="font-medium text-slate-100">{title}</span>
+      <button type="button" onClick={() => onPick(tool)} className="font-mono text-xs text-sky-400 hover:underline">{toolName(tool)}</button>
+      <span className="text-xs text-slate-400">{about ? `${about} · ${used}` : used}</span>
+      <span className="ml-auto flex items-center gap-2">
+        {covered === of
+          ? <span className="rounded bg-emerald-500/15 px-1.5 text-xs text-emerald-200">Recorded</span>
+          : covered
+            ? <span className="rounded bg-amber-500/15 px-1.5 text-xs text-amber-200">{covered} of {of} levels</span>
+            : <span className="rounded bg-amber-500/15 px-1.5 text-xs text-amber-200">Missing</span>}
+        <Link href={allLevelsHref(tool)} className={btn}>Record</Link>
+      </span>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { Tool } from "@/features/plan/ui/ExerciseTool";
 import { drawToolOverlay } from "@/features/plan/ui/ToolOverlay";
 import { OverlayDrawProvider } from "@/features/contentVideos/ui/OverlayVideo";
 import type { PlanTool } from "@/features/plan/model/tools";
+import VideoOutline from "@/features/contentVideos/ui/VideoOutline";
 import RecordVideo, { type RecordFor } from "@/features/contentVideos/ui/RecordVideo";
 import { stepGroups, toolName } from "@/features/contentVideos/model/coverage";
 import type { ContentVideoInfo } from "@/features/contentVideos/server/access";
@@ -25,6 +26,7 @@ export default function RecordPage({ target, options, videos, error }: { target:
         <Link href={`/admin/content/videos#${encodeURIComponent(target.tool)}`} className="text-sm text-sky-400 hover:underline">Back to Tools videos</Link>
       </header>
       {error && <p role="alert" className="text-sm text-rose-400">{error}</p>}
+      {!target.block && <div className="max-w-3xl"><VideoOutline tool={target.tool} open={false} /></div>}
       {options.length > 1 && (
         <label className="flex max-w-3xl flex-col gap-1 text-xs text-slate-400">Settings of the tool over the camera, from a seed exercise
           <select value={picked} onChange={(e) => setPicked(Number(e.target.value))} className="rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200">
