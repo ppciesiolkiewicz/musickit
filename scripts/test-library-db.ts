@@ -1,5 +1,6 @@
 /**
- * Runs the library contract (src/features/library/server/repoContract.ts) against Postgres, and the block provenance cases of
+ * Runs the library contract (src/features/library/server/repoContract.ts) and the content video contract
+ * (src/features/contentVideos/server/repoContract.ts) against Postgres, and the block provenance cases of
  * src/features/userData/server/provenance.test.ts against the Drizzle user data repo. Wipes the database it is given.
  *
  *   LIBRARY_TEST_DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit_test npm run -s test:library-db
@@ -21,6 +22,8 @@ import { libraryRepoContract } from "../src/features/library/server/repoContract
 import { drizzleLibraryRepo } from "../src/features/library/server/repo.drizzle";
 import { PLAYER_A, type LibraryData } from "../src/features/library/server/fixture";
 import { localTestDatabase } from "../src/features/library/server/testDatabase";
+import { contentVideoRepoContract } from "../src/features/contentVideos/server/repoContract";
+import { drizzleContentVideoRepo } from "../src/features/contentVideos/server/repo.drizzle";
 import { drizzleUserDataRepo } from "../src/features/userData/server/repo.drizzle";
 import type { CuratedBlock, NewBlock, Provenance } from "../src/features/userData/server/repo";
 
@@ -34,7 +37,10 @@ if (!target) {
 const { host, port, database, username, password, url } = target;
 const client = postgres({ host, port, database, username, password, max: 1, prepare: false, connect_timeout: 10, onnotice: () => {} });
 const db: Db = drizzle(client, { schema });
-after(() => client.end({ timeout: 5 }));
+// the content video contract saves twice at once: a second pool with room for both, so the advisory lock is what keeps them apart
+const pair = postgres({ host, port, database, username, password, max: 4, prepare: false, connect_timeout: 10, onnotice: () => {} });
+const pairDb: Db = drizzle(pair, { schema });
+after(() => Promise.all([client.end({ timeout: 5 }), pair.end({ timeout: 5 })]));
 
 /** A fresh schema with every migration applied, once per run. */
 const ready = (async () => {
@@ -71,6 +77,13 @@ async function load(data: LibraryData) {
 libraryRepoContract(async (data) => {
   await load(data);
   return drizzleLibraryRepo(db);
+});
+
+// every table is emptied before each test (`content_videos` and `blocks.videos` with it), then the contract's blocks are stored
+contentVideoRepoContract(async (list) => {
+  await truncate();
+  await db.insert(schema.blocks).values(list.map((b) => ({ id: b.id, kind: b.kind, content: b.content, videos: b.videos ?? null })));
+  return drizzleContentVideoRepo(pairDb);
 });
 
 describe("user data repo on Postgres: block provenance", () => {
