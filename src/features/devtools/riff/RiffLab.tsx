@@ -318,7 +318,8 @@ export default function RiffLab({ open: asked = "" }: { open?: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (t.closest("input, textarea, select, video")) return;
+      // a press the recorder took (R to record or stop) is not the editor's
+      if (e.defaultPrevented || t.closest("input, textarea, select, video")) return;
       const k = e.key;
       if ((e.metaKey || e.ctrlKey) && k === "z") {
         const prev = history.current.pop();
@@ -713,11 +714,15 @@ function RiffRecorder({ riff, scale, cell, bars }: { riff: Saved; scale: string;
   const kit = useMemo((): RecordKit => {
     const times = riffTimes(notes, bpm);
     const grid = barGrid(bpm, 0, windowBars);
+    const loopBeats = toolNotes?.loopBeats ?? null;
+    // stopped (null), the riff stands at beat 1; in the count-in the beat is negative and the riff waits for it; past one
+    // pass it starts again, as the tool loops
+    const at = (beat: number | null) => { const b = beat ?? 0; return ((b >= 0 && loopBeats ? b % loopBeats : b) * 60) / bpm; };
     return {
-      // stopped (null), the riff stands at beat 1; in the count-in the beat is negative and the riff waits for it
-      views: RIFF_VIEWS.map((v) => ({ id: v.id, label: v.label, draw: (beat: number | null) => <RiffView notes={times} t={((beat ?? 0) * 60) / bpm} mode={v.id} grid={grid} /> })),
+      views: RIFF_VIEWS.map((v) => ({ id: v.id, label: v.label, draw: (beat: number | null) => <RiffView notes={times} t={at(beat)} mode={v.id} grid={grid} /> })),
+      // an open string gets no finger (`fingerFor` gives none for fret 0)
       notes: toolNotes?.notes.map((n) => (n.finger === undefined && n.fret !== undefined ? { ...n, finger: fingerFor(n.fret, pos) } : n)),
-      loopBeats: toolNotes?.loopBeats ?? null,
+      loopBeats,
       key: { tonic, scale },
     };
   }, [notes, bpm, windowBars, toolNotes, pos, tonic, scale]);
@@ -731,7 +736,7 @@ function RiffRecorder({ riff, scale, cell, bars }: { riff: Saved; scale: string;
           </select>
         </label>
       </div>
-      {videosError && <p role="alert" className="text-rose-400">{videosError} The page can&apos;t say which video loses a level.</p>}
+      {videosError && <p role="alert" className="text-rose-400">{videosError}</p>}
       <OverlayDrawProvider draw={drawToolOverlay}>
         <RecordVideo target={{ tool: "guitar-play-along:riff", steps: [], block: { id, cell, title: name } }} videos={videos} drawn={drawn}
           tempo={{ bpm, bars }} oldTakeKey={id} kit={kit}>

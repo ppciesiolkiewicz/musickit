@@ -423,17 +423,17 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
     setPhase("recording");
   };
 
-  // R records and stops, unless typing in a field
+  // R records and stops, unless typing in a field. Heard first (capture) and marked handled when it acts, so a page's own
+  // keys (the riff maker's r for a rest) can leave that press alone
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (e.key.toLowerCase() !== "r" || e.repeat || e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true]")) return;
-      e.preventDefault();
-      if (phase === "ready" && !sending && exporting === null) void record();
-      else if (phase === "recording") recorder.current?.stop();
+      if (phase === "ready" && !sending && exporting === null) { e.preventDefault(); void record(); }
+      else if (phase === "recording") { e.preventDefault(); recorder.current?.stop(); }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   });
 
   const steps: string[] | null = laddered ? all.flatMap((s) => (s.step !== null && ticked.includes(s.step) ? [s.step] : [])) : null;
