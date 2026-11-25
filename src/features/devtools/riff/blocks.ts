@@ -1,6 +1,8 @@
 import { keySlug, parseKeySlug } from "@/features/theory/keySlug";
 import { readRiff, writeRiff, type RiffNote } from "@/features/exercises/riffs/riff";
 import { isGenre, type Genre } from "@/features/library/seed/genres";
+import { toolCells } from "@/features/contentVideos/model/slot";
+import type { Cell } from "@/features/plan/model/tools";
 
 /*
  * A riff lives in a seed block (`src/features/library/seed/blocks`), as the `riff` shape of its guitar-play-along tool. The
@@ -25,6 +27,8 @@ export interface RiffBlock {
   scale: string;
   bpm: number;
   notes: RiffNote[];
+  /** the riff tool's index among the exercise's tool cells in reading order, sections flattened (as `toolCells` counts): where the block's own video goes */
+  cell: number;
 }
 
 /** What the riff maker writes into a block. `amp` left out keeps the block's amp; null takes it away. */
@@ -53,6 +57,8 @@ export function riffBlockOf(file: unknown): RiffBlock | { error: string } | null
   const read = readRiff(shape.notes);
   if (tonic === null) return { error: "its riff has no key" };
   if ("error" in read) return { error: `its riff can't be read: ${read.error}` };
+  const cell = Array.isArray(file.exercise.cells) ? toolCells(file.exercise.cells as Cell[]).indexOf(tool as never) : -1;
+  if (cell < 0) return { error: "its riff isn't in a tool cell" };
   const choices = (Array.isArray(file.choices) ? file.choices : []).filter(isObj);
   return {
     id: String(file.id),
@@ -65,6 +71,7 @@ export function riffBlockOf(file: unknown): RiffBlock | { error: string } | null
     scale: typeof shape.scale === "string" ? shape.scale : "Aeolian",
     bpm: typeof tool.bpm === "number" ? tool.bpm : 80,
     notes: read.notes,
+    cell,
   };
 }
 

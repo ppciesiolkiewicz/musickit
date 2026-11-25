@@ -7,6 +7,12 @@ export interface RiffTake {
   downbeat?: number; bpm?: number; bars?: number;
   /** what was detected in the take: what Read the neck saw while it played (DetectLog) */
   log?: TakeLog;
+  /** saved for players (Save for players): the content video's id, given once before the first upload; a new recording has none */
+  videoId?: string;
+  /** the file is in the store: the next Save for players sends only the row */
+  fileUp?: boolean;
+  /** the row is saved too: the take is the riff block's own video */
+  uploaded?: boolean;
 }
 
 /** One frame Read the neck read, at `t` seconds into the take: the marker ids and each hand's fingertips. */

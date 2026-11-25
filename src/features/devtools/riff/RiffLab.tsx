@@ -645,7 +645,7 @@ export default function RiffLab() {
         </section>
       )}
 
-      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} bars={Math.max(1, Math.ceil(total / 4 - 1e-6))} notes={notes} />
+      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} bars={Math.max(1, Math.ceil(total / 4 - 1e-6))} notes={notes} cell={seedRiff?.cell ?? null} />
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-2">

@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 import { SEED_BLOCKS } from "@/features/library/seed";
 import { GENRES } from "@/features/library/seed/genres";
 import { columnsOf } from "@/features/exercises/riffs/riff";
+import { toolCells } from "@/features/contentVideos/model/slot";
+import type { Cell } from "@/features/plan/model/tools";
 import { blockFileText, checkEdit, riffBlockOf, riffsOf, withRiff, type RiffBlock } from "./blocks";
 
 const riffs = SEED_BLOCKS.flatMap((f) => { const r = riffBlockOf(f); return r ? [{ f, r }] : []; });
@@ -86,5 +88,30 @@ describe("riffsOf", () => {
     assert.equal(out.problems.length, 1);
     assert.match(out.problems[0], new RegExp(`^${f.id}: `));
     assert.deepEqual(out.riffs, []);
+  });
+});
+
+describe("a riff block's tool cell", () => {
+  const real = SEED_BLOCKS.find((f) => f.id === "guitar-beginner-rock-power-chords-and-a-riff")!;
+  const riffCell = (real.exercise.cells as { type: string }[]).find((c) => c.type === "tool")!;
+  const other = { type: "tool", tool: { type: "metronome", bpm: 60 } };
+
+  it("a riff block says which tool cell its riff is", () => {
+    assert.equal((riffBlockOf(real) as RiffBlock).cell, 0);
+    // a tool before the riff's play-along
+    const before = { ...real, exercise: { ...real.exercise, cells: [{ type: "text", text: "a" }, other, riffCell] } };
+    assert.equal((riffBlockOf(before) as RiffBlock).cell, 1);
+    // a riff inside a section counts through the tools before it, a section's among them
+    const inSection = { ...real, exercise: { ...real.exercise, cells: [other, { type: "section", heading: "One", cells: [other, { type: "text", text: "b" }] }, { type: "section", heading: "Two", cells: [riffCell] }] } };
+    assert.equal((riffBlockOf(inSection) as RiffBlock).cell, 2);
+  });
+
+  it("counts the same as toolCells on every seed riff", () => {
+    for (const { f, r } of riffs) {
+      const tools = toolCells(f.exercise.cells as Cell[]);
+      const at = (r as RiffBlock).cell;
+      assert.equal(tools[at]?.type, "guitar-play-along", f.id);
+      assert.equal(tools.findIndex((t) => t.type === "guitar-play-along" && t.shape.shape === "riff"), at, f.id);
+    }
   });
 });

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAudioContext, getOutputBus, readDeviceChoice, wakeAudio } from "@/features/sound";
 import { clockTime } from "@/features/recorder/recorder";
 import { pickVideoType, videoFileName } from "@/features/videos/recording";
+import { saveContentVideo } from "@/features/contentVideos/client/api";
 import { riffTimes, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
 import NeckView from "./NeckView";
@@ -64,11 +65,13 @@ const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /**
  * Records the riff being played, with the camera and the audio input, and keeps the take with the riff in this browser: it is saved
- * when the recording stops, and **Save file** downloads it. The riff's own notes are drawn over the take on its beat grid (beat 1
+ * when the recording stops, **Save file** downloads it and **Save for players** uploads it as the riff block's own video. The riff's own notes are drawn over the take on its beat grid (beat 1
  * after the count-in, at the take's tempo), and over the camera while recording: nothing is heard from the take.
  */
-export default function RiffTake({ riff, name, bpm, bars, notes }: {
+export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   riff: string; name: string; bpm: number;
+  /** the riff's tool cell in its block (`RiffBlock.cell`), where Save for players puts the take; null until the block is read */
+  cell: number | null;
   /** the riff's length in 4/4 bars: what a take is expected to fill */
   bars: number;
   notes: RiffNote[];
@@ -81,6 +84,8 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
   const url = shown?.url ?? "";
   const shownUrl = useRef("");
   const [stored, setStored] = useState<Stored>("saved");
+  // Save for players running
+  const [sending, setSending] = useState(false);
   const [seconds, setSeconds] = useState(0);
   // the take a new recording replaced, kept in memory until the next recording, so a worse retake can be undone
   const [previous, setPrevious] = useState<Take | null>(null);
@@ -266,6 +271,39 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
     setPhase("recording");
   };
 
+  /** Set fields on the take recorded at `at`, on screen and in this browser (over what is stored, so a newer log is kept). */
+  const mark = async (at: number, fields: Partial<Take>) => {
+    setShown((s) => (s && s.take.at === at ? { ...s, take: { ...s.take, ...fields } } : s));
+    const kept = await getTake(riff);
+    const base = kept && kept.at === at ? kept : take && take.at === at ? take : null;
+    if (base) { await saveTake({ ...base, ...fields }); setStored("saved"); }
+  };
+
+  /** Upload the take as the riff block's own video: its id is given and stored first, so a retry reuses it. */
+  const sendToPlayers = async () => {
+    if (!take || cell === null || sending) return;
+    setProblem("");
+    setSending(true);
+    try {
+      const at = take.at;
+      const videoId = take.videoId ?? crypto.randomUUID();
+      if (!take.videoId) {
+        try { await mark(at, { videoId }); } catch (e) { setProblem(`The browser didn't store this take, so it wasn't uploaded: ${message(e)}. Press Save for players again.`); return; }
+      }
+      const out = await saveContentVideo({
+        id: videoId, blob: take.blob, type: take.type, title: name, note: "", seconds: take.seconds,
+        width: takeVideo?.videoWidth ?? 0, height: takeVideo?.videoHeight ?? 0,
+        madeFor: riff, target: { kind: "cell", blockId: riff, cell }, fileUp: take.fileUp,
+      });
+      // a cell target takes no steps from other videos, so `lost` is always empty here
+      const fields: Partial<Take> = out.ok ? { fileUp: true, uploaded: true } : { fileUp: out.fileUp };
+      await mark(at, fields).catch((e: unknown) => setProblem(`${out.ok ? "" : `${out.error} `}The browser didn't store where the upload stands: ${message(e)}.`));
+      if (!out.ok) setProblem((p) => p || out.error);
+    } finally {
+      setSending(false);
+    }
+  };
+
   const remove = async () => {
     setProblem("");
     try { await deleteTake(riff); show(null); } catch (e) { setProblem(`The take wasn't deleted: ${message(e)}.`); }
@@ -364,9 +402,13 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <span className={`text-xs ${stored === "failed" ? "text-rose-400" : "text-slate-400"}`}>
               {clockTime(take.seconds)} · {stored === "saved" ? "Saved in this browser" : stored === "saving" ? "Saving…" : "Not saved"}
+              {sending ? " · Uploading…" : take.uploaded ? " · Saved for players" : ""}
             </span>
             {stored === "failed" && <button onClick={() => void store(take)} className={btn}>Save</button>}
             <button onClick={download} className={btn}>Save file</button>
+            {!take.uploaded && !sending && cell !== null && (
+              <button onClick={() => void sendToPlayers()} className={btn} title="Uploads this take as the video players see with this exercise">Save for players</button>
+            )}
             <button onClick={() => void remove()} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
           </div>
         )}
