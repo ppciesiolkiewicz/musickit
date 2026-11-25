@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { TOOLS } from "@/features/plan/model/tools";
 import { beatAt, readPieces, squeeze, type Sample } from "./clock";
-import { hasOverlay, readOverlay } from "./overlay";
+import { DEFAULT_LOOK, hasOverlay, readLook, readOverlay } from "./overlay";
 
 /** samples every 50 ms from `from` to `to` seconds, the beat from `beat(t)` */
 const run = (from: number, to: number, beat: (t: number) => number | null): Sample[] => {
@@ -70,4 +70,12 @@ test("an overlay keeps the tool's settings as saved, for the riff and the melody
   assert.equal(readOverlay({ tool: riff, clock: [[0, 0]] }), null);
   assert.equal(readOverlay({ tool: { type: "melody-singer" }, clock: [] }), null);
   assert.equal(readOverlay(null), null);
+});
+
+test("a look keeps each part that reads and defaults the rest", () => {
+  assert.deepEqual(readLook({ place: "left", size: "large", bg: "clear" }), { place: "left", size: "large", bg: "clear" });
+  assert.deepEqual(readLook({ place: "middle", size: "large" }), { ...DEFAULT_LOOK, size: "large" });
+  assert.deepEqual(readLook(null), DEFAULT_LOOK);
+  assert.deepEqual(readOverlay({ tool: riff, clock: [], look: { place: "right" } })?.look, { ...DEFAULT_LOOK, place: "right" });
+  assert.equal(readOverlay({ tool: riff, clock: [] })?.look, undefined);
 });

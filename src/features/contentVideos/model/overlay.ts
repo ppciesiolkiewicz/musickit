@@ -6,22 +6,43 @@ import { readPieces, type Piece } from "./clock";
  * camera, and its clock (`model/clock.ts`). A copy, not a link: a later change to the exercise doesn't move the overlay
  * off the hands. Pure.
  */
-export interface Overlay { tool: PlanTool; clock: Piece[] }
+export interface Overlay { tool: PlanTool; clock: Piece[]; /** where the tool sat over the camera; none (older takes): `PLAYBACK_LOOK` */ look?: Look }
+
+/**
+ * Where the tool sits over the camera and over the video: at the bottom, top, left or right; how much of the picture it
+ * may take; and on a dark panel or a clear one, so more of the picture shows through.
+ */
+export interface Look { place: "bottom" | "top" | "left" | "right"; size: "small" | "medium" | "large"; bg: "dark" | "clear" }
+export const PLACES = ["bottom", "top", "left", "right"] as const;
+export const SIZES = ["small", "medium", "large"] as const;
+export const BGS = ["dark", "clear"] as const;
+/** the record page's look until one is picked */
+export const DEFAULT_LOOK: Look = { place: "bottom", size: "medium", bg: "dark" };
+/** a saved video with no look: as videos played before looks were saved */
+export const PLAYBACK_LOOK: Look = { place: "top", size: "medium", bg: "dark" };
+
+const oneOf = <T extends string>(list: readonly T[], x: unknown, or: T): T => (list.includes(x as T) ? (x as T) : or);
+
+/** `x` as a look, each part that doesn't read taken from `or`. */
+export function readLook(x: unknown, or: Look = DEFAULT_LOOK): Look {
+  const o = (x && typeof x === "object" ? x : {}) as Record<string, unknown>;
+  return { place: oneOf(PLACES, o.place, or.place), size: oneOf(SIZES, o.size, or.size), bg: oneOf(BGS, o.bg, or.bg) };
+}
 
 /** The tools drawn over a video while it plays; every other tool's video just plays. */
 export const OVERLAY_TOOLS = ["guitar-play-along", "melody-singer"] as const;
 
 export const hasOverlay = (tool: Pick<PlanTool, "type">): boolean => (OVERLAY_TOOLS as readonly string[]).includes(tool.type);
 
-/** `x` as an overlay, or null: a tool that has one, its settings read again by the plan's own parser, and a clock. */
+/** `x` as an overlay, or null: a tool that has one, its settings read again by the plan's own parser, and a clock; a look that doesn't read is the default. */
 export function readOverlay(x: unknown): Overlay | null {
   if (!x || typeof x !== "object") return null;
-  const { tool: raw, clock: rawClock } = x as { tool?: unknown; clock?: unknown };
+  const { tool: raw, clock: rawClock, look } = x as { tool?: unknown; clock?: unknown; look?: unknown };
   const type = (raw as { type?: unknown } | null)?.type;
   if (typeof type !== "string" || !(OVERLAY_TOOLS as readonly string[]).includes(type)) return null;
   // read as a stored plan's tool is: the settings as they were saved, nothing defaulted or noted
   const tool = TOOLS[type as keyof typeof TOOLS].parse(raw as Record<string, unknown>, { notes: [], stored: true });
   const clock = readPieces(rawClock);
   if (!tool || !clock) return null;
-  return { tool, clock };
+  return look === undefined ? { tool, clock } : { tool, clock, look: readLook(look) };
 }

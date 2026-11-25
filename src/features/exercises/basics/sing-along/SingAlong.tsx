@@ -9,6 +9,7 @@ import { DropdownSection, Hint, HintToggle, KeyCap } from "@/components/ui";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useToolClock } from "@/components/practice/toolClock";
 import { useBringIntoView } from "@/components/practice/bringIntoView";
+import { useToolControlsShown } from "@/components/practice/toolControls";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { PlayAheadRow, ToolSettings, Volume, usePlayAhead } from "@/features/settings";
@@ -205,6 +206,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   const size = full ? scale : 1;
   const pass = sa.playing ? passAt(sa.frame.passes, sa.frame.s) : undefined;
   const at = pass ? pass.from + sa.frame.s - pass.start : null;
+  const controls = useToolControlsShown();
   // the record page saves the tune's beat with a take, to draw the tune over the video in step (null: stopped)
   useToolClock(sa.playing ? at : null);
 
@@ -213,6 +215,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       className={full ? `fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 pb-2 sm:p-6 sm:pb-3 ${nav ? "px-12 sm:px-16" : ""}` : "flex flex-col gap-2"}>
       {full && nav && <MarginArrow side="left" onClick={nav.prev} />}
       {full && nav && <MarginArrow side="right" onClick={nav.next} />}
+      {/* a host may hide the controls (the record page, over the camera): Space still plays, pauses and plays on */}
+      {controls && <>
       <div className="flex items-center gap-1.5">
         <div className="min-w-0 flex-1 text-xs font-medium text-slate-200">
           {typeof info === "function" ? info(at) : info}{sa.status === "denied" ? " · microphone blocked in the browser" : ""}
@@ -295,6 +299,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         </Hint>
         {sa.loop && <div className="min-w-0 flex-1"><LoopStrip key={total} notes={notes} total={total} region={sa.region} loop={sa.loop} at={at} onRegion={sa.setRegion} /></div>}
       </div>}
+      </>}
       <div ref={body} className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col overflow-hidden" : "contents"}
         onPointerDown={full ? swipeStart : undefined} onPointerUp={full ? swipeEnd : undefined} onPointerCancel={() => { swipe.current = null; }}>
         <div ref={tune} data-tour="sing-tune" className={full ? "my-auto" : ""}>

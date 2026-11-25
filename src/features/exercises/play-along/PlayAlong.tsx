@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Hint } from "@/components/ui";
 import { useToolClock } from "@/components/practice/toolClock";
+import { useToolControlsShown } from "@/components/practice/toolControls";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { useAudioFocus, type Player } from "@/features/sound";
@@ -55,6 +56,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   const group = useStepPart({ kind: "play", on: player.playing, start: player.start, stop: player.stop });
   const focus = useAudioFocus(player.playing, player.stop, group);
   useToolClock(player.beat < 0 ? null : player.beat);
+  const controls = useToolControlsShown();
   const cues = useCuesOf(played, marks, others);
   const fellBack = useMemo(() => {
     const names = new Set<string>();
@@ -76,7 +78,8 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
 
   return (
     <PlayerCard ref={spaceRef}>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+      {/* a host may hide the controls (the record page, over the camera): Space still plays and stops */}
+      <div className={`flex flex-wrap items-center gap-x-4 gap-y-3 ${controls ? "" : "hidden"}`}>
         <Hint title={player.playing ? "Stop" : "Play"} description="Starts the backing and the part to play along with. It loops until you stop it.">
           <PlayButton playing={player.playing} disabled={player.starting} onClick={playStop} space={spaceArmed} data-tour="play-along-play" />
         </Hint>

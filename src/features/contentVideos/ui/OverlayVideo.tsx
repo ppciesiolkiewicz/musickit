@@ -4,7 +4,8 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type C
 import type { PlanTool } from "@/features/plan/model/tools";
 import { contentVideoFileUrl } from "../client/api";
 import { beatAt } from "../model/clock";
-import { readOverlay } from "../model/overlay";
+import { PLAYBACK_LOOK, readOverlay } from "../model/overlay";
+import { panelClass } from "./lookPanel";
 import type { PlayInfo } from "../server/access";
 
 /** Draws a tool at a beat over a video: the host's (the plan's `ToolOverlay`); this feature never draws a tool itself. */
@@ -70,8 +71,8 @@ export default function OverlayVideo({ video, autoPlay = false, className = "", 
     <div className="flex flex-col gap-1">
       <div className="relative">
         {player}
-        {/* at the top, so the video's own controls stay free at the bottom */}
-        <div className={`pointer-events-none absolute inset-x-0 top-0 max-h-[60%] overflow-hidden rounded-t-lg bg-slate-950/75 p-2 backdrop-blur-sm ${shown ? "" : "hidden"}`}>
+        {/* where it sat over the camera (older takes: at the top), clear of the video's own controls */}
+        <div className={`${panelClass(overlay.look ?? PLAYBACK_LOOK, "play")} ${shown ? "" : "hidden"}`}>
           {draw(overlay.tool, beat)}
         </div>
       </div>

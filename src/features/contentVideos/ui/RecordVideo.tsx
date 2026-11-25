@@ -7,10 +7,12 @@ import { clockTime } from "@/features/recorder/recorder";
 import { MAX_TAKE_SECONDS, pickVideoType } from "@/features/videos/recording";
 import { ToolClockListener } from "@/components/practice/toolClock";
 import { NoAutoScroll } from "@/components/practice/bringIntoView";
+import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls";
 import type { PlanTool } from "@/features/plan/model/tools";
 import { saveContentVideo } from "../client/api";
 import { squeeze, type Sample } from "../model/clock";
-import { hasOverlay, type Overlay } from "../model/overlay";
+import { BGS, DEFAULT_LOOK, PLACES, SIZES, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
+import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelClass } from "./lookPanel";
 import { stepGroups, toolName, wouldLose } from "../model/coverage";
 import type { ContentVideoInfo } from "../server/access";
 
@@ -28,6 +30,11 @@ interface Take { id: string; blob: Blob; type: string; seconds: number; url: str
 const SAMPLE_MS = 50;
 
 const CAMERA_KEY = "musickit.content.camera";
+/** where the tool sits over the camera, and whether its controls show: kept in this browser */
+const LOOK_KEY = "musickit.content.toolLook";
+const CONTROLS_KEY = "musickit.content.toolControls";
+const stored = (key: string): unknown => { try { const v = localStorage.getItem(key); return v === null ? null : JSON.parse(v); } catch { return null; } };
+const store = (key: string, v: unknown) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* this visit only */ } };
 const btn = "rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-40";
 const rec = "inline-flex items-center gap-2 rounded-md bg-rose-700 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-rose-600 disabled:opacity-40";
 const input = "rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200";
@@ -67,6 +74,11 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [cameraId, setCameraId] = useState(() => { try { return localStorage.getItem(CAMERA_KEY) ?? ""; } catch { return ""; } });
   const [toolShown, setToolShown] = useState(true);
+  const [look, setLookState] = useState<Look>(() => readLook(stored(LOOK_KEY), DEFAULT_LOOK));
+  const setLook = (part: Partial<Look>) => setLookState((l) => { const next = { ...l, ...part }; store(LOOK_KEY, next); return next; });
+  const [controlsShown, setControlsShownState] = useState(() => stored(CONTROLS_KEY) !== false);
+  const setControlsShown = (on: boolean) => { setControlsShownState(on); store(CONTROLS_KEY, on); };
+  const canHide = drawn !== null && CONTROLS_TOOLS.includes(drawn.type);
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement | null>(null);
@@ -199,7 +211,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       madeFor: own && block ? block.id : `tool:${tool}`,
       target: own && block ? { kind: "cell", blockId: block.id, cell: block.cell, tool } : { kind: "tool", tool, steps },
       fileUp: take.fileUp,
-      overlay: take.overlay,
+      // where the tool sits now: the video plays back with it there
+      overlay: take.overlay && { ...take.overlay, look },
     });
     setSending(false);
     if (!out.ok) {
@@ -234,13 +247,28 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         )}
         <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
       </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-300">
+        <label className="flex items-center gap-1.5">Place
+          <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
+        </label>
+        <label className="flex items-center gap-1.5">Size
+          <select value={look.size} onChange={(e) => setLook({ size: e.target.value as Look["size"] })} className={input}>{SIZES.map((s) => <option key={s} value={s}>{SIZE_WORDS[s]}</option>)}</select>
+        </label>
+        <label className="flex items-center gap-1.5">Background
+          <select value={look.bg} onChange={(e) => setLook({ bg: e.target.value as Look["bg"] })} className={input}>{BGS.map((b) => <option key={b} value={b}>{BG_WORDS[b]}</option>)}</select>
+        </label>
+        <label className="flex items-center gap-1.5" title={canHide ? "With the controls hidden, press Space to start and stop the tool." : "This tool's controls can't be hidden yet."}>
+          <input type="checkbox" checked={canHide ? controlsShown : true} disabled={!canHide} onChange={(e) => setControlsShown(e.target.checked)} className="accent-emerald-500" /> Tool controls
+        </label>
+        {canHide && !controlsShown && <span className="text-xs text-slate-500">Press Space to start and stop the tool.</span>}
+      </div>
       {phase === "ready" && take && !take.saved && <p className="text-xs text-slate-500">A new recording replaces the take below.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
 
       <div className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
         {camera ? <video ref={live} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
-        <div className={`absolute inset-x-0 bottom-0 max-h-[60%] overflow-auto bg-slate-950/75 p-2 backdrop-blur-sm ${toolShown ? "" : "hidden"}`}><NoAutoScroll><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></NoAutoScroll></div>
+        <div className={`${panelClass(look, "record")} ${toolShown ? "" : "hidden"}`}><NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll></div>
       </div>
 
       {take && phase !== "recording" && (
