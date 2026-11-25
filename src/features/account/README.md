@@ -51,7 +51,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   card up front, the plan's trial once per account, `STRIPE_EARLY_COUPON` while the side's early places are open.
   Stripe returns to `GET /api/account/checkout/done`, which records the subscription at once; `POST /api/stripe/webhook`
   keeps status, plan and billing in step (a price's metadata names its plan; prices are made from the plan rows on first
-  use, keyed by plan, billing and amount). Every account with a plan before migration `0040_stripe_payments` is
+  use, keyed by plan, billing, currency and amount; Australian dollars, tax included; `STRIPE_MANAGED_PAYMENTS=true` makes Stripe the seller of record, collecting the tax itself). Every account with a plan before migration `0040_stripe_payments` is
   `payment_exempt`: it keeps that plan free, and `/account` offers it Pay for … on any paid plan; moving to another
   paid plan without paying, or starting to pay, ends the exemption. A subscriber changes plan, card or cancels in
   Stripe's billing portal (Manage billing, `POST /api/account/portal`); `choosePlan` refuses them a paid plan.

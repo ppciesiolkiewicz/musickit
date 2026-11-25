@@ -100,7 +100,10 @@ export function canChoose(plans: Plan[], current: { planId: string | null; billi
 /** The role a person has after choosing `plan`. An owner runs a school and stays an owner on any plan. */
 export const roleOnPlan = (role: Role, plan: Plan): Role => (role === "owner" ? role : plan.role);
 
-/** "$27", "$12.50". */
+/** The currency of every price in the `plans` table, and of the Stripe prices made from them: Australian dollars. */
+export const CURRENCY = "aud";
+
+/** "$27", "$12.50" (Australian dollars, `CURRENCY`). */
 export const dollars = (cents: number): string => {
   const d = cents / 100;
   return `$${Number.isInteger(d) ? d : d.toFixed(2)}`;

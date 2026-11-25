@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import { isLive, paidThroughCheckout } from "../billing";
 import { earlyOpen } from "../pricing";
-import { canChoose, isBilling, priceCents, roleOnPlan, type Billing, type Plan } from "../plans";
+import { CURRENCY, canChoose, isBilling, priceCents, roleOnPlan, type Billing, type Plan } from "../plans";
 import type { AuthDeps } from "./auth";
 import { earlyTaken } from "./earlyTaken";
 
@@ -9,11 +9,13 @@ import { earlyTaken } from "./earlyTaken";
  * Payments through Stripe: Checkout to start paying, the billing portal to change or cancel, and the webhook that keeps
  * `users` in step (`syncSubscription`). Only used while `STRIPE_ENABLED` is "true" (`paymentsEnabled`).
  *
- * Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, and optional STRIPE_EARLY_COUPON (a 50% "forever" coupon id, applied
- * while the side's early places are open, `EARLY_OFFER`).
+ * Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, optional STRIPE_EARLY_COUPON (a 50% "forever" coupon id, applied
+ * while the side's early places are open, `EARLY_OFFER`), and optional STRIPE_MANAGED_PAYMENTS ("true": Stripe sells
+ * as seller of record and handles the tax, `managedPayments`).
  *
- * Prices aren't set up by hand in Stripe: each plan row, billing and amount gets one Stripe price, found by its lookup
- * key and made the first time it is needed, so a price changed in the `plans` table makes a new Stripe price. The price's
+ * Prices aren't set up by hand in Stripe: each plan row, billing, currency and amount gets one Stripe price (in
+ * `CURRENCY`, GST included, its product tax-coded), found by its lookup key and made the first time it is needed, so a
+ * price changed in the `plans` table makes a new Stripe price. The price's
  * metadata names the plan and billing, which is how a subscription changed in the portal finds its plan.
  */
 
@@ -25,7 +27,18 @@ export function stripe(): Stripe {
   return client;
 }
 
-const lookupKey = (plan: Plan, billing: Billing) => `plan_${plan.id}_${billing}_${priceCents(plan, billing)}`;
+/** Software as a service, personal use: a tax code Managed Payments accepts. */
+const TAX_CODE = "txcd_10103100";
+
+/**
+ * Checkout through Stripe's Managed Payments: Stripe is the seller of record and works out, collects and pays GST, VAT
+ * and sales tax itself. Needs Managed Payments approved in the dashboard (Settings -> Managed Payments) first. Only
+ * subscriptions started from such a Checkout are managed; older ones stay as they were.
+ */
+const managedPayments = () => process.env.STRIPE_MANAGED_PAYMENTS === "true";
+
+// the currency is in the key: a Stripe price can't change currency, so the old USD prices are never picked up
+const lookupKey = (plan: Plan, billing: Billing) => `plan_${plan.id}_${billing}_${CURRENCY}_${priceCents(plan, billing)}`;
 
 /** The Stripe price for the plan paid by `billing`, made (with its product) when there is none yet. */
 async function priceFor(plan: Plan, billing: Billing): Promise<string> {
@@ -34,14 +47,14 @@ async function priceFor(plan: Plan, billing: Billing): Promise<string> {
   const found = await s.prices.list({ lookup_keys: [key], active: true, limit: 1 });
   if (found.data[0]) return found.data[0].id;
   const productId = `plan_${plan.id}`;
-  try {
-    await s.products.retrieve(productId);
-  } catch {
-    await s.products.create({ id: productId, name: plan.name, metadata: { planId: plan.id } });
-  }
+  const product = await s.products.retrieve(productId).catch(() => null);
+  if (!product) await s.products.create({ id: productId, name: plan.name, tax_code: TAX_CODE, metadata: { planId: plan.id } });
+  else if (!product.tax_code) await s.products.update(productId, { tax_code: TAX_CODE });
   const price = await s.prices.create({
     product: productId,
-    currency: "usd",
+    currency: CURRENCY,
+    // the plans table's prices include GST, as Australian consumer prices must
+    tax_behavior: "inclusive",
     unit_amount: priceCents(plan, billing),
     recurring: { interval: billing },
     lookup_key: key,
@@ -92,6 +105,8 @@ export async function startCheckout(deps: AuthDeps, userId: string, input: { pla
     line_items: [{ price: await priceFor(plan, billing), quantity: 1 }],
     subscription_data: { trial_period_days: trial, metadata: { userId: user.id } },
     ...(early ? { discounts: [{ coupon }] } : {}),
+    // Checkout then asks for the name and address tax needs and saves them on the customer itself
+    ...(managedPayments() ? { managed_payments: { enabled: true } } : {}),
     // Stripe fills in the session id; URLSearchParams would escape its braces
     success_url: `${done.toString()}&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: new URL(next, base).toString(),
