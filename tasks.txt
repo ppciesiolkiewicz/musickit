@@ -979,6 +979,8 @@ covered, checked by hand on production (NEW5): Vercel Blob uploads and video pla
 E2E7: [NEW 2026-11-24] Payments (Stripe), after E2E2: `npm run e2e:stripe` with STRIPE_ENABLED=true on the test server.
 One spec with webhook events the test signs itself (no key), one against Stripe's sandbox with a sk_test_ key. What
 each covers, the setup and what reading the code found: Paid13 in launch-checks.txt.
+[2026-11-25 built, not run] e2e/stripe/{webhook,sandbox}.spec.ts, e2e/helpers/{auth,stripe}.ts, `npm run e2e:stripe`.
+E2E2's sign-in helper is e2e/helpers/auth.ts (`signIn`, `asNewPlayer`: devCode from email-link, RESEND_API_KEY empty in .env.e2e).
 
 TaskSeries Leftover: small things left after the launch copy and phone fixes (2026-11-18)
 Leftover1: [NEW 2026-11-18] What the pricing, terms and phone-fix session (af59a23c, 8929010e, 09194114) left unseen
@@ -1850,3 +1852,13 @@ Run: `node scripts/intro/voice.mjs --estimated` (about 2,500 credits: the 3 miss
 their cue times come from the voice instead of the estimate). Only the 3 missing: `node scripts/intro/voice.mjs` (~500).
 Then listen to both tours on /intro, run `npx tsx --test src/features/intro/timeline.test.ts`, and commit
 public/intro/charlie/*.mp3 with src/features/intro/voices/charlie.json.
+
+NEW21: [NEW 2026-11-25] Public SEO articles for three personas, linked from the IndieAppCircle listing
+The IndieAppCircle listing (filled in 2026-11-25) names three personas, each with the problems they search for:
+- Guitarist practising alone: "what should I practise on guitar each day", "stuck, not getting better", "how to learn
+  scales / CAGED on the fretboard", "which chords go together in a key".
+- Singer: "how to sing in tune", "pitch trainer that doesn't record me".
+- Guitar or voice teacher: "how to get students to practise between lessons", "how to send lesson notes".
+A listing page alone won't rank for these against Yousician and JustinGuitar; public articles on attunr can, and the
+listing then points at them. Open: where they live (/learn? /guides?), how many to start with, whether they reuse
+course sections, and the writing skill (teaching-voice for music text). Brainstorm before building.
