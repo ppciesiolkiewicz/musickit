@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import { bigint, boolean, check, date, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import type { Permission } from "../../features/account/model";
+import type { BlockVideos } from "../../features/contentVideos/server/rules";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -304,6 +305,8 @@ export const blocks = pgTable(
      * A hashed block is never rewritten, so it stays 1.
      */
     revision: integer("revision").notNull().default(1),
+    /** The videos of a curated block's tool cells (`cells`: cell index to content video id). The seed never writes it. Null when it has none. */
+    videos: jsonb("videos").$type<BlockVideos>(),
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("blocks_area").on(t.area), index("blocks_topic").on(t.topic)],
@@ -405,6 +408,34 @@ export const videos = pgTable(
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("videos_user_id_idx").on(t.userId)],
+).enableRLS();
+
+/**
+ * A video the site shows, saved by someone with the `content` permission: the file is in the private Blob store at
+ * `blobPath`. `madeFor` is where it was made (`tool:<tool key>` or a block id). A tool's video covers `steps` of `tool`
+ * (`<ladder id>:<key>` or `none`; null `steps` for a tool with no ladder); one video per tool and step. A video with no
+ * steps keeps its row and file, `tool` and `steps` null. The id is the browser's, so the file path is known before the row.
+ */
+export const contentVideos = pgTable(
+  "content_videos",
+  {
+    id: uuid("id").primaryKey(),
+    title: text("title").notNull(),
+    note: text("note").notNull().default(""),
+    recordedBy: uuid("recorded_by").references(() => users.id, { onDelete: "set null" }),
+    madeFor: text("made_for").notNull(),
+    tool: text("tool"),
+    steps: text("steps").array(),
+    type: text("type").notNull(),
+    seconds: integer("seconds").notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
+    size: bigint("size", { mode: "number" }).notNull(),
+    blobPath: text("blob_path").notNull().unique(),
+    overlay: jsonb("overlay"),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("content_videos_tool_idx").on(t.tool)],
 ).enableRLS();
 
 export const shareKind = pgEnum("share_kind", ["note", "plan"]);
