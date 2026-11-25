@@ -521,6 +521,14 @@ without the metronome click. Try not to look at the metronome dots or bars. Can 
 exercise-example / teaching-voice). Open: whether "no click" also hides the beat dots/bars or only asks the player not
 to look; how it reads in the prompt and the seed check. Wiring: tools.ts (prop + parser), ui/Tool.tsx, prompt.ts,
 transpose.ts, docs regen, story on /dev/stories; then seed follow-up blocks for the play-along exercises.
+ToolsImprovement4: [NEW 2026-11-25] Hammer-ons and pull-offs get their tab marks: "h" and "p" between the two notes
+(user, on /demo/guitar-intermediate "Hammer and pull, in stages › One stage at a time", seed
+blocks/guitar-intermediate-hammer-and-pull-in-stages.json, tool legato-trill). Today the tab shows plain notes and
+only the text says which are hammered. Part of MissingTools9 (tab marks); 8 hammer/pull seed blocks would use it.
+ToolsImprovement5: [NEW 2026-11-25] Glossary notes with a picture, not only words (user, on /demo/voice-beginner
+"Steps or skips?", the note for "step": "A move to the very next note of the scale, up or down: Do to Re, or Mi to
+Fa"). A term can carry a small graphic (two notes on a staff, a neck, a chord box) drawn with the app's own
+components. Start with step and skip; say which terms get one. The note has to stay inside the window (0f4c3cd8).
 
 TaskSeries SeedWording: seed exercise text that reads wrong on /plan (from page comments, 2026-11-18)
 Rewrite with exercise-example, then review-teaching-text. A rewritten file takes the current versions; block ids change,
@@ -534,6 +542,88 @@ SeedWording2: [NEW 2026-11-18] Pushy endings: "Keep going until the stretch feel
 (guitar-beginner "Spider from the 1st fret"). User: friendlier, not pushing; say "Take as many breaks as you need."
 "Keep going until" is in ~115 lines across 78 seed files: sort which push and which only say when to stop, rewrite the
 pushy ones. Likely a teaching-voice rule too (no pushing; breaks are fine). Ties to CounterTask2 (breaks in plans).
+SeedWording3: [NEW 2026-11-25] Drop "the five lines of music" everywhere (user, page comments on /demo/voice-beginner
+"Find the smooth spot" and /dev/library theory-beginner-one-four-five). "staff" is a glossary word with its own note now,
+so the text doesn't explain it. In 24 files: 22 seed blocks (grep "five lines of music" in src/features/library/seed),
+src/app/theory/staff-reading/page.tsx, and the rule itself in src/features/plan/model/promptCore.ts:297 and
+.claude/skills/teaching-voice/SKILL.md:57 (which still lets the first mention explain it). The rule changes, so the
+teaching version and PROMPT_VERSION go up with a changelog entry.
+SeedWording4: [NEW 2026-11-25] "Stay with it until ..." becomes "Practice until ...", or the goal said outright (user).
+Example, guitar-intermediate-join-positions-1-and-2 section 1: "Stay with it until your fingers find the ringed A notes
+without you looking" -> "The goal of this practice is to learn where the root notes, {{A}}, are without looking at the
+chart." 10 lines in 10 seed files. Same sorting as SeedWording2 ("Keep going until"); do the two together and write one
+rule for endings in teaching-voice.
+SeedWording5: [NEW 2026-11-25] "the 1, the 4 and the 5 chord" is too big a shortcut for a beginner (user: "is this
+normal?"). Seen in theory-beginner-one-four-five sections 1, 4 and 6 ("the 1, 4 and 5 chords and back to 1", "the 1,
+the 4 and the 5 still sound the same") and voice-beginner-do-mi-sol section 5 ("the 1 chord and the 5 chord taking
+turns"); 10 seed files use the wording.
+- First answer the question for the user: musicians do say "the one chord" and "one-four-five", usually written I, IV,
+  V, but a beginner has to be led there. Then settle one form: "the 1st chord", "the 1 chord" or "the I chord", with
+  a highlight or a glossary note.
+- Lead into it the long way the first time: "G is the 1st chord of the scale, C is the 4th, D is the 5th."
+- Name chords with chord chips ({{G}}), each hoverable, not as bare numbers in a sentence. In do-mi-sol section 5:
+  chord chips in place of "the 1 chord and the 5 chord taking turns, one bar each. Sing the ringed note over each
+  chord: D over the 1 chord, A over the 5 chord."
+- one-four-five section 6 reads awkwardly as a whole: "If you lose your place" ("place" sounds odd), and the closing
+  line about another key. Rewrite the section.
+SeedWording6: [NEW 2026-11-25] The closing "In another key ..." lines (do-mi-sol section 1: "In another key the drone
+and the notes move, and the skips still sound the same"; 16 seed files). The user sees why they are there, but: the
+wording needs work, the line needs space around it (try the spacing of the step text), and it shows on blocks where
+no key can be picked. Idea: show it only when the block's choice offers more than one key (ChoiceSplit), so it is
+drawn from the choice, not written into the text.
+SeedWording7: [NEW 2026-11-25] voice-beginner-do-mi-sol section 3 (melody-singer), "Once you can hum the tune before
+it plays, sing it first, then press Play to check it against the tune": bad content (user).
+- Say more plainly what to do: sing it a few times with the melody, then mute the tune below and sing it a cappella
+  over the chords. "a cappella" becomes a glossary word.
+- 90 bpm is too fast for a beginner: 40 to 65, starting at 40. Check where the 90 comes from (the tool's default or
+  the level) and whether other beginner voice blocks have it.
+- Idea: notes drawn from the choice's params. When the tempo is very low: "Tempo is set to {{tempo}}, which may seem
+  very slow, but ..." with the real reason (slow singing is for precision: each note can be heard and placed). Same
+  mechanism as the key line in SeedWording6.
+SeedWording8: [NEW 2026-11-25] guitar-intermediate-fingers-1-3-2-4 section 1 reads oddly (user).
+- "the drill sounds with it, one note per beat, and the note playing is lit on the tab": odd, say more of what
+  happens. Also "in the order 1, 3, 2 and 4, and move through every string as the tab shows. The row under the tab
+  shows the pick stroke for each note."
+- "Stay with it until the order needs no thought and fingers 2 and 3 land one after the other, never together" ->
+  "Practice until you build muscle memory", with "muscle memory" as a glossary word. The user wants muscle memory
+  talked about more across the exercises: weigh a teaching-voice rule.
+- The text is about fingers, but the finger-pattern tool has `show: "pick"`, so the row shows pick strokes. Make the
+  text and the tool agree (show fingers, or both).
+SeedWording9: [NEW 2026-11-25] /demo/voice-intermediate, Tuesday "The 4th and the 5th": too many rhythm exercises that
+are the same on one day (user, on "Sixteenths on the lane: 1 e & a › Four bars, even"). Look at the day in
+plans/voice-intermediate.json: merge or drop the repeats, or make each one differ in something the player can hear.
+Check whether the composer can also put near-copies on one day (ChoiceSplit3 folds near-copy blocks).
+[2026-11-25 done, SeedWording3-8, uncommitted] The rules are written: teaching skills at version 12, prompt at 20
+(changelog has both), seed README, glossary words "muscle memory" and "a cappella". Decided there: a chord in text is a
+chord token ({{chord:I}}, the hover card from e4c3c2f1), counted the long way the first time ("{{chord:I}} is the 1st
+chord of the key, built on {{1}}"), then the token or an ordinal, never "the 1 chord" or "the I chord".
+Text: "the five lines of music" is gone from all 22 blocks and /theory/staff-reading; "Stay with it until" is
+"Practice until" in its 8 blocks (text only, versions not raised). Rewritten to the new versions:
+guitar-intermediate-fingers-1-3-2-4 (finger row, muscle memory), guitar-intermediate-join-positions-1-and-2 (the goal
+said outright), theory-beginner-one-four-five (chord tokens, long form), voice-beginner-do-mi-sol (tune in stages,
+chord tokens, backing track at 40 with bpm moves 40 to 60). Seed check ✔ on the four, 781 tests pass.
+Left:
+- Not read on screen: /dev would not build (another session's src/features/devtools/server/access.ts imports isAdmin,
+  which account/model does not export). Read the four on /dev/library, the chord cards and the two glossary notes.
+- Not reseeded (db:seed-blocks).
+- The hover card says "the 1 chord" (plan/ui/InlineChord.tsx); the text now says "the 1st chord". Make them one.
+[2026-11-25 done, second pass, uncommitted]
+- melody-singer has a `bpm` prop (40 to 120, 90 with none; kept only when not 90) and follows a tempo choice or move
+  (tools.ts, singer.tsx, Tool.tsx, docs regenerated). do-mi-sol's tune and backing track are at 40, bpm moves 40 to 60.
+- SeedWording6: a line of text that opens with {{?key}} (or {{?bpm}}) is drawn only when that selector is (whenLines in
+  model/moves.ts, inside applyGiven; paramWarnings names a mark with no move). The 16 lines that start "In another
+  key" carry the mark. Spacing of the line is not changed.
+- SeedWording7: at 50 bpm or under the reader writes its own line above the first tool that sounds a tempo
+  (slowTempoLine, ui/reader/selectorLine.ts; BlockArticle.tsx): "The tempo is set to 40, which may seem very slow. Slow
+  practice is for precision: there is time to hear each note and land on it." Any block, with or without moves.
+- SeedWording2: "Keep going until" is "Practice until" in all 140 lines (each read first). "the N chord" is "the Nth
+  chord" in 27 texts and titles of 15 files; those files still name chords by letter and say "the 4 and the 5" bare.
+- Rules, prompt (20) and teaching (12) say all of it; 1021 tests pass, tsc and eslint clean.
+Left: nothing of this was read on screen (the browser extension dropped twice): the slow-tempo line's look, the tune
+at 40, the chord cards, the two glossary notes. Not reseeded. A seed block's id is its file's id, so the three
+retitled blocks keep theirs: db:seed-blocks overwrites the row and raises its revision. The files touched by replace
+only keep their old versions.
+- SeedWording9 (voice-intermediate's Tuesday) not touched.
 
 TaskSeries Rebrand: "AI Autoplan" gets a new name everywhere, now that plans are composed with no AI (from NEW7, 2026-11-18)
 Counted 2026-11-18: "autoplan" is in 30 files under src (tests aside), "AI plan" / "AI practice plan" in 34.
