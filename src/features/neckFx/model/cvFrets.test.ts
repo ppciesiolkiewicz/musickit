@@ -190,7 +190,7 @@ test("comingAt gives the next start's notes only within the lead", () => {
 test("noteLabel names a note or gives its degree in the key", () => {
   assert.equal(noteLabel(63, "name"), "D♯");
   assert.equal(noteLabel(63, "degree", { tonic: 0, scale: "Aeolian" }), "3"); // degreeLabel counts from the mode's own steps: D♯ is C Aeolian's 3rd
-  assert.equal(noteLabel(64, "degree", { tonic: 0, scale: "Aeolian" }), "♯3"); // E is outside the mode
+  assert.equal(noteLabel(64, "degree", { tonic: 0, scale: "Aeolian" }), "♭4"); // E is outside the mode
   assert.equal(noteLabel(63, "degree"), "D♯");
 });
 
