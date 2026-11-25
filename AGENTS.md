@@ -24,6 +24,16 @@ What each version of each document changed is in that changelog.
 
 This file holds what is true for the whole repo. A feature's own rules are in the `CLAUDE.md` beside its code (`src/features/<feature>/CLAUDE.md`, `src/components/ui/CLAUDE.md`, `src/lib/looper/CLAUDE.md`), and what the feature is and where its parts live is in the `README.md` next to it. Read both before changing a feature, and keep them true in the same commit as the change.
 
+## Committing: other agents share this checkout
+
+Several agents often work in the main checkout at the same time, and they share its git index. So in the main checkout:
+
+- Commit with `scripts/commit.sh "message" <your paths>`, naming only the files you changed (a folder means all of it). It commits from a temporary index and leaves everyone else's work alone.
+- Never `git add`, `git commit`, `git stash`, `git reset --hard`, `git checkout -- .` or `git pull --autostash` there: each one takes in or throws away another agent's work.
+- Before editing, check `git status` for files another agent has changed. If a file you need is already changed, leave it, or ask.
+
+In your own worktree (`git worktree add`, for bigger work) git works as usual: the worktree has its own index.
+
 ## Words on the screen: load the skill first
 
 Every word a player reads is written with a skill, loaded before the first word is written. This holds for a one-line change too: a button label, a caption, a tour step.
