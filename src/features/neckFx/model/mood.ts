@@ -14,8 +14,11 @@ export interface Mood {
   bright: number;
   /** 0 settled (the home note) to 1 tense (a note outside the key), from the last note against the key */
   tension: number;
+  /** the mood's own hue (0 to 360) before energy and tension move it: see `hueTarget` */
+  hue: number;
 }
-export const CALM: Mood = { energy: 0, bright: 0, tension: 0 };
+/** Blue, calm, no key. */
+export const CALM: Mood = { energy: 0, bright: 0, tension: 0, hue: 225 };
 
 const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 /** How long notes count toward the energy, and toward the key (s). */
@@ -95,29 +98,38 @@ export function moodTarget(heard: Heard[], now: number, fret: number | null): Mo
   const key = keyOf(heard, now);
   const last = pitched[pitched.length - 1];
   const tension = key && last && now - last.t <= TENSION_WINDOW ? tensionOf(last.midi! - key.tonic, key.minor) : 0;
-  return { energy: clamp(0.45 * height + 0.35 * pace + 0.2 * loud), bright: key?.bright ?? 0, tension };
+  const energy = clamp(0.45 * height + 0.35 * pace + 0.2 * loud);
+  return { energy, bright: key?.bright ?? 0, tension, hue: hueTarget(key, last?.midi ?? null, energy) };
 }
 
-/** Eased toward `target` over `dt` seconds: energy rises fast and falls slowly, so a run builds; brightness drifts. */
+/** `from` moved `k` of the way to `to` round the colour wheel, the short way. */
+export const mixHue = (from: number, to: number, k: number) => (from + ((((to - from) % 360) + 540) % 360 - 180) * k + 360) % 360;
+
+/**
+ * The hue a mood heads for. With a key: its home note's place on the circle of fifths round the wheel (C red, G orange, D
+ * yellow and so on, neighbouring keys neighbouring colours), a minor key pulled toward blue, a major one toward amber. With no
+ * key yet: the last note's colour (C red round the wheel, as the note effects). With no notes: blue when calm to red when wild.
+ */
+export function hueTarget(key: Pick<Key, "tonic" | "minor"> | null, lastMidi: number | null, energy: number): number {
+  if (key) return mixHue(((key.tonic * 7) % 12) * 30, key.minor ? 225 : 35, 0.35);
+  if (lastMidi !== null) return (((lastMidi % 12) + 12) % 12) * 30;
+  return 225 - 225 * clamp(energy);
+}
+
+/** Eased toward `target` over `dt` seconds: energy rises fast and falls slowly, so a run builds; brightness and colour drift. */
 export function easeMood(prev: Mood, target: Mood, dt: number): Mood {
   const step = (from: number, to: number, rate: number) => from + (to - from) * (1 - Math.exp(-rate * Math.max(0, dt)));
   return {
     energy: step(prev.energy, target.energy, target.energy > prev.energy ? 4 : 0.6),
     bright: step(prev.bright, target.bright, 0.8),
     tension: step(prev.tension, target.tension, target.tension > prev.tension ? 8 : 1.5),
+    hue: mixHue(prev.hue, target.hue, 1 - Math.exp(-1.5 * Math.max(0, dt))),
   };
 }
 
-/** The mood's colour: minor cool (blue to violet), major warm (amber), unclear magenta; more energy, hotter and more saturated. */
+/** The mood's colour: its hue, pulled toward an acid green by tension; more energy, more saturated and lighter. */
 export function moodColour(m: Mood): { hue: number; sat: number; light: number } {
-  // −1 → 235 (blue), 0 → 300 (magenta), 1 → 395 = 35 (amber), going round through red
-  const hue = (300 + m.bright * (m.bright < 0 ? 65 : 95) + 360) % 360;
-  // energy pulls a cool colour toward violet and a warm one toward red-orange
-  const heated = (hue + (m.bright < 0 ? 40 : -20) * m.energy + 360) % 360;
-  // tension pulls toward an acid green, away from the key's colour
-  const t = m.tension * 0.6;
-  const tense = heated + ((((130 - heated) % 360) + 540) % 360 - 180) * t;
-  return { hue: (tense + 360) % 360, sat: Math.min(100, 60 + 40 * m.energy + 20 * m.tension), light: 50 + 15 * m.energy };
+  return { hue: Math.round(mixHue(m.hue, 130, m.tension * 0.4)), sat: Math.min(100, 60 + 40 * m.energy + 20 * m.tension), light: 50 + 15 * m.energy };
 }
 
 /**

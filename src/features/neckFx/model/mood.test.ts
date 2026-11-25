@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CALM, QUIET, easeMood, fretHeat, keyOf, moodColour, moodFilter, moodTarget, stepBeat, tensionOf, type Heard } from "./mood";
+import { CALM, QUIET, easeMood, fretHeat, hueTarget, keyOf, mixHue, moodColour, moodFilter, moodTarget, stepBeat, tensionOf, type Heard } from "./mood";
+
+const near = (a: number, b: number, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} ≠ ${b}`);
 
 const notes = (midis: number[], from = 0, step = 0.25, level = 0.5): Heard[] => midis.map((midi, i) => ({ t: from + i * step, midi, level }));
 
@@ -35,14 +37,29 @@ test("higher up the neck and more notes a second is more energy", () => {
   assert.ok(fast.energy > slow.energy);
 });
 test("energy rises fast and falls slowly", () => {
-  const up = easeMood(CALM, { energy: 1, bright: 0, tension: 0 }, 0.25);
-  const down = easeMood({ energy: 1, bright: 0, tension: 0 }, CALM, 0.25);
+  const up = easeMood(CALM, { ...CALM, energy: 1 }, 0.25);
+  const down = easeMood({ ...CALM, energy: 1 }, CALM, 0.25);
   assert.ok(up.energy > 1 - down.energy);
 });
-test("minor is cool, major warm", () => {
-  const cool = moodColour({ energy: 0, bright: -1, tension: 0 }).hue, warm = moodColour({ energy: 0, bright: 1, tension: 0 }).hue;
-  assert.ok(cool > 200 && cool < 260, String(cool));
-  assert.ok(warm > 20 && warm < 50, String(warm));
+test("each key has its own colour, minor cooler than major", () => {
+  const C = hueTarget({ tonic: 0, minor: false }, null, 0), G = hueTarget({ tonic: 7, minor: false }, null, 0);
+  const Cm = hueTarget({ tonic: 0, minor: true }, null, 0), A = hueTarget({ tonic: 9, minor: false }, null, 0);
+  assert.notEqual(C, G);
+  assert.notEqual(G, A);
+  // C minor sits nearer blue (225) than C major does
+  const toBlue = (h: number) => Math.abs((((h - 225) % 360) + 540) % 360 - 180);
+  assert.ok(toBlue(Cm) < toBlue(C));
+  // no key: the last note's colour; no notes: blue when calm, red when wild
+  assert.equal(hueTarget(null, 67, 0.5), 210);
+  assert.equal(hueTarget(null, null, 0), 225);
+  assert.equal(hueTarget(null, null, 1), 0);
+});
+test("the colour eases round the wheel the short way, and the mood is no longer always magenta", () => {
+  near(mixHue(350, 10, 0.5), 0);
+  const eased = easeMood(CALM, { ...CALM, hue: 150 }, 0.5);
+  assert.ok(eased.hue < 225 && eased.hue > 150);
+  const a = moodColour({ ...CALM, hue: 0 }).hue, b = moodColour({ ...CALM, hue: 120 }).hue;
+  assert.notEqual(a, b);
 });
 test("the beat jumps on a pick or a loud sound and falls fast", () => {
   const hit = stepBeat(QUIET, null, 0.8, 0.016);
@@ -57,7 +74,7 @@ test("the beat jumps on a pick or a loud sound and falls fast", () => {
   assert.ok(stepBeat(ring, 0.05, 0, 0.016).beat < ring.beat);
 });
 test("the mood filter grows with strength and the beat", () => {
-  const wild = { energy: 1, bright: 0, tension: 0 };
+  const wild = { ...CALM, energy: 1 };
   const sat = (f: string) => Number(/saturate\(([\d.]+)\)/.exec(f)![1]);
   assert.ok(sat(moodFilter(wild, 2)) > sat(moodFilter(wild, 1)));
   assert.ok(sat(moodFilter(wild, 1, 1)) > sat(moodFilter(wild, 1, 0)));

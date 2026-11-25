@@ -28,9 +28,11 @@ notes heard (live) or passed (a take), and the fretting hand:
 - **Energy** (0 to 1): how high up the neck the fretting hand is (fret 14 and above is the top; with no hand on the grid, how
   high the recent notes are), how many notes a second and how loud, over the last 2.5 s. It rises fast and falls slowly.
 - **Key**: the key the last 8 s of notes sound most like (Krumhansl–Schmuckler, newer notes count more), once there are three
-  different notes. Minor leans the colours cool (blue to violet), major warm (amber), an unclear key magenta.
+  different notes. **The colour** (`hueTarget`) is the home note's place on the circle of fifths round the colour wheel (C
+  red, G orange, D yellow…), a minor key pulled toward blue and a major one toward amber. Before there is a key it is the
+  last note's colour, and with no notes, blue when calm to red when wild. It eases round the wheel, never jumps.
 - **Tension**: the last note against that key. The home note is settled, the 5th and 3rd nearly; the 7th more; a note outside
-  the key, and the tritone most, is tense. Tension pulls the colour toward acid green.
+  the key, and the tritone most, is tense. Tension pulls the colour a little toward acid green.
 
 The effects:
 
