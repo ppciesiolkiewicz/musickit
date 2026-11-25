@@ -76,11 +76,14 @@ function customerOf(e: Stripe.Event): string | null {
   return typeof o.customer === "string" ? o.customer : o.customer.id;
 }
 
+/** The events a test has sent the webhook so far, by id. */
+export type Forwarded = Map<string, Stripe.Event>;
+
 /**
  * Sends the test server every sandbox event about `customer` since `since` (unix seconds) that it hasn't had yet,
  * oldest first, as Stripe would if it could reach the test server. Each must answer 200. Returns the events sent.
  */
-export async function forward(request: APIRequestContext, customer: string, since: number, seen: Set<string>): Promise<Stripe.Event[]> {
+export async function forward(request: APIRequestContext, customer: string, since: number, seen: Forwarded): Promise<Stripe.Event[]> {
   const s = sandbox();
   const found: Stripe.Event[] = [];
   for await (const e of s.events.list({ created: { gte: since }, limit: 100 })) {
@@ -88,19 +91,19 @@ export async function forward(request: APIRequestContext, customer: string, sinc
   }
   found.sort((a, b) => a.created - b.created);
   for (const e of found) {
-    seen.add(e.id);
+    seen.set(e.id, e);
     const res = await postEvent(request, e);
     expect(res.status(), `webhook on ${e.type} (${e.id}): ${await res.text()}`).toBe(200);
   }
   return found;
 }
 
-/** Waits until the sandbox has an event of `type` about `customer` that `where` accepts, then forwards everything new. */
+/** Waits until an event of `type` about `customer` that `where` accepts has been forwarded (now or earlier). */
 export async function forwardUntil(
   request: APIRequestContext,
   customer: string,
   since: number,
-  seen: Set<string>,
+  seen: Forwarded,
   type: string,
   where: (e: Stripe.Event) => boolean = () => true,
 ): Promise<Stripe.Event> {
@@ -108,8 +111,8 @@ export async function forwardUntil(
   await expect
     .poll(
       async () => {
-        const sent = await forward(request, customer, since, seen);
-        hit ??= sent.find((e) => e.type === type && where(e));
+        await forward(request, customer, since, seen);
+        hit ??= [...seen.values()].find((e) => e.type === type && where(e));
         return !!hit;
       },
       { message: `no ${type} event for ${customer}`, timeout: 90_000, intervals: [2_000, 3_000, 5_000] },
@@ -147,6 +150,16 @@ export async function planCents(planId: string, billing: "month" | "year"): Prom
   try {
     const [row] = await sql<{ month_cents: number; year_cents: number }[]>`select month_cents, year_cents from plans where id = ${planId}`;
     return billing === "month" ? row.month_cents : row.year_cents;
+  } finally {
+    await sql.end();
+  }
+}
+
+export async function trialDays(planId: string): Promise<number> {
+  const sql = db();
+  try {
+    const [row] = await sql<{ trial_days: number }[]>`select trial_days from plans where id = ${planId}`;
+    return row.trial_days;
   } finally {
     await sql.end();
   }
