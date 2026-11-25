@@ -5,7 +5,7 @@ import { SCALE_MM, distOf, fretAt, type Grid, type Pt } from "./grid";
  * markers used as buttons (covered = pressed), and the filters those buttons switch. Pure: NeckView draws.
  */
 
-export const EFFECTS = ["mood", "heat", "glow", "sparks", "bump", "hide", "smooth", "light", "eyes", "slim", "markers", "frets", "flash", "pulse", "trails"] as const;
+export const EFFECTS = ["mood", "heat", "glow", "sparks", "bump", "hide", "markers", "frets", "flash", "pulse", "trails"] as const;
 export type Effect = (typeof EFFECTS)[number];
 export const EFFECT_WORDS: Record<Effect, string> = {
   mood: "Mood light",
@@ -14,10 +14,6 @@ export const EFFECT_WORDS: Record<Effect, string> = {
   sparks: "Sparks",
   bump: "Beat bump",
   hide: "Hide markers",
-  smooth: "Smooth skin",
-  light: "Face light",
-  eyes: "Bright eyes",
-  slim: "Slim face",
   markers: "Markers and hands",
   frets: "Fret lines",
   flash: "Note flash",
@@ -28,15 +24,9 @@ export const EFFECT_WORDS: Record<Effect, string> = {
 /** The mood effects, each with a Strength; the test effects (for lining up the grid) have none. */
 export const MOOD_EFFECTS = ["mood", "heat", "glow", "sparks", "bump"] as const satisfies readonly Effect[];
 export type MoodEffect = (typeof MOOD_EFFECTS)[number];
-/** The effects for the look of the video: the mood effects and Hide markers. */
+/** The effects for the look of the video: the mood effects and Hide markers. The rest are test effects. */
 export const LOOK_EFFECTS = [...MOOD_EFFECTS, "hide"] as const satisfies readonly Effect[];
-/** The face effects (`model/face.ts`), each with a Strength. */
-export const FACE_EFFECTS = ["smooth", "light", "eyes", "slim"] as const satisfies readonly Effect[];
-export type FaceEffect = (typeof FACE_EFFECTS)[number];
-/** The effects with a Strength. */
-export type StrengthEffect = MoodEffect | FaceEffect;
-/** The rest are test effects. */
-export const TEST_EFFECTS = EFFECTS.filter((e) => !([...LOOK_EFFECTS, ...FACE_EFFECTS] as readonly Effect[]).includes(e));
+export const TEST_EFFECTS = EFFECTS.filter((e) => !(LOOK_EFFECTS as readonly Effect[]).includes(e));
 /** The mood effects that also follow the beat (how loud the playing is right now). */
 export const BEAT_EFFECTS = ["mood", "heat", "glow"] as const satisfies readonly MoodEffect[];
 export type BeatEffect = (typeof BEAT_EFFECTS)[number];
@@ -63,8 +53,8 @@ export interface FxSettings {
   /** hold: on while covered; toggle: each cover flips it */
   mode: "hold" | "toggle";
   effects: Effect[];
-  /** how strong each mood or face effect is, 0 to `AMOUNT_MAX` */
-  strength: Record<StrengthEffect, number>;
+  /** how strong each mood effect is, 0 to `AMOUNT_MAX` */
+  strength: Record<MoodEffect, number>;
   /** how much an effect jumps with the beat, 0 to `AMOUNT_MAX` */
   beat: Record<BeatEffect, number>;
   /** a colour picked for an effect ("#rrggbb"), or null to follow the mood (Hand glow: the last note) */
@@ -92,7 +82,7 @@ export const A3_MARKERS = A3_LAYOUT.flatMap((m) => (m.fret === null ? [] : [`${m
 export const A3_BUTTONS = A3_LAYOUT.flatMap((m) => (m.filter ? [`${m.id}=${m.filter}`] : [])).join(", ");
 
 export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["mood", "heat", "sparks", "hide"],
-  strength: { mood: 1, heat: 1, glow: 1, sparks: 1, bump: 1, smooth: 1, light: 1, eyes: 1, slim: 1 },
+  strength: { mood: 1, heat: 1, glow: 1, sparks: 1, bump: 1 },
   beat: { mood: 1, heat: 1, glow: 1 },
   colour: { mood: null, heat: null, glow: null },
 };

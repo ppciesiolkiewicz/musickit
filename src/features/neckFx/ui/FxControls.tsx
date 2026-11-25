@@ -2,16 +2,9 @@
 
 import { useState } from "react";
 import {
-  A3_BUTTONS, A3_LAYOUT, A3_MARKERS, AMOUNT_MAX, BEAT_EFFECTS, DEFAULT_FX, EFFECTS, EFFECT_WORDS, FACE_EFFECTS, FILTERS, LOOK_EFFECTS, MOOD_EFFECTS, TEST_EFFECTS, readFx,
-  type BeatEffect, type FaceEffect, type FxSettings,
+  A3_BUTTONS, A3_LAYOUT, A3_MARKERS, AMOUNT_MAX, BEAT_EFFECTS, DEFAULT_FX, EFFECTS, EFFECT_WORDS, FILTERS, LOOK_EFFECTS, MOOD_EFFECTS, TEST_EFFECTS, readFx,
+  type BeatEffect, type FxSettings,
 } from "../model/fx";
-
-const FACE_HINTS: Record<FaceEffect, string> = {
-  smooth: "Softens the skin. Eyes, brows and lips stay sharp.",
-  light: "A soft, warm light on the face.",
-  eyes: "Lifts the eyes a little.",
-  slim: "Narrows the cheeks and jaw a little.",
-};
 
 /** Kept in this browser and shared by every page with Read the neck, so the markers are typed in once. */
 const KEY = "musickit.neckFx";
@@ -107,22 +100,6 @@ export default function FxControls({ fx, set }: { fx: FxSettings; set: (part: Pa
                 )}
               </label>
             )}
-          </div>
-        );
-      })}
-    </fieldset>
-    <fieldset className="flex flex-col gap-1">
-      <legend className="mb-1 text-slate-400">Face</legend>
-      {FACE_EFFECTS.map((e) => {
-        const off = !fx.effects.includes(e);
-        return (
-          <div key={e} className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <label className={`${field} w-32`}>
-              <input type="checkbox" checked={!off} onChange={(ev) => tick(e, ev.target.checked)} className="accent-sky-500" /> {EFFECT_WORDS[e]}
-            </label>
-            <Amount label="Strength" title="How strong the effect is. 100% is the usual look." value={fx.strength[e]} disabled={off}
-              onChange={(v) => set({ strength: { ...fx.strength, [e]: v } })} />
-            <span className="text-xs text-slate-500">{FACE_HINTS[e]}</span>
           </div>
         );
       })}

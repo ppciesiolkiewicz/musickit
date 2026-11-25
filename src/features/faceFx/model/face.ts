@@ -1,4 +1,5 @@
-import type { Pt } from "./grid";
+/** A point in video pixels. */
+export interface Pt { x: number; y: number }
 
 /**
  * The face effects' maths (pure; NeckView draws). A face is MediaPipe Face Landmarker's 478 points in video pixels. The

@@ -1,6 +1,5 @@
-import { FACE_OVAL, KEEP_SHARP, LEFT_EYE, MARGIN, RIGHT_EYE, faceFrame, slimAt, slimRow, slimX, toFace } from "../model/face";
-import type { FaceEffect } from "../model/fx";
-import type { Pt } from "../model/grid";
+import { FACE_OVAL, KEEP_SHARP, LEFT_EYE, MARGIN, RIGHT_EYE, faceFrame, slimAt, slimRow, slimX, toFace, type Pt } from "../model/face";
+import type { FaceEffect } from "../model/settings";
 
 /** How tall each strip Slim face moves is (px). */
 const STRIP = 2;

@@ -11,6 +11,7 @@ import { NoAutoScroll } from "@/components/practice/bringIntoView";
 import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls";
 import type { PlanTool } from "@/features/plan/model/tools";
 import { CvControls, FxControls, NeckCvView, NeckView, useCv, useFx } from "@/features/neckFx";
+import { FaceControls, FaceView, useFace } from "@/features/faceFx";
 import { saveContentVideo } from "../client/api";
 import { burnOverlay, canBurn, noChange, type Burned } from "../client/burn";
 import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
@@ -135,6 +136,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const [readCv, setReadCv] = useState(false);
   const [cvFx, setCvFx] = useCv();
   const [fx, setFx] = useFx();
+  const [face, setFace] = useFace();
   const takeUrl = useRef("");
   // the take's video and its box (the video and what is drawn over it): what Export with overlay records
   const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
@@ -366,6 +368,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       </div>
       {readNeck && <FxControls fx={fx} set={setFx} />}
       {readCv && <CvControls cv={cvFx} set={setCvFx} />}
+      <FaceControls face={face} set={setFace} />
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-300">
         <label className="flex items-center gap-1.5">Place
           <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
@@ -388,7 +391,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       <div ref={frame} className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
         {camera ? <video ref={liveRef} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
-        {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
+        {/* not while recording: the hand and face models would compete with the recorder and the tool's beat */}
+        {camera && phase !== "recording" && <FaceView video={liveVideo} face={face} fit="cover" />}
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
         {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live fit="cover" />}
         {/* one tree for every place, so changing the place never restarts the tool */}
@@ -408,6 +412,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
           <div ref={takeBox} className="relative isolate aspect-video w-full max-w-3xl overflow-hidden rounded bg-black">
             <video key={take.url} ref={setTakeVideo} src={take.url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
               onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setTake((t) => (t && t.url === take.url ? { ...t, width: videoWidth, height: videoHeight } : t)); }} />
+            <FaceView key={`face-${take.url}`} video={takeVideo} face={face} fit="cover" bare={exporting !== null} />
             {readNeck && <NeckView key={take.url} video={takeVideo} fx={fx} fit="cover" bare={exporting !== null} />}
             {readCv && <NeckCvView key={take.url} video={takeVideo} markers={fx.markers} cv={cvFx} fit="cover" bare={exporting !== null} />}
             {take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}

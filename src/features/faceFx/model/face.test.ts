@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { FACE_OVAL, easeFace, faceFrame, slimAt, slimRow, slimX, toFace } from "./face";
-import type { Pt } from "./grid";
+import type { Pt } from "./face";
 
 /** A face of 478 points: eyes level at y 100 (x 80 and 120), the oval a circle of radius 50 round (100, 120). */
 function face(dx = 0, turn = 0): Pt[] {
