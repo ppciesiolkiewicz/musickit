@@ -4,7 +4,7 @@ import {
   STRIP_HALF, TOP_WIRE, axisOf, boardMarkers, guessPlace, keepMarkers, lineFit, midiAt, peakNear, placeOnNeck, proj, projFit, projInv, ransacLine,
   readStrip, spotOf, stringsOf, stripOf, wireMm, type BoardMarker, type Neck, type Seen,
 } from "./cvFrets";
-import { DEFAULT_CV, chordOf, flicker, heatAt, numbered, pulsesAt, readCv } from "./cvFx";
+import { DEFAULT_CV, NEXT_LEAD_S, chordOf, chordsAt, comingAt, flicker, heatAt, noteLabel, numbered, pulsesAt, readCv, type TakeNote } from "./cvFx";
 import { parsePlaced, type Pt } from "./grid";
 
 const close = (a: number, b: number, tol: number, what = "") => assert.ok(Math.abs(a - b) <= tol, `${what} ${a} ≠ ${b} (±${tol})`);
@@ -166,4 +166,36 @@ test("readCv: Pick pulse is on unless turned off", () => {
   assert.equal(readCv({}).pulse, true);
   assert.equal(readCv({ pulse: false }).pulse, false);
   assert.equal(DEFAULT_CV.pulse, true);
+});
+
+const E5: TakeNote[] = [{ start: 1, midi: 40, end: 1.5, string: 0, fret: 0 }, { start: 1, midi: 47, end: 1.5, string: 1, fret: 2 }];
+const A5: TakeNote[] = [{ start: 2, midi: 45, end: 2.5, string: 1, fret: 0 }, { start: 2, midi: 52, end: 2.5, string: 2, fret: 2 }];
+
+test("chordsAt groups the notes sounding at t by start and names the chord", () => {
+  const g = chordsAt([...E5, ...A5], 1.1);
+  assert.equal(g.length, 1);
+  assert.equal(g[0].name, "E5");
+  assert.equal(g[0].notes.length, 2);
+  assert.deepEqual(chordsAt([...E5, ...A5], 1.7), []);
+  assert.equal(chordsAt([{ start: 1, midi: 40 }], 1.2)[0].name, null);
+});
+
+test("comingAt gives the next start's notes only within the lead", () => {
+  const notes = [...E5, ...A5];
+  assert.equal(NEXT_LEAD_S, 0.6);
+  assert.deepEqual(comingAt(notes, 1.5).map((n) => n.midi), [45, 52]);
+  assert.deepEqual(comingAt(notes, 1.1), []);
+});
+
+test("noteLabel names a note or gives its degree in the key", () => {
+  assert.equal(noteLabel(63, "name"), "D♯");
+  assert.equal(noteLabel(63, "degree", { tonic: 0, scale: "Aeolian" }), "3"); // degreeLabel counts from the mode's own steps: D♯ is C Aeolian's 3rd
+  assert.equal(noteLabel(64, "degree", { tonic: 0, scale: "Aeolian" }), "♯3"); // E is outside the mode
+  assert.equal(noteLabel(63, "degree"), "D♯");
+});
+
+test("readCv has the layer defaults", () => {
+  const c = readCv({});
+  assert.deepEqual([c.chords, c.fingers, c.next, c.labels], [true, false, true, "name"]);
+  assert.equal(readCv({ labels: "degree", fingers: true }).labels, "degree");
 });

@@ -153,7 +153,7 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
 | `model/cvFrets.ts` | Pure. The OpenCV reader's maths: the axis, the perspective fit, the board's edges, the wires and the strings from a strip; where a point is on the neck and where a heard note was played. |
 | `client/cv.ts` | Browser. Loads OpenCV.js; finds and follows the markers, turns the frame into the strip, calls `readStrip`. |
-| `model/cvFx.ts` | Pure. The OpenCV reader's settings, which frets are numbered, Neck fire's heat and flicker, Pick pulse's notes on screen and their chord. |
+| `model/cvFx.ts` | Pure. The OpenCV reader's settings, which frets are numbered, Neck fire's heat and flicker, Pick pulse's notes on screen and their chord; the chord layers: the chords sounding at a time, the notes coming next, a note's name or degree. |
 | `client/hands.ts` | Browser. MediaPipe's Hand Landmarker, loaded once for both readers. |
 | `ui/NeckCvView.tsx` | React. The OpenCV reader's canvas over a video: wires, numbers, strings, notes under fingers, Neck fire, Pick pulse. |
 | `ui/CvControls.tsx` | React. Fret numbers, Strings, Notes under fingers, Neck fire and its Strength, Pick pulse; `useCv` keeps them. |

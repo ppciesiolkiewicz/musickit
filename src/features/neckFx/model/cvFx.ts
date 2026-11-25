@@ -1,4 +1,6 @@
+import { Note } from "@tonaljs/tonal";
 import { gripName } from "@/lib/chordKit/gripName";
+import { FAMILIES, MODE_LIST, degreeLabel, makeKeyContext } from "@/features/theory/theory";
 import { AMOUNT_MAX } from "./fx";
 
 /** What the OpenCV reader draws over the neck. Pure: NeckCvView draws, CvControls sets. */
@@ -24,8 +26,16 @@ export interface CvSettings {
   fireStrength: number;
   /** a ring from each note's place as it is played, its name while it sounds, and the chord the notes sounding make */
   pulse: boolean;
+  /** the chord shape the notes sounding together make, joined, with its name */
+  chords: boolean;
+  /** the finger number of each note, where the riff says */
+  fingers: boolean;
+  /** a faint shape for the notes coming next */
+  next: boolean;
+  /** note names, or degrees in the key */
+  labels: "name" | "degree";
 }
-export const DEFAULT_CV: CvSettings = { numbers: "dots", strings: true, notes: true, fire: true, fireStrength: 1, pulse: true };
+export const DEFAULT_CV: CvSettings = { numbers: "dots", strings: true, notes: true, fire: true, fireStrength: 1, pulse: true, chords: true, fingers: false, next: true, labels: "name" };
 
 /** Settings read back from storage: anything unreadable falls back to the default. */
 export function readCv(v: unknown): CvSettings {
@@ -37,6 +47,10 @@ export function readCv(v: unknown): CvSettings {
     notes: flag(o.notes, DEFAULT_CV.notes),
     fire: flag(o.fire, DEFAULT_CV.fire),
     pulse: flag(o.pulse, DEFAULT_CV.pulse),
+    chords: flag(o.chords, DEFAULT_CV.chords),
+    fingers: flag(o.fingers, DEFAULT_CV.fingers),
+    next: flag(o.next, DEFAULT_CV.next),
+    labels: o.labels === "name" || o.labels === "degree" ? o.labels : DEFAULT_CV.labels,
     fireStrength: typeof o.fireStrength === "number" && Number.isFinite(o.fireStrength) ? Math.min(AMOUNT_MAX, Math.max(0, o.fireStrength)) : DEFAULT_CV.fireStrength,
   };
 }
@@ -81,4 +95,36 @@ export function chordOf(midis: number[]): { name: string; rootPc: number } | nul
   if (new Set(sorted.map((m) => ((m % 12) + 12) % 12)).size < 2) return null;
   const g = gripName(sorted);
   return g ? { name: g.name, rootPc: g.rootPc } : null;
+}
+
+/** How far ahead (s) the notes coming next show. */
+export const NEXT_LEAD_S = 0.6;
+
+/** The notes sounding at `t` (start <= t < end; no end counts as `MIN_HOLD_S`), grouped by the same start (to 1 ms), each group named when it is a chord. */
+export function chordsAt(notes: TakeNote[], t: number): { start: number; notes: TakeNote[]; name: string | null }[] {
+  const groups: { start: number; notes: TakeNote[] }[] = [];
+  for (const n of [...notes].sort((a, b) => a.start - b.start)) {
+    if (!(n.start <= t && t < (n.end ?? n.start + MIN_HOLD_S))) continue;
+    const g = groups.find((x) => Math.abs(x.start - n.start) < 0.001);
+    if (g) g.notes.push(n);
+    else groups.push({ start: n.start, notes: [n] });
+  }
+  return groups.map((g) => ({ ...g, name: chordOf(g.notes.map((n) => n.midi))?.name ?? null }));
+}
+
+/** The notes of the next start after `t` (all that share it), when it is within `lead` seconds; else none. */
+export function comingAt(notes: TakeNote[], t: number, lead = NEXT_LEAD_S): TakeNote[] {
+  const later = notes.filter((n) => n.start > t);
+  if (!later.length) return [];
+  const next = Math.min(...later.map((n) => n.start));
+  return next - t <= lead ? later.filter((n) => Math.abs(n.start - next) < 0.001) : [];
+}
+
+/** A note's name (with ♯) or its degree in the key; with no key, or a scale not found, its name. */
+export function noteLabel(midi: number, labels: CvSettings["labels"], key?: { tonic: number; scale: string }): string {
+  const pc = ((midi % 12) + 12) % 12;
+  const name = Note.pitchClass(Note.fromMidiSharps(midi)).replace("#", "♯");
+  const mode = key && MODE_LIST.find((m) => m.name === key.scale);
+  if (labels !== "degree" || !key || !mode) return name;
+  return degreeLabel(pc, makeKeyContext(key.tonic, FAMILIES.indexOf(mode.family), mode.k));
 }
