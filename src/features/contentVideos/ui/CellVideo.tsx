@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import type { PlayInfo } from "../server/access";
-import { contentVideoFileUrl } from "../client/api";
+import OverlayVideo, { OverlayDrawProvider, type DrawTool } from "./OverlayVideo";
 
 export const WATCH = "Watch video";
 export const HIDE = "Hide video";
@@ -11,9 +11,9 @@ export const NOT_PLAYED = "The video could not be played. Check your connection,
 
 /**
  * A content video above the tool it shows: Watch video opens it in place, above the tool, which stays on screen and
- * playable; Hide video closes it. Nothing is loaded until it is opened. A file that fails says so under the button.
+ * playable; Hide video closes it. The video's tool is drawn over it when it saved one (`OverlayVideo`). Nothing is loaded until it is opened. A file that fails says so under the button.
  */
-export default function CellVideo({ video, measure = "w-full max-w-3xl" }: { video: PlayInfo; measure?: string }) {
+export default function CellVideo({ video, measure = "w-full max-w-3xl", draw }: { video: PlayInfo; measure?: string; /** draws the video's tool over it (the plan's `drawToolOverlay`) */ draw?: DrawTool }) {
   const [open, setOpen] = useState(false);
   const [failed, setFailed] = useState(false);
   const aspect = video.width > 0 && video.height > 0 ? `${video.width} / ${video.height}` : "16 / 9";
@@ -29,18 +29,18 @@ export default function CellVideo({ video, measure = "w-full max-w-3xl" }: { vid
         {open ? HIDE : WATCH}
       </button>
       {open && (
-        <video
-          src={contentVideoFileUrl(video.id)}
-          controls
-          playsInline
-          preload="metadata"
-          aria-label={video.title}
-          style={{ aspectRatio: aspect }}
-          className="max-h-[70vh] w-full rounded-lg bg-black object-contain"
-          onError={() => { setOpen(false); setFailed(true); }}
-        />
+        <MaybeDraw draw={draw}>
+          <OverlayVideo
+            video={video}
+            style={{ aspectRatio: aspect }}
+            className="max-h-[70vh] w-full rounded-lg bg-black object-contain"
+            onError={() => { setOpen(false); setFailed(true); }}
+          />
+        </MaybeDraw>
       )}
       {failed && <p role="alert" className="text-xs text-rose-300">{NOT_PLAYED}</p>}
     </div>
   );
 }
+
+const MaybeDraw = ({ draw, children }: { draw?: DrawTool; children: ReactNode }) => (draw ? <OverlayDrawProvider draw={draw}>{children}</OverlayDrawProvider> : <>{children}</>);

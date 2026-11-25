@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
 import { useVoiceRange } from "./voiceChoice";
-import { buildLadder, clefFor, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
+import { VOICES, buildLadder, clefFor, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, RUNS, placeRun, placeTune, runPasses } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import SingAlong from "./sing-along/SingAlong";
+import StreamStaff from "./sing-along/StreamStaff";
+import { makePass } from "./sing-along/passes";
 
 /** the tempo of a tune or run with none of its own */
 const BPM = 90;
@@ -28,28 +30,7 @@ export function SingerView({ n, pc = 0, voice = "soprano", bpm: asked, chords = 
   const tune = BOOK.find((t) => t.n === n) ?? RUNS.find((t) => t.n === n);
   const range = useVoiceRange(voice, "soprano");
   const clef = clefFor(range);
-  const { ladder, passes, notes, harmony } = useMemo(() => {
-    const ladderIn = (k: number, r: Range) => tuneLadderFor(buildLadder("major-ionian", k, r)!, k, r);
-    const none: MelodyChord[] = [];
-    if (!tune) return { ladder: ladderIn(pc, range), passes: [], notes: [], harmony: none };
-    if (tune.keys) {
-      const passes = runPasses(tune.notes, tune.keys, ladderIn, range);
-      const ladder = ladderIn(passes[0].pc, range);
-      if (chords) {
-        // a bar of the first key's I and V before the run, so the key is heard before the singing starts
-        const h = harmoniseRun(tune.notes, tune.keys, ladderIn, range, { intro: true });
-        const later = passes.map((p) => ({ ...p, notes: p.notes.map((x) => ({ ...x, at: x.at + BEATS_PER_BAR })) }));
-        return { ladder, passes: later, notes: h.notes, harmony: h.chords };
-      }
-      return { ladder, passes, notes: placeRun(tune.notes, tune.keys, ladderIn, range), harmony: none };
-    }
-    const ladder = ladderIn(pc, range);
-    if (chords) {
-      const h = harmoniseTune(tune.notes, ladder, range);
-      return { ladder, passes: [], notes: h.notes, harmony: h.chords };
-    }
-    return { ladder, passes: [], notes: placeTune(tune.notes, ladder, range), harmony: none };
-  }, [tune, pc, range, chords]);
+  const { ladder, passes, notes, harmony } = useMemo(() => placeSinger(tune, pc, range, chords), [tune, pc, range, chords]);
   const beat = 60000 / bpm;
   const [tapped, setTapped] = useState<number | null>(null);
   if (!tune || !notes.length) return null;
@@ -72,5 +53,50 @@ export function SingerView({ n, pc = 0, voice = "soprano", bpm: asked, chords = 
         const where = k < 0 ? `${passes.length} keys · ${passes[0].ladder.title} up to ${passes.at(-1)!.ladder.title}` : `Pass ${k + 1} of ${passes.length} · ${passes[k].ladder.title}`;
         return <>{tune.stage.title} · {where} · {range.label} · {bpm} bpm</>;
       } : <>Melody #{tune.n} · {tune.stage.title} · {ladder.title} · {range.label} · {bpm} bpm</>} />
+  );
+}
+
+type Tune = (typeof BOOK)[number] | (typeof RUNS)[number];
+
+/** A tune (or run) laid in a key and a range: its ladder, a run's passes, its notes and the chords under them (with `chords`). */
+function placeSinger(tune: Tune | undefined, pc: number, range: Range, chords: boolean) {
+  const ladderIn = (k: number, r: Range) => tuneLadderFor(buildLadder("major-ionian", k, r)!, k, r);
+  const none: MelodyChord[] = [];
+  if (!tune) return { ladder: ladderIn(pc, range), passes: [], notes: [], harmony: none };
+  if (tune.keys) {
+    const passes = runPasses(tune.notes, tune.keys, ladderIn, range);
+    const ladder = ladderIn(passes[0].pc, range);
+    if (chords) {
+      // a bar of the first key's I and V before the run, so the key is heard before the singing starts
+      const h = harmoniseRun(tune.notes, tune.keys, ladderIn, range, { intro: true });
+      const later = passes.map((p) => ({ ...p, notes: p.notes.map((x) => ({ ...x, at: x.at + BEATS_PER_BAR })) }));
+      return { ladder, passes: later, notes: h.notes, harmony: h.chords };
+    }
+    return { ladder, passes, notes: placeRun(tune.notes, tune.keys, ladderIn, range), harmony: none };
+  }
+  const ladder = ladderIn(pc, range);
+  if (chords) {
+    const h = harmoniseTune(tune.notes, ladder, range);
+    return { ladder, passes: [], notes: h.notes, harmony: h.chords };
+  }
+  return { ladder, passes: [], notes: placeTune(tune.notes, ladder, range), harmony: none };
+}
+
+/**
+ * The tune drawn over a content video (`VideoOverlay`): its staff with the bar on `beat` (the tune's beat at this moment
+ * of the video; null: stopped, at the start). No buttons, no sound, no mic: the video's clock moves it, so a seek moves
+ * it too. The voice is the one the tool was written with (soprano with none), never a voice the page or the player
+ * chose, so it stays the one recorded.
+ */
+export function SingerOverlay({ n, pc = 0, voice, chords = true, beat }: { n: number; pc?: number; voice?: Voice; chords?: boolean; beat: number | null }) {
+  const tune = BOOK.find((t) => t.n === n) ?? RUNS.find((t) => t.n === n);
+  const range = VOICES[voice ?? "soprano"];
+  const { ladder, notes, harmony } = useMemo(() => placeSinger(tune, pc, range, chords), [tune, pc, range, chords]);
+  const total = notes.length ? notes[notes.length - 1].at + notes[notes.length - 1].beats : 0;
+  const whole = useMemo(() => [makePass(notes, harmony, 0, 0, total)], [notes, harmony, total]);
+  if (!tune || !notes.length) return null;
+  return (
+    <StreamStaff frame={{ s: beat === null ? 0 : Math.max(0, beat), passes: whole, trail: [], midi: null }} notes={notes} chords={harmony}
+      ladder={ladder} clef={clefFor(range)} beatMs={60000 / BPM} tapped={null} onNote={() => {}} />
   );
 }

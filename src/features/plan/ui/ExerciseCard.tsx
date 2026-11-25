@@ -13,6 +13,7 @@ import type { Block, PlanExercise } from "../model/types";
 import { STARS, STAR_LABELS, isStars, type Stars } from "@/features/progress/stars";
 import type { Picks } from "../model/choice";
 import CellVideo from "@/features/contentVideos/ui/CellVideo";
+import { drawToolOverlay } from "./ToolOverlay";
 import { drawnAsks } from "@/features/contentVideos/model/drawn";
 import type { CellAsk } from "@/features/contentVideos/model/slot";
 import type { PlayInfo } from "@/features/contentVideos/server/access";
@@ -118,7 +119,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
           : <SpentTime seconds={spent} minutes={e.minutes} ticking={ticking} />}
       </div>
       <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
-      <ExerciseSettings><BlockBody block={block} size="card" address={address} given={e.given} at={at} onAt={setAt} picks={picks} onPicks={setPicks} beforeTool={(cell) => (videos?.[cell] ? <CellVideo key={videos[cell].id} video={videos[cell]} /> : null)} afterTool={afterTool} /></ExerciseSettings>
+      <ExerciseSettings><BlockBody block={block} size="card" address={address} given={e.given} at={at} onAt={setAt} picks={picks} onPicks={setPicks} beforeTool={(cell) => (videos?.[cell] ? <CellVideo key={videos[cell].id} video={videos[cell]} draw={drawToolOverlay} /> : null)} afterTool={afterTool} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
       {spent !== undefined && <span className="self-end"><SpentBar seconds={spent} minutes={e.minutes} ticking={ticking} small /></span>}

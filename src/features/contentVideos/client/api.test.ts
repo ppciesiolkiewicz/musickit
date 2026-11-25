@@ -34,7 +34,7 @@ test("the file goes to its content path, then the row is saved", async () => {
   assert.equal(f.rows[0].url, "/api/content-videos");
   assert.ok(f.rows[0].init?.signal, "the row has a timeout");
   const body = JSON.parse(String(f.rows[0].init?.body));
-  assert.deepEqual(body, { id: input.id, title: input.title, note: "", type: input.type, seconds: 12, width: 1280, height: 720, path: f.puts[0].path, madeFor: input.madeFor, target: input.target });
+  assert.deepEqual(body, { id: input.id, title: input.title, note: "", type: input.type, seconds: 12, width: 1280, height: 720, path: f.puts[0].path, madeFor: input.madeFor, target: input.target, overlay: null });
 });
 
 test("a take whose file is up only retries the row", async () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import type { CellVideo } from "../model/lookup";
+import type { Overlay } from "../model/overlay";
 import type { ContentVideoInfo, LookupAsk, PlayInfo } from "../server/access";
 import type { Lost } from "../server/repo";
 import { contentVideoPath, type Target } from "../server/rules";
@@ -16,6 +17,8 @@ export const contentVideoFileUrl = (id: string): string => `/api/content-videos/
 
 export interface SaveInput {
   id: string; blob: Blob; type: string; title: string; note: string; seconds: number; width: number; height: number; madeFor: string; target: Target;
+  /** the tool's settings and clock for drawing it over the video (`model/overlay.ts`); left out, the video just plays */
+  overlay?: Overlay | null;
   /** the file is in the store already: only the row is missing */
   fileUp?: boolean;
 }
@@ -48,13 +51,13 @@ type Row = { ok: true; video: ContentVideoInfo; lost: Lost[] } | { ok: false; st
 
 /** The row for an uploaded file. Never throws: a timeout or a dropped connection is `status: null`. */
 async function saveRow(input: SaveInput, path: string, doFetch: typeof fetch): Promise<Row> {
-  const { id, title, note, type, seconds, width, height, madeFor, target } = input;
+  const { id, title, note, type, seconds, width, height, madeFor, target, overlay = null } = input;
   try {
     const res = await doFetch("/api/content-videos", {
       method: "POST",
       headers: { "content-type": "application/json" },
       signal: AbortSignal.timeout(ROW_MS),
-      body: JSON.stringify({ id, title, note, type, seconds, width, height, path, madeFor, target }),
+      body: JSON.stringify({ id, title, note, type, seconds, width, height, path, madeFor, target, overlay }),
     });
     if (!res.ok) return { ok: false, status: res.status, words: await wordsOf(res) };
     const body = (await res.json().catch(() => null)) as { video?: ContentVideoInfo; lost?: Lost[] } | null;

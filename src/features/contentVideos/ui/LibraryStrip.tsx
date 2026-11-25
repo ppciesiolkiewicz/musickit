@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { contentVideoFileUrl, listContentVideos, lookUpVideos } from "../client/api";
+import { listContentVideos, lookUpVideos } from "../client/api";
+import OverlayVideo from "./OverlayVideo";
 import { levelsText, stepGroups, toolName } from "../model/coverage";
 import type { CellVideo } from "../model/lookup";
 import type { CellAsk } from "../model/slot";
@@ -87,7 +88,7 @@ function StripVideo({ play, from }: { play: PlayInfo; from: string }) {
       <button type="button" onClick={() => { setOpen((o) => !o); setFailed(false); }} className="rounded border border-slate-700 px-1.5 text-slate-300 hover:border-slate-400">{open ? "Hide video" : "Play"}</button>
       {open && (
         <div className="w-full">
-          <video src={contentVideoFileUrl(play.id)} controls autoPlay playsInline onError={() => setFailed(true)} className="max-h-80 w-full max-w-xl rounded bg-black" />
+          <div className="w-full max-w-xl"><OverlayVideo video={play} autoPlay onError={() => setFailed(true)} className="max-h-80 w-full rounded bg-black" /></div>
           {failed && <p role="alert" className="text-rose-300">The video could not be played. Check your connection, then press Play again.</p>}
         </div>
       )}

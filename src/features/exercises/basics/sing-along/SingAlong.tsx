@@ -7,6 +7,7 @@ import InputChip from "@/components/InputChip";
 import { ToolHeadphonesHint } from "@/components/practice/exerciseStep";
 import { DropdownSection, Hint, HintToggle, KeyCap } from "@/components/ui";
 import { useSpaceKey } from "@/components/practice/toolKeys";
+import { useToolClock } from "@/components/practice/toolClock";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { PlayAheadRow, ToolSettings, Volume, usePlayAhead } from "@/features/settings";
@@ -202,6 +203,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   const size = full ? scale : 1;
   const pass = sa.playing ? passAt(sa.frame.passes, sa.frame.s) : undefined;
   const at = pass ? pass.from + sa.frame.s - pass.start : null;
+  // the record page saves the tune's beat with a take, to draw the tune over the video in step (null: stopped)
+  useToolClock(sa.playing ? at : null);
 
   const view = (
     <div ref={spaceRef} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}

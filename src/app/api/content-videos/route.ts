@@ -19,7 +19,7 @@ export async function GET(req: Request) {
   return json({ videos: await listContentVideos(store.repo) });
 }
 
-/** After an upload finished: JSON { id, title, note, type, seconds, width, height, path, madeFor, target }. Saves the row: { video, lost }. */
+/** After an upload finished: JSON { id, title, note, type, seconds, width, height, path, madeFor, target, overlay? }. Saves the row: { video, lost }. */
 export async function POST(req: Request) {
   const gate = await permissionCheck(req, "content");
   if (!gate.ok) return gate.response;

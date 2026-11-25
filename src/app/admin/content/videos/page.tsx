@@ -6,6 +6,7 @@ import { contentVideos } from "@/features/contentVideos/server/http";
 import { seedToolUse } from "@/features/contentVideos/server/seedCells";
 import { videoTools } from "@/features/contentVideos/model/coverage";
 import ToolVideos from "@/features/contentVideos/ui/ToolVideos";
+import DrawTools from "./DrawTools";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: contentTitle("/admin/content/videos") };
@@ -24,5 +25,5 @@ export default async function VideosPage() {
       error = "The videos could not be loaded.";
     }
   }
-  return <ContentShell wide><ToolVideos tools={videoTools()} use={seedToolUse()} initial={videos} initialError={error} /></ContentShell>;
+  return <ContentShell wide><DrawTools><ToolVideos tools={videoTools()} use={seedToolUse()} initial={videos} initialError={error} /></DrawTools></ContentShell>;
 }

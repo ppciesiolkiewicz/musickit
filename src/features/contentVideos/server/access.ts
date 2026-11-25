@@ -4,6 +4,8 @@ import { MAX_TAKE_SECONDS } from "@/features/videos/recording";
 import type { BlobLookup, Refused } from "@/features/videos/server/access";
 import { checkUpload, isPrivateBlobUrl, isVideoId } from "@/features/videos/server/rules";
 import { blockVideos, type CellVideo } from "../model/lookup";
+import { readOverlay } from "../model/overlay";
+import { toolKeyOf } from "../model/slot";
 import type { CellAsk } from "../model/slot";
 import type { ContentVideoRepo, ContentVideoRow, Lost, Pointers } from "./repo";
 import { cleanNote, contentVideoPath, isMadeFor, readTarget } from "./rules";
@@ -61,8 +63,9 @@ export async function planContentUpload(repo: ContentVideoRepo, pathname: string
 const whole = (v: unknown, max: number): number | null => (typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= max ? Math.round(v) : null);
 
 /**
- * After the browser's upload finished: `{ id, title, note, type, seconds, width, height, path, madeFor, target }`. The path must
+ * After the browser's upload finished: `{ id, title, note, type, seconds, width, height, path, madeFor, target, overlay? }`. The path must
  * be the id's place for `madeFor`; the file must be found, and its size is the one stored. A public blob is deleted and refused.
+ * An overlay (`model/overlay.ts`) must read and be for the target's tool; with none the video just plays.
  */
 export async function completeContentUpload(repo: ContentVideoRepo, userId: string, raw: unknown, blobs: BlobLookup, now: Date): Promise<{ ok: true; video: ContentVideoInfo; lost: Lost[] } | Refused> {
   const b = objectOf(raw);
@@ -80,6 +83,9 @@ export async function completeContentUpload(repo: ContentVideoRepo, userId: stri
   const width = whole(b.width, 10000);
   const height = whole(b.height, 10000);
   if (seconds === null || width === null || height === null) return refuse(400, BAD);
+  const overlay = b.overlay === undefined || b.overlay === null ? null : readOverlay(b.overlay);
+  if (overlay === null && b.overlay != null) return refuse(400, BAD);
+  if (overlay && toolKeyOf(overlay.tool) !== target.tool) return refuse(400, BAD);
   const found = await blobs.find(b.path);
   if (!found) return refuse(400, "The upload didn't finish. Try again.");
   if (!isPrivateBlobUrl(found.url)) {
@@ -91,7 +97,7 @@ export async function completeContentUpload(repo: ContentVideoRepo, userId: stri
   if (!sized.ok) return refuse(400, sized.error);
   const row: ContentVideoRow = {
     id, title: cleanTitle(b.title), note: cleanNote(b.note), recordedBy: userId, madeFor,
-    tool: null, steps: null, type, seconds, width, height, size, blobPath: b.path, overlay: null, createdAt: now,
+    tool: null, steps: null, type, seconds, width, height, size, blobPath: b.path, overlay, createdAt: now,
   };
   const made = await repo.create(row, target);
   if (!made.ok) return refuse(409, made.reason === "taken" ? TAKEN : made.reason === "no-block" ? NO_BLOCK : NO_CELL);

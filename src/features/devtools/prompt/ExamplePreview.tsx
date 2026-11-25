@@ -6,6 +6,8 @@ import ExerciseCard from "@/features/plan/ui/ExerciseCard";
 import { parsePreview, previewPlanText } from "../model/preview";
 import PlanPreview from "./PlanPreview";
 import LibraryStrip from "@/features/contentVideos/ui/LibraryStrip";
+import { OverlayDrawProvider } from "@/features/contentVideos/ui/OverlayVideo";
+import { drawToolOverlay } from "@/features/plan/ui/ToolOverlay";
 
 /**
  * One example rendered: an exercise as the plan's exercise card, a plan as the week view; the parser's warnings above.
@@ -21,7 +23,7 @@ export default function ExamplePreview({ json, entries, videos = false, blockId 
       )}
       {p.exercise ? (
         videos ? (
-          <LibraryStrip blockId={blockId}>{(card) => <ExerciseCard exercise={p.exercise!} index={0} onAsks={card.onAsks} afterTool={card.afterTool} />}</LibraryStrip>
+          <OverlayDrawProvider draw={drawToolOverlay}><LibraryStrip blockId={blockId}>{(card) => <ExerciseCard exercise={p.exercise!} index={0} onAsks={card.onAsks} afterTool={card.afterTool} />}</LibraryStrip></OverlayDrawProvider>
         ) : (
           <ExerciseCard exercise={p.exercise} index={0} />
         )

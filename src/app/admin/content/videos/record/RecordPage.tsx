@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ExerciseTool from "@/features/plan/ui/ExerciseTool";
+import { Tool } from "@/features/plan/ui/ExerciseTool";
 import type { PlanTool } from "@/features/plan/model/tools";
 import RecordVideo, { type RecordFor } from "@/features/contentVideos/ui/RecordVideo";
 import { stepGroups, toolName } from "@/features/contentVideos/model/coverage";
@@ -30,8 +30,9 @@ export default function RecordPage({ target, options, videos, error }: { target:
           </select>
         </label>
       )}
-      <RecordVideo target={target} videos={videos}>
-        {option ? <ExerciseTool key={picked} tool={option.tool} /> : <p className="text-sm text-slate-300">No seed exercise uses this tool, so there is no tool to show over the camera. The video records without it.</p>}
+      {/* the tool as written, not in the recorder's own voice: the melody drawn over the video is the one sung here */}
+      <RecordVideo target={target} videos={videos} drawn={option?.tool ?? null}>
+        {option ? <Tool key={picked} tool={option.tool} /> : <p className="text-sm text-slate-300">No seed exercise uses this tool, so there is no tool to show over the camera. The video records without it.</p>}
       </RecordVideo>
     </div>
   );

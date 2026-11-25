@@ -5,6 +5,8 @@ import { completeContentUpload, deleteContentVideo, editContentVideo, lookUp, pl
 import { memoryContentVideoRepo } from "./repo.memory";
 import { contractBlocks, V } from "./repoContract";
 import { contentVideoPath } from "./rules";
+import { TOOLS } from "@/features/plan/model/tools";
+import { stepsOfTool } from "../model/slot";
 
 const MADE = "tool:picking-drill";
 const PRIVATE = "https://abc.private.blob.vercel-storage.com/x";
@@ -40,6 +42,21 @@ describe("content video access", () => {
     assert.ok((await save(repo)).ok);
     const no = await planContentUpload(repo, contentVideoPath(MADE, V.a, "video/webm"), payload());
     assert.ok(!no.ok && no.status === 409);
+  });
+
+  test("an overlay is saved with the video when it reads and is for the target's tool", async () => {
+    const melody = TOOLS["melody-singer"].parse({ type: "melody-singer", pick: { difficulty: "easy", stage: "sol" }, key: "d", voice: "tenor" })!;
+    const overlay = { tool: melody, clock: [[0, null, 0], [1.5, 0, 1.5]] };
+    const made = "tool:melody-singer";
+    const at = (over: Record<string, unknown>) => ({ madeFor: made, path: contentVideoPath(made, V.a, "video/webm"), target: { kind: "tool", tool: "melody-singer", steps: stepsOfTool("melody-singer") }, ...over });
+    const ok = await save(fresh(), at({ overlay }));
+    assert.ok(ok.ok);
+    assert.deepEqual(ok.video.overlay, overlay);
+    const unread = await save(fresh(), at({ overlay: { tool: melody, clock: "x" } }));
+    assert.ok(!unread.ok && unread.status === 400);
+    const otherTool = await save(fresh(), { overlay });
+    assert.ok(!otherTool.ok && otherTool.status === 400);
+    assert.ok((await save(fresh(), at({ overlay: null }))).ok);
   });
 
   test("saving writes the row with the target's steps and says what lost them", async () => {

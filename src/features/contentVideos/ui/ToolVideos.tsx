@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { contentVideoFileUrl, deleteContentVideo, editContentVideo, listContentVideos, retickContentVideo } from "../client/api";
+import OverlayVideo from "./OverlayVideo";
+import { deleteContentVideo, editContentVideo, listContentVideos, retickContentVideo } from "../client/api";
 import { coverage, coveredCount, levelsText, stepGroups, toolName, type SeedUse } from "../model/coverage";
 import type { ContentVideoInfo } from "../server/access";
 import type { Lost } from "../server/repo";
@@ -196,7 +197,7 @@ function VideoRow({ tool, video, onChanged }: { tool: string; video: ContentVide
         </div>
       </div>
       {video.note && <p className="text-xs text-slate-400">{video.note}</p>}
-      {playing && <video src={contentVideoFileUrl(video.id)} controls autoPlay playsInline className="max-h-96 w-full max-w-2xl rounded bg-black" />}
+      {playing && <div className="w-full max-w-2xl"><OverlayVideo video={video} autoPlay className="max-h-96 w-full rounded bg-black" /></div>}
 
       {mode === "levels" && (
         <div className="flex flex-col gap-2 rounded-lg border border-slate-800 p-2">

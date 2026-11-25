@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { readDeviceChoice } from "@/features/sound";
 import { clockTime } from "@/features/recorder/recorder";
 import { MAX_TAKE_SECONDS, pickVideoType } from "@/features/videos/recording";
+import { ToolClockListener } from "@/components/practice/toolClock";
+import type { PlanTool } from "@/features/plan/model/tools";
 import { saveContentVideo } from "../client/api";
+import { squeeze, type Sample } from "../model/clock";
+import { hasOverlay, type Overlay } from "../model/overlay";
 import { stepGroups, toolName, wouldLose } from "../model/coverage";
 import type { ContentVideoInfo } from "../server/access";
 
@@ -17,7 +21,10 @@ import type { ContentVideoInfo } from "../server/access";
  */
 
 type Phase = "off" | "starting" | "ready" | "recording";
-interface Take { id: string; blob: Blob; type: string; seconds: number; url: string; width: number; height: number; fileUp: boolean; saved: boolean }
+interface Take { id: string; blob: Blob; type: string; seconds: number; url: string; width: number; height: number; fileUp: boolean; saved: boolean; overlay: Overlay | null }
+
+/** how often the tool's beat is read while a take records */
+const SAMPLE_MS = 50;
 
 const CAMERA_KEY = "musickit.content.camera";
 const btn = "rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-40";
@@ -33,13 +40,13 @@ export interface RecordFor {
   block: { id: string; cell: number; title: string } | null;
 }
 
-export default function RecordVideo({ target, videos, children, over }: {
+export default function RecordVideo({ target, videos, children, drawn }: {
   target: RecordFor;
   videos: ContentVideoInfo[];
   /** the tool drawn over the camera, or a line saying why there is none */
   children: ReactNode;
-  /** called with the recording's start (its MediaRecorder start time on `performance.now()`) and stop, for the overlay */
-  over?: { onStart?: (at: number) => void; onStop?: () => unknown };
+  /** the settings of the tool in `children`: a tool with an overlay has its beat saved with the take, to be drawn over the video in step */
+  drawn: PlanTool | null;
 }) {
   const { tool, block } = target;
   const groups = stepGroups(tool);
@@ -63,6 +70,10 @@ export default function RecordVideo({ target, videos, children, over }: {
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement | null>(null);
   const takeUrl = useRef("");
+  // the tool's beat as it tells it (`useToolClock`), and the take's samples of it
+  const beat = useRef<number | null>(null);
+  const samples = useRef<Sample[]>([]);
+  const onBeat = useCallback((b: number | null) => { beat.current = b; }, []);
 
   const stopCamera = () => { stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; };
   const listCameras = async () => {
@@ -126,17 +137,28 @@ export default function RecordVideo({ target, videos, children, over }: {
     let r: MediaRecorder;
     try { r = new MediaRecorder(s, type ? { mimeType: type } : undefined); } catch (e) { setProblem(`The recording didn't start: ${message(e)}.`); return; }
     let from = 0;
+    let sampler = 0;
+    const tool = drawn && hasOverlay(drawn) ? drawn : null;
     r.ondataavailable = (e) => e.data.size && chunks.push(e.data);
     r.onerror = () => setProblem("The recording stopped with an error. Record the take again.");
-    r.onstart = () => { from = performance.now(); over?.onStart?.(from); };
+    r.onstart = () => {
+      from = performance.now();
+      samples.current = [];
+      if (!tool) return;
+      const read = () => samples.current.push({ t: (performance.now() - from) / 1000, beat: beat.current });
+      read();
+      sampler = window.setInterval(read, SAMPLE_MS);
+    };
     r.onstop = () => {
-      over?.onStop?.();
+      window.clearInterval(sampler);
+      // a tool never started in the take has nothing to show in step: the video plays without it
+      const overlay = tool && samples.current.some((x) => x.beat !== null) ? { tool, clock: squeeze(samples.current) } : null;
       const recorded = r.mimeType || type || "video/webm";
       const blob = new Blob(chunks, { type: recorded });
       if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
       takeUrl.current = URL.createObjectURL(blob);
       const settings = s.getVideoTracks()[0]?.getSettings();
-      setTake({ id: crypto.randomUUID(), blob, type: recorded, seconds: Math.max(1, Math.round((performance.now() - from) / 1000)), url: takeUrl.current, width: settings?.width ?? 0, height: settings?.height ?? 0, fileUp: false, saved: false });
+      setTake({ id: crypto.randomUUID(), blob, type: recorded, seconds: Math.max(1, Math.round((performance.now() - from) / 1000)), url: takeUrl.current, width: settings?.width ?? 0, height: settings?.height ?? 0, fileUp: false, saved: false, overlay });
       setDone("");
       setPhase(stream.current ? "ready" : "off");
     };
@@ -176,6 +198,7 @@ export default function RecordVideo({ target, videos, children, over }: {
       madeFor: own && block ? block.id : `tool:${tool}`,
       target: own && block ? { kind: "cell", blockId: block.id, cell: block.cell, tool } : { kind: "tool", tool, steps },
       fileUp: take.fileUp,
+      overlay: take.overlay,
     });
     setSending(false);
     if (!out.ok) {
@@ -216,7 +239,7 @@ export default function RecordVideo({ target, videos, children, over }: {
       <div className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
         {camera ? <video ref={live} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
-        <div className={`absolute inset-x-0 bottom-0 max-h-[60%] overflow-auto bg-slate-950/75 p-2 backdrop-blur-sm ${toolShown ? "" : "hidden"}`}>{children}</div>
+        <div className={`absolute inset-x-0 bottom-0 max-h-[60%] overflow-auto bg-slate-950/75 p-2 backdrop-blur-sm ${toolShown ? "" : "hidden"}`}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></div>
       </div>
 
       {take && phase !== "recording" && (
@@ -224,6 +247,7 @@ export default function RecordVideo({ target, videos, children, over }: {
           <h2 className="font-semibold text-slate-100">The take · {clockTime(take.seconds)}</h2>
           <video key={take.url} src={take.url} controls playsInline className="max-h-96 w-full max-w-3xl rounded bg-black"
             onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setTake((t) => (t && t.url === take.url ? { ...t, width: videoWidth, height: videoHeight } : t)); }} />
+          <p className="text-xs text-slate-400">{overlayWords(take.overlay, drawn)}</p>
           <label className="flex max-w-xl flex-col gap-1 text-xs text-slate-400">Title<input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} disabled={take.saved} className={input} /></label>
           <label className="flex max-w-xl flex-col gap-1 text-xs text-slate-400">Note: what the video shows<textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={1000} rows={2} disabled={take.saved} className={input} /></label>
 
@@ -270,4 +294,11 @@ export default function RecordVideo({ target, videos, children, over }: {
       )}
     </div>
   );
+}
+
+/** What the take panel says about the tool over the video. */
+function overlayWords(overlay: Overlay | null, drawn: PlanTool | null): string {
+  if (overlay) return "The tool's Play and Stop are saved with the take: players see the tool move with the video.";
+  if (drawn && hasOverlay(drawn)) return "The tool wasn't started during the take, so players see the video without it. To show it, record again and press Play on the tool.";
+  return "Players see the video without the tool: only the guitar play-along and the melody singer are drawn over a video.";
 }
