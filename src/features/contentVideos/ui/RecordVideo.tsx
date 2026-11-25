@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { readDeviceChoice } from "@/features/sound";
 import { clockTime } from "@/features/recorder/recorder";
@@ -11,8 +11,8 @@ import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls
 import type { PlanTool } from "@/features/plan/model/tools";
 import { saveContentVideo } from "../client/api";
 import { squeeze, type Sample } from "../model/clock";
-import { BGS, DEFAULT_LOOK, PLACES, SIZES, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
-import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelClass } from "./lookPanel";
+import { BGS, DEFAULT_BOX, DEFAULT_LOOK, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
+import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelClass, panelStyle } from "./lookPanel";
 import { stepGroups, toolName, wouldLose } from "../model/coverage";
 import type { ContentVideoInfo } from "../server/access";
 
@@ -78,6 +78,35 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const setLook = (part: Partial<Look>) => setLookState((l) => { const next = { ...l, ...part }; store(LOOK_KEY, next); return next; });
   const [controlsShown, setControlsShownState] = useState(() => stored(CONTROLS_KEY) !== false);
   const setControlsShown = (on: boolean) => { setControlsShownState(on); store(CONTROLS_KEY, on); };
+  const free = look.place === "free";
+  const frame = useRef<HTMLDivElement | null>(null);
+  // Free: the bar on top of the tool moves it, the corner sizes it, as shares of the camera's picture; kept when let go
+  const dragBox = (mode: "move" | "size") => (e: ReactPointerEvent<HTMLDivElement>) => {
+    const rect = frame.current?.getBoundingClientRect();
+    if (!rect?.width || !rect.height || e.button !== 0) return;
+    e.preventDefault();
+    const el = e.currentTarget;
+    const from = look.box ?? DEFAULT_BOX;
+    const [sx, sy] = [e.clientX, e.clientY];
+    el.setPointerCapture(e.pointerId);
+    const move = (m: PointerEvent) => {
+      const dx = (m.clientX - sx) / rect.width;
+      const dy = (m.clientY - sy) / rect.height;
+      const box = fitBox(mode === "move"
+        ? { ...from, x: from.x + dx, y: from.y + dy }
+        : { ...from, w: Math.min(1 - from.x, from.w + dx), h: Math.min(1 - from.y, from.h + dy) });
+      setLookState((l) => ({ ...l, box }));
+    };
+    const up = () => {
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointercancel", up);
+      setLookState((l) => { store(LOOK_KEY, l); return l; });
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+  };
   const canHide = drawn !== null && CONTROLS_TOOLS.includes(drawn.type);
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
@@ -251,8 +280,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         <label className="flex items-center gap-1.5">Place
           <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
         </label>
-        <label className="flex items-center gap-1.5">Size
-          <select value={look.size} onChange={(e) => setLook({ size: e.target.value as Look["size"] })} className={input}>{SIZES.map((s) => <option key={s} value={s}>{SIZE_WORDS[s]}</option>)}</select>
+        <label className="flex items-center gap-1.5" title={free ? "With Free, drag the corner of the tool to size it." : undefined}>Size
+          <select value={look.size} disabled={free} onChange={(e) => setLook({ size: e.target.value as Look["size"] })} className={`${input} disabled:opacity-40`}>{SIZES.map((s) => <option key={s} value={s}>{SIZE_WORDS[s]}</option>)}</select>
         </label>
         <label className="flex items-center gap-1.5">Background
           <select value={look.bg} onChange={(e) => setLook({ bg: e.target.value as Look["bg"] })} className={input}>{BGS.map((b) => <option key={b} value={b}>{BG_WORDS[b]}</option>)}</select>
@@ -260,15 +289,23 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         <label className="flex items-center gap-1.5" title={canHide ? "With the controls hidden, press Space to start and stop the tool." : "This tool's controls can't be hidden yet."}>
           <input type="checkbox" checked={canHide ? controlsShown : true} disabled={!canHide} onChange={(e) => setControlsShown(e.target.checked)} className="accent-emerald-500" /> Tool controls
         </label>
+        {free && <span className="text-xs text-slate-500">Drag the bar on top of the tool to move it, and its corner to size it.</span>}
         {canHide && !controlsShown && <span className="text-xs text-slate-500">Press Space to start and stop the tool.</span>}
       </div>
       {phase === "ready" && take && !take.saved && <p className="text-xs text-slate-500">A new recording replaces the take below.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
 
-      <div className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
+      <div ref={frame} className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
         {camera ? <video ref={live} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
-        <div className={`${panelClass(look, "record")} ${toolShown ? "" : "hidden"}`}><NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll></div>
+        {/* one tree for every place, so changing the place never restarts the tool */}
+        <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look)}>
+          <div className={free ? `${panelClass(look, "record")} inset-0 pt-5` : undefined}>
+            <NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll>
+          </div>
+          {free && <div onPointerDown={dragBox("move")} title="Drag to move the tool" className="absolute inset-x-0 top-0 h-4 cursor-move touch-none bg-slate-600/80 hover:bg-slate-500/90"><span className="mx-auto mt-1.5 block h-1 w-10 rounded-full bg-slate-300/70" /></div>}
+          {free && <div onPointerDown={dragBox("size")} title="Drag to size the tool" className="absolute bottom-0 right-0 size-5 cursor-se-resize touch-none border-b-4 border-r-4 border-slate-300/80 hover:border-white" />}
+        </div>
       </div>
 
       {take && phase !== "recording" && (

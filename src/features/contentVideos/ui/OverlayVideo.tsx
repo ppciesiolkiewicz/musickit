@@ -5,7 +5,7 @@ import type { PlanTool } from "@/features/plan/model/tools";
 import { contentVideoFileUrl } from "../client/api";
 import { beatAt } from "../model/clock";
 import { PLAYBACK_LOOK, readOverlay } from "../model/overlay";
-import { panelClass } from "./lookPanel";
+import { panelClass, panelStyle } from "./lookPanel";
 import type { PlayInfo } from "../server/access";
 
 /** Draws a tool at a beat over a video: the host's (the plan's `ToolOverlay`); this feature never draws a tool itself. */
@@ -72,7 +72,7 @@ export default function OverlayVideo({ video, autoPlay = false, className = "", 
       <div className="relative">
         {player}
         {/* where it sat over the camera (older takes: at the top), clear of the video's own controls */}
-        <div className={`${panelClass(overlay.look ?? PLAYBACK_LOOK, "play")} ${shown ? "" : "hidden"}`}>
+        <div className={`${panelClass(overlay.look ?? PLAYBACK_LOOK, "play")} ${shown ? "" : "hidden"}`} style={panelStyle(overlay.look ?? PLAYBACK_LOOK)}>
           {draw(overlay.tool, beat)}
         </div>
       </div>

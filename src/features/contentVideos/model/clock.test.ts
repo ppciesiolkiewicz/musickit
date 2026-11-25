@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { TOOLS } from "@/features/plan/model/tools";
 import { beatAt, readPieces, squeeze, type Sample } from "./clock";
-import { DEFAULT_LOOK, hasOverlay, readLook, readOverlay } from "./overlay";
+import { DEFAULT_LOOK, MIN_BOX, fitBox, hasOverlay, readLook, readOverlay } from "./overlay";
 
 /** samples every 50 ms from `from` to `to` seconds, the beat from `beat(t)` */
 const run = (from: number, to: number, beat: (t: number) => number | null): Sample[] => {
@@ -78,4 +78,11 @@ test("a look keeps each part that reads and defaults the rest", () => {
   assert.deepEqual(readLook(null), DEFAULT_LOOK);
   assert.deepEqual(readOverlay({ tool: riff, clock: [], look: { place: "right" } })?.look, { ...DEFAULT_LOOK, place: "right" });
   assert.equal(readOverlay({ tool: riff, clock: [] })?.look, undefined);
+});
+
+test("a free look keeps its box inside the picture", () => {
+  assert.deepEqual(readLook({ place: "free", size: "small", bg: "dark", box: { x: 0.2, y: 0.3, w: 0.4, h: 0.5 } }), { place: "free", size: "small", bg: "dark", box: { x: 0.2, y: 0.3, w: 0.4, h: 0.5 } });
+  assert.deepEqual(readLook({ place: "free", box: { x: 0.9, y: -1, w: 0.5, h: 0.01 } })?.box, { x: 0.5, y: 0, w: 0.5, h: MIN_BOX });
+  assert.deepEqual(readLook({ place: "free", box: { x: "a" } }), { ...DEFAULT_LOOK, place: "free" });
+  assert.deepEqual(fitBox({ x: 0, y: 0, w: 2, h: 2 }), { x: 0, y: 0, w: 1, h: 1 });
 });

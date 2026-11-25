@@ -1,8 +1,10 @@
-import type { Look } from "../model/overlay";
+import type { CSSProperties } from "react";
+import { DEFAULT_BOX, type Look } from "../model/overlay";
 
 /**
  * The classes of the panel the tool sits in over the camera (recording) or over the video (playback), from its look.
- * Written out whole so Tailwind finds them. On playback the panel keeps clear of the video's own controls at the bottom.
+ * Written out whole so Tailwind finds them. On playback the panel keeps clear of the video's own controls at the bottom,
+ * except a free one, which sits where it was put (`panelStyle`).
  */
 const SPAN = {
   across: { small: "max-h-[40%]", medium: "max-h-[60%]", large: "max-h-[80%]" },
@@ -17,11 +19,20 @@ const AT = {
 const BG = { dark: "bg-slate-950/75 backdrop-blur-sm", clear: "bg-slate-950/25" } as const;
 
 export function panelClass(look: Look, on: "record" | "play"): string {
+  const clip = on === "record" ? "overflow-auto" : "pointer-events-none overflow-hidden";
+  if (look.place === "free") return `absolute ${BG[look.bg]} p-2 ${clip}`;
   const side = look.place === "left" || look.place === "right";
   const span = side ? SPAN.side[look.size] : SPAN.across[look.size];
-  return `absolute ${AT[on][look.place]} ${span} ${BG[look.bg]} p-2 ${on === "record" ? "overflow-auto" : "pointer-events-none overflow-hidden"}`;
+  return `absolute ${AT[on][look.place]} ${span} ${BG[look.bg]} p-2 ${clip}`;
 }
 
-export const PLACE_WORDS: Record<Look["place"], string> = { bottom: "Bottom", top: "Top", left: "Left", right: "Right" };
+/** A free panel's place and size, as shares of the picture; none for the other places (their classes place them). */
+export function panelStyle(look: Look): CSSProperties | undefined {
+  if (look.place !== "free") return undefined;
+  const b = look.box ?? DEFAULT_BOX;
+  return { left: `${b.x * 100}%`, top: `${b.y * 100}%`, width: `${b.w * 100}%`, height: `${b.h * 100}%` };
+}
+
+export const PLACE_WORDS: Record<Look["place"], string> = { bottom: "Bottom", top: "Top", left: "Left", right: "Right", free: "Free" };
 export const SIZE_WORDS: Record<Look["size"], string> = { small: "Small", medium: "Medium", large: "Large" };
 export const BG_WORDS: Record<Look["bg"], string> = { dark: "Dark", clear: "Clear" };
