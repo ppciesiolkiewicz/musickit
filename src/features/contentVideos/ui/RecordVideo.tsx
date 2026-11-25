@@ -13,7 +13,8 @@ import { FxControls, NeckView, useFx } from "@/features/neckFx";
 import { saveContentVideo } from "../client/api";
 import { squeeze, type Sample } from "../model/clock";
 import { BGS, DEFAULT_BOX, DEFAULT_LOOK, PLACES, SIZES, fitBox, hasOverlay, readLook, type Look, type Overlay } from "../model/overlay";
-import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelClass, panelStyle } from "./lookPanel";
+import { BG_WORDS, PLACE_WORDS, SIZE_WORDS, panelBg, panelClass, panelStyle } from "./lookPanel";
+import Scaled from "./Scaled";
 import { stepGroups, toolName, wouldLose } from "../model/coverage";
 import type { ContentVideoInfo } from "../server/access";
 
@@ -87,15 +88,19 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     if (!rect?.width || !rect.height || e.button !== 0) return;
     e.preventDefault();
     const el = e.currentTarget;
-    const from = look.box ?? DEFAULT_BOX;
+    const panel = el.parentElement?.getBoundingClientRect();
+    // the height follows the scaled tool (`Scaled`): read it off the screen, and keep the tool's proportions when sizing
+    const box0 = look.box ?? DEFAULT_BOX;
+    const from = panel?.height ? { ...box0, h: panel.height / rect.height } : box0;
+    const tall = from.h / from.w;
     const [sx, sy] = [e.clientX, e.clientY];
     el.setPointerCapture(e.pointerId);
     const move = (m: PointerEvent) => {
       const dx = (m.clientX - sx) / rect.width;
       const dy = (m.clientY - sy) / rect.height;
-      const box = fitBox(mode === "move"
-        ? { ...from, x: from.x + dx, y: from.y + dy }
-        : { ...from, w: Math.min(1 - from.x, from.w + dx), h: Math.min(1 - from.y, from.h + dy) });
+      // the corner follows whichever way the pointer went further, across or down
+      const w = Math.min(1 - from.x, (1 - from.y) / tall, Math.max(from.w + dx, from.w + dy / tall));
+      const box = fitBox(mode === "move" ? { ...from, x: from.x + dx, y: from.y + dy } : { ...from, w, h: w * tall });
       setLookState((l) => ({ ...l, box }));
     };
     const up = () => {
@@ -313,8 +318,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
         {/* one tree for every place, so changing the place never restarts the tool */}
         <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look)}>
-          <div className={free ? `${panelClass(look, "record")} inset-0 pt-5` : undefined}>
-            <NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll>
+          <div className={free ? `${panelBg(look)} pt-4` : undefined}>
+            <Scaled on={free} className="p-2"><NoAutoScroll><ToolControls hidden={canHide && !controlsShown}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></ToolControls></NoAutoScroll></Scaled>
           </div>
           {free && <div onPointerDown={dragBox("move")} title="Drag to move the tool" className="absolute inset-x-0 top-0 h-4 cursor-move touch-none bg-slate-600/80 hover:bg-slate-500/90"><span className="mx-auto mt-1.5 block h-1 w-10 rounded-full bg-slate-300/70" /></div>}
           {free && <div onPointerDown={dragBox("size")} title="Drag to size the tool" className="absolute bottom-0 right-0 size-5 cursor-se-resize touch-none border-b-4 border-r-4 border-slate-300/80 hover:border-white" />}
