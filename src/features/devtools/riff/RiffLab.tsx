@@ -457,6 +457,7 @@ export default function RiffLab() {
               <span className="text-slate-500">{seedDirty ? "Changes not saved yet" : savedLine(seedRiff)}</span>
             </>
           )}
+          {seedRiff?.video?.changed && <p role="status" className="basis-full text-amber-300">This riff has changed since its video &ldquo;{seedRiff.video.title}&rdquo; was recorded, so the video plays the older riff. Record the video again to match.</p>}
         </div>
       )}
       <div className="flex flex-wrap items-end gap-4">

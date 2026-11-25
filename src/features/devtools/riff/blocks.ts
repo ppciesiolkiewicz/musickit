@@ -33,6 +33,8 @@ export interface RiffBlock {
   cell: number;
   /** set when the riff shown is one saved in the app: when (ISO), who (null once the account is gone), and whether the seed file holds it yet */
   edited?: { at: string; by: string | null; inFile: boolean };
+  /** the block's own video for the riff's cell, when it has one */
+  video?: RiffVideo;
 }
 
 /** What the riff maker writes into a block. `amp` left out keeps the block's amp; null takes it away. */
@@ -157,4 +159,22 @@ export function keptRiff<T>(file: T, edit: unknown): T | null {
 export function riffInFile(file: unknown, edit: unknown): boolean {
   const kept = keptRiff(file, edit);
   return kept !== null && blockFileText(kept) === blockFileText(file);
+}
+
+/** A riff block's own video, as the riff maker names it: its title, and whether the riff has changed since it was recorded. */
+export interface RiffVideo { id: string; title: string; changed: boolean }
+
+/**
+ * Whether a riff has changed since its video was recorded. A video with an overlay (`content_videos.overlay`, a copy of
+ * the tool as drawn over the camera) is compared by its riff's key, scale and notes; the tempo is left out, since the
+ * overlay keeps its own clock. A video with none (a take from the Take panel) is compared by time: changed when the riff
+ * was saved in the app after the video was made.
+ */
+export function riffChangedSince(riff: Pick<RiffBlock, "tonic" | "scale" | "notes">, video: { overlay: unknown; createdAt: Date }, editedAt: Date | null): boolean {
+  const tool = isObj(video.overlay) ? video.overlay.tool : null;
+  if (isObj(tool)) {
+    const was = riffBlockOf({ id: "video", exercise: { cells: [{ type: "tool", tool }] } });
+    if (was && !("error" in was)) return was.tonic !== riff.tonic || was.scale !== riff.scale || JSON.stringify(writeRiff(was.notes)) !== JSON.stringify(writeRiff(riff.notes));
+  }
+  return editedAt !== null && editedAt.getTime() > video.createdAt.getTime();
 }

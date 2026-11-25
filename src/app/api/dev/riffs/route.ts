@@ -1,6 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
-import { checkEdit, keptRiff, riffBlockOf, riffInFile, riffsOf, type RiffBlock, type RiffEdit } from "@/features/devtools/riff/blocks";
+import { checkEdit, keptRiff, riffBlockOf, riffChangedSince, riffInFile, riffsOf, type RiffBlock, type RiffEdit } from "@/features/devtools/riff/blocks";
+import { drizzleContentVideoRepo } from "@/features/contentVideos/server/repo.drizzle";
 import { devOnly } from "@/features/devtools/gate";
 import { permissionCheck, permissionGate } from "@/features/devtools/server/access";
 import { NO_ACCOUNTS } from "@/features/account/server/http";
@@ -8,7 +9,7 @@ import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
 import { drizzleUserDataRepo } from "@/features/userData/server/repo.drizzle";
 import type { RiffEditRow } from "@/features/userData/server/repo";
 import { curatedBlocks } from "@/features/userData/server/seedBlocks";
-import { getDb } from "@/lib/db/client";
+import { getDb, type Db } from "@/lib/db/client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -42,6 +43,16 @@ async function riffFiles(): Promise<{ files: SeedBlockFile[]; unread: string[] }
 /** The file with its saved edit laid over it, when there is one and it reads. */
 const shown = (file: SeedBlockFile, e: RiffEditRow | undefined): SeedBlockFile => (e && keptRiff(file, e.edit)) || file;
 
+/** The riffs, each with its block's own video for the riff's cell (`blocks.videos`) and whether the riff changed since it was made. */
+async function withVideos(db: Db, riffs: RiffBlock[], editedAt: (id: string) => Date | null): Promise<RiffBlock[]> {
+  if (!riffs.length) return riffs;
+  const { own, rows } = await drizzleContentVideoRepo(db).forLookup(riffs.map((r) => r.id), []);
+  return riffs.map((r) => {
+    const row = rows.find((v) => v.id === own[r.id]?.[r.cell]);
+    return row ? { ...r, video: { id: row.id, title: row.title, changed: riffChangedSince(r, row, editedAt(r.id)) } } : r;
+  });
+}
+
 /**
  * The riffs for the riff maker (/admin/content/riff): each seed block's riff, or the one saved in the app over it
  * (`blocks.riff_edit`), with `edited`. `saving` is false when the site has no database (riffs can't be saved then).
@@ -54,12 +65,13 @@ export async function GET(req: Request) {
     const db = getDb();
     const edits = new Map((db ? await drizzleUserDataRepo(db).riffEdits() : []).map((e) => [e.blockId, e]));
     const out = riffsOf(files.map((f) => shown(f, edits.get(f.id))));
-    const riffs: RiffBlock[] = out.riffs.map((r) => {
+    const listed: RiffBlock[] = out.riffs.map((r) => {
       const f = files.find((x) => x.id === r.id);
       const e = f && edits.get(f.id);
       const k = f && e ? keptRiff(f, e.edit) : null;
       return k && e ? { ...r, edited: { at: e.at.toISOString(), by: e.byName, inFile: riffInFile(f, e.edit) } } : r;
     });
+    const riffs = db ? await withVideos(db, listed, (id) => edits.get(id)?.at ?? null) : listed;
     return Response.json({ riffs, problems: [...unread, ...out.problems].sort(), saving: db !== null }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return fail(`The riffs couldn't be loaded: ${message(e)}`, 500);
@@ -103,5 +115,8 @@ export async function PUT(req: Request) {
   } catch (e) {
     return fail(`The riff couldn't be saved: ${message(e)}`, 500);
   }
-  return Response.json({ riff: { ...riff, edited: { at: now.toISOString(), by: gate.account.name, inFile: riffInFile(file, edit) } } });
+  const saved: RiffBlock = { ...riff, edited: { at: now.toISOString(), by: gate.account.name, inFile: riffInFile(file, edit) } };
+  // the video is looked up again: a failed lookup still answers the save, without it
+  const [out] = await withVideos(db, [saved], () => now).catch(() => [saved]);
+  return Response.json({ riff: out });
 }

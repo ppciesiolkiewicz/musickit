@@ -6,7 +6,7 @@ import { GENRES } from "@/features/library/seed/genres";
 import { columnsOf } from "@/features/exercises/riffs/riff";
 import { toolCells } from "@/features/contentVideos/model/slot";
 import type { Cell } from "@/features/plan/model/tools";
-import { blockFileText, checkEdit, keptRiff, riffBlockOf, riffInFile, riffsOf, withRiff, type RiffBlock } from "./blocks";
+import { blockFileText, checkEdit, keptRiff, riffBlockOf, riffChangedSince, riffInFile, riffsOf, withRiff, type RiffBlock } from "./blocks";
 
 const riffs = SEED_BLOCKS.flatMap((f) => { const r = riffBlockOf(f); return r ? [{ f, r }] : []; });
 
@@ -134,5 +134,26 @@ describe("a riff saved in the app", () => {
     assert.equal(keptRiff(f, { ...same, bpm: 999 }), null);
     assert.equal(keptRiff(f, "notes"), null);
     assert.equal(riffInFile(f, null), false);
+  });
+});
+
+describe("a riff's video", () => {
+  const { f } = riffs.find((x) => x.f.id === "guitar-beginner-rock-power-chords-and-a-riff")!;
+  const b = riffBlockOf(f) as RiffBlock;
+  const tool = (riffBlockOf(f) && (f.exercise.cells as Cell[]).flatMap((c) => (c.type === "tool" ? [c.tool] : []))[0]) as unknown;
+  const at = new Date(2026, 10, 25, 12);
+  const later = new Date(2026, 10, 26, 12);
+
+  it("with an overlay, has changed when the riff's key, scale or notes differ from the copy it drew, not its tempo", () => {
+    const video = { overlay: { tool, clock: [] }, createdAt: at };
+    assert.equal(riffChangedSince(b, video, later), false);
+    assert.equal(riffChangedSince({ ...b, notes: b.notes.slice(1) }, video, null), true);
+    assert.equal(riffChangedSince({ ...b, tonic: (b.tonic + 1) % 12 }, video, null), true);
+  });
+
+  it("without one, has changed when the riff was saved in the app after the video was made", () => {
+    assert.equal(riffChangedSince(b, { overlay: null, createdAt: at }, later), true);
+    assert.equal(riffChangedSince(b, { overlay: null, createdAt: later }, at), false);
+    assert.equal(riffChangedSince(b, { overlay: null, createdAt: at }, null), false);
   });
 });

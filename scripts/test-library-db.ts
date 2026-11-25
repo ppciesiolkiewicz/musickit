@@ -167,7 +167,6 @@ describe("user data repo on Postgres: block provenance", () => {
   });
   test("saveRiff writes the content, the named choices' moves and who saved it; the seed and riffEdits keep it", async () => {
     await fresh();
-    await db.insert(schema.users).values({ id: PLAYER_A, email: "a@test.local", name: "A", role: "student" });
     await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW);
     assert.equal(await repo.saveRiff({ id: "guitar-x-y", content: { title: "x", cells: [] } as unknown as CuratedBlock["content"], moves: [] }, {}, PLAYER_A, NOW), false);
     const moves = { bpm: { from: 70, to: 90 } } as unknown as CuratedBlock["choices"][number]["moves"];
