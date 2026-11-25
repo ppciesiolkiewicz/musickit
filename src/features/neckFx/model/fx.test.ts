@@ -80,7 +80,7 @@ test("the A3 layout uses each fret sheet marker once, at its printed size, insid
 });
 test("strength and beat read back clamped, missing ones from the default", () => {
   const f = readFx({ strength: { mood: 5, heat: -1, sparks: "x" }, beat: { heat: 0.5 } });
-  assert.deepEqual(f.strength, { mood: 2, heat: 0, glow: 1, sparks: 1, bump: 1 });
+  assert.deepEqual(f.strength, { mood: 2, heat: 0, glow: 1, sparks: 1, bump: 1, smooth: 1, light: 1, eyes: 1, slim: 1 });
   assert.deepEqual(f.beat, { mood: 1, heat: 0.5, glow: 1 });
 });
 test("a millimetre on screen from the grid", () => {

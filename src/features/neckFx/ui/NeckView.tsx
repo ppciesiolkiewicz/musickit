@@ -1,15 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { SCALE_MM, distOf, gridOf, parsePlaced, placeByHand, type Grid, type NeckRead, type Pt } from "../model/grid";
 import {
   FILTER_CSS, across, coveredNow, easeGrid, filtersOn, MARKER_MM, acrossPxPerMm, frettingTips, grow, hexHue, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
-  ringColour, spaceAt, wireAt, type Filter, type FxSettings,
+  ringColour, spaceAt, wireAt, FACE_EFFECTS, type FaceEffect, type Filter, type FxSettings,
 } from "../model/fx";
+import { easeFace } from "../model/face";
+import { createFaceLook } from "../client/faceLook";
 import { CALM, QUIET, easeMood, keyOf, moodColour, moodFilter, moodTarget, stepBeat, type Beat, type Heard, type Mood } from "../model/mood";
 import { listenForPicks, type Pick } from "../client/listen";
-import { loadHands } from "../client/hands";
+import { loadFaces, loadHands } from "../client/hands";
 
+/** How long a face is kept once the face model loses it (s). */
+const KEEP_FACE = 0.3;
 /** Marker detection runs on a frame this wide, for speed. */
 const DETECT_WIDTH = 640;
 const TIPS = [4, 8, 12, 16, 20];
@@ -127,6 +132,10 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
     let crossMm: number | null = null, insetMm = 10;
     // the beat as the flames feel it: rising quickly and sinking slowly, so they swell and settle instead of snapping
     const flare = { heat: 0, glow: 0 };
+    // the face model once loaded (null: not asked for, or loading), the face's points eased over frames, when last seen
+    let faceModel: FaceLandmarker | null = null, faceAsked = false, faceProblem = "";
+    let face: Pt[] | null = null, faceAt = -Infinity;
+    const faceLook = createFaceLook();
     const easeFlare = (from: number, to: number, dt: number) => from + (to - from) * (1 - Math.exp(-(to > from ? 14 : 3) * dt));
     void Promise.all([loadHands(), loadMarkers()]).then(([hand, markers]) => {
       if (gone) return;
@@ -154,6 +163,18 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
             const rgb = ringColour(img.data, img.width, img.height, m.corners);
             if (rgb) patches.set(m.id, { corners: grow(m.corners.map((p) => ({ x: p.x / k, y: p.y / k })), 1.3), rgb, at: now });
           }
+          if (fxNow.effects.some((e) => (FACE_EFFECTS as readonly string[]).includes(e))) {
+            if (!faceAsked) {
+              faceAsked = true;
+              loadFaces().then((m) => { faceModel = m; faceProblem = ""; })
+                .catch((e: unknown) => { faceAsked = false; faceProblem = `The face model didn't load: ${e instanceof Error ? e.message : String(e)}. Check the connection, then tick a Face effect again.`; });
+            }
+            if (faceModel) {
+              const pts = faceModel.detectForVideo(video, performance.now()).faceLandmarks[0];
+              if (pts) { face = easeFace(face, pts.map((p) => ({ x: p.x * w, y: p.y * h }))); faceAt = now; }
+              else if (now - faceAt > KEEP_FACE) face = null;
+            }
+          } else face = null;
           const res = hand.detectForVideo(video, performance.now());
           landmarks = res.landmarks;
           handsSeen = res.landmarks.map((lm) => TIPS.map((t) => ({ x: lm[t].x * w, y: lm[t].y * h })));
@@ -224,7 +245,9 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           });
           const shown = filters.map((f) => FILTER_WORDS[f]).join(", ");
           const moody = ["mood", "heat", "sparks", "bump"].some((e) => on.has(e as never));
-          setStatus(`Markers: ${found.length ? found.map((m) => m.id).sort((a, b) => a - b).join(", ") : "none"} · Hands: ${landmarks.length}${grid ? "" : " · No frets: under two placed markers seen"}${shown ? ` · ${shown}` : ""}${moody ? ` · Energy: ${Math.round(mood.energy * 100)}%${keyName ? ` · ${keyName} · Tension: ${Math.round(mood.tension * 100)}%` : ""}` : ""}`);
+          const faceOn = fxNow.effects.some((e) => (FACE_EFFECTS as readonly string[]).includes(e));
+          const faceWords = !faceOn ? "" : faceProblem ? ` · ${faceProblem}` : !faceModel ? " · Loading the face model…" : face ? " · Face: found" : " · Face: none";
+          setStatus(`Markers: ${found.length ? found.map((m) => m.id).sort((a, b) => a - b).join(", ") : "none"} · Hands: ${landmarks.length}${grid ? "" : " · No frets: under two placed markers seen"}${shown ? ` · ${shown}` : ""}${moody ? ` · Energy: ${Math.round(mood.energy * 100)}%${keyName ? ` · ${keyName} · Tension: ${Math.round(mood.tension * 100)}%` : ""}` : ""}${faceWords}`);
         }
         while (flashes.length && now - flashes[0].at > Math.max(FLASH, PULSE)) flashes.shift();
         const dt = moodAt < 0 ? 0 : Math.min(0.1, now - moodAt);
@@ -245,6 +268,10 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
 
         const ctx = c.getContext("2d")!;
         ctx.clearRect(0, 0, w, h);
+        if (face) {
+          const faceOn = new Set(fxNow.effects.filter((e): e is FaceEffect => (FACE_EFFECTS as readonly string[]).includes(e)));
+          faceLook(ctx, video, face, faceOn, strength, videoFilter);
+        }
         for (const [id, p] of patches) if (now - p.at > KEEP_PATCH) patches.delete(id);
         if (on.has("hide")) {
           // under everything else, and graded like the video so the patch matches it

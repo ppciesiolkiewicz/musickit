@@ -2,7 +2,7 @@
 
 Reads a guitar neck from printed ArUco markers and the hands, works out where the frets are, and draws test effects over a
 video: the live camera or a recorded take. Used by the riff Take panel (`devtools/riff/RiffTake.tsx`) and the content video
-record page (`contentVideos/ui/RecordVideo.tsx`), behind each page's **Read the neck** tick. It doesn't run while a take records (the hand model would compete with the recorder);
+record page (`contentVideos/ui/RecordVideo.tsx`), behind each page's **Read the neck** tick. It also has face effects (**Face**: Smooth skin, Face light, Bright eyes, Slim face). It doesn't run while a take records (the hand model would compete with the recorder);
 it draws over the take as it plays back, and each page's **Export with overlay** (`contentVideos/client/burn.ts`) records the take
 with the effects in the picture. `bare` hides the status line for that.
 
@@ -113,6 +113,19 @@ the riff's notes only.
 
 The status line adds the energy, the key and the tension.
 
+Under **Face**, off by default, each with a **Strength** (0 to 200%). They need MediaPipe's Face Landmarker, fetched from
+Google storage the first time one is ticked; the status line says Loading the face model…, then Face: found or none.
+`client/faceLook.ts` cuts the face out of the frame upright (turned by the line between the eyes, `model/face.ts`), works on
+that small canvas, and lays it back through a soft ellipse round the face, so the hair and background stay the original
+pixels. It is graded with the video's filter, like Hide markers.
+
+- **Slim face**: each strip of rows moves in toward the middle of the face, most at the jaw (6% of the half width at 100%),
+  none at the eyes or below the chin; the margin outside the cheeks stretches to fill.
+- **Bright eyes**: the eyes a little brighter, with more contrast and colour.
+- **Smooth skin**: the face blurred and laid back over at part strength, the eyes, brows and lips cut out (grown, so their
+  edges stay sharp).
+- **Face light**: the face a little brighter and warmer, feathered to its edge.
+
 The test effects (under **Test effects**, no settings):
 
 - **Markers and hands**: the markers seen, with their ids, and the hands' points.
@@ -143,6 +156,8 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 | --- | --- |
 | `model/grid.ts` | Pure. Markers to a fret grid, the fret a point is at, the string a pitch was played on. `NeckRead`, a frame's read as logged with a riff take. |
 | `model/mood.ts` | Pure. The mood: energy, key, tension, its colour and video filter; the beat. |
+| `model/face.ts` | Pure. The face's upright frame from its landmarks, the contours (oval, eyes, brows, lips), the eased face, Slim face's warp. |
+| `client/faceLook.ts` | Browser. Draws the face effects over the video. |
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
 | `model/cvFrets.ts` | Pure. The OpenCV reader's maths: the axis, the perspective fit, the board's edges, the wires and the strings from a strip; where a point is on the neck and where a heard note was played. |
 | `client/cv.ts` | Browser. Loads OpenCV.js; finds and follows the markers, turns the frame into the strip, calls `readStrip`. |
