@@ -6,7 +6,7 @@ import type { Level } from "@/features/plan/model/types";
 import { keyName } from "@/features/theory/keySlug";
 
 /*
- * /dev/path → "Keys": the key ladders (plan/model/keys.ts) against the levels. A level does not go through every key:
+ * /admin/content/path → "Keys": the key ladders (plan/model/keys.ts) against the levels. A level does not go through every key:
  * each column shows the keys that level adds and, fainter, the earlier keys it keeps in the Key selector.
  */
 

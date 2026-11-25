@@ -39,7 +39,7 @@ function Names({ ids, nodes, pick }: { ids: string[]; nodes: Map<string, PathNod
   );
 }
 
-/** A step's blocks, opened on /dev/block in a new tab; amber "no block" when none practises it. */
+/** A step's blocks, opened on /admin/content/block in a new tab; amber "no block" when none practises it. */
 export function BlocksLink({ ref_, n }: { ref_: string; n: number }) {
   return (
     <a

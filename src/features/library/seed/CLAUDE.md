@@ -22,5 +22,5 @@ through the library tools as the models to write like, so a flaw here shows up i
 - **`versions` is never raised by hand.** It says which rules the text was written to; it changes only with a rewrite.
 - **A showcase keeps its `showcase`.** The prompt names each showcase by its file id, the id it is stored under in
   the library, so an edit to its text changes nothing the prompt gives.
-- **Read it drawn**, at `/dev/library?item=<id>` on the dev server. Don't paste test plans into `/plan`: that browser holds the user's own plan.
+- **Read it drawn**, at `/admin/content/library?item=<id>` on the dev server. Don't paste test plans into `/plan`: that browser holds the user's own plan.
 - Every change: `npm run -s seed -- check <file>`, `tsx --test src/features/library/seed/*.test.ts src/features/plan/model/*.test.ts` (cached tsx), and keep `README.md` in step.

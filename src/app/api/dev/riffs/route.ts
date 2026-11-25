@@ -31,7 +31,7 @@ async function readRiffs(): Promise<{ riffs: RiffBlock[]; problems: string[] }> 
 }
 
 /**
- * The riffs of the seed blocks for the riff maker (/dev/riff), read from the files and not from the bundle, so a riff saved
+ * The riffs of the seed blocks for the riff maker (/admin/content/riff), read from the files and not from the bundle, so a riff saved
  * a moment ago is the one that opens. Only on a developer's machine: PUT writes into the checkout.
  */
 export async function GET() {

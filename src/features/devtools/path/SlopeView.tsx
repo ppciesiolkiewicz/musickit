@@ -109,7 +109,7 @@ const label = (ref: string, tracks: Track[]) => {
  * `progress`: a student laid over the path, keyed by track id; a step's ring is its state, the step they are on is bold.
  * `reach`: the same student's steps marked known, within reach or ahead (plan/model/reach.ts).
  */
-export default function SlopeView({ area, progress, reach = null, blocks = {}, genres = {} }: { area: Area; /** the genre blocks hung off each step ref: each a dead-end block in its genre's row, joined to the step it comes out of */ genres?: Record<string, GenreMark[]>; progress: Record<string, ConceptProgress> | null; reach?: Map<string, StepReach> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
+export default function SlopeView({ area, progress, reach = null, blocks = {}, genres = {} }: { area: Area; /** the genre blocks hung off each step ref: each a dead-end block in its genre's row, joined to the step it comes out of */ genres?: Record<string, GenreMark[]>; progress: Record<string, ConceptProgress> | null; reach?: Map<string, StepReach> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /admin/content/block */ blocks?: Record<string, number> }) {
   const [version, setVersion] = useState<Version>("proposed");
   const [pick, setPick] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);

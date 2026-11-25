@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { MOVES } from "./src/features/devtools/moves";
 
 /** Pages that moved under /theory; old links keep working. */
 const THEORY_SECTIONS = ["chords", "triads", "scales", "caged", "arpeggios", "improv"];
@@ -8,8 +9,6 @@ const THEORY_SECTIONS = ["chords", "triads", "scales", "caged", "arpeggios", "im
  * visitor should not fetch them again. Their names are not hashed: a week, then revalidated in the background.
  */
 const SOUND_CACHE = [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }];
-
-import { MOVES } from "./src/features/devtools/moves";
 
 const nextConfig: NextConfig = {
   // The e2e test server (playwright.config.ts) builds into its own folder: Next allows one dev server per build folder.
@@ -40,7 +39,8 @@ const nextConfig: NextConfig = {
       { source: "/register", destination: "/login", permanent: false },
       { source: "/register/teacher", destination: "/login", permanent: false },
       { source: "/register/finish", destination: "/login", permanent: false },
-      // pages that moved under /admin/admin (src/features/devtools/moves.ts); the query goes along
+      // pages that moved: the admin pages under /admin/admin, the content tools from /dev to /admin/content
+      // (src/features/devtools/moves.ts); the query goes along, the hash stays in the browser
       ...MOVES.flatMap(({ from, to }) => [
         { source: from, destination: to, permanent: false },
         { source: `${from}/:path*`, destination: `${to}/:path*`, permanent: false },

@@ -1,5 +1,5 @@
 /**
- * Notes on the sections of a seed plan or block drawn on /dev/library: each pinned to one section of one seed file by
+ * Notes on the sections of a seed plan or block drawn on /admin/content/library: each pinned to one section of one seed file by
  * its address and index, with a hash of the section as it was and the file's commit, so a later change to the section
  * shows the note as outdated. They live with every other dev note (`copyNotes.ts`, `section`); this file has what needs the plan model.
  */

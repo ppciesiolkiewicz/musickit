@@ -54,7 +54,7 @@ export const writeCopyNotes = (change: (l: CopyNote[]) => CopyNote[]) => {
 const LOCATION = "musickit.dev.location";
 let patched = false;
 const onLocation = (on: () => void) => {
-  // pages such as /dev/stories move by history.replaceState, which fires no event: have it (and pushState) send one,
+  // pages such as /admin/content/stories move by history.replaceState, which fires no event: have it (and pushState) send one,
   // after the call returns (it may come while React renders)
   if (!patched) {
     patched = true;
@@ -111,9 +111,9 @@ export function useCommits(): Commits | null {
   return c;
 }
 
-/* ---- the sections a page notes on (/dev/library), so the Notes bar can re-pin them and count the outdated ---- */
+/* ---- the sections a page notes on (/admin/content/library), so the Notes bar can re-pin them and count the outdated ---- */
 
-/** Plain data and a function, so the bar (on every page) needs none of the plan model that /dev/library uses. */
+/** Plain data and a function, so the bar (on every page) needs none of the plan model that /admin/content/library uses. */
 export interface NoteSections {
   /** every section's hash now, by `hashKey` */
   hashes: Record<string, string>;

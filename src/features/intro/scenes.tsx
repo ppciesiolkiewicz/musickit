@@ -387,7 +387,7 @@ export function TeachNext(p: SceneProps) {
   );
 }
 
-/** A step on the learning path as /dev/path draws it, and where Ben is on it: solid, being worked on, or still ahead. */
+/** A step on the learning path as /admin/content/path draws it, and where Ben is on it: solid, being worked on, or still ahead. */
 type PathStep = { text: string; state: "solid" | "working" | "ahead" };
 /** Three guitar skills of the path, a block per level (New, Beginner, Intermediate), the steps as the path names them. */
 const PATH_ROWS: { skill: string; levels: (PathStep[] | null)[] }[] = [

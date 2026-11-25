@@ -11,7 +11,7 @@ import { NoteBar, NoteEditor } from "../copy/NoteBar";
 import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "../copy/store";
 
 /*
- * The pencils on a drawn /dev/library item: a shortcut to a dev note (the Notes button's "Note a text") pinned to one section, so it
+ * The pencils on a drawn /admin/content/library item: a shortcut to a dev note (the Notes button's "Note a text") pinned to one section, so it
  * lands with every other note and the Notes bar re-pins, copies and clears it with them.
  */
 

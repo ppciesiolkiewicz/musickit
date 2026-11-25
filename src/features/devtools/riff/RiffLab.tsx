@@ -435,7 +435,7 @@ export default function RiffLab() {
       <h2 className="text-lg font-semibold">{state.name || "No seed block holds a riff yet"}</h2>
       {state.id && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-slate-400">Seed block: <a href={`/dev/library?item=${state.id}`} className="font-mono text-sky-300 underline">{state.id}</a>{seedRiff?.draft && " (switched off)"}</span>
+          <span className="text-slate-400">Seed block: <a href={`/admin/content/library?item=${state.id}`} className="font-mono text-sky-300 underline">{state.id}</a>{seedRiff?.draft && " (switched off)"}</span>
           {!seedRiff ? <span className="text-amber-300">No seed block with this id holds a riff.</span> : (
             <>
               <button onClick={() => void saveSeed()} disabled={!seedDirty} className="rounded bg-sky-700 px-3 py-1 text-white disabled:bg-slate-800 disabled:text-slate-500">Save to block</button>

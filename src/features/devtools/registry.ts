@@ -1,7 +1,7 @@
 /** Colour family a tool's nav tab and index card are drawn in; tools of one kind share one. */
 export type DevTone = "index" | "prompt" | "stories" | "data" | "pitch";
 
-/** One local tool under /dev. */
+/** One tool under /dev or /admin/content. */
 export interface DevTool {
   href: string;
   label: string;
@@ -49,6 +49,21 @@ export const TONE_CLASSES: Record<DevTone, { tab: string; active: string; card: 
   },
 };
 
+/**
+ * The tools for writing and recording lessons, on /admin/content behind the content permission: the index and the tabs
+ * there. A new one is an entry here and one page under src/app/admin/content. The block page (/admin/content/block) is
+ * opened from Library and Learning path, so it is not listed.
+ */
+export const CONTENT_TOOLS: DevTool[] = [
+  { href: "/admin/content/library", label: "Library", desc: "The plans and blocks agents read: coverage by step, each one drawn as the player sees it, with the versions it was written to." },
+  { href: "/admin/content/path", label: "Learning path", desc: "The path the plan maker reads: each skill's steps across the levels, the steps in the order they need each other, the keys each level adds, with a student laid over it." },
+  { href: "/admin/content/stories", label: "Component stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
+  { href: "/admin/content/onboarding", label: "Onboarding coverage", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
+  { href: "/admin/content/riff", label: "Riff maker", desc: "Write a riff note by note in a key and scale: click the neck or type degrees, see the tab, switch strings, copy JSON or tab. Record a video take of the riff and transcribe its notes." },
+  { href: "/admin/content/studio", label: "Video studio", desc: "A 16:9 frame with cameras, a screen share and theory widgets, to record a lesson. Add more than one camera, a phone over Continuity Camera too." },
+  { href: "/admin/content/notes", label: "Copy notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
+];
+
 /** The /dev index, by kind; a new tool is one entry in its group here and one page under src/app/dev. */
 export const DEV_GROUPS: DevGroup[] = [
   {
@@ -62,17 +77,10 @@ export const DEV_GROUPS: DevGroup[] = [
     ],
   },
   {
-    title: "Content",
+    title: "Sound",
     tone: "stories",
     tools: [
-      { href: "/dev/library", label: "Library", desc: "The plans and blocks agents read: coverage by step, each one drawn as the player sees it, with the versions it was written to." },
-      { href: "/dev/path", label: "Learning path", desc: "The path the plan maker reads: each skill's steps across the levels, the steps in the order they need each other, the keys each level adds, with a student laid over it." },
-      { href: "/dev/stories", label: "Component stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
-      { href: "/dev/onboarding", label: "Onboarding coverage", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
-      { href: "/dev/riff", label: "Riff maker", desc: "Write a riff note by note in a key and scale: click the neck or type degrees, see the tab, switch strings, copy JSON or tab. Record a video take of the riff and transcribe its notes." },
-      { href: "/dev/studio", label: "Video studio", desc: "A 16:9 frame with cameras, a screen share and theory widgets, to record a lesson. Add more than one camera, a phone over Continuity Camera too." },
       { href: "/dev/sampler", label: "Sampler", desc: "A sample library in this browser: generate sounds with ElevenLabs from a description, upload or drop audio, play, rename, find the note, delete." },
-      { href: "/dev/notes", label: "Copy notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
     ],
   },
   {
@@ -100,11 +108,14 @@ export const DEV_GROUPS: DevGroup[] = [
   },
 ];
 
+const tabTitle = (tools: DevTool[], area: string, page: string, detail?: string): string =>
+  [detail, tools.find((t) => t.href === page)?.label ?? page, area].filter(Boolean).join(" · ");
+
 /**
  * A /dev page's tab title, most specific first so tabs can be told apart when cut short: "<detail> · <tool> · Dev".
  * `page` is a tool's href (its label is used) or a name for a page not on the index.
  */
-export function devTitle(page: string, detail?: string): string {
-  const tool = DEV_GROUPS.flatMap((g) => g.tools).find((t) => t.href === page);
-  return [detail, tool?.label ?? page, "Dev"].filter(Boolean).join(" · ");
-}
+export const devTitle = (page: string, detail?: string): string => tabTitle([...DEV_GROUPS.flatMap((g) => g.tools), ...CONTENT_TOOLS], "Dev", page, detail);
+
+/** An /admin/content page's tab title, the same way: "<detail> · <tool> · Content". */
+export const contentTitle = (page: string, detail?: string): string => tabTitle(CONTENT_TOOLS, "Content", page, detail);

@@ -34,12 +34,12 @@ function toolsUsed(value: unknown, counts = new Map<string, number>()): Map<stri
   return counts;
 }
 
-const pathHref = (concept: string) => `/dev/path?concept=${concept}`;
+const pathHref = (concept: string) => `/admin/content/path?concept=${concept}`;
 
-/** A concept as a link to its box on /dev/path, with what was read for it after. */
+/** A concept as a link to its box on /admin/content/path, with what was read for it after. */
 function ConceptLink({ concept, label, children }: { concept: string; label: string; children?: ReactNode }) {
   return (
-    <Link href={pathHref(concept)} title="Open this concept on /dev/path" className="inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-800/60 px-1.5 text-[11px] text-slate-200 hover:border-sky-500/60">
+    <Link href={pathHref(concept)} title="Open this concept on /admin/content/path" className="inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-800/60 px-1.5 text-[11px] text-slate-200 hover:border-sky-500/60">
       {label}{children}
     </Link>
   );
@@ -52,7 +52,7 @@ const READ: Record<ConceptAt["read"], { className: string; title: string }> = {
 };
 
 /**
- * The concepts the example's exercises are tagged with, each with the step its tools say (`stepOf`), linked to /dev/path.
+ * The concepts the example's exercises are tagged with, each with the step its tools say (`stepOf`), linked to /admin/content/path.
  * An exercise lists its own; a plan gathers them over its exercises and says how many are tagged with none.
  */
 function StepsRow({ json, entries }: { json: string; entries: CatalogueEntry[] }) {

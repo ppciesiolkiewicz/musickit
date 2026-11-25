@@ -511,7 +511,7 @@ export function spanOf(track: Track): [number, number] {
   return [levelIndex(track.steps[0].level), levelIndex(track.steps[track.steps.length - 1].level)];
 }
 
-/** Counts for the line above the /dev/path diagram, over the tracks given. */
+/** Counts for the line above the /admin/content/path diagram, over the tracks given. */
 export function pathStats(tracks: Track[]): { tracks: number; merged: number; added: number; steps: number; fromLadder: number; spanning: number } {
   return {
     tracks: tracks.length,

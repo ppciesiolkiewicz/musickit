@@ -4,7 +4,7 @@ import type { PlanExercise } from "@/features/plan/model/types";
 import { conceptSteps, hasLadder, stepOf } from "./steps";
 
 /*
- * What step each concept of an example works on, for /dev/library (NEW15): read from the exercise's own tools with
+ * What step each concept of an example works on, for /admin/content/library (NEW15): read from the exercise's own tools with
  * `stepOf`, the same read a player's rating gets. So an example written with raw tool settings, not a tool's `level` or
  * a tune or run by stage, shows up here as counting for no step.
  */

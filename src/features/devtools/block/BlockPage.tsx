@@ -30,7 +30,7 @@ const HOW: Record<StepBlock["how"], { label: string; title: string }> = {
 
 /**
  * The blocks for one path step, each rendered as the player sees it in a plan; several are variations of the step.
- * Opened from /dev/path in a new tab. `step` is null when the page was opened for one block by id.
+ * Opened from /admin/content/path in a new tab. `step` is null when the page was opened for one block by id.
  */
 export default function BlockPage({ step, blocks, asked }: { step: StepInfo | null; blocks: StepBlock[]; /** what the address asked for */ asked: string }) {
   const entries = useMemo(() => catalogue(), []);
@@ -48,7 +48,7 @@ export default function BlockPage({ step, blocks, asked }: { step: StepInfo | nu
       {blocks.length === 0 && (
         <p className="text-sm text-amber-300">
           {step ? "No block practises this step yet: it is a gap to seed." : "No block in the code has this id."}{" "}
-          <Link href="/dev/path" className="text-sky-300 underline">Back to the path</Link>
+          <Link href="/admin/content/path" className="text-sky-300 underline">Back to the path</Link>
         </p>
       )}
       <ul className="flex flex-col gap-4">

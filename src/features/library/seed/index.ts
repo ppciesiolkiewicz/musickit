@@ -60,7 +60,7 @@ export interface SeedBlockFile {
   note: string;
   /** the genre it belongs to, when it is a genre's block (a riff): a dead end hung off its steps, which no step waits for */
   genre?: Genre;
-  /** a riff's amp model: the name of a `.nam` file the riff maker plays it through (`/dev/riff`); players don't hear it yet */
+  /** a riff's amp model: the name of a `.nam` file the riff maker plays it through (`/admin/content/riff`); players don't hear it yet */
   amp?: string;
   /** set on the exercises that show one rule: blocks with a chart per step, a melody by `pick`, a progression worked several ways */
   showcase?: "blocks" | "pick" | "progression" | "stages" | "variants";
@@ -74,7 +74,7 @@ const sorted = <T>(files: Record<string, unknown>): T[] => Object.keys(files).so
 
 /**
  * The seed plans, read from their files: there is no plan library in the database. They are kept for the places that use a
- * whole week as it is written: the /demo pages (`DEMO_PLANS` in features/plan/demos.ts), /dev/library (`?item=<id>` draws
+ * whole week as it is written: the /demo pages (`DEMO_PLANS` in features/plan/demos.ts), /admin/content/library (`?item=<id>` draws
  * one), the path view on /dev, and tests that need a real plan. An agent writing a plan can read one here as a model.
  */
 export const SEED_PLANS: SeedPlanFile[] = sorted<SeedPlanFile>(PLAN_FILES);

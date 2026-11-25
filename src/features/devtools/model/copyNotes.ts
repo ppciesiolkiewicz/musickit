@@ -1,9 +1,11 @@
 /**
  * Dev notes: one registry for every note on the app, kept by route. A note is on a text the maker clicked on any page
- * (found again by the text itself, no wiring in the components), or, through the pencils on /dev/library, on one
+ * (found again by the text itself, no wiring in the components), or, through the pencils on /admin/content/library, on one
  * section of one example (`section`: pinned by address, index and a hash of the section). Pure: the overlay keeps them
  * in localStorage (`COPY_NOTES_KEY`). No plan imports here: the overlay that uses it is mounted on every page.
  */
+
+import { movedPath } from "../moves";
 
 export const COPY_NOTES_KEY = "musickit.dev.copyNotes";
 
@@ -63,13 +65,19 @@ const isSection = (s: unknown): s is NoteSection => {
   return !!x && typeof x === "object" && typeof x.example === "string" && typeof x.address === "string" && Number.isInteger(x.index) && typeof x.hash === "string" && typeof x.commit === "string";
 };
 
+/** The whole notes in `raw`, each kept by its page's route now: a note made on a page that moved (`movedPath`) reads back on its new route. */
 export function readCopyNotes(raw: unknown): CopyNote[] {
   if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (n): n is CopyNote =>
-      !!n && typeof n === "object" && ["id", "route", "text", "where", "note", "at"].every((k) => typeof (n as Record<string, unknown>)[k] === "string") &&
-      ((n as CopyNote).section === undefined || isSection((n as CopyNote).section)),
-  );
+  return raw
+    .filter(
+      (n): n is CopyNote =>
+        !!n && typeof n === "object" && ["id", "route", "text", "where", "note", "at"].every((k) => typeof (n as Record<string, unknown>)[k] === "string") &&
+        ((n as CopyNote).section === undefined || isSection((n as CopyNote).section)),
+    )
+    .map((n) => {
+      const route = movedPath(n.route);
+      return route === n.route ? n : { ...n, route };
+    });
 }
 
 /** `full` cut to about `max` characters round where `part` is in it, with "…" where it was cut. */
@@ -100,7 +108,7 @@ export function squeeze(text: string, max = 160): string {
 }
 
 /**
- * The route a page's notes are kept by: its path, and its hash, which some pages navigate by (/dev/stories'
+ * The route a page's notes are kept by: its path, and its hash, which some pages navigate by (/admin/content/stories'
  * "#scale-neck~3" is one story, with its own notes). A note link's old "#note-<id>" is not part of it.
  */
 export const routeOf = (pathname: string, hash: string): string => `${pathname}${hash.length > 1 && !hash.startsWith("#note-") ? hash : ""}`;
@@ -110,10 +118,10 @@ export const pathOfRoute = (route: string): string => route.replace(/#.*$/, "");
 
 /**
  * A link to a note where it is: its page (and hash), which scrolls to it and marks it (`noteIdOf`). A section note's
- * place is its seed item drawn on /dev/library, whatever route it was made on (older ones were made on the examples page).
+ * place is its seed item drawn on /admin/content/library, whatever route it was made on (older ones were made on the examples page).
  */
 export const noteHref = (n: Pick<CopyNote, "id" | "route" | "section">, route?: string) => {
-  if (route === undefined && n.section) return `/dev/library?item=${encodeURIComponent(n.section.example)}&note=${encodeURIComponent(n.id)}#item`;
+  if (route === undefined && n.section) return `/admin/content/library?item=${encodeURIComponent(n.section.example)}&note=${encodeURIComponent(n.id)}#item`;
   route ??= n.route;
   const path = pathOfRoute(route);
   return `${path}?note=${encodeURIComponent(n.id)}${route.slice(path.length)}`;
@@ -182,7 +190,7 @@ export function copyNotesMarkdown(notes: CopyNote[], opts: MarkdownOpts = {}): s
 /** Where the old examples page kept its section comments before they joined these notes; moved over once (`notesOfOldComments`). */
 export const OLD_COMMENTS_KEY = "musickit.dev.comments";
 
-/** The old store's comments as section notes on /dev/library; anything not shaped like a comment is dropped. */
+/** The old store's comments as section notes on /admin/content/library; anything not shaped like a comment is dropped. */
 export function notesOfOldComments(raw: unknown): CopyNote[] {
   if (!Array.isArray(raw)) return [];
   return raw.flatMap((c) => {
@@ -190,7 +198,7 @@ export function notesOfOldComments(raw: unknown): CopyNote[] {
     if (!x || typeof x.id !== "string" || typeof x.text !== "string" || !isSection(x)) return [];
     const s = x as unknown as NoteSection;
     return [{
-      id: x.id, route: "/dev/library", text: typeof x.quote === "string" ? x.quote : "", where: `${s.example} · ${placeOf(s)}`, note: x.text,
+      id: x.id, route: "/admin/content/library", text: typeof x.quote === "string" ? x.quote : "", where: `${s.example} · ${placeOf(s)}`, note: x.text,
       at: typeof x.at === "string" ? x.at : new Date(0).toISOString(),
       section: { example: s.example, address: s.address, index: s.index, kind: typeof s.kind === "string" ? s.kind : "?", hash: s.hash, commit: s.commit, ...(s.dirty ? { dirty: true } : {}) },
     }];

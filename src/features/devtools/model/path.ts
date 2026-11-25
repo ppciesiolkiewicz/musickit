@@ -5,7 +5,7 @@ import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { conceptSteps, type ConceptStep, type ConceptSteps } from "./steps";
 
 /*
- * The learning path (plan/model/path.ts), one node per skill for the Path view of /dev/path: its levels, its steps,
+ * The learning path (plan/model/path.ts), one node per skill for the Path view of /admin/content/path: its levels, its steps,
  * what it builds on and leads to (from each step's `after`), its course page and the seed files tagged with it. Nothing
  * here is written by hand: it reads CONCEPTS, the course and the library's seed files.
  */

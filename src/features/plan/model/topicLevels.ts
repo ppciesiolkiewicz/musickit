@@ -10,7 +10,7 @@ import type { PlanAnswers, TeacherScore } from "./types";
  * level only when the progress tracker's rule counts that level itself as reached (`levelReached`, `outcome.ts`: every
  * concept with a step there solid there), then the one after only if that is reached too. A level reached higher up with
  * a gap below raises nothing, so one rating on an advanced track can't make a topic's unrated steps known. Used by
- * `composeToday` and `/dev/path`. Pure.
+ * `composeToday` and `/admin/content/path`. Pure.
  */
 
 /**

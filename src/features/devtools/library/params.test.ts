@@ -20,10 +20,10 @@ test("devArgs holds only what is set", () => {
 
 test("libraryHref keeps the other parameters", () => {
   const p = { topic: "t", player: "p", includeNotEnabled: true };
-  assert.equal(libraryHref(p, { topic: "x y" }), "/dev/library?topic=x+y&player=p&include_not_enabled=1");
-  assert.equal(libraryHref(p, { includeNotEnabled: false }), "/dev/library?topic=t&player=p");
-  assert.equal(libraryHref({ includeNotEnabled: false }), "/dev/library");
-  assert.equal(libraryHref({ ...p, item: "a" }, { topic: undefined, item: "b" }), "/dev/library?player=p&include_not_enabled=1&item=b");
+  assert.equal(libraryHref(p, { topic: "x y" }), "/admin/content/library?topic=x+y&player=p&include_not_enabled=1");
+  assert.equal(libraryHref(p, { includeNotEnabled: false }), "/admin/content/library?topic=t&player=p");
+  assert.equal(libraryHref({ includeNotEnabled: false }), "/admin/content/library");
+  assert.equal(libraryHref({ ...p, item: "a" }, { topic: undefined, item: "b" }), "/admin/content/library?player=p&include_not_enabled=1&item=b");
 });
 
 test("minutes rounds to one decimal, orDash shows null as a dash", () => {

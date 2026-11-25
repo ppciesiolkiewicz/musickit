@@ -8,7 +8,7 @@ import { toolsOf } from "@/features/plan/model/tools";
 import type { PlanExercise } from "@/features/plan/model/types";
 
 /*
- * Every block in the code, by the path step it practises, for /dev/path and /dev/block: the seed blocks, one entry per
+ * Every block in the code, by the path step it practises, for /admin/content/path and /admin/content/block: the seed blocks, one entry per
  * choice (not in the database until db:seed-blocks runs; a seed plan's days name them, so its exercises are among them). A seed block names its
  * steps (`steps` in the file); any other exercise counts where its tools say a step (`stepOf`), or else, as the library
  * matches today, for every step of its track at its level. Database blocks carry no steps yet
@@ -76,7 +76,7 @@ export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<strin
 /** A genre's block (a riff) hung off a step: a dead end there, which no step waits for. `draft`: switched off, in no plan yet. */
 export interface GenreMark { id: string; title: string; genre: Genre; draft: boolean }
 
-/** The genre blocks of the seed by the step each hangs off, for the coloured chips on /dev/path's slope. */
+/** The genre blocks of the seed by the step each hangs off, for the coloured chips on /admin/content/path's slope. */
 export function genreMarks(): Record<string, GenreMark[]> {
   const by: Record<string, GenreMark[]> = {};
   for (const f of SEED_BLOCKS) {
@@ -93,6 +93,6 @@ export function genreMarks(): Record<string, GenreMark[]> {
 /** The blocks that teach a step: its list without the genre blocks hung off it. */
 export const teaching = (list: StepBlock[] = []): StepBlock[] => list.filter((b) => !b.genre);
 
-/** How many blocks practise each step, for the badges on /dev/path. A genre's block is not counted: the slope draws it as a dead end. */
+/** How many blocks practise each step, for the badges on /admin/content/path. A genre's block is not counted: the slope draws it as a dead end. */
 export const blockCounts = (by: Map<string, StepBlock[]> = blocksByStep()): Record<string, number> =>
   Object.fromEntries([...by].map(([ref, list]) => [ref, teaching(list).length]));

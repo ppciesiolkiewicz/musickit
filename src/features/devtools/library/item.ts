@@ -15,7 +15,7 @@ export interface ItemVersions {
   teaching: number | null;
 }
 
-/** One plan or block as /dev/library draws it: plain data, so the server can hand it to the client view. */
+/** One plan or block as /admin/content/library draws it: plain data, so the server can hand it to the client view. */
 export interface DrawnItem {
   /** the id in the address: a plan id, a block id or a choice id */
   id: string;

@@ -27,7 +27,7 @@ test("a block's choices are listed with level, steps, minutes and active; the dr
   ];
   const html = renderToStaticMarkup(<ChoicesTable choices={choices} drawn="a-block/easy" params={{ includeNotEnabled: false, item: "a-block" }} />);
   assert.match(html, /<span class="font-semibold text-slate-100">easy<\/span>/);
-  assert.match(html, /href="\/dev\/library\?item=a-block%2Fhard#item">hard</);
+  assert.match(html, /href="\/admin\/content\/library\?item=a-block%2Fhard#item">hard</);
   assert.match(html, />beginner<.*>picking:1<.*>5<.*>active</);
   assert.match(html, />–<.*>–<.*>8<.*>inactive</);
 });

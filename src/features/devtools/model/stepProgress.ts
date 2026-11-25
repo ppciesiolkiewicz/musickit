@@ -13,7 +13,7 @@ import type { Stars } from "@/features/progress/stars";
 import { conceptSteps, stepOf, type ConceptSteps } from "./steps";
 
 /*
- * Where one player is inside each concept, for the student view of /dev/path (the teacher's view of a student, tried
+ * Where one player is inside each concept, for the student view of /admin/content/path (the teacher's view of a student, tried
  * here first). A rating counts for a concept its exercise is tagged with; the step it counts for is read from the
  * exercise's own tools (`stepOf`), so nothing is tagged by hand. Pure: the page hands in the ratings.
  */

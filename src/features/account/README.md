@@ -127,7 +127,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   only, 2 s at most, failing open); both read the public paths from
   `src/lib/publicPaths.ts` (public: the marketing pages, the demos, logging in, and a shared note at `/notes/shared/<id>`).
   The guard catches a stale cookie, and keeps a gated page's URL hash (which the server never sees, such as
-  `/dev/stories#<story>`) across logging in.
+  `/admin/content/stories#<story>`) across logging in.
 - `AccountStore.ts`: `current()` and `signOut()`, all a page needs.
 - `serverAccountStore.ts`: the real store, over `/api/auth`. `accountsOpen()` says whether the site has accounts at all. The session is read once per page (`sessionReader`), shared by every `useAccount()`; with the hint cookie, only a 200 answers it (`{ account: null }` is signed out), and a network error or any other answer is asked again after 2, 5, 15, 30 s (`readSession`), the page waiting meanwhile. `pageAccountId()` is the id the page loaded for; `accountHeaders(extra)` adds it as `X-Account-Id` to every request that changes the account or its data (the data clients take it through `userData/client/accountHeader.ts`, since this folder imports no feature), and `isAccountChanged(status, body)` / `ACCOUNT_CHANGED_WORDS` read the server's 409 `account-changed` ("Another account is logged in now. Reload the page, then try again.").
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session (the page's one shared read), and nothing at all when

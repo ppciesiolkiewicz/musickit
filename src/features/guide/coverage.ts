@@ -2,7 +2,7 @@ import { devOnly } from "@/features/devtools/gate";
 import { LEVELS, type Level } from "./levels";
 
 /**
- * What the guide covers, for /dev/onboarding: each page and exercise tool registers, as it renders, the levels its
+ * What the guide covers, for /admin/content/onboarding: each page and exercise tool registers, as it renders, the levels its
  * controls are tagged with (`Tier`, `useLevelAtLeast`), its tour's length and how many `Hint`s it draws. Development
  * only: in a production build `registerCoverage` does nothing. The registry lives in memory, so it holds what has
  * rendered this session; the page adds the static lists (`coveredPages.ts`, `TOOL_TOURS`) for what has not.

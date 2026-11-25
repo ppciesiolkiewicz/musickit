@@ -7,7 +7,7 @@ import type { ProgressEntry } from "@/features/progress/log";
 import { keyName } from "@/features/theory/keySlug";
 
 /*
- * /dev/path → Path: the key stages of each track that states its own key order (`Track.keys`, plan/model/path.ts).
+ * /admin/content/path → Path: the key stages of each track that states its own key order (`Track.keys`, plan/model/path.ts).
  * A step is first played in the first group; each later group is a key stage inside the step, opened once the player
  * found the step easy in a key of the stage before (plan/model/keyStages.ts). With a player's ratings (`entries`), each
  * step shows the keys open on it, and the keys earned on the whole track are marked.

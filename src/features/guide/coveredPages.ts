@@ -23,7 +23,7 @@ import { TUNE_BY_EAR_TOUR } from "./tours/tune-by-ear";
 import { TUNINGS_TOUR } from "./tours/tunings";
 import { TUNER_TOUR } from "./tours/tuner";
 
-/** Every page with a guide (a `pageId`): its route and its tour. For /dev/onboarding only, so real pages don't carry the tours. */
+/** Every page with a guide (a `pageId`): its route and its tour. For /admin/content/onboarding only, so real pages don't carry the tours. */
 export const COVERED_PAGES: { id: string; route: string; tour: TourStep[] }[] = [
   { id: "arpeggios", route: "/theory/arpeggios", tour: ARPEGGIOS_TOUR },
   { id: "backing", route: "/theory/backing", tour: BACKING_TOUR },

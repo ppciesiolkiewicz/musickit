@@ -72,5 +72,5 @@ The calculator and some props say "box". Text a player reads says "position" (se
 ## Before you call it done
 
 - Run the tests of the feature you touched, `npx tsc --noEmit 2>&1 | grep -v '^.next/'`, and eslint on the files you changed.
-- Read a change to the screen on the screen: the page on the dev server, or `/dev/stories` for tools and `/dev/library?item=<id>` for a seed plan or exercise.
+- Read a change to the screen on the screen: the page on the dev server, or `/admin/content/stories` for tools and `/admin/content/library?item=<id>` for a seed plan or exercise.
 - Report what you checked and what you didn't ("Types clean; not checked in the browser"). A passing test is not a page that reads well.

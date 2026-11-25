@@ -5,7 +5,7 @@ import { exampleHashes, hashKey, quoteOf, repinSectionNotes, sectionHash, sectio
 import { stateOf, type CopyNote, type NoteSection } from "./copyNotes";
 
 const c = (over: Partial<CopyNote> = {}, at: Partial<NoteSection> = {}): CopyNote => ({
-  id: "1", route: "/dev/library", text: "Play box 1", where: "ex-a · section 3", note: "Too long", at: "2026-11-01T10:00:00.000Z",
+  id: "1", route: "/admin/content/library", text: "Play box 1", where: "ex-a · section 3", note: "Too long", at: "2026-11-01T10:00:00.000Z",
   section: { example: "ex-a", address: "ex", index: 2, kind: "text", hash: sectionHash({ type: "text", text: "Play box 1" }), commit: "abc1234", ...at }, ...over,
 });
 

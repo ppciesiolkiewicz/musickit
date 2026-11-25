@@ -107,7 +107,7 @@ function Table({ title, rows, preview, unseen }: { title: string; rows: Row[]; p
 }
 
 /**
- * /dev/onboarding: what the guide covers, per page and per exercise tool. Tours come from the static tour files; tagged
+ * /admin/content/onboarding: what the guide covers, per page and per exercise tool. Tours come from the static tour files; tagged
  * levels and hints from what has rendered this session (`registerCoverage`), so a page not opened yet reads "not yet
  * visited". The level switch is the real global level, so the pages and tools open in it.
  */
@@ -144,7 +144,7 @@ export default function CoverageView() {
       <p className="max-w-3xl text-sm text-slate-400">
         Tours are read from the tour files. Tagged levels and hints are registered as pages and tools render, in this tab
         only: open a page from its link (or the tools on <Link href="/plan" className="text-sky-300 hover:underline">/plan</Link> or{" "}
-        <Link href="/dev/stories" className="text-sky-300 hover:underline">Component stories</Link>) and come back here
+        <Link href="/admin/content/stories" className="text-sky-300 hover:underline">Component stories</Link>) and come back here
         without reloading.
       </p>
       <Table title="Pages" rows={pages} preview={global} unseen="not yet visited" />

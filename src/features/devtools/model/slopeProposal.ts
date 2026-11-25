@@ -1,8 +1,8 @@
 import { PATH, type Track } from "@/features/plan/model/path";
 
 /*
- * A proposed change to the path, to judge on /dev/path → "Slope" beside the path as it is
- * (docs/superpowers/specs/2026-11-16-path-slope-design.md). Nothing outside /dev/path reads it. Once the user settles a
+ * A proposed change to the path, to judge on /admin/content/path → "Slope" beside the path as it is
+ * (docs/superpowers/specs/2026-11-16-path-slope-design.md). Nothing outside /admin/content/path reads it. Once the user settles a
  * proposal its links and tracks move into PATH (plan/model/path.ts) and this file is emptied for the next one.
  * Settled so far: the named prerequisites and the double-stops track (2026-11-16), the agents' links (2026-11-19).
  * Proposed now: nothing.

@@ -1,6 +1,6 @@
 # Teacher studio: rules
 
-The video studio at `/dev/studio` (a dev tool; `/teachers/studio` without `?notes=1` redirects there): the stage frame, the palette, the Layers and Keys panels, the camera and screen share. Behaviour spec: `spec/studio.md`. Design: `docs/superpowers/specs/2026-10-19-teacher-studio-design.md`. Plans: `docs/superpowers/plans/2026-10-19-teacher-studio-*.md`.
+The video studio at `/admin/content/studio` (a content tool; `/teachers/studio` without `?notes=1` redirects there): the stage frame, the palette, the Layers and Keys panels, the camera and screen share. Behaviour spec: `spec/studio.md`. Design: `docs/superpowers/specs/2026-10-19-teacher-studio-design.md`. Plans: `docs/superpowers/plans/2026-10-19-teacher-studio-*.md`.
 
 - Imports `@/features/stage`, the creator's `PLUGINS` (for plugin ids), shared `@/components`, `@/features/teachers/video` (the video preview) and the notes' model (`@/features/teachers/notes/model/note`: which subjects can be a note's cell). Never the looper. Nothing imports the studio except its page and the notes feature (the notes creator, and `NotesEditorHost` for `/plan`'s day editor: its palette, family editor and share popover). The studio has no notes mode: the notes creator is `@/features/teachers/notes`.
 - `/teachers` is the teacher area; a login will wrap it later. Keep teacher tools under `src/features/teachers/<tool>`.

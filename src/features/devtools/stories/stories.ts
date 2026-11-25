@@ -3,7 +3,7 @@ import { TOOLS, type ToolName } from "@/features/plan/model/tools";
 import { docOf, type ComponentDoc } from "@/features/exercises/docs";
 
 /*
- * The stories on /dev/stories: every learning component, each in the set-ups the library's seed files use plus a few
+ * The stories on /admin/content/stories: every learning component, each in the set-ups the library's seed files use plus a few
  * hand-written ones for the corners the seed misses. A story is the tool as the AI writes it, without `type`.
  */
 

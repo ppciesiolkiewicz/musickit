@@ -5,7 +5,7 @@ import { bubblePlacement, refOf } from "./placement";
 test("the bubble hides where it would cover a tool's controls, and on dev and admin pages", () => {
   assert.equal(bubblePlacement("/looper"), "hide");
   assert.equal(bubblePlacement("/tuner"), "hide");
-  assert.equal(bubblePlacement("/dev/stories"), "hide");
+  assert.equal(bubblePlacement("/admin/content/stories"), "hide");
   assert.equal(bubblePlacement("/admin/messages"), "hide");
   assert.equal(bubblePlacement("/feedback"), "hide");
   assert.equal(bubblePlacement("/plan"), "show");

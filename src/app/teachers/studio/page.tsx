@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function StudioPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  // the notes creator lives here; the video studio moved to the dev tools
+  // the notes creator lives here; the video studio moved to the content tools
   if ((await searchParams).notes === "1") {
     return (
       // View as a note changes the header too: the provider holds both
@@ -24,5 +24,5 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
       </NoteViewProvider>
     );
   }
-  redirect("/dev/studio");
+  redirect("/admin/content/studio");
 }

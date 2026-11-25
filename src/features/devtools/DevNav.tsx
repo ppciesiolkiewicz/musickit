@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { Permission } from "@/features/account/model";
 import { DEV_GROUPS, TONE_CLASSES, type DevTone } from "./registry";
 
 const TAB = "rounded-md px-2.5 py-1 transition";
 
-/** Tabs across the /dev pages: the index, then every tool in the registry under its group's name, and the way over to /admin. */
-export default function DevNav() {
+/**
+ * Tabs across the /dev pages: the index, then every tool in the registry under its group's name, and the way over to
+ * the content tools and /admin, each only when the viewer may open it (`open`).
+ */
+export default function DevNav({ open }: { open: readonly Permission[] }) {
   const path = usePathname();
   const tab = (t: { href: string; label: string }, tone: DevTone) => {
     const active = path === t.href || (t.href !== "/dev" && path.startsWith(`${t.href}/`));
@@ -26,9 +30,18 @@ export default function DevNav() {
           <div className="flex flex-wrap gap-0.5">{g.tools.map((t) => tab(t, g.tone))}</div>
         </div>
       ))}
-      <Link href="/admin" className={`${TAB} ml-auto text-amber-300/80 hover:bg-amber-500/10 hover:text-amber-200`}>
-        Admin →
-      </Link>
+      <div className="ml-auto flex">
+        {open.includes("content") && (
+          <Link href="/admin/content" className={`${TAB} ${TONE_CLASSES.stories.tab}`}>
+            Content →
+          </Link>
+        )}
+        {(open.includes("admin") || open.includes("content")) && (
+          <Link href="/admin" className={`${TAB} text-amber-300/80 hover:bg-amber-500/10 hover:text-amber-200`}>
+            All admin →
+          </Link>
+        )}
+      </div>
     </nav>
   );
 }

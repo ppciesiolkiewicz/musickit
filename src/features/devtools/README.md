@@ -1,7 +1,8 @@
 # Dev tools
 
-Local-only pages under `/dev` for working on the app: today the autoplan prompt (studio), the library, later other views of
-the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.md`.
+Pages for working on the app: under `/dev` the autoplan prompt (studio), player data, the code; under `/admin/content`
+the tools for writing and recording lessons (the library, the learning path, the stories, the riff maker, the video
+studio, the copy notes). Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.md`.
 
 ## Rules
 
@@ -10,12 +11,20 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
   set on /admin/admin/users). Every `src/app/api/dev/*` handler starts with `await permissionGate(req, "dev")`, except `mcp`, a local MCP server for agents, which stays on `devGate()`
   (`gate.ts`). The dev overlays on real pages (`devUi`, `DevOnly`) stay development only. In development no login is needed: `/dev` is a public
   path (`src/lib/publicPaths.ts`). `/dev` is not in the sitemap and robots.txt disallows it.
+- **The content tools live at `/admin/content`, behind `content`.** `src/app/admin/content/layout.tsx` calls `notFound()`
+  unless `permissionPage("content")`; each page there is framed by `ContentShell.tsx` (title "Content", the `ContentNav.tsx`
+  tabs from `CONTENT_TOOLS` in `registry.ts`) and titled with `contentTitle`. They moved from `/dev`; the Sampler stayed.
+  The old `/dev/<tool>` addresses redirect (`moves.ts`, read by `next.config.ts`), and a copy note made on an old address
+  reads back on the new one (`readCopyNotes` through `movedPath`). The tab bars link across (/dev, /admin/content, the
+  /admin hub, /admin/admin), each link only when the viewer may open it (`openPermissions()`, read by the shells).
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
-  `src/app/dev` and `src/app/api/dev` imports dev tools, except `gate.ts`, which any file may import.
-- **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files. Pure logic in `model/`, with tests.
-- **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed seed sections (on /dev/library), HEAD, *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*. *N on this page* opens a modal with this page's notes, each linking to its entry on `/dev/notes`; a page's notes show only there, not on the page. Opening the bar turns on note mode (*Note a text* toggles it, and so does the A key outside a text box); in note mode a click on any text opens a note, in a box six lines tall. Every note, wherever it shows (under its section, in the bar, on /dev/notes), is one `copy/NoteBar.tsx`: the note, `@commit` (the example file's for a section note, else the HEAD it was made at), edit and delete. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A page's notes are kept by its route: the path, and the hash where there is one, since some pages move by it (each `/dev/stories#<group>~<n>` has its own notes; `routeOf`, followed through `history.replaceState` too). Section notes are kept by the path alone. A text note also keeps its context (`copy/context.ts`): the labelled regions and headings it sits under, the app's React components that render it (from React's dev fiber, up to the router), each with the file and line of its JSX round the text, the line of JSX that renders the noted element, and the text round it; the copied Markdown gives them as `under:`, `components:`, `source:` and `around:` lines. Files and lines come from the stack React keeps of each JSX call in dev, mapped back to the source by `/api/dev/source` (Next's own `/__nextjs_original-stack-frames`, Turbopack only), so an AI tool can find what to change. A note links to its place with `<path>?note=<id><hash>` (`noteHref`; the older `#note-<id>` still opens): the page opens the notes modal, marks the note there and scrolls to its text, and a section note opens its seed item on /dev/library. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /dev/library hands it its section hashes and a `repin` (`useShowSections`).
-- **A new tool** is one entry in its group in `registry.ts` (`DEV_GROUPS`: AI plan, Content, Player data, Code, Pitch) and one page under `src/app/dev`; the index and the tab bar (`DevNav.tsx`) both read the registry and show the groups, each in its colour.
-- **Not here: running the app.** Reading and answering what players send (the messages inbox) is `/admin`, `src/features/admin`. The tab bar links over to it.
+  `src/app/dev`, `src/app/admin/content` and `src/app/api/dev` imports dev tools, except `gate.ts`, which any file may
+  import, and `moves.ts` (plain data, no imports), which `next.config.ts` imports for its redirects.
+- **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files, and `server/access.ts` also by
+  the page frames (`DevShell`, `ContentShell`, the admin `AdminShell`) for `openPermissions()`. Pure logic in `model/`, with tests.
+- **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed seed sections (on /admin/content/library), HEAD, *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*. *N on this page* opens a modal with this page's notes, each linking to its entry on `/admin/content/notes`; a page's notes show only there, not on the page. Opening the bar turns on note mode (*Note a text* toggles it, and so does the A key outside a text box); in note mode a click on any text opens a note, in a box six lines tall. Every note, wherever it shows (under its section, in the bar, on /admin/content/notes), is one `copy/NoteBar.tsx`: the note, `@commit` (the example file's for a section note, else the HEAD it was made at), edit and delete. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A page's notes are kept by its route: the path, and the hash where there is one, since some pages move by it (each `/admin/content/stories#<group>~<n>` has its own notes; `routeOf`, followed through `history.replaceState` too). Section notes are kept by the path alone. A text note also keeps its context (`copy/context.ts`): the labelled regions and headings it sits under, the app's React components that render it (from React's dev fiber, up to the router), each with the file and line of its JSX round the text, the line of JSX that renders the noted element, and the text round it; the copied Markdown gives them as `under:`, `components:`, `source:` and `around:` lines. Files and lines come from the stack React keeps of each JSX call in dev, mapped back to the source by `/api/dev/source` (Next's own `/__nextjs_original-stack-frames`, Turbopack only), so an AI tool can find what to change. A note links to its place with `<path>?note=<id><hash>` (`noteHref`; the older `#note-<id>` still opens): the page opens the notes modal, marks the note there and scrolls to its text, and a section note opens its seed item on /admin/content/library. `/admin/content/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /admin/content/library hands it its section hashes and a `repin` (`useShowSections`).
+- **A new tool** is one entry in its group in `registry.ts` (`DEV_GROUPS`: AI plan, Sound, Player data, Code, Pitch) and one page under `src/app/dev`; the index and the tab bar (`DevNav.tsx`) both read the registry and show the groups, each in its colour. A new content tool is one entry in `CONTENT_TOOLS` and one page under `src/app/admin/content`. The block page (`/admin/content/block`) is opened from Library and Learning path and is in neither list.
+- **Not here: running the app.** Reading and answering what players send (the messages inbox) is `/admin/admin`, `src/features/admin`. The tab bars link over to the `/admin` hub.
 
 ## History
 
@@ -32,7 +41,7 @@ in (*Keep in history*), and the result: the reply rendered with the plan's real 
 text, beside the history. The page doesn't run the prompt itself; `scripts/compare-models.ts` does, from the command line.
 Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answers" only reads `musickit.plan`.
 
-## Keys on the path (`/dev/path` → "Keys")
+## Keys on the path (`/admin/content/path` → "Keys")
 
 `path/KeysView.tsx`: the key ladders of the plan model (`KEY_LADDERS`, `RUNG_OF_LEVEL` in `plan/model/keys.ts`) against the levels: areas down, levels across, each cell the keys that level adds (bright) and the earlier ones it keeps (faint), then the two rungs only the keys question reaches, and under it what each answer opens in.
 
@@ -114,11 +123,11 @@ progress entries with each one's block and choice, the day-timer records with th
 topic, per concept). A date field sets `asOf` (today at first); a date before an entry drops it out. It reads through
 `usePlan`, `useProgress` and `useAllPlanTimes` and writes nothing.
 
-## Learning path (`/dev/path`)
+## Learning path (`/admin/content/path`)
 
 The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), in three views: **Path**, **Slope**
 and **Keys**. The area buttons are shared, and *Student on the path* is on Path and Slope; on Slope a step's ring is its state, the step the student is on bold.
-`?concept=<id>` opens Path on that skill's area with the skill picked (/dev/library links here).
+`?concept=<id>` opens Path on that skill's area with the skill picked (/admin/content/library links here).
 
 **Path** (`path/JourneyView.tsx`, the first view, made to show to studios). Four figures for the area (skills, steps,
 skills that span levels, steps read from the tools), then the topics down and the levels across. Every skill is a row
@@ -135,7 +144,7 @@ first runs), one column per depth inside a level, rows sorted by where a track's
 `PATH`; *Proposed* draws `model/slopeProposal.ts` (empty today: the agents' links moved into `PATH` on 2026-11-19), with new links
 dashed orange and each step that moved marked +N. Hovering or picking a step lights its whole chain both ways; the
 detail below counts the chain under it. The picture zooms and pans (drag or scroll to move, ctrl/⌘ + scroll or pinch
-to zoom, *Fit* shows the whole area); the track names follow the zoom and the vertical pan. Once the proposal is settled it moves into `PATH` and the file goes. A genre's block (a seed block with `genre`, today the riffs) is a dead end: a coloured block in its genre's row under the tracks (`genreMarks` in `model/stepBlocks.ts`; blues blue, rock red, funk pink, jazz green), one column after the step it comes out of and joined to it by a line of the genre's colour, with nothing coming out of it; dashed while it is switched off. It opens the block on `/dev/block`, and hovering it lights the step's chain.
+to zoom, *Fit* shows the whole area); the track names follow the zoom and the vertical pan. Once the proposal is settled it moves into `PATH` and the file goes. A genre's block (a seed block with `genre`, today the riffs) is a dead end: a coloured block in its genre's row under the tracks (`genreMarks` in `model/stepBlocks.ts`; blues blue, rock red, funk pink, jazz green), one column after the step it comes out of and joined to it by a line of the genre's colour, with nothing coming out of it; dashed while it is switched off. It opens the block on `/admin/content/block`, and hovering it lights the step's chain.
 
 **Steps inside a skill** (`model/steps.ts`, read from `plan/model/path.ts`). The lines in a skill are its
 track's steps, easiest first, each with its own level. Blue ones are read from a ladder the code already has
@@ -160,20 +169,20 @@ tracked step's ratings and dates. On Slope the student's steps also carry their 
 last ones) and their solid steps (`studentReach` for a made-up student; `playerReach` for the player in this browser, as the
 composer gets them: their answers raised by their ratings, `raisedAnswers`, and `solidRatedAt(entries)`). A step within reach is dashed blue and says "next" (or "start" where the
 questionnaire puts them), a known step not rated solid says "known", and a step ahead is faded. Nothing is written by
-hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, the course and the
+hand: the page (`src/app/admin/content/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, the course and the
 library's seed files, so the diagram changes when they do. It writes nothing.
 
 Tests (`plan/model/path.test.ts`) keep the path whole: every old concept in exactly one track, levels never go down,
 ladder steps real and used once, `after` never pointing at a higher level.
 
 **Blocks for a step.** Every Slope step carries a badge with how many blocks practise it (amber `!`: none), and each
-step in the Path detail a link; both open `/dev/block?step=<trackId:n>` in a new tab, which renders each block
-as the player sees it in a plan (`block/BlockPage.tsx`, `src/app/dev/block`; `?id=<block id>` renders one). The blocks
+step in the Path detail a link; both open `/admin/content/block?step=<trackId:n>` in a new tab, which renders each block
+as the player sees it in a plan (`block/BlockPage.tsx`, `src/app/admin/content/block`; `?id=<block id>` renders one). The blocks
 come from the code, not the database (`model/stepBlocks.ts`), one per choice of each seed block (a seed plan's days
 name blocks, so its exercises are among them): by the steps the choice names, then any whose tools say the step
 (`stepOf`), then those that only tag the track at the step's level, marked "level match only". A test holds that every step has a block.
 
-## Stories (`/dev/stories`)
+## Stories (`/admin/content/stories`)
 
 Every learning component in many set-ups (`stories/`). The sidebar has three sections: *AI Autoplan Tools* (every tool in
 `TOOLS`, with hand-written stories in `stories.ts` and every tool cell of the seed), *Components* (`uiStories.tsx`, React
@@ -182,7 +191,7 @@ yet (none today: the six of 2026-11-18 are built, so the section is not drawn un
 is still open and its planned props; it is not in `TOOLS`, so the prompt never offers it and no seed file can use it (a
 test holds this). Building the tool means adding it to `TOOLS` and deleting its stub.
 
-## Library (`/dev/library`)
+## Library (`/admin/content/library`)
 
 A bare-table view of the block library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, times, minutes), the seed plans read from their files (`SeedPlansTable`: title, model, versions, days; no plan is stored in the database), and the blocks of the topic in `?topic=` (title, choices (each a link that draws it, an inactive one amber), level, concepts, model, versions, times, minutes, ratings per star). A plan or block that comes from a seed file has a *Seed* tag after its title, and a version older than the current one (`PROMPT_VERSION`, `DOC_VERSIONS`) is amber, one not recorded grey, so files written to older rules stand out. `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows inactive choices and the app's old example and AI blocks. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. The one page for the library's blocks and the seed plans; it replaced the examples page.
 
@@ -197,7 +206,7 @@ such as an inactive one without `?include_not_enabled=1`, is not found; a databa
 neither, a line says it was not found. Seed items draw without the database. The head shows the versions it was written
 to as pills against the current ones (`teaching`, `agents` against `DOC_VERSIONS`, `prompt` against `PROMPT_VERSION`;
 `v—` when not recorded, amber when older), the model, a showcase's feature, the note, and the tools it uses. Under it,
-the concepts its exercises are tagged with (`model/exampleSteps.ts`), each a link to `/dev/path?concept=<id>` and each
+the concepts its exercises are tagged with (`model/exampleSteps.ts`), each a link to `/admin/content/path?concept=<id>` and each
 with the step its tools are on, read with `stepOf` as a player's rating is: the step's name, "no step" (the concept has a
 ladder but no tool sets a level or stage) or "no ladder". A plan gathers them over its exercises and says how many tag
 no concept. The body renders it (`model/preview.ts`): an exercise as the plan's `ExerciseCard`, a plan in the real week
@@ -210,11 +219,11 @@ file's id, the exercise's address (`ex`, or `d2.e1` in a plan) and the section's
 seed file's last commit and uncommitted state). When the section's hash no longer matches, the note turns orange
 ("section changed", with *keep* to re-pin it); a section that is gone shows rose. The page hands the Notes bar every seed
 item's sections (`SeedSections`, `exampleSections`), open or not, so *Re-pin all to HEAD* here also re-pins every section
-note and *Copy all notes* warns on outdated ones. A section note links to `/dev/library?item=<seed id>&note=<id>#item`
+note and *Copy all notes* warns on outdated ones. A section note links to `/admin/content/library?item=<seed id>&note=<id>#item`
 (`noteHref`), whatever route it was made on. A block with no seed file is drawn without pencils.
 
 Code: `library/load.ts` (the loaders), `library/params.ts` (address parameters, minutes), `library/item.ts` (the item to
-draw), `library/LibraryPage.tsx` (tables), `library/LibraryItem.tsx`, `src/app/dev/library`.
+draw), `library/LibraryPage.tsx` (tables), `library/LibraryItem.tsx`, `src/app/admin/content/library`.
 
 ## Kickstarter (`/dev/kickstarter`)
 
@@ -222,7 +231,7 @@ Two pages under one nav (`kickstarter/KickstarterNav.tsx`: *Students*, *Teachers
 
 **Students** (`/dev/kickstarter`, `kickstarter/StudentOfferPage.tsx`): the offer to a person who practises on their own, with no AI brief (ads are written from it later). `model/kickstarterStudents.ts` holds it: `STUDENT_OFFER_LINE`; `PILLARS`, the three things it stands on, each with a promise and the facts true today (the daily plan fitted to the student, put together from the library with no AI and unlimited, with why "friendly" is true; the change, which is the daily reminder, short focused practice and progress tracking, with the learning path under it; the engaging, interactive exercises, with why "engaging" is true); `STUDENT_TERMS` (free in beta, signing up is leaving a few details, the first 500 pay half the yearly price, locked in, when paid plans open; no payment exists, so nobody is counted and no date is given; the numbers are in `src/lib/studentOffer.ts`, read from `PRICING.player`); `STUDENT_NEVER` (what nothing written for a student says). The page shows the line with *Copy offer* (`studentOffer`: all of it as one text), the pillars, *The terms*, *Never say*, *Pages to show, strongest first* (`STUDENT_DEMOS`: the demo plans and the tools, no lesson notes) and *The full offer as text*.
 
-**Teachers** (`/dev/kickstarter/teachers`). Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`: weekly plans put together from the library with no AI and steered by a slider per topic, a student's progress on the learning path as /dev/path draws it (every skill a row of steps across the four levels; told as the vision),
+**Teachers** (`/dev/kickstarter/teachers`). Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`: weekly plans put together from the library with no AI and steered by a slider per topic, a student's progress on the learning path as /admin/content/path draws it (every skill a row of steps across the four levels; told as the vision),
 what attunr is and what is coming (scheduling, profiles, courses to sell), the locked-in price, the 90-day trial, the 20 partners
 the project needs, a say in what gets built, the video call with the founder (`CALL_MINUTES`: a live demo and a talk about being a founding partner), that it is still in demo mode (what isn't built is told as "the vision for attunr"), that it is an Australian company; the price, the trial length and the 20 come from `src/lib/foundingOffer.ts`, which the public page `/kickstarter` reads too) and how it sounds
 (`VOICE`, plus reply-only and first-email-only rules); change the offer there. The next step an email asks for is that call: offered once, as a question, with the booking link (`CALL_URL`, the Calendly page "Attunr founding partner chat"; `GENERAL_CALL_URL` is for a call about anything else) and no invented time; a first email leads with why attunr is being built (a love of music, and looking for ways to help teachers, students and schools), leaves out the price and the trial, and ends on the call, and a reply offers it when they show interest and not again once it was offered. The brief also lists the enabled rows of the `plans` table (`plansSection`, read from the database by the page; none without one): what anyone pays outside the offer, named only when they ask what attunr costs, never in a first email. The page (`kickstarter/KickstarterPage.tsx`)
@@ -278,7 +287,7 @@ returns one.
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/published.json`, `server/ollama.ts`, `scripts/compare-models.ts`, `scripts/publish-model-plans.ts`: comparing AI models from the command line.
-- `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also inactive choices, the app's old example and AI blocks, and plans not enabled for reuse); only this route and `/dev/library` read them, both through `devScope`.
+- `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also inactive choices, the app's old example and AI blocks, and plans not enabled for reuse); only this route and `/admin/content/library` read them, both through `devScope`.
 - `model/assess.ts`, `server/assessments.ts`: plans judged against the judge model's own plan.
 - `model/history.ts`: run records, summaries, ids, the pasted-reply check (`readRunInput`), `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
@@ -289,7 +298,7 @@ returns one.
 - `model/comments.ts`: what section notes need from the plan model: hashes, `exampleSections`, `repinSectionNotes`.
 - `server/git.ts`: `exampleCommits` (HEAD and the seed files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `PastePanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
-- `library/`: /dev/library: the tables, one item drawn, its section notes.
+- `library/`: /admin/content/library: the tables, one item drawn, its section notes.
 - `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief for teachers; its facts, voice and samples. `kickstarter/StudentOfferPage.tsx`, `model/kickstarterStudents.ts`, `src/lib/studentOffer.ts`: the offer to students. `kickstarter/KickstarterNav.tsx`, `kickstarter/demos.ts`: the nav between the two and the pages each may link.
 - `costs/CostsPage.tsx`: /dev/costs.
 - `costs/CostPerPlayer.tsx`, `model/unitEconomics.ts`: what one paying player costs a year on each AI model.
@@ -300,7 +309,7 @@ returns one.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `spentRows`, `logRows`).
 - Routes: `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
 
-## Riff maker (`/dev/riff`)
+## Riff maker (`/admin/content/riff`)
 
 `riff/RiffLab.tsx`: write a riff note by note in a key and scale. Its sound (`riff/sound.ts`) is the piano, the clean guitar samples, or those samples into a NAM amp model. The amp picker lists the models in this browser (the same library the looper adds to), the amp library, and the `.nam` files on this machine's disk: `/api/dev/nam` reads `tmp/nam-upload` and `nam` at the repo root (both gitignored), so there are models to pick in development, where the amp library has no store token. A model picked from the disk is copied into the browser's library. The models in the browser and on the disk are listed by the gear they capture (`riff/ampCatalog.ts`, tested: rules on the file name, amps before pedals, the capturer's name and the training error left out, so "Tim R Magnatone Super 59 Mkii Ch1 Norm" shows as "Ch1 Norm" under "Magnatone Super 59 Mk II"; the full file name is the option's tooltip), and two controls in front of the picker narrow them: Amps / Pedals / All models (Amps to start) and a "Find a model" search over the file and gear names. Only what is shown changes: a riff still saves the model's file name as its amp, and the model playing now is always listed. Each name in the picker ends with its licence, from the route (`licenceOf`): "(CC0)" for a file under a folder named `cc0` (`nam/cc0/<tone>/<file>.nam`: given to the public domain, so it may ship with the app), "(GPL-3)" for a file under `nam/gpl3` (the community models from github.com/pelennor2170/NAM_models, GNU GPL v3, with its `COPYING` and `README.md` beside them: they may ship unchanged with the creator's name, the GPL text and a link to the repo on a credits page; the two Axe-FX captures in that repo are left out, being captures of another maker's models), "(T3K)" for the files whose TONE3000 page was read and showed that licence (use only, the file can't be passed on), and "(licence not known)" for the rest. A model already in the browser gets the tag by its name.
 

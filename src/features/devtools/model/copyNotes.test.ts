@@ -4,7 +4,14 @@ import { clearCopyNotes, contextLines, copyNotesMarkdown, hashKey, noteHref, not
 
 const note = (o: Partial<CopyNote>): CopyNote => ({ id: "1", route: "/plan", text: "Sing with the mic", where: "button", note: "too long", at: "2026-11-02T00:00:00Z", ...o });
 const sec = (o: Partial<NoteSection> = {}): NoteSection => ({ example: "ex-a", address: "ex", index: 2, kind: "text", hash: "aaaaaaaa", commit: "abc1234", ...o });
-const onSection = (o: Partial<CopyNote> = {}, s: Partial<NoteSection> = {}): CopyNote => note({ route: "/dev/library", text: "Play box 1", where: "ex-a · section 3", section: sec(s), ...o });
+const onSection = (o: Partial<CopyNote> = {}, s: Partial<NoteSection> = {}): CopyNote => note({ route: "/admin/content/library", text: "Play box 1", where: "ex-a · section 3", section: sec(s), ...o });
+
+test("readCopyNotes moves a note made on a moved page", () => {
+  const [a, b, c] = readCopyNotes([note({ route: "/dev/library" }), note({ id: "2", route: "/dev/stories#a~1" }), note({ id: "3", route: "/plan" })]);
+  assert.equal(a.route, "/admin/content/library");
+  assert.equal(b.route, "/admin/content/stories#a~1");
+  assert.equal(c.route, "/plan");
+});
 
 test("keeps only whole notes", () => {
   assert.equal(readCopyNotes([note({}), { id: 1 }, null]).length, 1);
@@ -51,7 +58,7 @@ test("stateOf and outdatedCount: current, changed, gone", () => {
 });
 
 test("section notes in the Markdown: after text notes, in section order, with file, place and a warning when outdated", () => {
-  const md = copyNotesMarkdown([onSection({ id: "a" }), note({ route: "/dev/library", text: "Copy as plan" }), onSection({ id: "b", note: "Line 1\nLine 2" }, { index: 0 })], {
+  const md = copyNotesMarkdown([onSection({ id: "a" }), note({ route: "/admin/content/library", text: "Copy as plan" }), onSection({ id: "b", note: "Line 1\nLine 2" }, { index: 0 })], {
     files: { "ex-a": { path: "x/ex-a.json" } },
     hashes: { [hashKey("ex-a", "ex", 2)]: "changed!", [hashKey("ex-a", "ex", 0)]: "aaaaaaaa" },
   });
@@ -68,7 +75,7 @@ test("old examples-page comments become section notes", () => {
     null,
   ]);
   assert.deepEqual(n, {
-    id: "c1", route: "/dev/library", text: "a / b", where: "ex-a · day 3, exercise 1, section 4", note: "Too long", at: "2026-11-01T10:00:00.000Z",
+    id: "c1", route: "/admin/content/library", text: "a / b", where: "ex-a · day 3, exercise 1, section 4", note: "Too long", at: "2026-11-01T10:00:00.000Z",
     section: { example: "ex-a", address: "d2.e0", index: 3, kind: "list", hash: "h", commit: "abc", dirty: true },
   });
   assert.deepEqual(notesOfOldComments("x"), []);
@@ -76,20 +83,20 @@ test("old examples-page comments become section notes", () => {
 });
 
 test("routeOf keeps the hash a page moves by, not a note link's", () => {
-  assert.equal(routeOf("/dev/stories", "#guitar-play-along/arpeggio-part~0"), "/dev/stories#guitar-play-along/arpeggio-part~0");
+  assert.equal(routeOf("/admin/content/stories", "#guitar-play-along/arpeggio-part~0"), "/admin/content/stories#guitar-play-along/arpeggio-part~0");
   assert.equal(routeOf("/plan", ""), "/plan");
   assert.equal(routeOf("/plan", "#"), "/plan");
   assert.equal(routeOf("/plan", "#note-abc"), "/plan");
-  assert.equal(pathOfRoute("/dev/stories#a~1"), "/dev/stories");
+  assert.equal(pathOfRoute("/admin/content/stories#a~1"), "/admin/content/stories");
 });
 
 test("noteHref puts the note before the route's hash, and noteIdOf reads it back", () => {
-  assert.equal(noteHref({ id: "n1", route: "/dev/stories#a~1" }), "/dev/stories?note=n1#a~1");
-  assert.equal(noteHref({ id: "n1", route: "/dev/stories#a~1" }, "/dev/notes"), "/dev/notes?note=n1");
+  assert.equal(noteHref({ id: "n1", route: "/admin/content/stories#a~1" }), "/admin/content/stories?note=n1#a~1");
+  assert.equal(noteHref({ id: "n1", route: "/admin/content/stories#a~1" }, "/admin/content/notes"), "/admin/content/notes?note=n1");
   assert.equal(noteIdOf("?note=n1", "#a~1"), "n1");
-  // a section note opens its seed item on /dev/library, whatever route it was made on
-  assert.equal(noteHref(onSection({ id: "n2" })), "/dev/library?item=ex-a&note=n2#item");
-  assert.equal(noteHref(onSection({ id: "n2" }), "/dev/notes"), "/dev/notes?note=n2");
+  // a section note opens its seed item on /admin/content/library, whatever route it was made on
+  assert.equal(noteHref(onSection({ id: "n2" })), "/admin/content/library?item=ex-a&note=n2#item");
+  assert.equal(noteHref(onSection({ id: "n2" }), "/admin/content/notes"), "/admin/content/notes?note=n2");
   assert.equal(noteIdOf("", "#note-old"), "old");
   assert.equal(noteIdOf("", "#a~1"), null);
 });

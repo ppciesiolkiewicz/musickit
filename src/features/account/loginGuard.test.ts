@@ -19,22 +19,22 @@ const MIN = 60_000;
 
 test("a hash stashed before logging in comes back once on the same path", () => {
   const s = memory();
-  stashHash(s, "/dev/stories", "#scale-neck~3", 0);
-  assert.equal(takeHash(s, "/dev/stories", 5 * MIN), "#scale-neck~3");
-  assert.equal(takeHash(s, "/dev/stories", 5 * MIN), null);
+  stashHash(s, "/admin/content/stories", "#scale-neck~3", 0);
+  assert.equal(takeHash(s, "/admin/content/stories", 5 * MIN), "#scale-neck~3");
+  assert.equal(takeHash(s, "/admin/content/stories", 5 * MIN), null);
 });
 
 test("another path doesn't take it, and leaves it for the right one", () => {
   const s = memory();
-  stashHash(s, "/dev/stories", "#scale-neck~3", 0);
+  stashHash(s, "/admin/content/stories", "#scale-neck~3", 0);
   assert.equal(takeHash(s, "/plan", MIN), null);
-  assert.equal(takeHash(s, "/dev/stories", MIN), "#scale-neck~3");
+  assert.equal(takeHash(s, "/admin/content/stories", MIN), "#scale-neck~3");
 });
 
 test("after an hour the hash is gone", () => {
   const s = memory();
-  stashHash(s, "/dev/stories", "#scale-neck~3", 0);
-  assert.equal(takeHash(s, "/dev/stories", 61 * MIN), null);
+  stashHash(s, "/admin/content/stories", "#scale-neck~3", 0);
+  assert.equal(takeHash(s, "/admin/content/stories", 61 * MIN), null);
   assert.equal(s.length, 0);
 });
 

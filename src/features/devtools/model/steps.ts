@@ -5,7 +5,7 @@ import type { PlanTool } from "@/features/plan/model/tools";
 import type { Level } from "@/features/plan/model/types";
 
 /*
- * The steps inside each concept, for /dev/path: the steps of its track on the learning path (plan/model/path.ts). A step
+ * The steps inside each concept, for /admin/content/path: the steps of its track on the learning path (plan/model/path.ts). A step
  * a ladder in the code stands for (plan/model/ladders.ts) can be read back from an exercise's tools; the others are
  * "not implemented" until a tool has a level for them. A step's key is its place in the track, from 0, as text.
  */

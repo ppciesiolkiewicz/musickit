@@ -13,7 +13,7 @@ import { EXAMPLE_STUDENTS, exampleRatings, type ExampleStudent } from "./stepPro
 /*
  * The teacher's sliders on three made-up students, for /dev/questionnaire (`QuestionnaireLab`): what each slider opens at,
  * where its start-of-plan tick sits, and what the plan maker gets when one is moved. The students come from
- * `EXAMPLE_STUDENTS` (the /dev/path ones). Nothing here reads the clock: "now" is the day after the newest rating.
+ * `EXAMPLE_STUDENTS` (the /admin/content/path ones). Nothing here reads the clock: "now" is the day after the newest rating.
  */
 
 /** A day the examples' "days ago" are counted from; only the spacing between the dates matters. */

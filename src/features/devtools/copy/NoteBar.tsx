@@ -6,8 +6,8 @@ import type { CommentState, CopyNote } from "../model/copyNotes";
 import { writeCopyNotes as write } from "./store";
 
 /*
- * The one look of a dev note, wherever it shows: under its section on /dev/library, in the
- * Notes bar and on /dev/notes. The note, the commit it was made at, edit and delete.
+ * The one look of a dev note, wherever it shows: under its section on /admin/content/library, in the
+ * Notes bar and on /admin/content/notes. The note, the commit it was made at, edit and delete.
  */
 
 const TONE: Record<CommentState, string> = {

@@ -38,6 +38,6 @@ test("a block is listed once per step, and the counts match the lists", () => {
 });
 
 test("blockHref escapes the ref", () => {
-  assert.equal(blockHref({ step: "barre:2" }), "/dev/block?step=barre%3A2");
-  assert.equal(blockHref({ id: "a b" }), "/dev/block?id=a%20b");
+  assert.equal(blockHref({ step: "barre:2" }), "/admin/content/block?step=barre%3A2");
+  assert.equal(blockHref({ id: "a b" }), "/admin/content/block?id=a%20b");
 });

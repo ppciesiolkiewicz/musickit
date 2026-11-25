@@ -1,6 +1,6 @@
 # Library
 
-Reads the library of exercise blocks, for agents that ask for them by tool. There is no plan library: the seed plans stay files (`seed/plans`, `SEED_PLANS`), read by /demo, /dev/library and tests, and never stored. It only reads: nothing here inserts, updates or deletes.
+Reads the library of exercise blocks, for agents that ask for them by tool. There is no plan library: the seed plans stay files (`seed/plans`, `SEED_PLANS`), read by /demo, /admin/content/library and tests, and never stored. It only reads: nothing here inserts, updates or deletes.
 
 `seed/` holds the plans and exercises agents write for the library's gaps, one JSON file each; its `README.md` says how to add one. `db:seed-blocks` puts the blocks in the database; the plans are not stored.
 
@@ -19,7 +19,7 @@ Other players appear only as totals (`use`: times, seconds, ratings by stars). N
 
 `coverage` counts only blocks visible under the scope, and only pairs, concepts and steps with at least one. A block counts for a step only when it names it (a hashed block's `blocks.steps`, a curated block's listed choices' `steps`, "trackId:n"); a curated block counts once per listed choice in a topic-and-level or step row (its time and seconds once). The `steps` filter matches a block that (or one of whose listed choices) names any of them. A block stored before steps names none and is found by `level` alone.
 
-`handleRpc` and `devTools` (in `mcp.ts`) build the scope from the tool arguments (`player`, `include_not_enabled`, through `devScope`). They are for the local dev route `/api/dev/mcp` only, never mounted elsewhere; `/dev/library` is the other caller of `devScope`.
+`handleRpc` and `devTools` (in `mcp.ts`) build the scope from the tool arguments (`player`, `include_not_enabled`, through `devScope`). They are for the local dev route `/api/dev/mcp` only, never mounted elsewhere; `/admin/content/library` is the other caller of `devScope`.
 
 ## Files (`server/`)
 
