@@ -47,6 +47,18 @@ and what its own controls (`ui/CvControls.tsx`, kept under `musickit.neckCv`; `m
   (`pulsesAt`), so a ring lands on the frame its note starts on, through a seek or an export. Live, a note is placed by
   `guessPlace` and counts as sounding for 0.6 s, so picks heard that close together make the chord; the sound gives one
   pitch per pick, so a strum reads as its loudest note.
+- **Chord shapes** (on by default; takes only): notes the riff plays together (`chordsAt`: sounding now, the same start) are
+  joined in one filled, rounded shape round their places (`roundedHull`), with the chord's name over it. With it on, Pick
+  pulse's chord name above the board gives way to it (drawn once); with it off, or live, Pick pulse names the chord as above.
+- **Coming next** (on by default; takes only): the places of the next notes (`comingAt`: the next start, within 0.6 s) as
+  faint dashed rings, with no label; a chord's joined by a faint outline when Chord shapes is on.
+- **Fingers** (off by default; takes only): the finger that plays each sounding note (`TakeNote.finger`, from the riff) as a
+  small yellow number beside its place.
+- **Labels**: what every note on the neck shows (Notes under fingers, Pick pulse's dots): **Note names**, or **Numbers in the
+  key** (`noteLabel`, the app's `degreeLabel`: counted in the page's mode, ♭ and ♯ for a note outside it) when the page gives a
+  key (`keyOf`, from the kit); with no key that choice is greyed out and names are shown. The status line keeps the name.
+
+Live, only what can be known is drawn: the notes heard, named through Labels; no shapes, fingers or coming notes.
 
 How it reads: `ui/NeckCvView.tsx` draws; `client/cv.ts` loads OpenCV.js (the
 `@techstark/opencv-js` build, from jsDelivr on first use, about 10 MB) and does the image work; `model/cvFrets.ts` is the maths.
@@ -153,10 +165,10 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
 | `model/cvFrets.ts` | Pure. The OpenCV reader's maths: the axis, the perspective fit, the board's edges, the wires and the strings from a strip; where a point is on the neck and where a heard note was played. |
 | `client/cv.ts` | Browser. Loads OpenCV.js; finds and follows the markers, turns the frame into the strip, calls `readStrip`. |
-| `model/cvFx.ts` | Pure. The OpenCV reader's settings, which frets are numbered, Neck fire's heat and flicker, Pick pulse's notes on screen and their chord; the chord layers: the chords sounding at a time, the notes coming next, a note's name or degree. |
+| `model/cvFx.ts` | Pure. The OpenCV reader's settings, which frets are numbered, Neck fire's heat and flicker, Pick pulse's notes on screen and their chord; the chord layers: the chords sounding at a time, the notes coming next, a note's name or degree, the outline round a chord's places. |
 | `client/hands.ts` | Browser. MediaPipe's Hand Landmarker, loaded once for both readers. |
-| `ui/NeckCvView.tsx` | React. The OpenCV reader's canvas over a video: wires, numbers, strings, notes under fingers, Neck fire, Pick pulse. |
-| `ui/CvControls.tsx` | React. Fret numbers, Strings, Notes under fingers, Neck fire and its Strength, Pick pulse; `useCv` keeps them. |
+| `ui/NeckCvView.tsx` | React. The OpenCV reader's canvas over a video: wires, numbers, strings, notes under fingers, Neck fire, Pick pulse; on a take, Chord shapes, Coming next and Fingers. |
+| `ui/CvControls.tsx` | React. Fret numbers, Strings, Notes under fingers, Neck fire and its Strength, Pick pulse, Chord shapes, Fingers, Coming next and Labels; `useCv` keeps them. |
 | `client/listen.ts` | Browser. Picks and their notes from a stream's sound, and how loud it is. |
 | `ui/NeckView.tsx` | React. The canvas over a video: reads markers and hands each new frame, draws every animation frame. |
 | `ui/FxControls.tsx` | React. Markers, Buttons, Covering, Effects (the mood effects with Strength and Beat, and Hide markers) and Test effects; `useFx` keeps them. |

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { boardMarkers, guessPlace, midiAt, onWire, placeOnNeck, spotOf, type BoardMarker, type Neck } from "../model/cvFrets";
-import { PULSE_S, STRING_WORDS, chordOf, flicker, heatAt, numbered, pulsesAt, type CvSettings, type TakeNote } from "../model/cvFx";
+import { PULSE_S, STRING_WORDS, chordOf, chordsAt, comingAt, flicker, heatAt, noteLabel, numbered, pulsesAt, roundedHull, type CvSettings, type TakeNote } from "../model/cvFx";
 import { MARKER_MM, OFF_BOARD, noteHue, noteName } from "../model/fx";
 import { parsePlaced, type Pt } from "../model/grid";
 import { loadCvReader, type CvReader } from "../client/cv";
@@ -65,14 +65,19 @@ function tongue(hue: number): HTMLCanvasElement {
  * Over a video (the live camera or a take), the OpenCV reader: the fret markers it finds, each fret wire across the board,
  * and what `cv` ticks: fret numbers above and below the board, the strings, the note under each fingertip (MediaPipe's hand
  * model), Neck fire, and Pick pulse: a ring from each note's place as it is played (a take: on its riff's string and fret, on
- * the video's clock, so it holds through a seek and an export), its name while it sounds, and the chord the notes sounding make. A note heard (live: from `video`'s stream; a take: `notes` at their times) is placed by the fingers
+ * the video's clock, so it holds through a seek and an export), its name while it sounds, and the chord the notes sounding make.
+ * On a take, also the layers `cv` ticks: Chord shapes (notes played together joined in one shape, the chord's name over it,
+ * instead of Pick pulse's name above the board), Coming next (the next notes' places as faint rings) and Fingers (each note's
+ * finger beside it). Every note's label is its name or, with `keyOf`, its number in the key (`cv.labels`). A note heard (live: from `video`'s stream; a take: `notes` at their times) is placed by the fingers
  * and lights its spot and string. Markers come from `markers` (each one's size from Markers or the A3 layout).
  */
-export default function NeckCvView({ video, markers, cv, live = false, notes, fit = "contain", bare = false }: {
+export default function NeckCvView({ video, markers, cv, keyOf, live = false, notes, fit = "contain", bare = false }: {
   video: HTMLVideoElement | null;
   /** "id@fret, …" (the Markers setting) */
   markers: string;
   cv: CvSettings;
+  /** the page's key, for labels as numbers in the key */
+  keyOf?: { tonic: number; scale: string };
   /** the video is the live camera: notes are heard in its stream's sound */
   live?: boolean;
   /** a take's notes, at their times in the video, with their string and fret when the riff has them */
@@ -89,6 +94,8 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
   }, [markers]);
   const settings = useRef(cv);
   useEffect(() => { settings.current = cv; }, [cv]);
+  const keyRef = useRef(keyOf);
+  useEffect(() => { keyRef.current = keyOf; }, [keyOf]);
   const timed = useRef(notes);
   useEffect(() => { timed.current = notes; }, [notes]);
   const picks = useRef<{ midi: number | null; level: number }[]>([]);
@@ -229,6 +236,7 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
         }
         if (!neck) return;
         const n = neck, W = n.wires;
+        const label = (midi: number) => noteLabel(midi, set.labels, keyRef.current);
         const last = heard.at(-1), kick = last ? Math.exp(-3.5 * (now - last.at)) : 0;
 
         if (set.fire) {
@@ -359,7 +367,7 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
           for (const f of fingers) {
             const at = spotOf(n, f.string, f.fret), midi = midiAt(f.string, f.fret);
             ctx.fillStyle = `hsla(${noteHue(midi)} 90% 55% / 0.85)`; ctx.beginPath(); ctx.arc(at.x, at.y, 9, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = "white"; ctx.fillText(noteName(midi), at.x, at.y + 0.5);
+            ctx.fillStyle = "white"; ctx.fillText(label(midi), at.x, at.y + 0.5);
           }
           for (const e of heard) {
             const age = now - e.at, fade = 1 - age / RING, at = spotOf(n, e.string, e.fret), hue = noteHue(e.midi);
@@ -369,27 +377,63 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
           if (last && !set.pulse) {
             const fade = 1 - (now - last.at) / RING, at = spotOf(n, last.string, last.fret);
             ctx.font = "bold 30px sans-serif"; ctx.lineWidth = 4; ctx.strokeStyle = `rgba(0,0,0,${0.6 * fade})`; ctx.fillStyle = `hsla(${noteHue(last.midi)} 100% 85% / ${fade})`;
-            ctx.strokeText(noteName(last.midi), at.x, at.y - 34); ctx.fillText(noteName(last.midi), at.x, at.y - 34);
+            ctx.strokeText(label(last.midi), at.x, at.y - 34); ctx.fillText(label(last.midi), at.x, at.y - 34);
+          }
+        }
+
+        // a take's layers, on the video's clock: under Pick pulse, the coming notes and the chord shapes
+        const take = timed.current, t = video.currentTime;
+        const gap = Math.hypot(n.strings[1].a.x - n.strings[0].a.x, n.strings[1].a.y - n.strings[0].a.y) || 12;
+        const placeOf = (x: TakeNote): Place | null => (x.string !== undefined && x.fret !== undefined ? { string: x.string, fret: x.fret } : guessPlace(x.midi, fingers));
+        const spotsOf = (list: TakeNote[]) => list.flatMap((x) => { const p = placeOf(x); return p ? [spotOf(n, p.string, p.fret)] : []; });
+        const outline = (spots: Pt[], r: number) => {
+          ctx.beginPath();
+          for (const a of roundedHull(spots, r)) ctx.arc(a.x, a.y, a.r, a.from, a.to);
+          ctx.closePath();
+        };
+        const shapes = !!take?.length && set.chords;
+        let shapeName: string | null = null;
+        const named: { name: string; hue: number; at: Pt; age: number }[] = [];
+        if (take?.length && set.next) {
+          // the next notes' places, faint and hollow, with no label; a chord's joined by a faint outline
+          const spots = spotsOf(comingAt(take, t));
+          ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+          for (const at of spots) { ctx.beginPath(); ctx.arc(at.x, at.y, gap * 0.62, 0, Math.PI * 2); ctx.stroke(); }
+          if (set.chords && spots.length >= 2) { ctx.strokeStyle = "rgba(255,255,255,0.25)"; outline(spots, gap * 0.95); ctx.stroke(); }
+          ctx.restore();
+        }
+        if (shapes) {
+          // notes played together: one filled shape round their places, the chord's name over it
+          for (const g of chordsAt(take, t)) {
+            const spots = spotsOf(g.notes);
+            if (spots.length < 2) continue;
+            const hue = noteHue(chordOf(g.notes.map((x) => x.midi))?.rootPc ?? Math.min(...g.notes.map((x) => x.midi)));
+            outline(spots, gap * 0.95);
+            ctx.fillStyle = `hsla(${hue} 90% 55% / 0.25)`; ctx.fill();
+            ctx.strokeStyle = `hsla(${hue} 100% 75% / 0.9)`; ctx.lineWidth = 2; ctx.stroke();
+            if (g.name) {
+              shapeName ??= g.name;
+              const top = Math.min(...spots.map((p) => p.y)), mid = spots.reduce((a, p) => a + p.x, 0) / spots.length;
+              named.push({ name: g.name, hue, at: { x: mid, y: Math.max(30, top - gap * 0.95 - 26) }, age: t - g.start });
+            }
           }
         }
 
         if (set.pulse) {
           // a take's notes on the video's clock (so a ring is where the riff puts it, frame for frame); live, the notes heard
-          const take = timed.current;
           const pulses: Pulse[] = take?.length
-            ? pulsesAt(take, video.currentTime).flatMap((x) => {
-              const place = x.string !== undefined && x.fret !== undefined ? { string: x.string, fret: x.fret } : guessPlace(x.midi, fingers);
+            ? pulsesAt(take, t).flatMap((x) => {
+              const place = placeOf(x);
               return place ? [{ ...place, midi: x.midi, level: 0.7, age: x.age, held: x.held }] : [];
             })
             : heard.map((e) => ({ ...e, age: now - e.at, held: now - e.at < LIVE_HOLD }));
-          const gap = Math.hypot(n.strings[1].a.x - n.strings[0].a.x, n.strings[1].a.y - n.strings[0].a.y) || 12;
           ctx.save(); ctx.globalCompositeOperation = "lighter";
           for (const p of pulses) {
             if (p.age >= PULSE_S) continue;
-            const t = p.age / PULSE_S, at = spotOf(n, p.string, p.fret), hue = noteHue(p.midi);
+            const grown = p.age / PULSE_S, at = spotOf(n, p.string, p.fret), hue = noteHue(p.midi);
             // two rings out from the place, the second just behind the first, bigger when louder
             for (const [lag, lw] of [[0, 5], [0.18, 2.5]] as const) {
-              const u = t - lag;
+              const u = grown - lag;
               if (u <= 0) continue;
               ctx.strokeStyle = `hsla(${hue} 100% 65% / ${(1 - u) ** 1.5})`; ctx.lineWidth = lw * (1 - 0.5 * u);
               ctx.shadowColor = `hsl(${hue} 100% 60%)`; ctx.shadowBlur = 16;
@@ -404,18 +448,20 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
             const at = spotOf(n, p.string, p.fret), pop = 1 + 0.5 * Math.exp(-12 * p.age), rad = gap * 0.62 * pop;
             ctx.fillStyle = `hsla(${noteHue(p.midi)} 90% 50% / 0.92)`; ctx.beginPath(); ctx.arc(at.x, at.y, rad, 0, Math.PI * 2); ctx.fill();
             ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(255,255,255,0.85)"; ctx.stroke();
-            ctx.fillStyle = "white"; ctx.fillText(noteName(p.midi), at.x, at.y + 0.5);
+            ctx.fillStyle = "white"; ctx.fillText(label(p.midi), at.x, at.y + 0.5);
           }
-          // the chord the notes sounding make, above the board over them; it stays while they sound and fades after
-          const held = pulses.filter((p) => p.held), named = chordOf(held.map((p) => p.midi));
-          if (named) {
+          // the chord the notes sounding make, above the board over them; it stays while they sound and fades after (with Chord
+          // shapes on a take, the name is on the shape instead)
+          const held = pulses.filter((p) => p.held), heldChord = shapes ? null : chordOf(held.map((p) => p.midi));
+          if (shapes) chord = null;
+          if (heldChord) {
             const spots = held.map((p) => spotOf(n, p.string, p.fret));
             const mid = { x: spots.reduce((a, p) => a + p.x, 0) / spots.length, y: spots.reduce((a, p) => a + p.y, 0) / spots.length };
             const fr = Math.min(W.length - 1, Math.max(0, Math.round(held.reduce((a, p) => a + p.fret, 0) / held.length)));
             const up = W[fr].top.y < W[fr].bottom.y ? W[fr].top : W[fr].bottom, width = Math.hypot(W[fr].top.x - W[fr].bottom.x, W[fr].top.y - W[fr].bottom.y);
             const dir = unit(W[fr].top === up ? W[fr].bottom : W[fr].top, up);
             const at = { x: mid.x + dir.x * (width * 0.5 + 64), y: Math.max(40, mid.y + dir.y * (width * 0.5 + 64)) };
-            if (chord?.name !== named.name || now - chord.until > 0.15) chord = { name: named.name, hue: noteHue(named.rootPc), at, from: now, until: now };
+            if (chord?.name !== heldChord.name || now - chord.until > 0.15) chord = { name: heldChord.name, hue: noteHue(heldChord.rootPc), at, from: now, until: now };
             else { chord.at = ease(chord.at, at); chord.until = now; }
           }
           if (chord) {
@@ -430,9 +476,29 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
               ctx.restore();
             }
           }
-          const words = chord ? `Chord: ${chord.name}` : "";
-          if (words !== shownChord) { shownChord = words; setChordWords(words); }
-        } else if (shownChord) { shownChord = ""; chord = null; setChordWords(""); }
+        } else chord = null;
+
+        // over Pick pulse: each sounding note's finger beside its place, and the chord shapes' names
+        if (take?.length && set.fingers) {
+          ctx.font = `bold ${Math.round(gap * 0.55)}px sans-serif`; ctx.lineWidth = 3;
+          for (const x of pulsesAt(take, t)) {
+            const place = x.held && x.finger ? placeOf(x) : null;
+            if (!place) continue;
+            const at = spotOf(n, place.string, place.fret), off = gap * 0.85;
+            ctx.strokeStyle = "rgba(0,0,0,0.85)"; ctx.strokeText(String(x.finger), at.x + off, at.y - off);
+            ctx.fillStyle = "rgb(253,224,71)"; ctx.fillText(String(x.finger), at.x + off, at.y - off);
+          }
+        }
+        for (const c of named) {
+          const size = Math.round(40 * (1 + 0.35 * Math.exp(-10 * c.age)));
+          ctx.font = `bold ${size}px sans-serif`; ctx.lineWidth = 6;
+          ctx.strokeStyle = "rgba(0,0,0,0.7)"; ctx.strokeText(c.name, c.at.x, c.at.y);
+          ctx.save(); ctx.shadowColor = `hsl(${c.hue} 100% 55%)`; ctx.shadowBlur = 24;
+          ctx.fillStyle = `hsl(${c.hue} 100% 82%)`; ctx.fillText(c.name, c.at.x, c.at.y);
+          ctx.restore();
+        }
+        const words = shapeName ? `Chord: ${shapeName}` : chord ? `Chord: ${chord.name}` : "";
+        if (words !== shownChord) { shownChord = words; setChordWords(words); }
       };
       id = requestAnimationFrame(frame);
     }).catch((e: unknown) => {

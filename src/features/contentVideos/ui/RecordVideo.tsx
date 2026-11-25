@@ -651,7 +651,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
             </label>
           </div>
           {readNeck && <FxControls fx={fx} set={setFx} />}
-          {readCv && <CvControls cv={cvFx} set={setCvFx} />}
+          {readCv && <CvControls cv={cvFx} set={setCvFx} hasKey={!!kit?.key} />}
         </fieldset>
       </div>
       {phase === "ready" && take && !take.saved && !previous && <p className="text-xs text-slate-500">A new recording replaces the take below.</p>}
@@ -665,7 +665,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
         {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
-        {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live fit="cover" />}
+        {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} keyOf={kit?.key} live fit="cover" />}
         {/* one tree for every place and every view, so changing either never restarts the tool */}
         <ToolBox look={look} unsetBox={unsetBox} narrow={narrow} shown={toolShown} frame={frame}
           onBox={(box) => setLookState((l) => ({ ...l, box }))} onLetGo={() => setLookState((l) => { store(LOOK_KEY, l); return l; })}>
@@ -688,7 +688,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
             <video key={url} ref={setTakeVideo} src={url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
               onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setShown((s) => (s && s.url === url ? { ...s, take: { ...s.take, width: videoWidth, height: videoHeight } } : s)); }} />
             {readNeck && <NeckView key={url} video={takeVideo} fx={fx} notes={notes} fit="cover" onRead={onNeckRead} bare={exporting !== null} />}
-            {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} cv={cvFx} notes={notes} fit="cover" bare={exporting !== null} />}
+            {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} cv={cvFx} keyOf={kit?.key} notes={notes} fit="cover" bare={exporting !== null} />}
             {kitView
               ? <ViewOverTake video={takeVideo} clock={clock} view={kitView} look={look} hidden={!toolShown} />
               : take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}

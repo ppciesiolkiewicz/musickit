@@ -2,6 +2,7 @@ import { Note } from "@tonaljs/tonal";
 import { gripName } from "@/lib/chordKit/gripName";
 import { FAMILIES, MODE_LIST, degreeLabel, makeKeyContext } from "@/features/theory/theory";
 import { AMOUNT_MAX } from "./fx";
+import type { Pt } from "./grid";
 
 /** What the OpenCV reader draws over the neck. Pure: NeckCvView draws, CvControls sets. */
 
@@ -127,4 +128,30 @@ export function noteLabel(midi: number, labels: CvSettings["labels"], key?: { to
   const mode = key && MODE_LIST.find((m) => m.name === key.scale);
   if (labels !== "degree" || !key || !mode) return name;
   return degreeLabel(pc, makeKeyContext(key.tonic, FAMILIES.indexOf(mode.family), mode.k));
+}
+
+/**
+ * The outline round a chord's places, `r` out from them: the convex hull of `points`, as one arc of radius `r` at each corner
+ * (angles in radians, `from` < `to`, increasing), going round once. Drawn with one `arc` per corner, the straight sides join
+ * them. Two places make a capsule; one place a circle.
+ */
+export function roundedHull(points: Pt[], r: number): { x: number; y: number; r: number; from: number; to: number }[] {
+  const pts = [...new Map(points.map((p) => [`${p.x},${p.y}`, p])).values()].sort((a, b) => a.x - b.x || a.y - b.y);
+  if (pts.length <= 1) return pts.map((p) => ({ ...p, r, from: 0, to: 2 * Math.PI }));
+  // Andrew's monotone chain, turning the way that makes the cross product positive; points on an edge are dropped
+  const cross = (o: Pt, a: Pt, b: Pt) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const half = (list: Pt[]) => {
+    const h: Pt[] = [];
+    for (const p of list) { while (h.length >= 2 && cross(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop(); h.push(p); }
+    return h.slice(0, -1);
+  };
+  const hull = [...half(pts), ...half([...pts].reverse())];
+  // each side's outward normal is (dy, -dx); a corner's arc turns from the side in to the side out
+  const out = (a: Pt, b: Pt) => Math.atan2(-(b.x - a.x), b.y - a.y);
+  return hull.map((p, i) => {
+    const from = out(hull[(i - 1 + hull.length) % hull.length], p);
+    let to = out(p, hull[(i + 1) % hull.length]);
+    while (to <= from) to += 2 * Math.PI;
+    return { x: p.x, y: p.y, r, from, to };
+  });
 }

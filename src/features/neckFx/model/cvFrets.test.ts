@@ -4,7 +4,7 @@ import {
   STRIP_HALF, TOP_WIRE, axisOf, boardMarkers, guessPlace, keepMarkers, lineFit, midiAt, peakNear, placeOnNeck, proj, projFit, projInv, ransacLine,
   readStrip, spotOf, stringsOf, stripOf, wireMm, type BoardMarker, type Neck, type Seen,
 } from "./cvFrets";
-import { DEFAULT_CV, NEXT_LEAD_S, chordOf, chordsAt, comingAt, flicker, heatAt, noteLabel, numbered, pulsesAt, readCv, type TakeNote } from "./cvFx";
+import { DEFAULT_CV, NEXT_LEAD_S, chordOf, chordsAt, comingAt, flicker, heatAt, noteLabel, numbered, pulsesAt, readCv, roundedHull, type TakeNote } from "./cvFx";
 import { parsePlaced, type Pt } from "./grid";
 
 const close = (a: number, b: number, tol: number, what = "") => assert.ok(Math.abs(a - b) <= tol, `${what} ${a} ≠ ${b} (±${tol})`);
@@ -198,4 +198,35 @@ test("readCv has the layer defaults", () => {
   const c = readCv({});
   assert.deepEqual([c.chords, c.fingers, c.next, c.labels], [true, false, true, "name"]);
   assert.equal(readCv({ labels: "degree", fingers: true }).labels, "degree");
+});
+
+test("a chord's notes sharing a start make one group now, and the next chord a beat away is only coming", () => {
+  const now: TakeNote[] = [{ start: 1, midi: 40, end: 1.5, string: 0, fret: 0 }, { start: 1, midi: 47, end: 1.5, string: 1, fret: 2 }];
+  const next: TakeNote[] = [{ start: 1.5, midi: 45, end: 2, string: 1, fret: 0 }, { start: 1.5, midi: 52, end: 2, string: 2, fret: 2 }];
+  const g = chordsAt([...now, ...next], 1.1);
+  assert.equal(g.length, 1);
+  assert.deepEqual(g[0].notes.map((n) => n.midi), [40, 47]);
+  assert.deepEqual(comingAt([...now, ...next], 1.1).map((n) => n.midi), [45, 52]);
+  // once it lands, the first has stopped and nothing is coming
+  assert.deepEqual(chordsAt([...now, ...next], 1.5).map((x) => x.name), ["A5"]);
+  assert.deepEqual(comingAt([...now, ...next], 1.5), []);
+});
+
+test("roundedHull: the outline round a chord's places, an arc of radius r at each corner", () => {
+  const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} vs ${b}`);
+  // two places: a capsule, a half circle at each end
+  const two = roundedHull([{ x: 0, y: 0 }, { x: 10, y: 0 }], 3);
+  assert.equal(two.length, 2);
+  for (const a of two) { near(a.r, 3); near(a.to - a.from, Math.PI); }
+  // a square with a point inside and one on an edge: only the four corners, each a quarter turn
+  const sq = roundedHull([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }, { x: 0, y: 10 }, { x: 5, y: 5 }, { x: 5, y: 0 }], 2);
+  assert.equal(sq.length, 4);
+  for (const a of sq) near(a.to - a.from, Math.PI / 2);
+  // the arcs go round once
+  near(sq.reduce((s, a) => s + a.to - a.from, 0), 2 * Math.PI);
+  // one place (or the same place twice): a circle
+  const one = roundedHull([{ x: 4, y: 4 }, { x: 4, y: 4 }], 5);
+  assert.equal(one.length, 1);
+  near(one[0].to - one[0].from, 2 * Math.PI);
+  assert.deepEqual(roundedHull([], 2), []);
 });
