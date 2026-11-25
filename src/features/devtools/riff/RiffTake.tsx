@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getAudioContext, getOutputBus, readDeviceChoice, wakeAudio } from "@/features/sound";
+import { getAudioContext, getOutputBus, openRecordInput, wakeAudio, type RecordInput } from "@/features/sound";
+import RecordInputSelect from "@/components/RecordInputSelect";
 import { clockTime } from "@/features/recorder/recorder";
 import { pickVideoType, videoFileName } from "@/features/videos/recording";
 import { saveContentVideo } from "@/features/contentVideos/client/api";
@@ -91,6 +92,8 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   // the take a new recording replaced, kept in memory until the next recording, so a worse retake can be undone
   const [previous, setPrevious] = useState<Take | null>(null);
   const stream = useRef<MediaStream | null>(null);
+  // the input recorded with the camera, opened apart from it (`openRecordInput`)
+  const mic = useRef<RecordInput | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement | null>(null);
   // the live video as state too, so NeckView can read the camera
@@ -149,7 +152,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
     shownUrl.current = t ? URL.createObjectURL(t.blob) : "";
     setShown(t ? { take: t, url: shownUrl.current } : null);
   };
-  const stopCamera = () => { stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; };
+  const stopCamera = () => { stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; mic.current?.close(); mic.current = null; };
 
   // the take kept with this riff
   useEffect(() => {
@@ -198,19 +201,32 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
     try { await saveTake(t); setStored("saved"); } catch (e) { setStored("failed"); setProblem(`The browser didn't store this take: ${message(e)}. Press Save to try again, or Save file to keep it on disk.`); }
   };
 
+  /** Open the app's input for the take (see `openRecordInput`) and put it with the camera's picture. */
+  const openMic = async () => {
+    mic.current?.close();
+    mic.current = null;
+    const m = await openRecordInput();
+    mic.current = m;
+    const video = stream.current?.getVideoTracks() ?? [];
+    stream.current = new MediaStream([...video, m.track]);
+    if (live.current) live.current.srcObject = stream.current;
+  };
+  /** The Input list changed while the camera is open: the take records the new input from now on. */
+  const switchMic = async () => {
+    if (!stream.current || recorder.current?.state === "recording") return;
+    setProblem("");
+    try { await openMic(); } catch (e) { setProblem(`The microphone didn't open: ${message(e)}. Pick another input, or allow the microphone in the address bar.`); }
+  };
+
   const startCamera = async (id = cameraId) => {
     setProblem("");
     if (typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) { setProblem("This browser can't record video."); return; }
     setPhase("starting");
     try {
-      // the guitar as it is: no echo cancelling, noise removal or level riding, which smear the picks and bend the pitch
-      const input = readDeviceChoice().input;
       stream.current = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, ...(id ? { deviceId: { exact: id } } : {}) },
-        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, ...(input ? { deviceId: { ideal: input.id } } : {}) },
+        audio: false,
       });
-      setPhase("ready");
-      void listCameras();
     } catch (e) {
       setPhase("off");
       if (id && e instanceof Error && e.name === "OverconstrainedError") {
@@ -218,8 +234,19 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
         setProblem("The camera picked in the Camera list isn't connected. It's back on Browser default: press Start camera, or pick another camera.");
         return;
       }
-      setProblem(`The camera or the microphone didn't open: ${message(e)}. Allow both in the address bar, then press Start camera.`);
+      setProblem(`The camera didn't open: ${message(e)}. Allow it in the address bar, then press Start camera.`);
+      return;
     }
+    try {
+      await openMic();
+    } catch (e) {
+      stopCamera();
+      setPhase("off");
+      setProblem(`The microphone didn't open: ${message(e)}. Allow it in the address bar or pick another input, then press Start camera.`);
+      return;
+    }
+    setPhase("ready");
+    void listCameras();
   };
 
   const record = async () => {
@@ -248,7 +275,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
       endClick();
       const recorded = r.mimeType || type || "video/webm";
       // a note played on the click reaches the take late by the output and input latency
-      const lag = (ctx.outputLatency || ctx.baseLatency || 0) + ((s.getAudioTracks()[0]?.getSettings() as { latency?: number }).latency ?? 0);
+      const lag = (ctx.outputLatency || ctx.baseLatency || 0) + (mic.current?.latency ?? 0);
       const t: Take = {
         id: riff, blob: new Blob(chunks, { type: recorded }), type: recorded, seconds: Math.round((performance.now() - from) / 1000), at: Date.now(),
         ...(timed ? { downbeat: Math.max(0, downbeatAt - recStart + lag), bpm, bars: length } : {}),
@@ -355,8 +382,8 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
             <p>
               Press Start camera above to open the camera and your audio input, then press Record to play the riff. The take is saved in
               this browser with the riff. The riff&apos;s notes are shown over the camera while you record, and over the take as it plays,
-              lined up from beat 1 after the count-in. Record with the click on, or the notes start at the take&apos;s first second. The sound comes from the audio input you last
-              picked in the app. The picture comes from the browser&apos;s camera.
+              lined up from beat 1 after the count-in. Record with the click on, or the notes start at the take&apos;s first second. The sound comes from the input picked in the Input list
+              (the same input as in the audio devices menu). The picture comes from the browser&apos;s camera.
             </p>
             <p>
               To film with an iPhone, turn on Continuity Camera on the phone (Settings → General → AirPlay &amp; Continuity), with the Mac and
@@ -430,6 +457,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
                   {cameraId && !cameras.some((c) => c.deviceId === cameraId) && <option value={cameraId}>Last picked camera</option>}
                 </select>
               </label>
+              <RecordInputSelect onPick={() => void switchMic()} />
               <label className={field} title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
                 <input type="checkbox" checked={click} onChange={(e) => setClick(e.target.checked)} className="accent-sky-500" /> Click at {bpm} bpm
               </label>

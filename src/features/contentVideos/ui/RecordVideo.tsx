@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { readDeviceChoice } from "@/features/sound";
+import { openRecordInput, type RecordInput } from "@/features/sound";
+import RecordInputSelect from "@/components/RecordInputSelect";
 import { clockTime } from "@/features/recorder/recorder";
 import { MAX_TAKE_SECONDS, pickVideoType } from "@/features/videos/recording";
 import { ToolClockListener } from "@/components/practice/toolClock";
@@ -115,6 +116,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   };
   const canHide = drawn !== null && CONTROLS_TOOLS.includes(drawn.type);
   const stream = useRef<MediaStream | null>(null);
+  // the input recorded with the camera, opened apart from it (`openRecordInput`)
+  const mic = useRef<RecordInput | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement | null>(null);
   // the live video as state too, so NeckView can read the camera
@@ -129,7 +132,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const samples = useRef<Sample[]>([]);
   const onBeat = useCallback((b: number | null) => { beat.current = b; }, []);
 
-  const stopCamera = () => { stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; };
+  const stopCamera = () => { stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; mic.current?.close(); mic.current = null; };
   const listCameras = async () => {
     try { setCameras((await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === "videoinput")); } catch { /* the list stays */ }
   };
@@ -160,18 +163,32 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     return () => window.removeEventListener("beforeunload", ask);
   }, [unsaved]);
 
+  /** Open the app's input for the take (see `openRecordInput`) and put it with the camera's picture. */
+  const openMic = async () => {
+    mic.current?.close();
+    mic.current = null;
+    const m = await openRecordInput();
+    mic.current = m;
+    const video = stream.current?.getVideoTracks() ?? [];
+    stream.current = new MediaStream([...video, m.track]);
+    if (live.current) live.current.srcObject = stream.current;
+  };
+  /** The Input list changed while the camera is open: the take records the new input from now on. */
+  const switchMic = async () => {
+    if (!stream.current || recorder.current?.state === "recording") return;
+    setProblem("");
+    try { await openMic(); } catch (e) { setProblem(`The microphone didn't open: ${message(e)}. Pick another input, or allow the microphone in the address bar.`); }
+  };
+
   const startCamera = async (id = cameraId) => {
     setProblem("");
     if (typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) { setProblem("This browser can't record video."); return; }
     setPhase("starting");
     try {
-      const inputDevice = readDeviceChoice().input;
       stream.current = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, ...(id ? { deviceId: { exact: id } } : {}) },
-        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, ...(inputDevice ? { deviceId: { ideal: inputDevice.id } } : {}) },
+        audio: false,
       });
-      setPhase("ready");
-      void listCameras();
     } catch (e) {
       setPhase("off");
       if (id && e instanceof Error && e.name === "OverconstrainedError") {
@@ -179,8 +196,19 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         setProblem("The camera picked in the Camera list isn't connected. It's back on Browser default: press Start camera, or pick another camera.");
         return;
       }
-      setProblem(`The camera or the microphone didn't open: ${message(e)}. Allow both in the address bar, then press Start camera.`);
+      setProblem(`The camera didn't open: ${message(e)}. Allow it in the address bar, then press Start camera.`);
+      return;
     }
+    try {
+      await openMic();
+    } catch (e) {
+      stopCamera();
+      setPhase("off");
+      setProblem(`The microphone didn't open: ${message(e)}. Allow it in the address bar or pick another input, then press Start camera.`);
+      return;
+    }
+    setPhase("ready");
+    void listCameras();
   };
 
   const record = () => {
@@ -286,6 +314,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
             </select>
           </label>
         )}
+        {phase !== "recording" && <RecordInputSelect onPick={() => void switchMic()} />}
         <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
         <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera, for testing. Not while recording, and not saved with the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
           <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} className="accent-sky-500" /> Read the neck
