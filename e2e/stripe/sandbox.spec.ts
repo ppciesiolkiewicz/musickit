@@ -1,28 +1,18 @@
 import { expect, test, type Page } from "@playwright/test";
 import { account, newEmail, signIn } from "../helpers/auth";
-import { forward, forwardUntil, paymentRows, planCents, sandbox, sandboxKey, trialDays, userRow, warmUp } from "../helpers/stripe";
+import { forward, forwardUntil, paymentRows, planCents, sandbox, sandboxKey, userRow, warmUp } from "../helpers/stripe";
 
-// Payments against Stripe's sandbox (E2E7, second half of Paid13): our setup page up to Stripe's Checkout, the billing
-// portal, the trial ending and a failing card. Runs only with a test key in .env.e2e.local (see playwright.config.ts).
-// Stripe can't reach 127.0.0.1, so each test reads its customer's events back from Stripe and posts them to the webhook
-// itself.
-//
-// Stripe's hosted Checkout ignores a Start trial pressed by a script (its bot protection), so by default the test checks
-// that Checkout opened, then starts the subscription through Stripe's API as Checkout would: same customer, same price,
-// the plan's trial, a test card. To walk the real Checkout page, run headed with E2E_CHECKOUT_BY_HAND=1: the test fills
-// the card and waits for you to press Start trial.
+// Payments against Stripe's sandbox (E2E7, second half of Paid13): the real Checkout page, the billing portal, the
+// trial ending and a failing card. Runs only with a test key in .env.e2e.local (see playwright.config.ts). Stripe can't
+// reach 127.0.0.1, so each test reads its customer's events back from Stripe and posts them to the webhook itself.
 
 test.skip(!sandboxKey(), "no Stripe test key in .env.e2e.local");
 test.describe.configure({ mode: "serial" });
 test.beforeAll(async ({ playwright }) => warmUp(playwright));
 
-const BY_HAND = process.env.E2E_CHECKOUT_BY_HAND === "1";
-
-/** A test card: its number for the Checkout page, and Stripe's ready-made payment method for the API. */
-const GOOD_CARD = { number: "4242 4242 4242 4242", method: "pm_card_visa" };
+const GOOD_CARD = "4242 4242 4242 4242";
 // attaches to the customer, then every charge on it is declined
-const DECLINED_LATER = { number: "4000 0000 0000 0341", method: "pm_card_chargeCustomerFail" };
-type Card = typeof GOOD_CARD;
+const DECLINED_LATER = "4000 0000 0000 0341";
 
 /** A new account through the real /account/setup form on Student, yearly, pressing Continue to payment. */
 async function setUpToCheckout(page: Page) {
@@ -40,12 +30,12 @@ async function setUpToCheckout(page: Page) {
   return email;
 }
 
-/** Fills Stripe's hosted Checkout page with `card`, for a person to press Start trial (E2E_CHECKOUT_BY_HAND). */
-async function fillCheckout(page: Page, card: Card) {
+/** Fills Stripe's hosted Checkout page with `card` and pays. Its fields are Stripe's; check them here first if this breaks. */
+async function payOnCheckout(page: Page, card: string) {
   // with more than one payment method Stripe shows them as an accordion; card is closed until picked
   const cardChoice = page.getByTestId("card-accordion-item-button");
   if (await cardChoice.isVisible().catch(() => false)) await cardChoice.click();
-  await page.locator("#cardNumber").fill(card.number);
+  await page.locator("#cardNumber").fill(card);
   await page.locator("#cardExpiry").fill("12 / 34");
   await page.locator("#cardCvc").fill("123");
   await page.locator("#billingName").fill("Test Payer");
@@ -56,51 +46,29 @@ async function fillCheckout(page: Page, card: Card) {
   // Link's "save my information" asks for a phone number; leave it off
   const link = page.locator("#enableStripePass");
   if (await link.isChecked().catch(() => false)) await link.uncheck();
+  await page.getByTestId("hosted-payment-submit-button").click();
 }
 
-/**
- * Starts the trial with `card`: on the Checkout page by hand (then back through /api/account/checkout/done), or through
- * the API with the price the Checkout session was for, then the events forwarded so the app hears of it.
- */
-async function startTrial(page: Page, card: Card, since: number, seen: Set<string>) {
-  const me = await account(page);
-  const customer = (await userRow(me.id)).stripe_customer_id;
-  expect(customer, "Continue to payment made no Stripe customer").toBeTruthy();
-  if (BY_HAND) {
-    await fillCheckout(page, card);
-    console.log("Press Start trial on the Stripe page (3 minutes).");
-    await page.waitForURL((u) => u.host === new URL(test.info().project.use.baseURL!).host, { timeout: 180_000 });
-    await page.waitForLoadState("networkidle");
-    // checkout/done recorded the subscription before any webhook came
-    expect((await userRow(me.id)).subscription_status).toBe("trialing");
-  } else {
-    const s = sandbox();
-    const [session] = (await s.checkout.sessions.list({ customer: customer!, limit: 1 })).data;
-    const [line] = (await s.checkout.sessions.listLineItems(session.id, { limit: 1 })).data;
-    const pm = await s.paymentMethods.attach(card.method, { customer: customer! });
-    await s.subscriptions.create({
-      customer: customer!,
-      items: [{ price: line.price!.id }],
-      trial_period_days: await trialDays("student"),
-      default_payment_method: pm.id,
-      metadata: { userId: me.id },
-    });
-    await forwardUntil(page.request, customer!, since, seen, "customer.subscription.created");
-    await page.goto("/plan");
-  }
-  return { me, customer: customer! };
+/** Back on the test server after Checkout and /api/account/checkout/done. */
+async function backFromCheckout(page: Page) {
+  await page.waitForURL((u) => u.host === new URL(test.info().project.use.baseURL!).host, { timeout: 90_000 });
+  await page.waitForLoadState("networkidle");
 }
 
 test("Checkout with a good card: trial, portal, then the trial ends and the card is charged", async ({ page }) => {
   const since = Math.floor(Date.now() / 1000) - 5;
   const seen = new Set<string>();
   await setUpToCheckout(page);
-  const { me, customer } = await startTrial(page, GOOD_CARD, since, seen);
-  expect(await account(page)).toMatchObject({ needsPayment: false, needsSetup: false, subscribed: true });
-  await page.waitForLoadState("networkidle");
-  await expect(page).not.toHaveURL(/\/account\/setup/);
+  await payOnCheckout(page, GOOD_CARD);
+  await backFromCheckout(page);
+  expect(new URL(page.url()).pathname).not.toBe("/account/setup");
+
+  // checkout/done recorded the subscription before any webhook came
+  const me = await account(page);
+  expect(me).toMatchObject({ needsPayment: false, needsSetup: false, subscribed: true });
   const row = await userRow(me.id);
   expect(row.subscription_status).toBe("trialing");
+  const customer = row.stripe_customer_id!;
   const subId = row.stripe_subscription_id!;
 
   // Stripe's own events go through the webhook: checkout.session.completed, customer.subscription.created, and the
@@ -132,9 +100,12 @@ test("a card declined at the end of the trial: past_due keeps access, cancelled 
   const since = Math.floor(Date.now() / 1000) - 5;
   const seen = new Set<string>();
   await setUpToCheckout(page);
-  const { me, customer } = await startTrial(page, DECLINED_LATER, since, seen);
+  await payOnCheckout(page, DECLINED_LATER);
+  await backFromCheckout(page);
+  const me = await account(page);
   const row = await userRow(me.id);
   expect(row.subscription_status).toBe("trialing");
+  const customer = row.stripe_customer_id!;
   const subId = row.stripe_subscription_id!;
 
   await sandbox().subscriptions.update(subId, { trial_end: "now", proration_behavior: "none" });
