@@ -8,4 +8,4 @@ What it is and where things live: `README.md`. Keep it true in the same commit a
 - **js-aruco2 loads two ways**: under Turbopack its `AR` is on the module's exports, under webpack on the global; `cv.js` is imported first for webpack. Keep both working.
 - **OpenCV.js is a thenable that resolves to itself**: never resolve a promise with the module or `await` it bare (it loops forever); `client/cv.ts` keeps it wrapped as `{ cv }`. Every `cv.Mat` made per frame is deleted.
 - Words: control labels and the status line are interface copy (`design:ux-copy` with "Words about the app" in `teaching-voice`).
-- Every change: these tests, `npx tsc --noEmit` (ignore `.next/`), eslint on the feature, and a look on both pages (riff Take panel and the content record page).
+- Every change: these tests, `npx tsc --noEmit` (ignore `.next/`), eslint on the feature, and a look on both pages that record (the riff maker and the content record page).

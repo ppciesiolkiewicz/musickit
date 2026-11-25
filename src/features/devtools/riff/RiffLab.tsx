@@ -5,14 +5,24 @@ import { FAMILIES, MODE_LIST, TONICS, degreeLabel, makeKeyContext } from "@/feat
 import { playSequence } from "@/features/sound";
 import { createCloud, getModelLibrary, type CloudModel } from "@/features/nam";
 import { playerFor, setAmpModel, type RiffSound } from "./sound";
-import RiffTake from "./RiffTake";
+import { Tool } from "@/features/plan/ui/ExerciseTool";
+import { drawToolOverlay } from "@/features/plan/ui/ToolOverlay";
+import type { PlanTool } from "@/features/plan/model/tools";
+import { OverlayDrawProvider } from "@/features/contentVideos/ui/OverlayVideo";
+import RecordVideo from "@/features/contentVideos/ui/RecordVideo";
+import type { RecordKit } from "@/features/contentVideos/ui/kit";
+import { listContentVideos } from "@/features/contentVideos/client/api";
+import type { ContentVideoInfo } from "@/features/contentVideos/server/access";
+import { useToolNotes } from "@/features/exercises/play-along/useToolNotes";
+import { fingerFor } from "@/features/exercises/cues/cueNotes";
+import { RIFF_VIEWS, RiffView, WINDOW_BARS, barGrid, type WindowBars } from "./NoteOverlay";
 import { Note } from "@tonaljs/tonal";
 import { NoteSign, isDotted } from "@/features/exercises/play-along/views/NoteSign";
-import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, riffTimeline, scaleStep, type RiffNote } from "./riff";
+import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, riffTimeline, riffTimes, scaleStep, type RiffNote } from "./riff";
 import { PlayAlongTimeline } from "@/features/exercises/play-along/PlayAlong";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { GENRES } from "@/features/library/seed/genres";
-import type { RiffBlock } from "./blocks";
+import { riffTool, type RiffBlock } from "./blocks";
 import { gearOf, groupByGear, type KindFilter } from "./ampCatalog";
 
 /** What this browser remembers of the riff maker: the riff that was open and the sound. The riffs are in seed block files, and a riff saved here in the database (`/api/dev/riffs`). */
@@ -90,7 +100,8 @@ const SHORTCUTS: [string, string][] = [
   ["⌘Z", "undo"],
 ];
 
-export default function RiffLab() {
+/** The riff maker. `open`: the riff to open first (`?riff=<block id>`), over the one this browser opened last. */
+export default function RiffLab({ open: asked = "" }: { open?: string }) {
   const [lib, setLib] = useState<Library>(EMPTY_LIB);
   const state = lib.riffs.find((r) => r.id === lib.cur) ?? lib.riffs[0];
   const setState = useCallback((fn: (s: Saved) => Saved) => setLib((l) => ({ ...l, riffs: l.riffs.map((r) => (r.id === l.cur ? fn(r) : r)) })), []);
@@ -208,7 +219,7 @@ export default function RiffLab() {
       setLib((l) => {
         const list = riffs.map((b) => l.riffs.find((x) => x.id === b.id) ?? fromBook(b));
         if (!list.length) return EMPTY_LIB;
-        const cur = [l.cur, readPrefs().cur].find((id) => id && list.some((x) => x.id === id)) ?? list[0].id;
+        const cur = [l.cur, asked, readPrefs().cur].find((id) => id && list.some((x) => x.id === id)) ?? list[0].id;
         return { riffs: list, cur };
       });
       setBookState(body.problems?.length ? `Left out: ${body.problems.join(" · ")}` : "");
@@ -217,7 +228,7 @@ export default function RiffLab() {
       setBookState(`Error: ${e instanceof Error ? e.message : String(e)}`);
       return null;
     }
-  }, []);
+  }, [asked]);
   // read once the page is up: every setState in readBook comes after its fetch
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setPrefs(readPrefs()); void readBook(); }, [readBook]);
@@ -653,7 +664,7 @@ export default function RiffLab() {
         </section>
       )}
 
-      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} bars={Math.max(1, Math.ceil(total / 4 - 1e-6))} notes={notes} cell={seedRiff?.cell ?? null} />
+      {seedRiff && <RiffRecorder key={state.id} riff={state} scale={seedScale} cell={seedRiff.cell} bars={bars} />}
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-2">
@@ -671,5 +682,134 @@ export default function RiffLab() {
       </div>
     </div>
     </div>
+  );
+}
+
+/** How many bars Bar by bar shows at once: kept in this browser. */
+const WINDOW_KEY = "musickit.riff.windowBars";
+const readWindow = (): WindowBars => { try { const v = Number(localStorage.getItem(WINDOW_KEY)); return (WINDOW_BARS as readonly number[]).includes(v) ? (v as WindowBars) : 1; } catch { return 1; } };
+
+/**
+ * The riff recorded with the shared recorder (`contentVideos/ui/RecordVideo`), as the riff block's own video: the riff in the
+ * editor (unsaved edits included) drawn over the camera as its exercise draws it, with the riff's own views (Sliding tab,
+ * Bar by bar, Chord box) in the View list, its notes for the neck readers, and Save for players on This block only.
+ */
+function RiffRecorder({ riff, scale, cell, bars }: { riff: Saved; scale: string; cell: number; bars: number }) {
+  const { id, name, tonic, bpm, notes, pos } = riff;
+  const drawn: PlanTool | null = useMemo(() => riffTool({ tonic, scale, bpm, notes }), [tonic, scale, bpm, notes]);
+  const [videos, setVideos] = useState<ContentVideoInfo[]>([]);
+  const [videosError, setVideosError] = useState("");
+  useEffect(() => {
+    let gone = false;
+    void listContentVideos().then((r) => { if (gone) return; if (r.ok) setVideos(r.value); else setVideosError(r.error); });
+    return () => { gone = true; };
+  }, []);
+  const [windowBars, setWindowBars] = useState<WindowBars>(1);
+  // read after hydration: the server has no browser to ask
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setWindowBars(readWindow()); }, []);
+  const pickWindow = (b: WindowBars) => { setWindowBars(b); try { localStorage.setItem(WINDOW_KEY, String(b)); } catch { /* kept for this visit only */ } };
+  const toolNotes = useToolNotes(drawn);
+  const kit = useMemo((): RecordKit => {
+    const times = riffTimes(notes, bpm);
+    const grid = barGrid(bpm, 0, windowBars);
+    return {
+      // stopped (null), the riff stands at beat 1; in the count-in the beat is negative and the riff waits for it
+      views: RIFF_VIEWS.map((v) => ({ id: v.id, label: v.label, draw: (beat: number | null) => <RiffView notes={times} t={((beat ?? 0) * 60) / bpm} mode={v.id} grid={grid} /> })),
+      notes: toolNotes?.notes.map((n) => (n.finger === undefined && n.fret !== undefined ? { ...n, finger: fingerFor(n.fret, pos) } : n)),
+      loopBeats: toolNotes?.loopBeats ?? null,
+      key: { tonic, scale },
+    };
+  }, [notes, bpm, windowBars, toolNotes, pos, tonic, scale]);
+  return (
+    <section className="flex flex-col gap-3 rounded-lg border border-slate-800 p-3 text-sm">
+      <div className="flex flex-wrap items-center gap-4">
+        <h2 className="font-semibold">Take</h2>
+        <label className="flex items-center gap-1.5 text-slate-300" title="How many bars Bar by bar shows at once">Bars shown
+          <select value={windowBars} onChange={(e) => pickWindow(Number(e.target.value) as WindowBars)} className="rounded bg-slate-800 px-1.5 py-0.5 text-slate-200">
+            {WINDOW_BARS.map((b) => <option key={b} value={b}>{b === 1.5 ? "1½" : b}</option>)}
+          </select>
+        </label>
+      </div>
+      {videosError && <p role="alert" className="text-rose-400">{videosError} The page can&apos;t say which video loses a level.</p>}
+      <OverlayDrawProvider draw={drawToolOverlay}>
+        <RecordVideo target={{ tool: "guitar-play-along:riff", steps: [], block: { id, cell, title: name } }} videos={videos} drawn={drawn}
+          tempo={{ bpm, bars }} oldTakeKey={id} kit={kit}>
+          {drawn ? <Tool tool={drawn} /> : <p className="text-sm text-slate-300">Add a note to the riff to draw it over the camera. The video records without it.</p>}
+        </RecordVideo>
+      </OverlayDrawProvider>
+      <HowTakesWork bpm={bpm} />
+    </section>
+  );
+}
+
+/** The riff maker's help on recording: the steps, filming with an iPhone, and printing and placing the neck markers. */
+function HowTakesWork({ bpm }: { bpm: number }) {
+  return (
+    <details className="text-slate-300">
+      <summary className="cursor-pointer text-slate-400">How takes work</summary>
+      <div className="mt-2 flex flex-col gap-2">
+        <p>
+          Press Start camera above to open the camera and your audio input, then press Record to play the riff. The take is kept in
+          this browser with the riff until the next recording replaces it. With Click at {bpm} bpm ticked, the riff moves with the click
+          over the camera and over the take, from beat 1 after the count-in. Without the click, press Play on the riff to start it.
+          The sound comes from the input picked in the Input list (the same input as in the audio devices menu). The picture comes
+          from the browser&apos;s camera.
+        </p>
+        <p>
+          The View list picks what shows over the camera: Tool, the riff as its exercise draws it, or Sliding tab, Bar by bar or
+          Chord box. Bars shown above sets how many bars Bar by bar shows at once. Players see Sliding tab, Bar by bar or Chord box
+          only in a take saved after Export with overlay. Otherwise they see Tool.
+        </p>
+        <p>
+          To film with an iPhone, turn on Continuity Camera on the phone (Settings → General → AirPlay &amp; Continuity), with the Mac and
+          the phone on the same Apple ID. Put the phone near the Mac in landscape, locked, with the back camera on the guitar. Press
+          Start camera once so the browser allows the camera, then pick the iPhone in the Camera list above: the camera switches
+          to it. If the iPhone isn&apos;t in the list, quit Chrome (Cmd+Q) and open it again.
+        </p>
+        <p>
+          Read the neck draws your fingertips and the markers it sees over the camera and over a saved take. Recording needs no
+          markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Print the{" "}
+          <a href="/riff/neck-markers-frets-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">fret markers</a>{" "}
+          (A3): they are the kind the camera reads (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. With two placed markers in view it finds the frets, and the effects ticked under Effects are drawn on
+          them. Covering a marker listed in Buttons turns on its filter. It doesn&apos;t run while you record.
+        </p>
+        <p>
+          The take records the camera and the input only. To put what is drawn over it into the video, press Export with overlay: the
+          take plays once from its start and is recorded with the view over it and, with Read the neck on, the neck effects, as they
+          show then. Pick this tab in the share dialog and keep the tab in front until the take ends. Save file and Save for players then
+          use the exported take.
+        </p>
+        <p>
+          Save for players starts on This block only: the take becomes the video players see with this riff&apos;s exercise.
+        </p>
+        <p className="font-medium text-slate-200">Printing and placing markers</p>
+        <ol className="list-decimal space-y-1 pl-5">
+          <li>
+            Print the <a href="/riff/neck-markers-frets-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">fret markers</a> on
+            A3. Each marker has its own number and its size under it, from 40 mm down to 12 mm (the black square only). Each size says how far up the neck it fits inside a fret space.
+          </li>
+          <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one black square with a ruler: it should match the size under it.</li>
+          <li>Cut around each marker so a white edge about 3 mm wide stays on all sides. The camera needs that edge to find the square.</li>
+          <li>
+            Stick them on the edge of the fretboard nearest you, each one centred in its fret space, level with the dots on the fretboard.
+            On a Squier Stratocaster or Telecaster (25.5&quot; scale) the fret spaces are about 36 mm wide at the nut, 27 mm at fret 5 and
+            18 mm at fret 12, so the markers get smaller up the neck. A 30 mm one goes on the headstock just past the nut (fret 0), and a 40 mm one on the body, level with fret 19.
+            Where each marker goes, under Read the neck, lists the layout on the test guitar, and Use the A3 layout fills Markers with it.
+            For your own layout, type each marker&apos;s number and its fret into Markers, as number@fret. Fret 5 is the space between the 4th and 5th wires, where the fret 5 dot is. The headstock one is fret 0, with its size in mm after a slash (0@0/30).
+          </li>
+          <li>Test from where the camera will stand: press Start camera, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers label at the top left of the camera. If one keeps dropping out, print it bigger or move the camera closer.</li>
+        </ol>
+        <p className="font-medium text-slate-200">Colour dots (to try out)</p>
+        <p>
+          Round stickers and long stripes, to stick along both edges of the fretboard so the camera can find the edges and frets past the markers. The reader doesn&apos;t read them yet.
+          Print the <a href="/riff/neck-dots-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 dots</a> or the{" "}
+          <a href="/riff/neck-dots-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 dots</a> on matte sticker paper at 100%, in colour.
+          Green goes on the near edge and cyan on the far edge. Magenta marks the nut and fret 12, lime frets 5 and 17, and violet frets 7 and 19. Blue is a spare. White is for a dark fretboard and black for a maple one.
+          Use 3 or 4 mm on the top of the fretboard, outside the outer strings, or 5 mm on the side of the neck.
+          The stripes run down the side of the sheet in green, cyan and magenta, in bands you cut into strips 2 to 5 mm wide. Cut out one of the two calibration cards at the top of the sheet and stick it beside the neck, in the camera&apos;s view.
+        </p>
+      </div>
+    </details>
   );
 }

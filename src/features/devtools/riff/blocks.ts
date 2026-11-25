@@ -2,7 +2,7 @@ import { keySlug, parseKeySlug } from "@/features/theory/keySlug";
 import { readRiff, writeRiff, type RiffNote } from "@/features/exercises/riffs/riff";
 import { isGenre, type Genre } from "@/features/library/seed/genres";
 import { toolCells } from "@/features/contentVideos/model/slot";
-import type { Cell } from "@/features/plan/model/tools";
+import { TOOLS, type Cell, type PlanTool } from "@/features/plan/model/tools";
 
 /*
  * A riff lives in a seed block (`src/features/library/seed/blocks`), as the `riff` shape of its guitar-play-along tool. The
@@ -167,7 +167,7 @@ export interface RiffVideo { id: string; title: string; changed: boolean }
 /**
  * Whether a riff has changed since its video was recorded. A video with an overlay (`content_videos.overlay`, a copy of
  * the tool as drawn over the camera) is compared by its riff's key, scale and notes; the tempo is left out, since the
- * overlay keeps its own clock. A video with none (a take from the Take panel) is compared by time: changed when the riff
+ * overlay keeps its own clock. A video with none (an exported take, or one the old Take panel saved) is compared by time: changed when the riff
  * was saved in the app after the video was made.
  */
 export function riffChangedSince(riff: Pick<RiffBlock, "tonic" | "scale" | "notes">, video: { overlay: unknown; createdAt: Date }, editedAt: Date | null): boolean {
@@ -177,4 +177,13 @@ export function riffChangedSince(riff: Pick<RiffBlock, "tonic" | "scale" | "note
     if (was && !("error" in was)) return was.tonic !== riff.tonic || was.scale !== riff.scale || JSON.stringify(writeRiff(was.notes)) !== JSON.stringify(writeRiff(riff.notes));
   }
   return editedAt !== null && editedAt.getTime() > video.createdAt.getTime();
+}
+
+/**
+ * The riff in the editor as the guitar-play-along tool a block holds: what the riff maker draws over the camera and saves
+ * with a take, unsaved edits included. Read as a stored plan's tool is; null when the riff can't be played (no notes).
+ */
+export function riffTool(edit: RiffEdit): PlanTool | null {
+  const raw = { type: "guitar-play-along", shape: { shape: "riff", key: keySlug(edit.tonic), scale: edit.scale, notes: writeRiff(edit.notes) }, bpm: edit.bpm };
+  return TOOLS["guitar-play-along"].parse(raw, { notes: [], stored: true });
 }

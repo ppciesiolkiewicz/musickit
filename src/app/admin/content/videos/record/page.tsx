@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import ContentShell from "@/features/devtools/ContentShell";
 import { contentTitle } from "@/features/devtools/registry";
 import { listContentVideos } from "@/features/contentVideos/server/access";
@@ -16,7 +17,8 @@ const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[
 
 /**
  * The record page: `?tool=<key>&steps=<step,…>` records a video for a tool at the levels ticked, `?block=<id>&cell=<n>` one
- * for a seed block's tool cell (This block only, or the tool's levels). The only page that loads the camera and a tool.
+ * for a seed block's tool cell (This block only, or the tool's levels). A riff block's cell goes to the riff maker
+ * (`/admin/content/riff?riff=<block id>`), which records with the same recorder.
  */
 export default async function Record({ searchParams }: Search) {
   const q = await searchParams;
@@ -29,6 +31,9 @@ export default async function Record({ searchParams }: Search) {
   if (blockId) {
     const here = cells.filter((c) => c.blockId === blockId && c.cell === cellAt);
     if (!here.length || !Number.isInteger(cellAt)) return <ContentShell wide><p className="text-sm text-rose-300">This exercise has no tool at that place any more. Open Record again from the exercise in the library.</p></ContentShell>;
+    // a riff is recorded on the riff maker, with the riff as it is edited there
+    const first = here[0].tool;
+    if (first.type === "guitar-play-along" && first.shape.shape === "riff") redirect(`/admin/content/riff?riff=${encodeURIComponent(blockId)}`);
     tool = here[0].key;
     block = { id: blockId, cell: cellAt, title: here[0].title };
     options = here.map((c) => ({ label: `${c.title} · ${c.choice}`, step: c.step, tool: c.tool }));

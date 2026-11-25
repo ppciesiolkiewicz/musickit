@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useId } from "react";
 import { hzToNote } from "@/features/tuner/pitch";
 import { placeNear, STRING_NAMES, type Timed } from "./riff";
 
@@ -15,15 +15,12 @@ function noteName(midi: number): string {
   return `${n.name.replace("#", "♯")}${n.octave}`;
 }
 
-/** "A3 · A string, fret 12" for a riff note, on the string and fret the riff gives it. */
-export const placed = (n: Timed) => `${noteName(n.midi)} · ${STRING_NAMES[n.string]} string, fret ${n.fret}`;
-
 /**
- * How the riff is drawn over the video, in the top right corner: a tab sliding past a line, one bar at a time with
- * the line moving across it, the notes sounding now as a chord box (top right), or nothing.
+ * The riff's own views for the recorder's tool box, beside the tool itself: a tab sliding past a line, one bar at a time
+ * with the line moving across it, or the notes sounding now as a chord box. Each fills the box it is drawn in.
  */
-export type OverlayMode = "tab" | "bar" | "box" | "off";
-export const OVERLAY_MODES: { id: OverlayMode; label: string }[] = [{ id: "tab", label: "Sliding tab" }, { id: "bar", label: "Bar by bar" }, { id: "box", label: "Chord box" }, { id: "off", label: "Off" }];
+export type RiffViewMode = "tab" | "bar" | "box";
+export const RIFF_VIEWS: { id: RiffViewMode; label: string }[] = [{ id: "tab", label: "Sliding tab" }, { id: "bar", label: "Bar by bar" }, { id: "box", label: "Chord box" }];
 
 /** How many bars Bar by bar shows at once; the view steps on by that much. */
 export const WINDOW_BARS = [1, 1.5, 2] as const;
@@ -42,6 +39,8 @@ const AHEAD = 3, BEHIND = 1;
  * beats, brighter ones the bars; the edges fade so notes slide in and out instead of being cut.
  */
 function TabWindow({ notes, t, from, to, grid }: { notes: Timed[]; t: number; from: number; to: number; grid: BarGrid }) {
+  // the camera and the take each draw one: ids of their own, so a hidden one never blanks the other's mask
+  const id = `tab${useId().replace(/[^\w-]/g, "")}`;
   const W = 320, H = 92, top = 14, gap = 13, left = 22, right = W - 6;
   const x = (s: number) => left + ((s - from) / (to - from)) * (right - left);
   const y = (string: number) => top + (5 - string) * gap;
@@ -50,18 +49,18 @@ function TabWindow({ notes, t, from, to, grid }: { notes: Timed[]; t: number; fr
   const beats: { at: number; bar: boolean }[] = [];
   for (let k = Math.ceil((from - grid.start) / beat); grid.start + k * beat <= to; k++) beats.push({ at: grid.start + k * beat, bar: k % 4 === 0 });
   return (
-    <div className="pointer-events-none absolute right-2 top-2 w-[min(50%,20rem)] overflow-hidden rounded-lg border border-white/10 bg-slate-950/60 shadow-lg backdrop-blur-sm" aria-hidden>
+    <div className="pointer-events-none w-full overflow-hidden rounded-lg border border-white/10 bg-slate-950/60 shadow-lg backdrop-blur-sm" aria-hidden>
       <svg viewBox={`0 0 ${W} ${H}`} className="block w-full">
         <defs>
-          <linearGradient id="tab-fade" x1="0" x2="1">
+          <linearGradient id={`${id}fade`} x1="0" x2="1">
             <stop offset="0" stopColor="white" stopOpacity="0" /><stop offset="0.08" stopColor="white" /><stop offset="0.9" stopColor="white" /><stop offset="1" stopColor="white" stopOpacity="0" />
           </linearGradient>
-          <mask id="tab-mask"><rect x={left} y={0} width={right - left} height={H} fill="url(#tab-fade)" /></mask>
+          <mask id={`${id}mask`}><rect x={left} y={0} width={right - left} height={H} fill={`url(#${id}fade)`} /></mask>
         </defs>
         {STRING_NAMES.map((name, s) => (
           <text key={s} x={left - 9} y={y(s)} textAnchor="middle" dominantBaseline="central" fontSize={8} fontWeight={600} fill="#64748b">{s === 5 ? "e" : name}</text>
         ))}
-        <g mask="url(#tab-mask)">
+        <g mask={`url(#${id}mask)`}>
           {beats.map((b) => <line key={b.at} x1={x(b.at)} x2={x(b.at)} y1={y(5) - 6} y2={y(0) + 6} stroke="white" strokeOpacity={b.bar ? 0.28 : 0.08} strokeWidth={b.bar ? 1.25 : 1} />)}
           {STRING_NAMES.map((_, s) => <line key={s} x1={left} x2={right} y1={y(s)} y2={y(s)} stroke="white" strokeOpacity={0.22} strokeWidth={0.75} />)}
           {shown.map((n, i) => {
@@ -93,7 +92,7 @@ function BarByBar({ notes, t, grid }: { notes: Timed[]; t: number; grid: BarGrid
   return <TabWindow notes={notes} t={t} from={from} to={from + grid.len} grid={grid} />;
 }
 
-/** The notes sounding now as a small chord box in the top right corner, or the next ones, dimmed, while nothing sounds. */
+/** The notes sounding now as a small chord box, or the next ones, dimmed, while nothing sounds. */
 function CornerBox({ notes, t }: { notes: Timed[]; t: number }) {
   let now = notes.filter((n) => n.start <= t && t < n.end);
   const soon = !now.length;
@@ -108,7 +107,7 @@ function CornerBox({ notes, t }: { notes: Timed[]; t: number }) {
   const label = now.map((n) => noteName(n.midi)).join(" ");
   const accent = soon ? "#94a3b8" : "#38bdf8";
   return (
-    <div className="pointer-events-none absolute right-2 top-2 w-[min(32%,10rem)] overflow-hidden rounded-lg border border-white/10 bg-slate-950/60 shadow-lg backdrop-blur-sm" aria-hidden>
+    <div className="pointer-events-none mx-auto w-full max-w-[60%] overflow-hidden rounded-lg border border-white/10 bg-slate-950/60 shadow-lg backdrop-blur-sm" aria-hidden>
       <svg viewBox={`0 0 ${w} ${h}`} className="block w-full">
         <text x={w / 2} y={12} textAnchor="middle" fontSize={11} fontWeight={700} fill={soon ? "#94a3b8" : "#f1f5f9"}>{label}</text>
         {soon && <text x={w / 2} y={23} textAnchor="middle" fontSize={7} fontWeight={600} letterSpacing={1} fill="#64748b">NEXT</text>}
@@ -135,32 +134,9 @@ function CornerBox({ notes, t }: { notes: Timed[]; t: number }) {
   );
 }
 
-function Overlay({ notes, t, mode, grid }: { notes: Timed[]; t: number; mode: OverlayMode; grid: BarGrid }) {
+/** The riff at `t` seconds from beat 1 (negative in the count-in), drawn as `mode` on the bar grid `grid`. */
+export function RiffView({ notes, t, mode, grid }: { notes: Timed[]; t: number; mode: RiffViewMode; grid: BarGrid }) {
   if (mode === "tab") return <SlidingTab notes={notes} t={t} grid={grid} />;
   if (mode === "bar") return <BarByBar notes={notes} t={t} grid={grid} />;
-  if (mode === "box") return <CornerBox notes={notes} t={t} />;
-  return null;
-}
-
-/** Over a saved take: the riff at the video's current time, on the take's beat grid. */
-export function TakeNotes({ video, notes, mode, grid }: { video: HTMLVideoElement | null; notes: Timed[]; mode: OverlayMode; grid: BarGrid }) {
-  const [t, setT] = useState(0);
-  useEffect(() => {
-    if (!video || mode === "off") return;
-    let id = 0;
-    const frame = () => { id = requestAnimationFrame(frame); setT(video.currentTime); };
-    id = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(id);
-  }, [video, mode]);
-  return <Overlay notes={notes} t={t} mode={mode} grid={grid} />;
-}
-
-/** Over the live camera when not recording: the riff standing still at beat 1, as a reference before the take. */
-export function StillNotes({ notes, mode, grid }: { notes: Timed[]; mode: OverlayMode; grid: BarGrid }) {
-  return <Overlay notes={notes} t={0} mode={mode} grid={grid} />;
-}
-
-/** Over the live camera while recording to the click: the riff at the beat being played (`t` seconds from beat 1, negative in the count-in). */
-export function LiveNote({ notes, t, mode, grid }: { notes: Timed[]; t: number; mode: OverlayMode; grid: BarGrid }) {
-  return <Overlay notes={notes} t={t} mode={mode} grid={grid} />;
+  return <CornerBox notes={notes} t={t} />;
 }

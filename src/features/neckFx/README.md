@@ -1,8 +1,8 @@
 # Neck effects
 
 Reads a guitar neck from printed ArUco markers and the hands, works out where the frets are, and draws test effects over a
-video: the live camera or a recorded take. Used by the riff Take panel (`devtools/riff/RiffTake.tsx`) and the content video
-record page (`contentVideos/ui/RecordVideo.tsx`), behind each page's **Read the neck** tick. It doesn't run while a take records (the hand model would compete with the recorder);
+video: the live camera or a recorded take. Used by the content video recorder (`contentVideos/ui/RecordVideo.tsx`), on the record page and the riff maker, behind its
+**Read the neck** tick. It doesn't run while a take records (the hand model would compete with the recorder);
 it draws over the take as it plays back, and each page's **Export with overlay** (`contentVideos/client/burn.ts`) records the take
 with the effects in the picture. `bare` hides the status line for that.
 

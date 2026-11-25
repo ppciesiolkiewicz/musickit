@@ -111,10 +111,10 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   );
 }
 
-type PlayAlongToolProps = PlayAlongProps & { /** loops, from older plans; absent loops until stopped */ repeats?: number };
+export type PlayAlongToolProps = PlayAlongProps & { /** loops, from older plans; absent loops until stopped */ repeats?: number };
 
 /** The tool's shape as a timeline (null when it can't be drawn) and its marks. */
-function useTool({ shape, bpm, repeats, enable, highlight, under }: PlayAlongToolProps) {
+export function useTool({ shape, bpm, repeats, enable, highlight, under }: PlayAlongToolProps) {
   const timeline = useMemo(() => {
     const t = expandShape({ ...shape, bpm, ...(repeats !== undefined ? { repeats } : {}) });
     return t && withBackingSound(clampTimeline(t), under as BackingSound | undefined);
@@ -153,14 +153,14 @@ export function VideoOverlay({ beat, ...props }: PlayAlongToolProps & { beat: nu
 }
 
 /** The cues drawn: the backing left out, and with `others` hidden only the notes switched on. */
-function useCuesOf(played: Timeline | null, marks: Marks | undefined, others: "muted" | "hidden") {
+export function useCuesOf(played: Timeline | null, marks: Marks | undefined, others: "muted" | "hidden") {
   return useMemo(
     () => (!played ? [] : (stepless(played) ? chordCues : cuesOf)(played, marks).filter((c) => c.kind !== "backing" && (others !== "hidden" || c.enabled))),
     [played, marks, others],
   );
 }
 
-const keyOf = (t: Timeline): number | undefined => {
+export const keyOf = (t: Timeline): number | undefined => {
   const s = t.events.find((e) => e.type === "scale");
   return s?.type === "scale" ? s.key : undefined;
 };

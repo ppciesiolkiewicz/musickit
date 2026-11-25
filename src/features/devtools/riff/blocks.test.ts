@@ -6,7 +6,8 @@ import { GENRES } from "@/features/library/seed/genres";
 import { columnsOf } from "@/features/exercises/riffs/riff";
 import { toolCells } from "@/features/contentVideos/model/slot";
 import type { Cell } from "@/features/plan/model/tools";
-import { blockFileText, checkEdit, keptRiff, riffBlockOf, riffChangedSince, riffInFile, riffsOf, withRiff, type RiffBlock } from "./blocks";
+import { readOverlay } from "@/features/contentVideos/model/overlay";
+import { blockFileText, checkEdit, keptRiff, riffBlockOf, riffChangedSince, riffInFile, riffTool, riffsOf, withRiff, type RiffBlock } from "./blocks";
 
 const riffs = SEED_BLOCKS.flatMap((f) => { const r = riffBlockOf(f); return r ? [{ f, r }] : []; });
 
@@ -155,5 +156,23 @@ describe("a riff's video", () => {
     assert.equal(riffChangedSince(b, { overlay: null, createdAt: at }, later), true);
     assert.equal(riffChangedSince(b, { overlay: null, createdAt: later }, at), false);
     assert.equal(riffChangedSince(b, { overlay: null, createdAt: at }, null), false);
+  });
+});
+
+describe("the riff as a tool, drawn over the camera", () => {
+  const { f } = riffs.find((x) => x.f.id === "guitar-beginner-rock-power-chords-and-a-riff")!;
+  const b = riffBlockOf(f) as RiffBlock;
+  const edit = { tonic: b.tonic, scale: b.scale, bpm: b.bpm, notes: b.notes };
+  const at = new Date(2026, 10, 25, 12);
+
+  it("reads back as a video's overlay", () => {
+    assert.notEqual(readOverlay({ tool: riffTool(edit), clock: [[0, 0, 1]] }), null);
+  });
+
+  it("is the riff a video recorded with it holds: unchanged until a note moves", () => {
+    assert.equal(riffChangedSince(edit, { overlay: { tool: riffTool(edit) }, createdAt: at }, null), false);
+    const i = b.notes.findIndex((n) => n.fret !== null && n.fret < 20);
+    const moved = { ...edit, notes: b.notes.map((n, j) => (j === i ? { ...n, fret: n.fret! + 1 } : n)) };
+    assert.equal(riffChangedSince(moved, { overlay: { tool: riffTool(edit) }, createdAt: at }, null), true);
   });
 });

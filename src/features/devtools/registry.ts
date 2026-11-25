@@ -60,7 +60,7 @@ export const CONTENT_TOOLS: DevTool[] = [
   { href: "/admin/content/videos", label: "Tools videos", desc: "The recording plan: which videos to record, in what order, and what goes in each. Every tool and level with the video players see, or Missing, and how many seed exercises use it. Record a missing one, change which levels a video covers, edit or delete it." },
   { href: "/admin/content/stories", label: "Component stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
   { href: "/admin/content/onboarding", label: "Onboarding coverage", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
-  { href: "/admin/content/riff", label: "Riff maker", desc: "Write a riff note by note in a key and scale: click the neck or type degrees, see the tab, switch strings, copy JSON or tab. Record a video take of the riff and transcribe its notes." },
+  { href: "/admin/content/riff", label: "Riff maker", desc: "Write a riff note by note in a key and scale: click the neck or type degrees, see the tab, switch strings, copy JSON or tab. Record a video take of the riff for players." },
   { href: "/admin/content/studio", label: "Video studio", desc: "A 16:9 frame with cameras, a screen share and theory widgets, to record a lesson. Add more than one camera, a phone over Continuity Camera too." },
   { href: "/admin/content/notes", label: "Copy notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
 ];
