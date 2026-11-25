@@ -1372,6 +1372,24 @@ Like - seeing chords within a scale!
 
 
 ------ DEFER -----
+TaskSeries ContentVideos: videos of exercises recorded by content people, /admin/content, permissions (user, 2026-11-25)
+Design: docs/superpowers/specs/2026-11-25-content-videos-design.md (approved 2026-11-25). Build in this order; each lands alone.
+ContentVideos1: [NEW 2026-11-25] Permissions: role is student/teacher from the plan; users.permissions {dev, content, admin};
+migration moves today's admin accounts; ticks per person on /admin/admin/users.
+ContentVideos2: [NEW 2026-11-25] /admin split: /admin/admin (today's /admin), /admin/content (the Content group of /dev
+without the Sampler); library always lists everything with Seed / Database only / Off tags.
+ContentVideos3: [NEW 2026-11-25] content_videos table, private Blob at content/videos/<made_for>/<id>.<ext>, upload and file
+routes, blocks.videos kept by the seed; /dev/riff's Take panel saves there.
+ContentVideos4: [NEW 2026-11-25] Video icon on plan exercises, looked up when drawn; one video shown once per day.
+ContentVideos5: [NEW 2026-11-25] Video panel in the library: record with the tool over the camera, its start/stop saved,
+replayed in step; VideoOverlay for the riff and the melody singer.
+ContentVideos6: [NEW 2026-11-25] Notes in the database for content people (author, deployed commit).
+ContentVideos7: [NEW 2026-11-25] Later: course sections with empty video spots a content person records into (a video field
+on a section).
+ContentVideos8: [NEW 2026-11-25] Later: pick an existing video for an exercise or course section from the content view (reuse).
+ContentVideos9: [NEW 2026-11-25] Later: the overlay for the other tools (each drivable from outside: start, stop, seek).
+ContentVideos10: [NEW 2026-11-25] Later, only if editing beyond video is allowed in the app: write an app edit back to its seed file.
+
 TaskSeries Upkeep: keeping the stack up to date (2026-11-18)
 Upkeep1: [NEW 2026-11-18] Next.js security upgrade. `next dev` stops on its first start with a security advisory and
 recommends `next upgrade --agent=security` (user: add to tasks). Run it in a worktree, then tests, tsc, eslint, the dev
