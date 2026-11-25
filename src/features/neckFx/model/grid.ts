@@ -33,7 +33,7 @@ export interface Placed { id: number; fret: number; mm?: number; gap?: number }
 export interface Grid { origin: Pt; dir: Pt; a: number; b: number }
 
 export const distOf = (fret: number) => 1 - 2 ** (-fret / 12); // nut to fret, in scale lengths
-const SCALE_MM = 648; // 25.5" (Stratocaster, Telecaster)
+export const SCALE_MM = 648; // 25.5" (Stratocaster, Telecaster)
 /** Nut to the marker's centre, in scale lengths: halfway between the wires either side of its fret space, or up the headstock from the nut. */
 const placeOf = (p: Placed) => (p.fret === 0 ? -((p.mm ?? 0) / 2 + (p.gap ?? 0)) / SCALE_MM : (distOf(p.fret - 1) + distOf(p.fret)) / 2);
 const fretOf = (d: number) => (d >= 1 ? 24 : -12 * Math.log2(1 - d));

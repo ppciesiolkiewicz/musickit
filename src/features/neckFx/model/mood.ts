@@ -120,8 +120,32 @@ export function moodColour(m: Mood): { hue: number; sat: number; light: number }
   return { hue: (tense + 360) % 360, sat: Math.min(100, 60 + 40 * m.energy + 20 * m.tension), light: 50 + 15 * m.energy };
 }
 
-/** A CSS filter for the video: duller and darker when calm, saturated and punchy when wild. */
-export function moodFilter(m: Mood): string {
-  const e = m.energy, r = (v: number) => Math.round(v * 100) / 100;
-  return `saturate(${r(0.6 + 1.1 * e)}) contrast(${r(0.95 + 0.25 * e)}) brightness(${r(0.85 + 0.2 * e)})`;
+/**
+ * A CSS filter for the video: duller and darker when calm, saturated and punchy when wild, and a flash of brightness and
+ * colour on the beat. `strength` scales the grade (1 the default look, 2 double); `beat` is the beat now (0 to 1) already
+ * scaled by how much the effect follows it.
+ */
+export function moodFilter(m: Mood, strength = 1, beat = 0): string {
+  const e = m.energy, k = 1.6 * strength, r = (v: number) => Math.max(0, Math.round(v * 100) / 100);
+  const sat = 1 + k * (-0.35 + 1.1 * e) + 0.6 * beat;
+  const con = 1 + k * (-0.04 + 0.3 * e) + 0.15 * beat;
+  const bri = 1 + k * (-0.14 + 0.22 * e) + 0.25 * beat;
+  return `saturate(${r(sat)}) contrast(${r(con)}) brightness(${r(bri)})`;
+}
+
+/** The beat: how loud the playing is right now against how loud it has been lately, jumping on a pick and falling fast. */
+export interface Beat { beat: number; peak: number }
+export const QUIET: Beat = { beat: 0, peak: 0 };
+/** How fast the beat falls (per s), and how fast the loudest-lately level forgets (per s). */
+const BEAT_FALL = 7, PEAK_FALL = 0.25;
+/**
+ * The beat after `dt` seconds: `rms` is the loudest sound since the last step (live only, else null), `pick` the loudest pick
+ * since then (0 to 1, else 0). Loudness counts against the loudest lately, squared so a pick's attack stands out from its ring.
+ */
+export function stepBeat(prev: Beat, rms: number | null, pick: number, dt: number): Beat {
+  const peak = Math.max(rms ?? 0, prev.peak * Math.exp(-PEAK_FALL * Math.max(0, dt)));
+  const loud = rms !== null && peak > 0.005 ? clamp(rms / peak) ** 2 : 0;
+  const target = Math.max(loud, clamp(pick));
+  const fallen = prev.beat * Math.exp(-BEAT_FALL * Math.max(0, dt));
+  return { beat: Math.max(target, fallen), peak };
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CALM, easeMood, fretHeat, keyOf, moodColour, moodTarget, tensionOf, type Heard } from "./mood";
+import { CALM, QUIET, easeMood, fretHeat, keyOf, moodColour, moodFilter, moodTarget, stepBeat, tensionOf, type Heard } from "./mood";
 
 const notes = (midis: number[], from = 0, step = 0.25, level = 0.5): Heard[] => midis.map((midi, i) => ({ t: from + i * step, midi, level }));
 
@@ -43,4 +43,23 @@ test("minor is cool, major warm", () => {
   const cool = moodColour({ energy: 0, bright: -1, tension: 0 }).hue, warm = moodColour({ energy: 0, bright: 1, tension: 0 }).hue;
   assert.ok(cool > 200 && cool < 260, String(cool));
   assert.ok(warm > 20 && warm < 50, String(warm));
+});
+test("the beat jumps on a pick or a loud sound and falls fast", () => {
+  const hit = stepBeat(QUIET, null, 0.8, 0.016);
+  assert.equal(hit.beat, 0.8);
+  const later = stepBeat(hit, null, 0, 0.3);
+  assert.ok(later.beat < 0.15 && later.beat > 0);
+  // live: loud against the loudest lately, so a quiet room doesn't read as a beat
+  const loud = stepBeat(QUIET, 0.2, 0, 0.016);
+  assert.equal(loud.beat, 1);
+  const ring = stepBeat(loud, 0.1, 0, 0.016);
+  assert.ok(ring.beat < loud.beat);
+  assert.ok(stepBeat(ring, 0.05, 0, 0.016).beat < ring.beat);
+});
+test("the mood filter grows with strength and the beat", () => {
+  const wild = { energy: 1, bright: 0, tension: 0 };
+  const sat = (f: string) => Number(/saturate\(([\d.]+)\)/.exec(f)![1]);
+  assert.ok(sat(moodFilter(wild, 2)) > sat(moodFilter(wild, 1)));
+  assert.ok(sat(moodFilter(wild, 1, 1)) > sat(moodFilter(wild, 1, 0)));
+  assert.equal(moodFilter(wild, 0), "saturate(1) contrast(1) brightness(1)");
 });

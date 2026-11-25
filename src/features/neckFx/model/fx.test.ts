@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fretAt, parsePlaced } from "./grid";
-import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, readFx, spaceAt, wireAt, DEFAULT_FX } from "./fx";
+import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, pxPerMm, readFx, spaceAt, wireAt, DEFAULT_FX } from "./fx";
 
 const near = (a: number, b: number, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} ≠ ${b}`);
 const g = gridThrough({ x: 0.1, y: 0.5 }, { x: 0.7, y: 0.5 });
@@ -77,4 +77,13 @@ test("the A3 layout uses each fret sheet marker once, at its printed size, insid
   assert.equal(parsePlaced(A3_MARKERS).length, 7);
   assert.deepEqual(parsePlaced(A3_MARKERS)[0], { id: 56, fret: 0, mm: 30, gap: 8 });
   assert.equal(parseButtons(A3_BUTTONS).length, 2);
+});
+test("strength and beat read back clamped, missing ones from the default", () => {
+  const f = readFx({ strength: { mood: 5, heat: -1, sparks: "x" }, beat: { heat: 0.5 } });
+  assert.deepEqual(f.strength, { mood: 2, heat: 0, sparks: 1, bump: 1 });
+  assert.deepEqual(f.beat, { mood: 1, heat: 0.5 });
+});
+test("a millimetre on screen from the grid", () => {
+  // the nut to wire 12 is half the scale, 324 mm, here 0.6 units
+  near(pxPerMm(g) * 324, 0.6);
 });

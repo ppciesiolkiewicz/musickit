@@ -34,16 +34,25 @@ notes heard (live) or passed (a take), and the fretting hand:
 
 The effects:
 
-- **Mood light**: grades the video (dull and dark when calm, saturated when wild) and lights the edges: dark when calm, the
-  mood's colour breathing faster as the energy climbs. A pick washes the picture; landing on the home note gives a soft light.
-- **Neck heat**: the neck lit from the nut to the fretting hand, hotter and flickering more the higher up it is.
+- **Mood light**: grades the video (dull and dark when calm, saturated when wild), tints it the mood's colour and lights the
+  edges: dark when calm, the mood's colour breathing faster as the energy climbs. A pick washes the picture; landing on the
+  home note gives a soft light. On the beat the picture brightens and the edges close in.
+- **Neck heat**: the fretboard lit from the nut to the fretting hand, hotter and flickering more the higher up it is, with a
+  hot spot under the hand. It keeps to the board: the markers sit on its near edge, so the light is centred half a board's
+  width over (`neckWidthMm`, 42 mm at the nut to 56 mm at fret 22), on the side the fretting hand is. On the beat it flares,
+  widens a little and runs a couple of frets past the hand.
 - **Sparks**: a burst from the note's fret space (or the hand) on each pick, more and faster with energy; calm sparks fall,
   wild ones float up, and embers rise off the picture above half energy.
 - **Beat bump**: the picture (video and drawing) jumps a little on each pick, more when wild, and shakes on a tense note.
 
+Each has a **Strength** (0 to 200%, 100% the usual look); Mood light and Neck heat also have **Beat**, how much they jump
+with it. The beat (`stepBeat` in `model/mood.ts`) jumps on each pick and, live, with how loud the sound is against the
+loudest it has been lately (`listenForPicks`' `onLevel`), then falls within a fraction of a second. On a take it comes from
+the riff's notes only.
+
 The status line adds the energy, the key and the tension.
 
-The test effects:
+The test effects (under **Test effects**, no settings):
 
 - **Markers and hands**: the markers seen, with their ids, and the hands' points.
 - **Fret lines**: wires 0 to 22 across the neck, with the dot frets numbered. The check that the grid lines up.
@@ -73,11 +82,11 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 | File | What |
 | --- | --- |
 | `model/grid.ts` | Pure. Markers to a fret grid, the fret a point is at, the string a pitch was played on. `NeckRead`, a frame's read as logged with a riff take. |
-| `model/mood.ts` | Pure. The mood: energy, key, tension, its colour and video filter. |
+| `model/mood.ts` | Pure. The mood: energy, key, tension, its colour and video filter; the beat. |
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
-| `client/listen.ts` | Browser. Picks and their notes from a stream's sound. |
+| `client/listen.ts` | Browser. Picks and their notes from a stream's sound, and how loud it is. |
 | `ui/NeckView.tsx` | React. The canvas over a video: reads markers and hands each new frame, draws every animation frame. |
-| `ui/FxControls.tsx` | React. Markers, Buttons, Covering and Effects; `useFx` keeps them. |
+| `ui/FxControls.tsx` | React. Markers, Buttons, Covering, Mood effects (with Strength and Beat) and Test effects; `useFx` keeps them. |
 | `js-aruco2.d.ts` | Types for the untyped js-aruco2. |
 
 Tests: `tsx --test src/features/neckFx/model/*.test.ts` (the cached tsx).

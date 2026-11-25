@@ -31,9 +31,9 @@ const WINDOW = 2048;
 /**
  * Listens to the audio of a stream the page already has open (the camera's): each pick (the rhythm game's onset detector) is
  * reported with its note (the tuner's `detectPitch`) once enough sound after it has come in, about 80 ms. Stop with the
- * returned function.
+ * returned function. `onLevel` gets how loud each batch of sound is (its RMS), about 90 times a second.
  */
-export async function listenForPicks(stream: MediaStream, onPick: (p: Pick) => void): Promise<() => void> {
+export async function listenForPicks(stream: MediaStream, onPick: (p: Pick) => void, onLevel?: (rms: number) => void): Promise<() => void> {
   if (!stream.getAudioTracks().length) throw new Error("the camera has no sound");
   const ctx = getAudioContext();
   if (ctx.state !== "running") await ctx.resume().catch(() => undefined);
@@ -65,6 +65,11 @@ export async function listenForPicks(stream: MediaStream, onPick: (p: Pick) => v
     if (!filled) ringStart = t;
     ring.set(samples, filled);
     filled += samples.length;
+    if (onLevel) {
+      let sq = 0;
+      for (const v of samples) sq += v * v;
+      onLevel(Math.sqrt(sq / samples.length));
+    }
     pending.push(...onsets.push(samples, t));
     while (pending.length) {
       const from = Math.round((pending[0] + SETTLE_S - ringStart) * rate);

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, DEFAULT_FX, EFFECTS, EFFECT_WORDS, FILTERS, readFx, type FxSettings } from "../model/fx";
+import {
+  A3_BUTTONS, A3_LAYOUT, A3_MARKERS, AMOUNT_MAX, BEAT_EFFECTS, DEFAULT_FX, EFFECTS, EFFECT_WORDS, FILTERS, MOOD_EFFECTS, TEST_EFFECTS, readFx,
+  type BeatEffect, type FxSettings,
+} from "../model/fx";
 
 /** Kept in this browser and shared by every page with Read the neck, so the markers are typed in once. */
 const KEY = "musickit.neckFx";
@@ -28,8 +31,20 @@ const input = "rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm te
 const field = "flex items-center gap-1.5 text-slate-300";
 const btn = "rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-40";
 const cap = (w: string) => w[0].toUpperCase() + w.slice(1);
+const isBeat = (e: string): e is BeatEffect => (BEAT_EFFECTS as readonly string[]).includes(e);
 
-/** Markers, Buttons, Covering and the Effects ticks, for a page that shows NeckView, and where the A3 layout puts each marker. */
+/** A 0 to 200% slider, shown as a percentage. */
+function Amount({ label, title, value, onChange, disabled }: { label: string; title: string; value: number; onChange: (v: number) => void; disabled: boolean }) {
+  return (
+    <label className={`${field} ${disabled ? "opacity-40" : ""}`} title={title}>
+      {label}
+      <input type="range" min={0} max={AMOUNT_MAX} step={0.05} value={value} disabled={disabled} onChange={(e) => onChange(Number(e.target.value))} className="w-24 accent-sky-500" />
+      <span className="w-10 text-right font-mono text-xs text-slate-400">{Math.round(value * 100)}%</span>
+    </label>
+  );
+}
+
+/** Markers, Buttons, Covering, the mood effects with their Strength and Beat, the test effects, for a page that shows NeckView, and where the A3 layout puts each marker. */
 export default function FxControls({ fx, set }: { fx: FxSettings; set: (part: Partial<FxSettings>) => void }) {
   const tick = (e: (typeof EFFECTS)[number], on: boolean) => set({ effects: on ? EFFECTS.filter((x) => x === e || fx.effects.includes(x)) : fx.effects.filter((x) => x !== e) });
   const isA3 = fx.markers === A3_MARKERS && fx.buttons === A3_BUTTONS;
@@ -51,16 +66,35 @@ export default function FxControls({ fx, set }: { fx: FxSettings; set: (part: Pa
           <option value="toggle">Toggle</option>
         </select>
       </label>
-      <fieldset className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <legend className="sr-only">Effects</legend>
-        <span className="text-slate-400">Effects</span>
-        {EFFECTS.map((e) => (
-          <label key={e} className={field}>
-            <input type="checkbox" checked={fx.effects.includes(e)} onChange={(ev) => tick(e, ev.target.checked)} className="accent-sky-500" /> {EFFECT_WORDS[e]}
-          </label>
-        ))}
-      </fieldset>
     </div>
+    <fieldset className="flex flex-col gap-1">
+      <legend className="mb-1 text-slate-400">Mood effects</legend>
+      {MOOD_EFFECTS.map((e) => {
+        const off = !fx.effects.includes(e);
+        return (
+          <div key={e} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <label className={`${field} w-32`}>
+              <input type="checkbox" checked={!off} onChange={(ev) => tick(e, ev.target.checked)} className="accent-sky-500" /> {EFFECT_WORDS[e]}
+            </label>
+            <Amount label="Strength" title="How strong the effect is. 100% is the usual look." value={fx.strength[e]} disabled={off}
+              onChange={(v) => set({ strength: { ...fx.strength, [e]: v } })} />
+            {isBeat(e) && (
+              <Amount label="Beat" title="How much it jumps with each pick and with how loud you play. 0% ignores the beat." value={fx.beat[e]} disabled={off}
+                onChange={(v) => set({ beat: { ...fx.beat, [e]: v } })} />
+            )}
+          </div>
+        );
+      })}
+    </fieldset>
+    <fieldset className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <legend className="sr-only">Test effects</legend>
+      <span className="text-slate-400">Test effects</span>
+      {TEST_EFFECTS.map((e) => (
+        <label key={e} className={field}>
+          <input type="checkbox" checked={fx.effects.includes(e)} onChange={(ev) => tick(e, ev.target.checked)} className="accent-sky-500" /> {EFFECT_WORDS[e]}
+        </label>
+      ))}
+    </fieldset>
     <details className="text-slate-300">
       <summary className="cursor-pointer text-slate-400">Where each marker goes</summary>
       <div className="mt-2 flex flex-col gap-2">

@@ -1,4 +1,4 @@
-import { distOf, fretAt, type Grid, type Pt } from "./grid";
+import { SCALE_MM, distOf, fretAt, type Grid, type Pt } from "./grid";
 
 /**
  * Effects drawn over the neck, for testing: what each one is, where a fret is on the screen, a grid steadied over frames,
@@ -20,6 +20,16 @@ export const EFFECT_WORDS: Record<Effect, string> = {
   trails: "Fingertip trails",
 };
 
+/** The mood effects, each with a Strength; the test effects (for lining up the grid) have none. */
+export const MOOD_EFFECTS = ["mood", "heat", "sparks", "bump"] as const satisfies readonly Effect[];
+export type MoodEffect = (typeof MOOD_EFFECTS)[number];
+export const TEST_EFFECTS = EFFECTS.filter((e) => !(MOOD_EFFECTS as readonly Effect[]).includes(e));
+/** The mood effects that also follow the beat (how loud the playing is right now). */
+export const BEAT_EFFECTS = ["mood", "heat"] as const satisfies readonly MoodEffect[];
+export type BeatEffect = (typeof BEAT_EFFECTS)[number];
+/** Strength and Beat run from 0 (off) to 2 (double); 1 is the default look. */
+export const AMOUNT_MAX = 2;
+
 export const FILTERS = ["mono", "neon", "warm", "cold", "invert", "blur"] as const;
 export type Filter = (typeof FILTERS)[number];
 /** CSS filter for the video under the effects. */
@@ -40,6 +50,10 @@ export interface FxSettings {
   /** hold: on while covered; toggle: each cover flips it */
   mode: "hold" | "toggle";
   effects: Effect[];
+  /** how strong each mood effect is, 0 to `AMOUNT_MAX` */
+  strength: Record<MoodEffect, number>;
+  /** how much an effect jumps with the beat, 0 to `AMOUNT_MAX` */
+  beat: Record<BeatEffect, number>;
 }
 /**
  * The layout on the test guitar (a Strat), from the fret sheet (`public/riff/neck-markers-frets-a3.pdf`): 30 mm on the
@@ -62,7 +76,16 @@ export const A3_LAYOUT: { id: number; mm: number; fret: number | null; gap?: num
 export const A3_MARKERS = A3_LAYOUT.flatMap((m) => (m.fret === null ? [] : [`${m.id}@${m.fret}${m.fret === 0 ? `/${m.mm}${m.gap ? `+${m.gap}` : ""}` : ""}`])).join(", ");
 export const A3_BUTTONS = A3_LAYOUT.flatMap((m) => (m.filter ? [`${m.id}=${m.filter}`] : [])).join(", ");
 
-export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["mood", "heat", "sparks"] };
+export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["mood", "heat", "sparks"],
+  strength: { mood: 1, heat: 1, sparks: 1, bump: 1 },
+  beat: { mood: 1, heat: 1 },
+};
+
+const amount = (v: unknown, fallback: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(AMOUNT_MAX, Math.max(0, v)) : fallback);
+function amounts<K extends string>(v: unknown, fallback: Record<K, number>): Record<K, number> {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  return Object.fromEntries(Object.entries<number>(fallback).map(([k, d]) => [k, amount(o[k], d)])) as Record<K, number>;
+}
 
 /** Settings read back from storage: anything unreadable falls back to the default. */
 export function readFx(v: unknown): FxSettings {
@@ -72,6 +95,8 @@ export function readFx(v: unknown): FxSettings {
     buttons: typeof o.buttons === "string" ? o.buttons : DEFAULT_FX.buttons,
     mode: o.mode === "toggle" ? "toggle" : "hold",
     effects: Array.isArray(o.effects) ? EFFECTS.filter((e) => (o.effects as unknown[]).includes(e)) : DEFAULT_FX.effects,
+    strength: amounts(o.strength, DEFAULT_FX.strength),
+    beat: amounts(o.beat, DEFAULT_FX.beat),
   };
 }
 
@@ -94,6 +119,11 @@ export function spaceAt(g: Grid, fret: number): Pt {
   const s = ((distOf(fret - 1) + distOf(fret)) / 2 - g.b) / g.a;
   return { x: g.origin.x + g.dir.x * s, y: g.origin.y + g.dir.y * s };
 }
+/** How many frame units a millimetre is on the neck. */
+export const pxPerMm = (g: Grid) => 1 / Math.abs(g.a) / SCALE_MM;
+/** How wide the fretboard is at a fret (mm): a Strat's 42 mm at the nut to about 56 mm at fret 22. */
+export const neckWidthMm = (fret: number) => 42 + (14 * Math.min(22, Math.max(0, fret))) / 22;
+
 /** Across the neck, a unit vector. */
 export const across = (g: Grid): Pt => ({ x: -g.dir.y, y: g.dir.x });
 
