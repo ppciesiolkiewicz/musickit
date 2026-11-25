@@ -62,7 +62,7 @@ export const flicker = (x: number, t: number) =>
 export const PULSE_S = 0.7, MIN_HOLD_S = 0.3;
 
 /** A note of a take: when it starts and ends (s) in the video, and where it is played when the riff says. */
-export interface TakeNote { start: number; midi: number; end?: number; string?: number; fret?: number }
+export interface TakeNote { start: number; midi: number; end?: number; string?: number; fret?: number; finger?: number }
 
 /**
  * The take's notes on screen at time `t` for Pick pulse: each one from its start until its ring has grown or it stops

@@ -76,6 +76,7 @@ An exercise opened on `/admin/content/library` (its row, `LibraryItem` → `Exam
 | `model/scripts.ts` | Pure data. The first videos: `STAGES` (the order), `VIDEO_PLANS` (title, minutes, script), `Beat`, `VideoPlan`, `Stage`. |
 | `model/recordPlan.ts` | Pure. `LATER_PLANS`, `NO_VIDEO`, `recordPlan` (the stages with their numbered rows, the later rows, the tools with none), `blocksUsing`, `minutesLeft`. Re-exports scripts.ts. |
 | `model/clock.ts` | Pure. The overlay's clock: `Sample`, `Piece`, `squeeze`, `beatAt`, `readPieces`. |
+| `model/takeNotes.ts` | Pure. `clickClock` (a take made with the click only) and `takeNotes`: a tool's notes (`KitNote`, `exercises/cues/cueNotes.ts`) timed onto a take's clock, repeated each loop, none while the tool is stopped. |
 | `model/overlay.ts` | Pure. `Overlay` (`{ tool, clock, look? }`), `Look`, `Box`, `fitBox`, `DEFAULT_BOX`, `NARROW_BOX`, `readLook`, `DEFAULT_LOOK`, `PLAYBACK_LOOK`, `OVERLAY_TOOLS`, `hasOverlay`, `readOverlay`. |
 | `model/faceCircle.ts` | Pure. The face camera's circle: `FaceLook` (`corner`, `size`), `circleAt`, `cropFor` (a square round the face, `FACE_ZOOM` times its box, inside the picture), `steady` (holds the zoom and place through small changes), `ease`, `median`, `readFaceLook`. |
 | `model/keptCells.ts` | Pure. Which of a block's own video entries stay when its cells change (the seed's rule). |
