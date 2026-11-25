@@ -21,6 +21,29 @@ saved into a take, and it doesn't run while a take records (the hand model would
 
 Ticked in **Effects** (`model/fx.ts` names them, `ui/NeckView.tsx` draws them):
 
+Mood effects, on by default: they show how the playing feels, not where it is. `model/mood.ts` works out a **mood** from the
+notes heard (live) or passed (a take), and the fretting hand:
+
+- **Energy** (0 to 1): how high up the neck the fretting hand is (fret 14 and above is the top; with no hand on the grid, how
+  high the recent notes are), how many notes a second and how loud, over the last 2.5 s. It rises fast and falls slowly.
+- **Key**: the key the last 8 s of notes sound most like (Krumhansl–Schmuckler, newer notes count more), once there are three
+  different notes. Minor leans the colours cool (blue to violet), major warm (amber), an unclear key magenta.
+- **Tension**: the last note against that key. The home note is settled, the 5th and 3rd nearly; the 7th more; a note outside
+  the key, and the tritone most, is tense. Tension pulls the colour toward acid green.
+
+The effects:
+
+- **Mood light**: grades the video (dull and dark when calm, saturated when wild) and lights the edges: dark when calm, the
+  mood's colour breathing faster as the energy climbs. A pick washes the picture; landing on the home note gives a soft light.
+- **Neck heat**: the neck lit from the nut to the fretting hand, hotter and flickering more the higher up it is.
+- **Sparks**: a burst from the note's fret space (or the hand) on each pick, more and faster with energy; calm sparks fall,
+  wild ones float up, and embers rise off the picture above half energy.
+- **Beat bump**: the picture (video and drawing) jumps a little on each pick, more when wild, and shakes on a tense note.
+
+The status line adds the energy, the key and the tension.
+
+The test effects:
+
 - **Markers and hands**: the markers seen, with their ids, and the hands' points.
 - **Fret lines**: wires 0 to 22 across the neck, with the dot frets numbered. The check that the grid lines up.
 - **Hand glow**: the fret space the fretting hand's fingertips are in.
@@ -49,6 +72,7 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 | File | What |
 | --- | --- |
 | `model/grid.ts` | Pure. Markers to a fret grid, the fret a point is at, the string a pitch was played on. `NeckRead`, a frame's read as logged with a riff take. |
+| `model/mood.ts` | Pure. The mood: energy, key, tension, its colour and video filter. |
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
 | `client/listen.ts` | Browser. Picks and their notes from a stream's sound. |
 | `ui/NeckView.tsx` | React. The canvas over a video: reads markers and hands each new frame, draws every animation frame. |

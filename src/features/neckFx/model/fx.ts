@@ -5,9 +5,13 @@ import { distOf, fretAt, type Grid, type Pt } from "./grid";
  * markers used as buttons (covered = pressed), and the filters those buttons switch. Pure: NeckView draws.
  */
 
-export const EFFECTS = ["markers", "frets", "glow", "flash", "pulse", "trails"] as const;
+export const EFFECTS = ["mood", "heat", "sparks", "bump", "markers", "frets", "glow", "flash", "pulse", "trails"] as const;
 export type Effect = (typeof EFFECTS)[number];
 export const EFFECT_WORDS: Record<Effect, string> = {
+  mood: "Mood light",
+  heat: "Neck heat",
+  sparks: "Sparks",
+  bump: "Beat bump",
   markers: "Markers and hands",
   frets: "Fret lines",
   glow: "Hand glow",
@@ -58,7 +62,7 @@ export const A3_LAYOUT: { id: number; mm: number; fret: number | null; gap?: num
 export const A3_MARKERS = A3_LAYOUT.flatMap((m) => (m.fret === null ? [] : [`${m.id}@${m.fret}${m.fret === 0 ? `/${m.mm}${m.gap ? `+${m.gap}` : ""}` : ""}`])).join(", ");
 export const A3_BUTTONS = A3_LAYOUT.flatMap((m) => (m.filter ? [`${m.id}=${m.filter}`] : [])).join(", ");
 
-export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["markers", "frets"] };
+export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["mood", "heat", "sparks"] };
 
 /** Settings read back from storage: anything unreadable falls back to the default. */
 export function readFx(v: unknown): FxSettings {

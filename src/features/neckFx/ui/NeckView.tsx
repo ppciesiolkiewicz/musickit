@@ -7,6 +7,7 @@ import {
   FILTER_CSS, across, coveredNow, easeGrid, filtersOn, frettingTips, noteHue, noteName, parseButtons, spaceAt, wireAt,
   type Filter, type FxSettings,
 } from "../model/fx";
+import { CALM, easeMood, keyOf, moodColour, moodFilter, moodTarget, type Heard, type Mood } from "../model/mood";
 import { listenForPicks, type Pick } from "../client/listen";
 
 /** The hand model and its runtime, fetched on first use (dev tool only). */
@@ -18,6 +19,11 @@ const TIPS = [4, 8, 12, 16, 20];
 const DOTS = [3, 5, 7, 9, 12, 15, 17, 19, 21];
 /** How long a grid is kept once its markers are gone, and how long a flash and a pulse last (s). */
 const KEEP_GRID = 0.5, FLASH = 0.6, PULSE = 0.5, TRAIL = 14;
+/** How long notes are kept for the mood (s), the most sparks at once, and how fast a beat bump settles (per s). */
+const KEEP_HEARD = 8, MAX_SPARKS = 700, BUMP_DECAY = 10;
+/** Effects that need the picks heard live. */
+const HEARING = new Set(["flash", "pulse", "mood", "heat", "sparks", "bump"]);
+type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: number; hue: number; size: number };
 
 type Marker = { id: number; corners: { x: number; y: number }[] };
 type Detector = { detect: (img: ImageData) => Marker[] };
@@ -75,7 +81,7 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
   // the last pick heard, shown in the status line
   const [heard, setHeard] = useState("");
 
-  const listens = live && fx.effects.some((e) => e === "flash" || e === "pulse");
+  const listens = live && fx.effects.some((e) => HEARING.has(e));
   useEffect(() => {
     if (!listens || !video) return;
     let stop: (() => void) | null = null, gone = false;
@@ -108,6 +114,11 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
     let filters: Filter[] = [];
     const trails: Pt[][] = [];
     const flashes: { at: number; space: number | null; midi: number | null; level: number; hand: Pt | null }[] = [];
+    // the mood: notes heard lately, the eased mood, the fret the hand is at, sparks in the air and the last beat bump
+    const heard: Heard[] = [];
+    let mood: Mood = CALM, moodAt = -1, handFret: number | null = null, keyName = "", keyTonic: number | null = null;
+    const sparks: Spark[] = [];
+    let bump = 0;
     void Promise.all([loadHands(), loadMarkers()]).then(([hand, markers]) => {
       if (gone) return;
       setStatus("Play the take to read it.");
@@ -158,7 +169,21 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
             const placed = n.midi !== null && tips ? placeByHand(n.midi, tips.frets) : null;
             const middle = tips ? { x: tips.tips.reduce((t, p) => t + p.x, 0) / tips.tips.length, y: tips.tips.reduce((t, p) => t + p.y, 0) / tips.tips.length } : handsSeen[0]?.[2] ?? null;
             flashes.push({ at: now, space: placed && placed.fret > 0 ? placed.fret : null, midi: n.midi, level: n.level, hand: middle });
+            heard.push({ t: now, midi: n.midi, level: n.level });
+            // sparks and a bump, sized by the mood: few and slow when calm, a burst when wild
+            const from = grid && placed && placed.fret > 0 ? spaceAt(grid, placed.fret) : middle ?? { x: w / 2, y: h * 0.6 };
+            const { hue: sHue } = moodColour(mood), e = mood.energy, scale = w / 1280;
+            if (on.has("sparks")) for (let i = Math.round(6 + 40 * e * (0.5 + n.level)); i > 0 && sparks.length < MAX_SPARKS; i--) {
+              const a = Math.random() * Math.PI * 2, v = (80 + Math.random() * (150 + 550 * e)) * scale;
+              sparks.push({ x: from.x, y: from.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120 * e * scale, age: 0, life: 0.5 + Math.random() * (0.4 + 1.2 * e), hue: sHue + (Math.random() - 0.5) * 50, size: (2 + Math.random() * (2 + 5 * e)) * scale });
+            }
+            if (on.has("bump")) bump = Math.max(bump, 0.008 + 0.05 * e * (0.4 + n.level));
           }
+          while (heard.length && now - heard[0].t > KEEP_HEARD) heard.shift();
+          const tipsNow = grid ? frettingTips(grid, handsSeen) : null;
+          handFret = tipsNow ? [...tipsNow.frets].sort((a, b) => a - b)[Math.floor(tipsNow.frets.length / 2)] : null;
+          const key = keyOf(heard, now);
+          keyName = key?.name ?? ""; keyTonic = key?.tonic ?? null;
 
           const r2 = (v: number) => Math.round(v * 1000) / 1000;
           report.current?.({
@@ -168,10 +193,22 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
             hands: handsSeen.map((tips) => tips.map((p) => ({ x: r2(p.x / w), y: r2(p.y / w) }))),
           });
           const shown = filters.map((f) => FILTER_WORDS[f]).join(", ");
-          setStatus(`Markers: ${found.length ? found.map((m) => m.id).sort((a, b) => a - b).join(", ") : "none"} · Hands: ${landmarks.length}${grid ? "" : " · No frets: under two placed markers seen"}${shown ? ` · ${shown}` : ""}`);
+          const moody = ["mood", "heat", "sparks", "bump"].some((e) => on.has(e as never));
+          setStatus(`Markers: ${found.length ? found.map((m) => m.id).sort((a, b) => a - b).join(", ") : "none"} · Hands: ${landmarks.length}${grid ? "" : " · No frets: under two placed markers seen"}${shown ? ` · ${shown}` : ""}${moody ? ` · Energy: ${Math.round(mood.energy * 100)}%${keyName ? ` · ${keyName} · Tension: ${Math.round(mood.tension * 100)}%` : ""}` : ""}`);
         }
         while (flashes.length && now - flashes[0].at > Math.max(FLASH, PULSE)) flashes.shift();
-        video.style.filter = filters.map((f) => FILTER_CSS[f]).join(" ");
+        const dt = moodAt < 0 ? 0 : Math.min(0.1, now - moodAt);
+        moodAt = now;
+        mood = easeMood(mood, moodTarget(heard, now, handFret), dt);
+        const mc = moodColour(mood), e = mood.energy;
+        const col = (a: number, dl = 0) => `hsla(${mc.hue} ${mc.sat}% ${Math.min(95, mc.light + dl)}% / ${a})`;
+        video.style.filter = [...(on.has("mood") ? [moodFilter(mood)] : []), ...filters.map((f) => FILTER_CSS[f])].join(" ");
+        bump *= Math.exp(-BUMP_DECAY * dt);
+        // a tense note shakes the picture a little while it lasts
+        const shake = mood.tension > 0.5 ? (mood.tension - 0.5) * (2 + 8 * e) : 0;
+        const zoom = on.has("bump") && (bump > 0.0005 || shake > 0.2)
+          ? `scale(${(1 + bump).toFixed(4)}) translate(${((Math.random() - 0.5) * shake).toFixed(1)}px, ${((Math.random() - 0.5) * shake).toFixed(1)}px)` : "";
+        video.style.transform = zoom; c.style.transform = zoom;
 
         const ctx = c.getContext("2d")!;
         ctx.clearRect(0, 0, w, h);
@@ -188,6 +225,53 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           ctx.closePath();
         };
 
+        if (on.has("mood")) {
+          // edges: dark and still when calm, the mood's colour breathing faster as the energy climbs
+          const breath = 0.5 + 0.5 * Math.sin(now * (0.8 + 5 * e) * Math.PI);
+          const r = Math.hypot(w, h) / 2;
+          const g = ctx.createRadialGradient(w / 2, h / 2, r * (0.55 - 0.15 * e), w / 2, h / 2, r);
+          g.addColorStop(0, "rgba(0,0,0,0)");
+          g.addColorStop(1, e < 0.35 ? `rgba(5,5,20,${0.55 * (1 - e / 0.35) + 0.2})` : col(0.25 + 0.35 * e * (0.6 + 0.4 * breath)));
+          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+          // a wash on each pick, stronger when wild
+          const last = flashes[flashes.length - 1];
+          if (last && now - last.at < 0.25) { ctx.fillStyle = col(0.18 * e * last.level * (1 - (now - last.at) / 0.25), 20); ctx.fillRect(0, 0, w, h); }
+          // landing on the home note: a soft light that settles
+          if (last && last.midi !== null && keyTonic !== null && ((last.midi - keyTonic) % 12 + 12) % 12 === 0 && now - last.at < 0.8) {
+            ctx.fillStyle = `rgba(255,250,235,${0.12 * (1 - (now - last.at) / 0.8)})`; ctx.fillRect(0, 0, w, h);
+          }
+        }
+        if (on.has("heat") && grid && handFret !== null) {
+          // the neck lit from the nut to the hand, hotter the higher up it is
+          const to = Math.max(1, handFret + 0.5), a = wireAt(grid, 0), b = wireAt(grid, to);
+          const heat = Math.min(1, to / 14), flicker = 0.85 + 0.15 * Math.sin(now * (6 + 20 * e));
+          const g = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+          g.addColorStop(0, `hsla(${mc.hue} ${mc.sat}% ${mc.light}% / 0)`);
+          g.addColorStop(1, col((0.2 + 0.5 * heat) * flicker, 25 * heat));
+          ctx.save(); ctx.shadowColor = col(1, 10); ctx.shadowBlur = 15 + 50 * Math.max(heat, e); ctx.fillStyle = g;
+          band(grid, 0, to); ctx.fill(); ctx.restore();
+        }
+        if (on.has("sparks")) {
+          // embers rise off the picture when the energy is high
+          const scale = w / 1280;
+          if (e > 0.5 && sparks.length < MAX_SPARKS) for (let i = Math.floor((e - 0.5) * 80 * dt + Math.random()); i > 0; i--) {
+            sparks.push({ x: Math.random() * w, y: h + 10, vx: (Math.random() - 0.5) * 40 * scale, vy: -(60 + Math.random() * 160 * e) * scale, age: 0, life: 1.5 + Math.random() * 2, hue: mc.hue + (Math.random() - 0.5) * 40, size: (1.5 + Math.random() * 3) * scale });
+          }
+          // calm sparks fall, wild ones float up
+          const gravity = 260 * (1 - 1.6 * e) * scale;
+          ctx.save(); ctx.globalCompositeOperation = "lighter";
+          for (let i = sparks.length - 1; i >= 0; i--) {
+            const p = sparks[i];
+            p.age += dt;
+            if (p.age > p.life) { sparks.splice(i, 1); continue; }
+            p.vx *= Math.exp(-1.5 * dt); p.vy = p.vy * Math.exp(-1.5 * dt) + gravity * dt;
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            const fade = 1 - p.age / p.life;
+            ctx.fillStyle = `hsla(${p.hue} 100% ${60 + 30 * fade}% / ${fade})`;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (0.5 + fade), 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.restore();
+        } else sparks.length = 0;
         if (on.has("markers")) {
           ctx.lineWidth = 3; ctx.font = "bold 22px sans-serif";
           ctx.strokeStyle = "#34d399"; ctx.fillStyle = "#34d399";
@@ -258,7 +342,8 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
     });
     return () => {
       gone = true; cancelAnimationFrame(id);
-      video.style.filter = "";
+      video.style.filter = ""; video.style.transform = "";
+      if (drawn) drawn.style.transform = "";
       drawn?.getContext("2d")?.clearRect(0, 0, drawn.width, drawn.height);
     };
   }, [video]);
