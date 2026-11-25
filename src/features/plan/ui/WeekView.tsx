@@ -13,6 +13,8 @@ import { addDays, dayProgress, doneKey, practiceDays } from "../model/schedule";
 import { dayName } from "../model/today";
 import type { StoredPlan } from "../model/types";
 import type { Stars } from "@/features/progress/stars";
+import type { CellAsk } from "@/features/contentVideos/model/slot";
+import { useDayVideos } from "./useDayVideos";
 
 /**
  * The week: a strip of its practice days (`practiceDays`: the days that hold exercises, so a week of three practice days
@@ -104,9 +106,13 @@ export default function WeekView({ plan, today, ended = false, day, onDay, onRat
   );
 }
 
+const NO_ASKS: Record<number, CellAsk[]> = {};
+export const VIDEOS_FAILED = "The exercise videos could not be loaded. The exercises work without them.";
+
 /**
  * One day of a plan: its heading (the host's words), how many exercises and minutes, each exercise an `ExerciseCard`, and one
- * floating timer that counts down the whole day (`DayTimer`), its used time saved apart from the plan (`times`, `onTime`). The
+ * floating timer that counts down the whole day (`DayTimer`), and the day's content videos (`useDayVideos`: a Watch video
+ * button above each tool with one, each video at its first place in the day only; a failed lookup says so, with Try again), its used time saved apart from the plan (`times`, `onTime`). The
  * card in view (the one across the middle of the screen, or the last one once the page is scrolled to the end) is the exercise
  * the timer names and counts time for, and it is lifted a little. With `onEdit` the day has Edit (`DayEditor`). Without `onRate`
  * the cards have no stars (a past day, read-only). The week's strip and today's plan (`DayPlan`) both draw a day with it.
@@ -164,6 +170,14 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
   const [live, setLive] = useState<{ ids: string; spent: number[] } | null>(null);
   const saved = spentOn(times, day, d.exercises);
   const spent = live?.ids === ids ? live.spent : saved;
+  // the content videos of the day, by the tools as each card draws them (kept with the exercises they were drawn for)
+  const [drawnFor, setDrawnFor] = useState<{ ids: string; asks: Record<number, CellAsk[]> }>({ ids, asks: {} });
+  const drawn = drawnFor.ids === ids ? drawnFor.asks : NO_ASKS;
+  const onAsks = useCallback((i: number, asks: CellAsk[]) => setDrawnFor((was) => {
+    const kept = was.ids === ids ? was.asks : {};
+    return JSON.stringify(kept[i]) === JSON.stringify(asks) && was.ids === ids ? was : { ids, asks: { ...kept, [i]: asks } };
+  }), [ids]);
+  const videos = useDayVideos(d.exercises, drawn);
   return (
     <>
       <div data-tour={readOnly ? undefined : "plan-day"} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -182,6 +196,13 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
           </button>
         )}
       </div>
+
+      {videos.failed && !editing && (
+        <p role="alert" className="mt-2 flex flex-wrap items-center gap-x-2 text-xs text-slate-400">
+          {VIDEOS_FAILED}
+          <button type="button" onClick={videos.retry} className="rounded-md border border-slate-700 px-2 py-0.5 text-slate-200 hover:border-slate-500">Try again</button>
+        </p>
+      )}
 
       {editing && onEdit ? (
         <DayEditor plan={plan} day={day} onCancel={() => { setLive(null); setEditing(false); }} onDone={(next) => { onEdit(next); setLive(null); setEditing(false); }} />
@@ -216,7 +237,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
                     <span className="text-xs font-normal text-slate-400">{section.minutes} min</span>
                   </h3>
                 )}
-                <ExerciseCard exercise={e} index={i} done={done} now={isNow} ticking={running && focused === i} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} ratedBy={ratedBy} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
+                <ExerciseCard exercise={e} index={i} done={done} now={isNow} ticking={running && focused === i} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} ratedBy={ratedBy} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} videos={videos.shown[i]} onAsks={(asks) => onAsks(i, asks)} />
               </li>
             );
           })}

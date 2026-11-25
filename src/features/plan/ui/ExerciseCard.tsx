@@ -2,7 +2,7 @@
 
 import { withKeys } from "../model/keys";
 import { applyGiven, type At } from "../model/moves";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { HUE_TONES, Popover, StarRating, hueAt, type Hue } from "@/components/ui";
 import { BlockBody, BlockTitle } from "./reader/BlockArticle";
@@ -11,6 +11,11 @@ import { catalogue, linkLabel, type CatalogueEntry } from "../model/catalogue";
 import { hashtagLine } from "../model/hashtags";
 import type { Block, PlanExercise } from "../model/types";
 import { STARS, STAR_LABELS, isStars, type Stars } from "@/features/progress/stars";
+import type { Picks } from "../model/choice";
+import CellVideo from "@/features/contentVideos/ui/CellVideo";
+import { drawnAsks } from "@/features/contentVideos/model/drawn";
+import type { CellAsk } from "@/features/contentVideos/model/slot";
+import type { PlayInfo } from "@/features/contentVideos/server/access";
 
 /** The left edge of the i-th exercise, written out whole so Tailwind sees it. */
 const EDGE: Record<Hue, string> = {
@@ -47,8 +52,10 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
  * up and ready to play), why, "Explore more" links, and the stars that rate it (and mark it done) when `onRate` is given.
  * `now` (the card in view while the day timer runs) only lifts the card a little: the timer is a guide, not a rule. With
  * `spent`, the planned minutes become `SpentTime`: time on it so far of the time planned, with a bar that fills to green.
+ * `videos` puts a Watch video button right above each tool that has one (`CellVideo`); the card holds where its chips
+ * stand and tells the day its tools as drawn (`onAsks`), so the video follows a chip that changes the level.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, ticking = false, spent, rating = null, onRate, ratedBy, address, tour = true }: {
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, ticking = false, spent, rating = null, onRate, ratedBy, address, tour = true, videos, onAsks }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
   /** the day timer is counting this exercise's time: its timer shows it ticking */ ticking?: boolean;
   /** seconds spent on it so far; without it only the planned minutes show */ spent?: number;
@@ -57,6 +64,8 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   /** read-only, someone else's plan (a teacher's view of a student's week): their stars, under their name, once rated */ ratedBy?: string;
   /** which exercise, for a `CellAside` */ address?: string;
   /** carries the page tour's hook (`plan-exercise`); off for a past day shown under today's */ tour?: boolean;
+  /** by tool cell: the content video shown above it */ videos?: Record<number, PlayInfo>;
+  /** its tool cells as drawn now, each time the chips move them */ onAsks?: (asks: CellAsk[]) => void;
 }) {
   const hue = hueAt(index);
   const tags = hashtagLine(e);
@@ -65,6 +74,15 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   // a block with moves is drawn in its version by the reader; the title follows where the version's chips stand
   const block: Block = withKeys({ title: e.title, ...(e.choice ? { choice: e.choice } : {}), ...(e.moves ? { moves: e.moves } : {}), cells: e.cells }, e.moves ? null : e.given?.keys);
   const [at, setAt] = useState<At>({});
+  const [picks, setPicks] = useState<Picks>({});
+  // the tools as drawn, for the day's video lookup; reported only when they change
+  const asks = useMemo(() => JSON.stringify(drawnAsks(block, e.given, at, picks)), [block, e.given, at, picks]);
+  const told = useRef<string | null>(null);
+  useEffect(() => {
+    if (!onAsks || told.current === asks) return;
+    told.current = asks;
+    onAsks(JSON.parse(asks) as CellAsk[]);
+  }, [asks, onAsks]);
   const title = applyGiven(block, e.given, at).title;
   // the planned time reached: the whole card turns green with a soft glow, and flashes brighter at the moment it happens
   const reached = spent !== undefined && e.minutes > 0 && spent >= e.minutes * 60;
@@ -99,7 +117,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
           : <SpentTime seconds={spent} minutes={e.minutes} ticking={ticking} />}
       </div>
       <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
-      <ExerciseSettings><BlockBody block={block} size="card" address={address} given={e.given} at={at} onAt={setAt} /></ExerciseSettings>
+      <ExerciseSettings><BlockBody block={block} size="card" address={address} given={e.given} at={at} onAt={setAt} picks={picks} onPicks={setPicks} beforeTool={(cell) => (videos?.[cell] ? <CellVideo key={videos[cell].id} video={videos[cell]} /> : null)} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
       {spent !== undefined && <span className="self-end"><SpentBar seconds={spent} minutes={e.minutes} ticking={ticking} small /></span>}

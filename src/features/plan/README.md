@@ -101,6 +101,7 @@ it). The nine demo plans, each three or four practice days, are at `/demo`. The 
    "Learn before" at the top (prerequisite lessons) and "Explore more" at the bottom (going deeper), each shown as
    "Learn <the page's name>" and opening in a new tab. On a phone a link shows only the page's short name (`linkLabel(…,
    true)`: a course section's `short` title).
+   **Content videos** (`ui/useDayVideos.ts`; the rules in `src/features/contentVideos/README.md`): every day looks up its videos when drawn, one request, by the tools as each card draws them (a card holds its chip picks and reports its tools, `onAsks`); a tool with a video gets **Watch video** right above it, which opens the video in place; each video shows only at its first place in the day. A failed lookup is one line under the day's heading with **Try again**.
 4. **No week review on the page.** The week flow (*Review this week*, the plan review screen, *Start anew*, earlier
    plans started again) is gone: a daily plan has no week, and nothing on `/plan` or a given plan's page opens it. A stored
    plan can still carry notes on its week (`StoredPlan.feedback`). The "next" prompt (built by agents and /dev/prompt) carries a week's exercises grouped by topic with
