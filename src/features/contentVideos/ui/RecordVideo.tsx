@@ -10,7 +10,7 @@ import { ToolClockListener } from "@/components/practice/toolClock";
 import { NoAutoScroll } from "@/components/practice/bringIntoView";
 import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls";
 import type { PlanTool } from "@/features/plan/model/tools";
-import { FxControls, NeckView, useFx } from "@/features/neckFx";
+import { FxControls, NeckCvView, NeckView, useFx } from "@/features/neckFx";
 import { saveContentVideo } from "../client/api";
 import { burnOverlay, canBurn, noChange, type Burned } from "../client/burn";
 import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
@@ -131,6 +131,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const liveRef = useCallback((el: HTMLVideoElement | null) => { live.current = el; setLiveVideo(el); }, []);
   // optional, for testing: the neck read from printed markers, with effects drawn over the camera (not while recording)
   const [readNeck, setReadNeck] = useState(false);
+  // or the OpenCV reader instead: frets and their numbers (NeckCvView); one reader at a time
+  const [readCv, setReadCv] = useState(false);
   const [fx, setFx] = useFx();
   const takeUrl = useRef("");
   // the take's video and its box (the video and what is drawn over it): what Export with overlay records
@@ -355,7 +357,10 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         {phase !== "recording" && <RecordInputSelect onPick={() => void switchMic()} />}
         <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
         <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera and the take. Not while recording: Export with overlay puts them in the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
-          <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} className="accent-sky-500" /> Read the neck
+          <input type="checkbox" checked={readNeck} onChange={(e) => { setReadNeck(e.target.checked); if (e.target.checked) setReadCv(false); }} className="accent-sky-500" /> Read the neck
+        </label>
+        <label className="flex items-center gap-1.5 text-slate-300" title="Finds the fret markers with OpenCV and draws each fret with its number above and below. Turns Read the neck off. OpenCV downloads the first time, about 10 MB.">
+          <input type="checkbox" checked={readCv} onChange={(e) => { setReadCv(e.target.checked); if (e.target.checked) setReadNeck(false); }} className="accent-sky-500" /> Read the neck (OpenCV)
         </label>
       </div>
       {readNeck && <FxControls fx={fx} set={setFx} />}
@@ -383,6 +388,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
         {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
+        {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} fit="cover" />}
         {/* one tree for every place, so changing the place never restarts the tool */}
         <div className={`${free ? "absolute" : panelClass(look, "record")} ${toolShown ? "" : "hidden"}`} style={panelStyle(look)}>
           <div className={free ? `${panelBg(look)} pt-4` : undefined}>
@@ -401,6 +407,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
             <video key={take.url} ref={setTakeVideo} src={take.url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
               onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setTake((t) => (t && t.url === take.url ? { ...t, width: videoWidth, height: videoHeight } : t)); }} />
             {readNeck && <NeckView key={take.url} video={takeVideo} fx={fx} fit="cover" bare={exporting !== null} />}
+            {readCv && <NeckCvView key={take.url} video={takeVideo} markers={fx.markers} fit="cover" bare={exporting !== null} />}
             {take.overlay && draw && <ToolOverVideo video={takeVideo} overlay={{ ...take.overlay, look }} draw={draw} hidden={!toolShown} />}
           </div>
           <p className="text-xs text-slate-400">{take.burned ? "Exported with overlay: players see this take with the tool and the effects in the picture." : overlayWords(take.overlay, drawn)}</p>

@@ -150,6 +150,8 @@ export const neckWidthMm = (fret: number) => 42 + (14 * Math.min(22, Math.max(0,
 
 /** Each A3 layout marker's printed size (mm), by id. */
 export const MARKER_MM = new Map(A3_LAYOUT.map((m) => [m.id, m.mm] as const));
+/** A3 layout markers level with a fret but not on the board (51, on the body): the OpenCV reader leaves them out. */
+export const OFF_BOARD: ReadonlySet<number> = new Set(A3_LAYOUT.filter((m) => m.fret !== null && m.fret > 0 && m.where.startsWith("body")).map((m) => m.id));
 
 /**
  * How many frame units a millimetre is across the neck, from how wide the markers seen look across it (`n`, a unit vector)

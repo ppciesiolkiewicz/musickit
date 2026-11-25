@@ -18,6 +18,28 @@ with the effects in the picture. `bare` hides the status line for that.
   frets. No perspective and no strings yet: it gives the fret along the neck only. Two placed markers in view are enough.
   `placeByHand` picks the string of a pitch from the fret the fretting hand is at.
 
+## The OpenCV reader
+
+A second reader, behind each page's **Read the neck (OpenCV)** tick (one reader at a time: ticking one unticks the other). It
+draws no effects: each fret wire across the board, with its number above and below, and the markers it found (orange: followed
+from the last frame, not found in this one). `ui/NeckCvView.tsx` draws; `client/cv.ts` loads OpenCV.js (the
+`@techstark/opencv-js` build, from jsDelivr on first use, about 10 MB) and does the image work; `model/cvFrets.ts` is the maths.
+
+- **Markers**: OpenCV's ArUco detector on the frame at full size after a 5 px median blur, which wipes the strings off the
+  markers (on the test video it more than doubled how often the fret 1 and 7 markers are found). Too small or not square is
+  dropped. A marker missed is followed from the last frame by optical flow for up to 8 frames, if its corners track back.
+- **Which markers**: the fret markers in **Markers** (not the nut), sizes from Markers or the A3 layout, without `OFF_BOARD`
+  (51, on the body). A marker off the line the others make is left out too.
+- **The frets**: the marker centres give the neck's axis and where each fret falls along it, with perspective (`projFit`, two
+  markers are enough). The frame is turned so the axis is level (the strip); each fret is snapped to the bright wire nearest it
+  and the fit redone on the wires found, so it holds past the last marker. A wire's lean comes from where it is in the board's
+  upper and lower halves.
+- **The board's edges**: the markers sit on the near edge, so that edge is the strongest one within 25 mm beyond them; the far
+  edge is looked for where the board's width (`neckWidthMm`) puts it, a mm across measured from the markers' printed size.
+  Each is a line fitted through most of the points (`ransacLine`), so a hand over part of it doesn't move it.
+- About 55 to 70 ms a frame at 1280 × 720, so it reads about 15 frames a second; the wires are eased between reads and kept
+  half a second once the markers are gone.
+
 ## Effects
 
 Ticked in **Effects** (`model/fx.ts` names them, `ui/NeckView.tsx` draws them):
@@ -97,6 +119,9 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 | `model/grid.ts` | Pure. Markers to a fret grid, the fret a point is at, the string a pitch was played on. `NeckRead`, a frame's read as logged with a riff take. |
 | `model/mood.ts` | Pure. The mood: energy, key, tension, its colour and video filter; the beat. |
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
+| `model/cvFrets.ts` | Pure. The OpenCV reader's maths: the axis, the perspective fit, the board's edges and the wires from a strip. |
+| `client/cv.ts` | Browser. Loads OpenCV.js; finds and follows the markers, turns the frame into the strip, calls `readStrip`. |
+| `ui/NeckCvView.tsx` | React. The OpenCV reader's canvas over a video: the wires and their numbers. |
 | `client/listen.ts` | Browser. Picks and their notes from a stream's sound, and how loud it is. |
 | `ui/NeckView.tsx` | React. The canvas over a video: reads markers and hands each new frame, draws every animation frame. |
 | `ui/FxControls.tsx` | React. Markers, Buttons, Covering, Effects (the mood effects with Strength and Beat, and Hide markers) and Test effects; `useFx` keeps them. |
