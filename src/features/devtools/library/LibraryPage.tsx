@@ -5,6 +5,7 @@ import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
 import { seedBlocksById } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
+import ScrollToItem from "./ScrollToItem";
 import { libraryHref, minutes, orDash, type LibraryParams } from "./params";
 
 const TH = "p-2";
@@ -185,6 +186,7 @@ function Item({ result, params }: { result: ItemResult; params: LibraryParams })
   if (result.state === "none") return null;
   return (
     <section id="item" className="scroll-mt-4">
+      <ScrollToItem />
       <H>
         Drawn{" "}
         <a className="ml-2 text-xs font-normal text-sky-300 underline hover:text-sky-200" href={libraryHref(params, { item: undefined })}>close</a>
@@ -212,6 +214,11 @@ export default function LibraryPage({ result, item, params }: { result: LibraryR
   return (
     <div>
       <SeedSections />
+      <p className="mb-3 text-sm text-slate-400">
+        Where this page reads from: the tables come from the database, through the same queries the MCP tools use. The
+        item you open (<code>?item=</code>) comes from its seed file in <code>src/features/library/seed</code> if one has
+        that id, and from the database if not.
+      </p>
       <Tables result={result} params={params} />
       <Item result={item} params={params} />
     </div>
