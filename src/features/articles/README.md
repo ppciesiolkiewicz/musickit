@@ -16,7 +16,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 
 - `VOICE.md`: how the articles sound, on top of `teaching-voice`, with its `version` (`ARTICLE_VOICE_VERSION`).
 - `model.ts`: `Article` (title, search title and description, intro, `updated`, `sings`, `blocks`) and `ArticleBlock`: `p`,
-  `h2`, `list`, `care` (the plan's care line, `CareLine`) and `exercise` (a heading, its lines, the tool, lines after it). Text
+  `h2`, `list`, `care` (the plan's care line, `CareLine`), `figure` (a photo in `public/images/learn` with its caption and the credit its licence asks for) and `exercise` (a heading, its lines, the tool, lines after it). Text
   takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`). `ArticleSeed`: what an article was
   written from.
 - `content/<slug>.ts`: one article each. `index.ts`: `ARTICLES`, in the order `/learn` lists them, and `articleOf`.

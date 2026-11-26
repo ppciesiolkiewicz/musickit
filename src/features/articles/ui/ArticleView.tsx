@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
@@ -36,6 +37,19 @@ function Block({ block }: { block: ArticleBlock }) {
       return <ul className="flex list-disc flex-col gap-1.5 pl-5 text-slate-300">{block.items.map((t) => <li key={t}><Inline text={t} /></li>)}</ul>;
     case "care":
       return <p><CareLine>{block.text}</CareLine></p>;
+    case "figure":
+      return (
+        <figure className="flex flex-col gap-2">
+          <Image src={block.src} width={block.width} height={block.height} alt={block.alt} sizes="(min-width: 768px) 672px, 100vw" className="h-auto max-h-80 w-full rounded-2xl border border-slate-800 object-cover" />
+          <figcaption className="text-sm text-slate-400">
+            {block.caption}{" "}
+            <span className="text-xs text-slate-500">
+              Photo: <a href={block.credit.source} target="_blank" rel="noopener" className="underline-offset-2 hover:underline">{block.credit.by}</a>,{" "}
+              <a href={block.credit.licenseUrl} target="_blank" rel="noopener license" className="underline-offset-2 hover:underline">{block.credit.license}</a>
+            </span>
+          </figcaption>
+        </figure>
+      );
     case "exercise": {
       const tool = parseTool(block.tool);
       return (

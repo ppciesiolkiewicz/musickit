@@ -10,6 +10,8 @@ export type ArticleBlock =
   | { type: "h2"; text: string }
   | { type: "list"; items: string[] }
   | { type: "care"; text: string }
+  /** a photo from `public/images/learn`, its caption and the credit its licence asks for (author, licence, the source page) */
+  | { type: "figure"; src: string; width: number; height: number; alt: string; caption: string; credit: { by: string; license: string; licenseUrl: string; source: string } }
   /** something to sing on the page: a heading, its lines (one paragraph each) and the tool, written as a seed exercise writes it (`parseTool` reads it) */
   | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; after?: string[] };
 

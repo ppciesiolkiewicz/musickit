@@ -6,11 +6,10 @@ import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "./index";
 import { articleJsonLd } from "./jsonLd";
 import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
-import { articleStats } from "./stats";
+import { articleStats, articleTexts } from "./stats";
 
 const seedOf = (slug: string): ArticleSeed => JSON.parse(readFileSync(new URL(`./seeds/${slug}.json`, import.meta.url), "utf8"));
-const texts = (a: (typeof ARTICLES)[number]) =>
-  a.blocks.flatMap((b) => (b.type === "list" ? b.items : b.type === "exercise" ? [b.title, ...b.lines, ...(b.after ?? [])] : [b.text]));
+const texts = articleTexts;
 
 describe("articles", () => {
   it("have unique slugs and a seed file each, written to versions no newer than the documents", () => {
