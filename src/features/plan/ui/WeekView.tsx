@@ -4,6 +4,7 @@ import { dayPages, pageOf, sectionStarts } from "../model/sections";
 import { shownTitle } from "../model/moves";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
+import { Button, Modal } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
 import DayTimer, { Corner } from "./DayTimer";
 import DayEditor from "./DayEditor";
@@ -160,6 +161,33 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const cards = useRef<(HTMLLIElement | null)[]>([]);
+  // the exercises with no stars yet (none without `onRate`): Next and Finish day ask for them first (`RateFirst`)
+  const unrated = onRate ? d.exercises.flatMap((_, i) => (plan.rated?.[doneKey(day, i)]?.stars == null ? [i] : [])) : [];
+  const [asking, setAsking] = useState<{ missing: number[]; next: number | null } | null>(null);
+  // the card whose stars to bring into view, once its page is drawn
+  const rateAt = useRef<number | null>(null);
+  const showStars = useCallback((i: number) => {
+    const card = cards.current[i];
+    (card?.querySelector("[data-rating]") ?? card)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
+  useEffect(() => {
+    if (rateAt.current === null) return;
+    showStars(rateAt.current);
+    rateAt.current = null;
+  }, [page, showStars]);
+  const rateMissing = (i: number) => {
+    setAsking(null);
+    const to = pageOf(pages, i);
+    if (pages.length > 1 && to !== page) {
+      rateAt.current = i;
+      setPage(to);
+    } else requestAnimationFrame(() => showStars(i));
+  };
+  const next = () => {
+    const missing = unrated.filter((i) => i >= at.start && i < at.start + at.count);
+    if (missing.length) setAsking({ missing, next: page + 1 });
+    else turn(page + 1);
+  };
   const focused = useInView(cards, `${day}:${page}`);
   // the day timer is counting (not paused, day not over): the card it counts for shows its time ticking, rated or not,
   // past its planned time or not (the timer counts every second to the card in view)
@@ -250,7 +278,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
               </button>
             ) : <span />}
             {page < pages.length - 1 && (
-              <button type="button" onClick={() => turn(page + 1)} className="rounded-md border border-slate-500 bg-slate-800 px-3 py-1.5 text-sm text-slate-100 hover:border-slate-300">
+              <button type="button" onClick={next} className="rounded-md border border-slate-500 bg-slate-800 px-3 py-1.5 text-sm text-slate-100 hover:border-slate-300">
                 Next: {pages[page + 1].label}
               </button>
             )}
@@ -262,11 +290,20 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
       {!editing && !readOnly && onTime && (
         <DayEnd
           left={Math.max(0, total * 60 - (live?.ids === ids ? live.spent.reduce((n, x) => n + x, 0) : elapsedOn(times, day)))}
-          unrated={onRate ? d.exercises.flatMap((_, i) => (plan.rated?.[doneKey(day, i)]?.stars == null ? [i] : [])) : []}
-          onRateMissing={(i) => {
-            setPage(pageOf(pages, i));
-            requestAnimationFrame(() => cards.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" }));
-          }}
+          unrated={unrated}
+          onRateMissing={rateMissing}
+          onFinish={() => setAsking({ missing: unrated, next: null })}
+        />
+      )}
+
+      {asking && (
+        <RateFirst
+          missing={asking.missing.length}
+          where={asking.next === null ? "day" : "page"}
+          goLabel={asking.next === null ? null : `Go to ${pages[asking.next].label}`}
+          onRate={() => rateMissing(asking.missing[0])}
+          onGo={() => { const to = asking.next; setAsking(null); if (to !== null) turn(to); }}
+          onClose={() => setAsking(null)}
         />
       )}
 
@@ -291,10 +328,32 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
 }
 
 /**
- * The foot of a day: what is left of it (time on the day's timer, exercises with no rating, with a button that brings the
- * first of them into view) or, when neither is left, a line that the day is done; and Back to top.
+ * Asked when Next or Finish day is pressed with exercises on that page (or day) not rated: Add missing ratings brings the
+ * first one's stars into view; from Next, Go to <page> turns the page anyway.
  */
-function DayEnd({ left, unrated, onRateMissing }: { left: number; unrated: number[]; onRateMissing: (i: number) => void }) {
+function RateFirst({ missing, where, goLabel, onRate, onGo, onClose }: {
+  missing: number; where: "page" | "day"; goLabel: string | null; onRate: () => void; onGo: () => void; onClose: () => void;
+}) {
+  return (
+    <Modal title="Rate each exercise" narrow onClose={onClose}>
+      <div className="flex flex-col gap-3 text-sm text-slate-300">
+        <p>Your stars decide what goes into your next plan. {missing === 1 ? "1 exercise" : `${missing} exercises`} on this {where} {missing === 1 ? "has" : "have"} no rating yet.</p>
+        <p>Give each one stars under How did it go?</p>
+        <div className="flex flex-wrap justify-end gap-2">
+          {goLabel && <Button onClick={onGo}>{goLabel}</Button>}
+          <Button onClick={onRate} className="!border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 hover:!bg-sky-400">Add missing ratings</Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/**
+ * The foot of a day: what is left of it (time on the day's timer, exercises with no rating, with a button that brings the
+ * first one's stars into view, and Finish day, which asks for them) or, when neither is left, a line that the day is done;
+ * and Back to top.
+ */
+function DayEnd({ left, unrated, onRateMissing, onFinish }: { left: number; unrated: number[]; onRateMissing: (i: number) => void; onFinish: () => void }) {
   const min = Math.ceil(left / 60);
   const done = left === 0 && unrated.length === 0;
   return (
@@ -311,6 +370,11 @@ function DayEnd({ left, unrated, onRateMissing }: { left: number; unrated: numbe
                 Add missing ratings
               </button>
             </div>
+          )}
+          {unrated.length > 0 && (
+            <Button onClick={onFinish} className="!border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 hover:!bg-sky-400">
+              <Icon name="check" size={14} />Finish day
+            </Button>
           )}
         </>
       )}

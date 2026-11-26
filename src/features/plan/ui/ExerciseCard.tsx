@@ -124,7 +124,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
       <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
       {spent !== undefined && <span className="self-end"><SpentBar seconds={spent} minutes={e.minutes} ticking={ticking} small /></span>}
       {onRate && (
-        <div className={`flex flex-col gap-1 rounded-xl border p-3 sm:p-4 ${rating === null ? "border-amber-400/50 bg-amber-500/10" : "border-slate-700 bg-slate-800/40"}`}>
+        <div data-rating className={`flex scroll-mt-24 flex-col gap-1 rounded-xl border p-3 sm:p-4 ${rating === null ? "border-amber-400/50 bg-amber-500/10" : "border-slate-700 bg-slate-800/40"}`}>
           <p className={`text-base font-semibold ${rating === null ? "text-amber-100" : "text-slate-200"}`}>How did it go?</p>
           <StarRating value={rating} labels={STARS.map((s) => STAR_LABELS[s])} label="How did it go?" onChange={(v) => onRate(isStars(v) ? v : null)} />
           <p className="text-xs text-slate-400">Your stars shape the next plan: 1 or 2 makes it easier, 3 keeps it the same, 4 or 5 moves you on.</p>
