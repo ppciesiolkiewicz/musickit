@@ -224,3 +224,12 @@
     -webkit-text-fill-color: transparent;
   }
 }
+
+/* an article's picture under its title (ArticleHero): no frame, it melts into the page on every side, most at the top,
+   where it runs up behind the intro */
+.article-hero {
+  -webkit-mask: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent), linear-gradient(transparent, #000 45%, #000 70%, transparent);
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent), linear-gradient(transparent, #000 45%, #000 70%, transparent);
+  mask-composite: intersect;
+}
