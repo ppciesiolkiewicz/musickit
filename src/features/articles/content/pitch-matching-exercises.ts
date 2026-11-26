@@ -27,12 +27,12 @@ export const pitchMatchingExercises: Article = {
       "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
       "Sing the low Do on \"oo\" and hold it. Then slide a little sharp on purpose and back, then a little flat and back.",
       "Practice until you can land on the low Do and hold it without the line drifting.",
-    ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", labels: "solfege", enable: ["1"], others: "hidden", drone: true } },
+    ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", enable: ["1"], others: "hidden", drone: true } },
 
     { type: "exercise", title: "2. The siren to Sol", lines: [
       "On \"oo\", slide slowly from Do up to Sol and back, like a siren. Then sing the two as a clean jump.",
       "If Sol lands under the note, take a fresh breath before you jump.",
-    ], tool: { type: "staff", scale: "major-ionian", key: "f", voice: "tenor", labels: "solfege", notes: ["1", "5"], drone: true }, after: [
+    ], tool: { type: "staff", scale: "major-ionian", key: "f", voice: "tenor", notes: ["1", "5"], drone: true }, after: [
       "_Don't reach for high notes: turn the siren round at Sol._",
     ] },
 

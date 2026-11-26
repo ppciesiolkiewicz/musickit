@@ -9,7 +9,6 @@ export const majorAndMinorScalesGuitar: Article = {
   updated: "2026-11-26",
   sings: false,
   topics: ["guitar", "theory"],
-  labels: "interval",
   frets: 12,
   blocks: [
     { type: "p", text: "Most of us learn a scale as one position: a block of frets to run up and down. But the neck doesn't stop there. The same notes come back all the way up, and small groups of them come back together." },
@@ -24,8 +23,7 @@ export const majorAndMinorScalesGuitar: Article = {
       "Each island has a frame and a number. Press its button under the neck, Island 1 for the first, to hear it.",
       "The key under each neck says what the frames and the red circles mean. Tap any dot to hear it.",
     ] },
-    { type: "p", text: "Use the Labels selector below to pick intervals or solfège for every dot on this page." },
-    { type: "labels" },
+    { type: "p", text: "Use the Labels selector at the bottom of this page to switch every dot between intervals and solfège." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [

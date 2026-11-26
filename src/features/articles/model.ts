@@ -25,17 +25,15 @@ export type ArticleBlock =
    */
   | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[] }
   /**
-   * the Labels switch, Intervals or Solfège (`ui/ArticleLabels.tsx`): every dot on the page follows it, starting from the
-   * reader's setting or else the article's `labels`; with the line that either is fine and the link to `NAMES_ARTICLE`
-   */
-  | { type: "labels" }
-  /**
    * every note from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it
    * (`ui/NamesChart.tsx`). One octave unless `octaves` says more: then the names come round again from each Do, and no table.
    */
   | { type: "names"; octaves?: number }
   /** small tools side by side (two to a row on a wide screen, one under the other on a phone), with no text: a row of charts */
   | { type: "row"; tools: Record<string, unknown>[] };
+
+/** What an article's dots start as: its own `labels`, else Intervals for a guitar article and Solfège for any other (singing). */
+export const articleLabels = (a: Pick<Article, "labels" | "topics">): LabelSystem => a.labels ?? (a.topics.includes("guitar") ? "interval" : "solfege");
 
 /** The article with every solfège name and interval on a piano, which the Labels switch links to. */
 export const NAMES_ARTICLE = "intervals-and-solfege";
@@ -61,7 +59,10 @@ export interface Article {
   sings: boolean;
   /** what it is about, shown as tags on its /learn card and used by the topic filter there; one or more */
   topics: Topic[];
-  /** every dot on the page, on the necks and in the text, labelled this way whatever the reader's setting; absent: their setting */
+  /**
+   * what every dot on the page, on the necks, staffs and in the text, is labelled as when the page opens; the Labels selector at
+   * the bottom of the page (`ui/ArticleLabels.tsx`) switches it. Absent: `articleLabels`, Intervals for a guitar article, else Solfège
+   */
   labels?: LabelSystem;
   /** every guitar neck on the page ends by this fret; absent: the tools' own */
   frets?: number;

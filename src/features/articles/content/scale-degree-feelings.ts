@@ -49,7 +49,7 @@ export const scaleDegreeFeelings: Article = {
       "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
       "Sing up the scale from the low Do, slowly. Sing it on the note names, and hold each note for a breath.",
       "Practice until you can tell the notes that rest (Do, Mi and Sol) from the ones that want to move.",
-    ], tool: { type: "staff", scale: "major-ionian", key: "c", voice: "tenor", labels: "solfege", highlight: ["1", "3", "5"], drone: true }, after: [
+    ], tool: { type: "staff", scale: "major-ionian", key: "c", voice: "tenor", highlight: ["1", "3", "5"], drone: true }, after: [
       "_Don't reach for high notes: turn back at the next Do up._",
     ] },
 
@@ -57,7 +57,7 @@ export const scaleDegreeFeelings: Article = {
       "Now Do is A, and Mi is C♯. Press Start microphone below to start the mic. Then press Play beside the drone to hear the new Do.",
       "Sing up the scale from the low Do again, on the note names. Hold Mi and Ti a little longer.",
       "When you change the key, every letter is new, but Mi still rests and Ti still pulls up to Do.",
-    ], tool: { type: "staff", scale: "major-ionian", key: "a", voice: "tenor", labels: "solfege", highlight: ["3", "7"], drone: true } },
+    ], tool: { type: "staff", scale: "major-ionian", key: "a", voice: "tenor", highlight: ["3", "7"], drone: true } },
 
     { type: "exercise", title: "3. Mi and Sol from any Do", lines: [
       "Press Start below: the piano plays Do and then the note to sing, and the mic starts. Each time, Do is C, F or A.",

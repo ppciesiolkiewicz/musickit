@@ -42,7 +42,7 @@ export const vocalWarmUps: Article = {
     { type: "exercise", title: "5. Hum, then open", lines: [
       "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
       "Hum the low Do, then open it to \"oo\" without the pitch moving. Then do the same on Sol.",
-    ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", labels: "solfege", notes: ["1", "5"], drone: true }, after: [
+    ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", notes: ["1", "5"], drone: true }, after: [
       "_Don't reach for high notes: Sol here is the one just above the low Do._",
     ] },
 

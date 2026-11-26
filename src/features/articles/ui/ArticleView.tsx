@@ -6,12 +6,11 @@ import { parseTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
 import type { NoteRoot } from "@/features/plan/model/noteText";
 import { CareLine, NoteText } from "@/features/plan/ui/reader/NoteText";
-import { FixedLabelSystem } from "@/features/theory/useLabelSystem";
 import { NeckFrets } from "@/components/chordKit/ScaleNeck";
 import { ARTICLES } from "../index";
 import { AUTHOR } from "../author";
 import { blockRoots, markArticle, type Mark } from "../marks";
-import type { Article, ArticleBlock } from "../model";
+import { articleLabels, type Article, type ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
 import { ArticleLabels, LabelSwitch } from "./ArticleLabels";
 import NamesChart from "./NamesChart";
@@ -46,8 +45,6 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
       return <p><CareLine><Inline runs={lines[0]} root={root} /></CareLine></p>;
     case "player":
       return <PlayerControls />;
-    case "labels":
-      return <LabelSwitch />;
     case "names":
       return <NamesChart octaves={block.octaves} />;
     case "figure":
@@ -132,14 +129,19 @@ function MoreGuides({ current }: { current: string }) {
   );
 }
 
+/** The page has dots for the Labels selector to switch: a tool, the names chart, or notes in its text. */
+const hasDots = (a: Article) => a.blocks.some((b) => b.type === "exercise" || b.type === "row" || b.type === "names" || JSON.stringify(b).includes("{{"));
+
 /** An article's body: its blocks in order, the singing tools under one Your voice picker. Glossary words are marked once each across the whole article. */
 export default function ArticleView({ article }: { article: Article }) {
   const marked = markArticle(article);
+  const dots = hasDots(article);
   const roots = blockRoots(article);
   const body = (
     // the plan reader's text is 18px from sm up, its inline note dots 1.9em of that: the same 34px here on 16px text
     <div className="flex flex-col gap-4 leading-relaxed sm:[--note-dot:2.15em]">
       {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} root={roots[i]} /></Fragment>)}
+      {dots && <LabelSwitch />}
       <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
       <JoinCard />
       <MoreGuides current={article.slug} />
@@ -147,7 +149,6 @@ export default function ArticleView({ article }: { article: Article }) {
   );
   const page = article.sings ? <VoicePicker data={article.blocks}>{body}</VoicePicker> : body;
   const framed = article.frets ? <NeckFrets to={article.frets}>{page}</NeckFrets> : page;
-  // a page with the Labels switch follows it; any other page with `labels` keeps them whatever the reader's setting
-  if (article.blocks.some((b) => b.type === "labels")) return <ArticleLabels fallback={article.labels ?? "interval"}>{framed}</ArticleLabels>;
-  return article.labels ? <FixedLabelSystem value={article.labels}>{framed}</FixedLabelSystem> : framed;
+  // every dot starts as the article's labels (Solfège for singing, Intervals for guitar), whatever the reader's setting; the selector at the bottom switches them
+  return <ArticleLabels initial={articleLabels(article)}>{framed}</ArticleLabels>;
 }
