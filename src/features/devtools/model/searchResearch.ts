@@ -70,3 +70,42 @@ export const TOOLS = [
   { label: "Google Keyword Planner", url: "https://ads.google.com/home/tools/keyword-planner/", note: "Search ranges for Australia. Free with a Google Ads account." },
   { label: "Keywords Everywhere", url: "https://keywordseverywhere.com/", note: "Browser add-on paid by credits; the cheapest paid option." },
 ];
+
+export const SITES_CHECKED = "2026-11-26";
+
+/** What a singing app or course publishes, from its sitemap.xml. */
+export interface SiteSitemap {
+  site: string;
+  pages: string;
+  what: string;
+}
+
+export const SINGING_SITES: SiteSitemap[] = [
+  { site: "Singing Carrots", pages: "~80,000+", what: "Almost all built from templates: a page per song's vocal range (~60K), per singer's range, \"learn to sing like <artist>\", \"did they take singing lessons\" (2,700), a range page for each note span (/vocal-range/D2-C#6, 903), exercises in each range and scale (4,400), songs for each voice type, and singing teachers by city (2,500). About 30 free tools: range test, pitch test, pitch monitor (in ~50 languages), song key finder, mic test, spectrogram, sustain training." },
+  { site: "Musical U", pages: "1,700", what: "About 220 singing articles under /learn: tone deafness, singing in tune, solfa, perfect pitch, harmony, choir. Free tools: a tone deaf test app, SingTrue, interval exercises, an ear training quiz, a \"learn to sing\" roadmap." },
+  { site: "30 Day Singer", pages: "570", what: "370 lesson pages (/tutorial/…), one technique or style each, often split by voice (\"daily intonation practice for high voices\", \"chest voice workout for bass and low baritone\", \"sing like Ella\"). 170 blog posts on voice types, registers, pitch matching, warm-ups." },
+  { site: "Singing Success", pages: "200", what: "A coach's blog: voice health, confidence, careers. Little to copy." },
+  { site: "Yousician", pages: "420", what: "Singing is thin: ~60 \"new song for … and singing\" posts, plus /blog/vocal-range, /blog/singing-app and /blog/online-singing-lessons." },
+  { site: "Simply Sing", pages: "1", what: "One product page." },
+];
+
+/** Pages attunr could make for singers, best first, from what the sites above rank with. */
+export interface Idea {
+  title: string;
+  why: string;
+}
+
+export const SINGING_IDEAS: Idea[] = [
+  { title: "Vocal range test", why: "Sing your lowest and highest note, see the notes and the voice type. Singing Carrots' /range-test and its 900 range pages are its centre. A small tool, and range is a search of its own." },
+  { title: "Tone deaf test", why: "A short same-or-different listening test, with a note that most people who sing out of tune aren't tone deaf. Musical U has a whole app and three articles for this one search." },
+  { title: "Free pitch monitor or pitch matching page", why: "Sing and see your note live, nothing recorded. Singing Carrots spreads its pitch monitor over ~50 languages. attunr's \"doesn't record you\" fits here." },
+  { title: "Exercises for each voice type", why: "\"Pitch matching for high voices\", \"warm-up for low voices\", as 30 Day Singer splits its lessons. Each is an attunr exercise with a short text: a few templated pages, not many articles." },
+  { title: "\"How to sing in tune\": one strong article", why: "Links to the three tools above, as Musical U's roadmap does. One article, not 200." },
+  { title: "Vowel and warm-up pages next to /voice-care", why: "The gentle-voice topics Singing Carrots and 30 Day Singer rank with." },
+];
+
+/** Seen on the sites above and left out, with why. */
+export const NOT_TO_COPY: string[] = [
+  "Song and artist range pages (Singing Carrots' ~60K): need a song database and raise licensing questions.",
+  "Singing teachers by city: needs a teacher directory.",
+];

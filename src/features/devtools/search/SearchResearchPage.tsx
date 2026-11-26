@@ -1,4 +1,4 @@
-import { PHRASES_TO_CHECK, SEARCH_CHECKED, SEARCHES, SITE_TRAFFIC, SITE_TRAFFIC_MONTH, TOOLS, type Difficulty, type Persona } from "../model/searchResearch";
+import { NOT_TO_COPY, PHRASES_TO_CHECK, SEARCH_CHECKED, SEARCHES, SINGING_IDEAS, SINGING_SITES, SITE_TRAFFIC, SITE_TRAFFIC_MONTH, SITES_CHECKED, TOOLS, type Difficulty, type Persona } from "../model/searchResearch";
 
 const DIFFICULTY_CLASS: Record<Difficulty, string> = {
   "Very hard": "bg-rose-500/20 text-rose-200",
@@ -28,7 +28,7 @@ export default function SearchResearchPage() {
         <section key={p} aria-label={p} className="flex flex-col gap-2">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-rose-200">{p}</h3>
           <div className="overflow-x-auto rounded-lg border border-slate-800">
-            <table className="w-full min-w-[56rem] text-left text-sm">
+            <table className="w-full min-w-4xl text-left text-sm">
               <thead className="bg-slate-900/80 text-xs text-slate-400">
                 <tr>
                   <th className="px-3 py-2 font-medium">Search</th>
@@ -72,6 +72,32 @@ export default function SearchResearchPage() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section aria-label="Singing sites" className="flex flex-col gap-2">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-rose-200">What singing sites publish</h3>
+        <p className="max-w-3xl text-sm text-slate-400">From each site&apos;s sitemap.xml on {SITES_CHECKED}. Page counts, not traffic.</p>
+        <div className="overflow-x-auto rounded-lg border border-slate-800">
+          <table className="w-full min-w-160 text-left text-sm">
+            <thead className="bg-slate-900/80 text-xs text-slate-400">
+              <tr><th className="px-3 py-2 font-medium">Site</th><th className="px-3 py-2 font-medium">Pages</th><th className="px-3 py-2 font-medium">What they are</th></tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {SINGING_SITES.map((s) => (
+                <tr key={s.site} className="align-top"><td className="whitespace-nowrap px-3 py-2 font-medium text-slate-100">{s.site}</td><td className="px-3 py-2 font-mono tabular-nums text-slate-100">{s.pages}</td><td className="px-3 py-2 text-slate-300">{s.what}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-label="Singing ideas" className="flex flex-col gap-2">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-rose-200">Ideas for singers, best first</h3>
+        <ol className="flex max-w-3xl list-decimal flex-col gap-2 pl-5 text-sm">
+          {SINGING_IDEAS.map((i) => <li key={i.title}><span className="font-medium text-slate-100">{i.title}.</span> <span className="text-slate-300">{i.why}</span></li>)}
+        </ol>
+        <p className="mt-2 text-sm text-slate-400">Left out:</p>
+        <ul className="max-w-3xl list-disc pl-5 text-sm text-slate-400">{NOT_TO_COPY.map((n) => <li key={n}>{n}</li>)}</ul>
       </section>
 
       <section aria-label="To check next" className="flex flex-col gap-3">
