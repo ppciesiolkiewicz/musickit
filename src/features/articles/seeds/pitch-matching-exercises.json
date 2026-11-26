@@ -1,0 +1,42 @@
+{
+  "slug": "pitch-matching-exercises",
+  "query": "pitch matching exercises for singers",
+  "persona": "singer",
+  "written": "2026-11-26",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12
+  },
+  "voice": "Friendly and casual, a little playful, proposing things to try; on top of the teaching-voice skill's plain-English rules. The author's own words win where they differ from teaching-voice (\"don't worry\" on lip rolls).",
+  "notes": [
+    "start with introduction saying that pitch matching exercises with live feedback can be super beneficial in strengthening your voice. A lot of singers would be slightly below or above the note in some notes and working on precision can ..",
+    "Then some safety precautions about proper technique",
+    "we link vocal warmups link",
+    "the pitch matching exercises can be a few, e.g. Agility warmup could be DO RE DO DO MI DO DO FA DO DO SOL DO and then DO RE DO MI DO FA DO SOL",
+    "We still want to propose ideas and be playful"
+  ],
+  "blocks": [
+    "voice-beginner-a-long-steady-do",
+    "voice-beginner-siren-to-sol",
+    "voice-warm-up-out-from-do-going-up",
+    "voice-warm-up-out-from-do-going-down",
+    "voice-beginner-hear-and-sing-back",
+    "voice-beginner-hum-then-open"
+  ],
+  "calculator": [
+    "npm run -s theory -- scale C major"
+  ],
+  "sources": [
+    "https://www.soundbrenner.com/blogs/articles/pitch-training-for-singers-simple-daily-exercises",
+    "https://www.dummies.com/article/academics-the-arts/music/voice/sliding-up-and-down-on-pitch-179088/",
+    "https://uen.pressbooks.pub/auralskills/chapter/matching-pitch-and-tuning/",
+    "https://singingcarrots.com/pitch-training",
+    "https://www.musical-u.com/learn/how-to-learn-to-sing-in-tune/",
+    "/admin/dev/search"
+  ],
+  "open": [
+    "The agility patterns are sung over a staff with the notes Do to Sol; they are not yet a run in the runs book (RUN_STAGES), which would play them and move up a key each pass.",
+    "Search volume for \"pitch matching exercises\" not checked yet."
+  ]
+}

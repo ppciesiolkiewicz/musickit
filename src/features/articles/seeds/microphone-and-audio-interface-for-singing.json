@@ -1,0 +1,31 @@
+{
+  "slug": "microphone-and-audio-interface-for-singing",
+  "query": "best microphone and audio interface for singing practice",
+  "persona": "singer",
+  "written": "2026-11-26",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12
+  },
+  "voice": "Friendly and casual, a little playful, proposing things to try; on top of the teaching-voice skill's plain-English rules. The author's own words win where they differ from teaching-voice (\"don't worry\" on lip rolls).",
+  "notes": [
+    "just recommending Scarlett Focusrite Solo or 2i2 (4th gen if this is the newest) and basic SM58 microphone if you wondered what to purchase",
+    "There're also a lot of other options to explore but very important of SM58 is it's popularity and for Digital interface very important to have direct feedback like Scarlett",
+    "2i2 should be (if you want to plug in more than one device)",
+    "Mention that direct monitoring good for singing practice since we can hear ourselves with no delay",
+    "I think this is good recommendation for many beginners (but i'm not paid for this)"
+  ],
+  "blocks": [],
+  "calculator": [],
+  "sources": [
+    "https://userguides.focusrite.com/hc/en-gb/articles/19640363197458-2i2-4th-Gen-hardware-features",
+    "https://support.focusrite.com/hc/en-gb/articles/14274128624914-Using-the-Direct-Mixer-in-Focusrite-Control-2",
+    "https://www.soundonsound.com/reviews/focusrite-scarlett-4th-gen"
+  ],
+  "open": [
+    "No Scarlett newer than the 4th generation was found on 2026-11-26; check focusrite.com before publishing.",
+    "\"i'm not past this\" read as \"I'm not paid for this\": the page says nobody paid for it. Confirm.",
+    "No prices: they change and differ by shop."
+  ]
+}
