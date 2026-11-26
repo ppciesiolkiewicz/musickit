@@ -1,9 +1,9 @@
 import type { Article } from "./model";
 
-/** Every line of text a reader reads in an article, block by block (a photo gives its caption). */
+/** Every line of text a reader reads in an article, block by block (a photo gives its caption; the player block's words are in its component). */
 export function articleTexts(article: Article): string[] {
   return article.blocks.flatMap((b) =>
-    b.type === "list" ? b.items : b.type === "exercise" ? [b.title, ...b.lines, ...(b.after ?? [])] : b.type === "figure" ? [b.caption] : [b.text],
+    b.type === "list" ? b.items : b.type === "exercise" ? [b.title, ...b.lines, ...(b.after ?? [])] : b.type === "figure" ? [b.caption] : b.type === "player" ? [] : [b.text],
   );
 }
 

@@ -15,7 +15,8 @@
     "Then some safety precautions about proper technique",
     "Also maybe bit less words on each article",
     "Each article should finish with CTA like \"Join attunr for more intarctive exercises and curated training plans for every day\"",
-    "Use interactive as a hook"
+    "Use interactive as a hook",
+    "Voice articles should include some information about components having: multiple controls, piano roll, fullscreen, difficulty setting; show buttons inline in that paragraph"
   ],
   "blocks": [
     "voice-warm-up-in-hold-out",

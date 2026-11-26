@@ -45,6 +45,8 @@ export const vocalWarmUps: Article = {
       "_Don't reach for high notes: Sol here is the one just above the low Do._",
     ] },
 
+    { type: "player" },
+
     { type: "exercise", title: "6. The five-tone scale", lines: [
       "Last, a little run: **Do Re Mi Fa Sol Fa Mi Re Do.** It starts at 40 bpm, slow enough to hear each step.",
       "Press Play below to hear the run: the mic starts with it. Sing along on \"oo\". Each pass starts a semitone higher.",

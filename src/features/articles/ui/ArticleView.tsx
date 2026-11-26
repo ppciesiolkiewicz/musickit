@@ -8,6 +8,7 @@ import { CareLine } from "@/features/plan/ui/reader/NoteText";
 import { ARTICLES } from "../index";
 import type { Article, ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
+import PlayerControls from "./PlayerControls";
 import TempoTool from "./TempoTool";
 
 /** `**bold**`, `[label](href)` and `_care line_` inside a line of article text. */
@@ -37,6 +38,8 @@ function Block({ block }: { block: ArticleBlock }) {
       return <ul className="flex list-disc flex-col gap-1.5 pl-5 text-slate-300">{block.items.map((t) => <li key={t}><Inline text={t} /></li>)}</ul>;
     case "care":
       return <p><CareLine>{block.text}</CareLine></p>;
+    case "player":
+      return <PlayerControls />;
     case "figure":
       return (
         <figure className="flex flex-col gap-2">

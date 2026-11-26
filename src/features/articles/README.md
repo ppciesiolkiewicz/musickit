@@ -23,6 +23,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `seeds/<slug>.json`: the article's seed info: the search it is written for, the persona, the date, the model, the versions
   it was written to (the teaching documents', `DOC_VERSIONS`, and the voice's, `VOICE.md`), the author's own notes verbatim, the library
   blocks it reuses, the calculator runs, the sources read, and what is still open. Rewrite the article from it when the rules change.
+- `ui/PlayerControls.tsx`: the `player` block: the sing-along player's controls (Staff or Piano roll, Tune, Chords and Click, the loop, Full screen, Accuracy under the settings button), each drawn inline as it looks on the screen. Written once here, placed by a singing article before its first run.
 - `ui/TempoTool.tsx`: a sung tune or run (melody-singer, run-singer) with a Tempo selector over it, 40, 60, 80 or 90 bpm (`ARTICLE_TEMPOS`), starting on the tempo the article wrote (40).
 - `ui/ArticleCard.tsx`: an article as a card: title, intro, how many exercises it has (or how many minutes it takes to read, from
   `stats.ts`, `articleStats`), **Uses your mic** when it `sings`, and **Read**. On `/learn` and under each article's **More guides**.

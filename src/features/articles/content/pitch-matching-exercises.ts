@@ -37,7 +37,7 @@ export const pitchMatchingExercises: Article = {
 
     { type: "h2", text: "Slow first, then loop the hard part" },
     { type: "p", text: "The runs below start at 40 bpm: slow enough to hear every note and land on it. Once every note lands, use the Tempo selector above a run to speed it up." },
-    { type: "p", text: "Stuck on one spot? Drag the two markers on the strip above the staff round that part, and only that part repeats until it's easy." },
+    { type: "player" },
 
     { type: "exercise", title: "3. The five-tone scale", lines: [
       "Do Re Mi Fa Sol and back down: **Do Re Mi Fa Sol Fa Mi Re Do.**",
