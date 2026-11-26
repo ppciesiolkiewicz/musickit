@@ -1887,3 +1887,14 @@ positions), position-neck, double-stops-neck (3rds/6ths on a string pair), chord
 `theory boxes|box|neighbours|dyads|fit`. Missing: a neck that rings a few root groups and circles every other root in
 another colour (a small scale-neck option). Research: /admin/dev/search (CAGED and "chords in a key" are the gap: rivals show
 static diagrams). Load course-article/teaching-voice, exercise-example for any seed block, review-teaching-text before done.
+
+NEW23: [NEW 2026-11-26] Article "Learning music theory as a way of naming feelings" (/learn), and highlighted words
+The author's words (verbatim where quoted): "Also article \"Learning music theory as a way of naming feelings\". Article
+goes like \"Music is relative, we get same sensations in relative keys and sensations can be mapped to intervals or scale
+degrees (these articles should use highlighted word functionality - could be its own feature)".
+- The article: music is relative; the same feeling comes back in any key; a feeling maps to an interval or a scale degree.
+  Something to hear on the page (a drone and a degree, interval-singer or interval-ears), as every article has.
+- Highlighted words, maybe a feature of its own: a word in an article (interval, scale degree, Do, relative…) marked and
+  explained where it stands. The app already has explained words: `GLOSSARY` in src/features/course/glossary.ts, which
+  plan text marks with an (i). Brainstorm whether the articles reuse it (an `Inline` mark in features/articles/ui) or it
+  becomes its own shared feature. Words written with teaching-voice; facts from `npm run theory`.
