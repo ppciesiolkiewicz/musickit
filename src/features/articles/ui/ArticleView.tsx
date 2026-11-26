@@ -50,12 +50,18 @@ function Block({ block, lines }: { block: ArticleBlock; /** the block's lines, m
         </figure>
       );
     case "exercise": {
-      const tool = parseTool(block.tool);
+      const tools = [block.tool, ...(block.beside ? [block.beside] : [])].map((t) => parseTool(t)).filter((t) => t !== null);
+      const pair = tools.length > 1;
       return (
-        <section aria-label={block.title} className="metal-panel mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
+        // two tools side by side: the card reaches past the column on a wide screen, so each neck keeps its size
+        <section aria-label={block.title} className={`metal-panel mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5 ${pair ? "lg:-mx-16 xl:-mx-40" : ""}`}>
           <h2 className="text-lg font-semibold text-slate-50">{block.title}</h2>
           {block.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[i]} /></p>)}
-          {tool && <div className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>}
+          {tools.length > 0 && (
+            <div className={pair ? "grid gap-6 lg:grid-cols-2 lg:gap-4" : "contents"}>
+              {tools.map((tool, i) => <div key={i} className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>)}
+            </div>
+          )}
           {block.after?.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[block.lines.length + i]} /></p>)}
         </section>
       );

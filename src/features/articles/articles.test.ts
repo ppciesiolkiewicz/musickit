@@ -24,7 +24,7 @@ describe("articles", () => {
   });
 
   it("set up every tool the way the plan's parser accepts", () => {
-    for (const a of ARTICLES) for (const b of a.blocks) if (b.type === "exercise") assert.ok(parseTool(b.tool), `${a.slug}: ${b.title}`);
+    for (const a of ARTICLES) for (const b of a.blocks) if (b.type === "exercise") for (const t of [b.tool, ...(b.beside ? [b.beside] : [])]) assert.ok(parseTool(t), `${a.slug}: ${b.title}`);
   });
 
   it("keep descriptions short enough for a search result, and link only to pages that exist", () => {

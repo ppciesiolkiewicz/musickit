@@ -16,6 +16,9 @@ import { SCALE_NECK_FRETS, positionLine, type ScalePosition } from "@/lib/chordK
 import { SHARP, scaleBoxes, shiftPosition } from "./boxes";
 import { GuitarView } from "./Guitar";
 import { findIslands, islandTune } from "./islands";
+import { IslandLegend } from "./IslandLegend";
+
+export { IslandLegend };
 
 type Part = "positions" | "neck";
 type PartMode = "on" | "off" | "always";
@@ -33,7 +36,8 @@ const GROUP_WORDS: Record<string, string> = { "321": "G, B and high e", "432": "
  * show or hide. `chords` (degrees of the key, 0-based) adds a chip per chord: pressing one rings that triad wherever the
  * shown positions hold it on the `chordStrings` set (the rest of the position faded), on the neck too, and strums it.
  * `islands` frames a few groups of those degrees on the neck (`findIslands`), the rest of the scale faded and every other
- * root circled in red, with a Play button per island; with no `parts` the neck alone.
+ * root circled in red, with a Play button per island and the key to it (`IslandLegend`) under the neck; with no `parts` the
+ * neck alone.
  */
 function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others, parts: partsIn, chords, chordStrings, islands: islandSpec }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; parts?: Parts; chords?: number[]; chordStrings?: string; islands?: { notes: number[]; count?: number } }) {
   const parts = partsIn ?? (islandSpec ? NECK_ONLY : BOXES_ONLY);
@@ -82,7 +86,8 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
   const ringed = (rings: Set<string> | undefined, c: ScaleCell) => {
     const s = state(c.pc);
     if (s === "hidden") return s;
-    if (picked === null) return islandSpec && !inIsland.has(cellKey(c)) && c.semi !== 0 ? "muted" : s;
+    // with islands, every note outside them is faded, the other roots too (they keep their red circle)
+    if (picked === null) return islandSpec && !inIsland.has(cellKey(c)) ? "muted" : s;
     return rings?.has(cellKey(c)) ? "highlighted" : "muted";
   };
   const pickChord = (chip: (typeof chordChips)[number]) => {
@@ -136,9 +141,9 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
               {running === `island-${i}` ? "■ Stop" : `▶ Island ${i + 1}`}
             </button>
           ))}
-          <span className="text-xs text-slate-400"><span aria-hidden className="mr-1 inline-block size-2.5 rounded-full border-2 border-rose-500 align-middle" />Other {islands[0].root.name} notes</span>
         </div>
       )}
+      {open.neck && islands.length > 0 && <IslandLegend root={islands[0].root.name} />}
       {open.positions && <div data-tour="scale-neck-boxes" className="grid gap-3 lg:grid-cols-2">
         {shown.map((p) => (
           <div key={p.number} className="flex flex-col gap-1">

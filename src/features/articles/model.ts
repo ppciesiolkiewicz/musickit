@@ -14,8 +14,12 @@ export type ArticleBlock =
   | { type: "player" }
   /** a photo from `public/images/learn`, its caption and the credit its licence asks for (author, licence, the source page) */
   | { type: "figure"; src: string; width: number; height: number; alt: string; caption: string; credit: { by: string; license: string; licenseUrl: string; source: string } }
-  /** something to sing on the page: a heading, its lines (one paragraph each) and the tool, written as a seed exercise writes it (`parseTool` reads it) */
-  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; after?: string[] };
+  /**
+   * something to sing on the page: a heading, its lines (one paragraph each) and the tool, written as a seed exercise writes it
+   * (`parseTool` reads it). `beside`: a second tool drawn to the right of it on a wide screen, the card widened past the column
+   * to fit both (under it on a narrower one), for two scales compared on the same neck
+   */
+  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; after?: string[] };
 
 /** The topics an article is tagged with, in the order /learn's filter shows them, with the word on the screen. */
 export const TOPICS = { singing: "Singing", guitar: "Guitar", theory: "Theory" } as const;

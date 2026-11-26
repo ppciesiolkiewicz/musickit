@@ -15,7 +15,8 @@
     "use design skill",
     "add words like visual and interactive",
     "These are intervals of the scale so try to show that these shapes repeat and then Do Re Do will have the same feeling And then we go to another key soo technicaly But first i want to show major and minor side by side with few islands of notes highlighted (same scale degrees) (or possibly have 2 articles in depth as well as one side by side",
-    "CAGED can also be an article series (relayed by the coordinator, 2026-11-26)"
+    "CAGED can also be an article series (relayed by the coordinator, 2026-11-26)",
+    "Should show pentatonic minor on left and major on right (bit of negative margin) to fit them better. Not every note should be enabled, 2 islands of the same G major and minor, every note of scale should be muted. Should contain leged (Legend should be component exported from the tool or setting). Same for when we just show 4 and 5 and 1 (2026-11-26)"
   ],
   "blocks": [],
   "calculator": [
@@ -32,7 +33,8 @@
   "open": [
     "Part 1 of a CAGED-in-one-key series. Planned next: 2. the islands feel the same in another key; 3. CAGED position by position; 4. how to find chords for a song. Link each to the next once it exists.",
     "No library block reuses the islands yet: the exercises are scale-neck tools written here (islands is a new scale-neck prop, 2026-11-26).",
-    "The 7 1 2 islands in A major and the ♭7 1 2 islands in A minor share their first two places; the third sits on a different A (A string 12 in major, G string 14 in minor), so the text doesn't say they match.",
-    "Search volume for the query not checked yet."
+    "Search volume for the query not checked yet.",
+    "The author's note of 2026-11-26 says \"pentatonic minor\" and \"G\": the pairs still use the natural minor scale in A (♭7 1 2 needs the 2nd, which the minor pentatonic scale doesn't have, and part 2 builds on A). Confirm with the author.",
+    "The ♭7 1 2 islands in A minor and the 7 1 2 islands in A major don't sit in the same places, so the text doesn't say they match."
   ]
 }
