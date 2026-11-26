@@ -105,6 +105,7 @@ export const DEV_GROUPS: DevGroup[] = [
     tone: "pitch",
     tools: [
       { href: "/admin/dev/kickstarter", label: "Kickstarter", desc: "Students: the offer to a person who practises on their own (the daily plan, the change, the exercises, the early price). Teachers: the brief for a founding-partner email, to copy into an AI chat with the school's thread." },
+      { href: "/admin/dev/search", label: "Search research", desc: "Who ranks on Google for what guitarists, singers and teachers search, how hard each looks, the site traffic checked, and what to check next (NEW21)." },
     ],
   },
 ];
