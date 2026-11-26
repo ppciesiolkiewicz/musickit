@@ -3,7 +3,7 @@ import type { Article } from "../model";
 export const microphoneAndAudioInterface: Article = {
   slug: "microphone-and-audio-interface-for-singing",
   title: "A microphone and audio interface for singing practice",
-  metaTitle: "Best Beginner Microphone and Audio Interface for Singing Practice · attunr",
+  metaTitle: "A Simple Choice: Beginner Microphone and Audio Interface for Singing · attunr",
   description: "What to buy if you want a better sound for singing practice: a Shure SM58, a Focusrite Scarlett Solo or 2i2, and why direct monitoring matters.",
   intro: "You don't need any of this to start. But if you're wondering what to buy, here's a simple setup that's hard to go wrong with.",
   updated: "2026-11-26",
