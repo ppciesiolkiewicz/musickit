@@ -3,7 +3,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { eachLine, keepTogether, type Piece } from "@/features/course/glossary";
+import { TERM_FIGURES } from "./termFigures";
+
+/** Loaded when a note with a picture first opens, so a page of text doesn't carry the sound engine. */
+const TermFigure = dynamic(() => import("./TermFigure"), { ssr: false });
 
 /**
  * Text from `explain()`: each glossary term keeps its wording, is underlined, and shows its meaning and a link to the article
@@ -100,6 +105,7 @@ function Term({ piece, link }: { piece: Exclude<Piece, string>; link: boolean })
               <span className="font-medium text-slate-100">{piece.term.label}</span>
               <span>{piece.term.short}</span>
               {line && <span className="text-slate-200">{line}</span>}
+              {TERM_FIGURES[piece.term.id] && <TermFigure id={piece.term.id} />}
               {link && <Link href={piece.term.href} target="_blank" rel="noopener" className="text-sky-300 hover:underline">Read the article →</Link>}
             </span>
           </span>,
