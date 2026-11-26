@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SettingsPanel, SettingsSection } from "@/components/ui";
-import { AccuracyRow, ToolSettings, VolumeRow } from "@/features/settings";
+import { ToolSettings } from "@/features/settings";
 import { midiToName } from "@/features/sound";
 import { PIANO_SCALES, makeKey, type ScaleId } from "@/features/theory/piano/key";
 import { createHeldNotes } from "@/features/theory/heldNotes";
@@ -18,7 +17,7 @@ import RollCanvas, { HI, LO, WINDOW_S, type Sample } from "./RollCanvas";
  * A pitch detector drawn as a full piano roll: a row for every key of the piano, the keys down the left, and the pitch the
  * mic hears as a line that runs right to left over the last few seconds. A note held for a moment shows as a bar on its
  * row (caught by Easy's band), green when it is as close as the accuracy picked, as is the dot. The key and scale only
- * tint their keys and rows yellow. The controls sit above the roll; Full screen makes it a page modal (Esc closes it).
+ * tint their keys and rows yellow. The controls sit above the roll (key, scale, volume and accuracy too: no side panel); Full screen makes it a page modal (Esc closes it).
  * The readings live here, so they carry on into full screen and back; the roll itself is `RollCanvas`.
  */
 export default function PitchRoll() {
@@ -73,21 +72,12 @@ export default function PitchRoll() {
     setScale(s);
   };
   const message = micStatusMessage(status);
-  const settings = (
-    <SettingsSection first>
-      <PianoSettings tonicPc={tonicPc} scale={scale} onChange={changeKey} />
-      <AccuracyRow />
-      <VolumeRow />
-    </SettingsSection>
-  );
-
   return (
-    <SettingsPanel name={scaleName} settings={settings}>
       <FullScreenFrame full={full} onClose={closeFull} label="Pitch roll">
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
           <MicButton on={on} onClick={toggle} />
           <div className="flex items-baseline gap-2 tabular-nums" aria-live="polite">
-            <span className="text-2xl font-semibold text-slate-100">{heard ? midiToName(heard.midi) : "–"}</span>
+            <span className={`text-2xl font-semibold ${heard ? "text-slate-100" : "text-slate-600"}`}>{heard ? midiToName(heard.midi) : "–"}</span>
             {heard && (
               <span className={`text-sm ${Math.abs(heard.cents) <= cents ? "text-emerald-300" : "text-sky-300"}`}>
                 {heard.cents > 0 ? "+" : ""}{heard.cents} cents
@@ -95,15 +85,13 @@ export default function PitchRoll() {
             )}
           </div>
           <div className="ml-auto flex items-center gap-2">
-            {full && <span className="text-sm text-slate-400">{scaleName}</span>}
-            {/* the side panel is hidden full screen, so its settings come along under the sliders button */}
-            {full && <ToolSettings accuracy more={<PianoSettings look="menu" tonicPc={tonicPc} scale={scale} onChange={changeKey} />} />}
+            <PianoSettings look="inline" tonicPc={tonicPc} scale={scale} onChange={changeKey} />
+            <ToolSettings accuracy />
             <FullScreenButton full={full} onClick={() => setFull(!full)} description="Enlarges the piano roll. Esc closes it." />
           </div>
         </div>
         {message && <p className="text-sm text-amber-300">{message}</p>}
         <RollCanvas key={full ? "full" : "page"} full={full} live={on} samples={samples} held={held} cents={cents} keyContext={key} scaleName={scaleName} />
       </FullScreenFrame>
-    </SettingsPanel>
   );
 }

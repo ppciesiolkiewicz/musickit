@@ -10,10 +10,10 @@ export const LO = 21;
 export const HI = 108;
 /** seconds of pitch kept on screen */
 export const WINDOW_S = 8;
-const ROW_H = 14;
+const ROW_H = 26;
 /** full screen the rows grow, so the roll reads from a step back */
-const FULL_ROW_H = 22;
-const KEYS_W = 60;
+const FULL_ROW_H = 34;
+const KEYS_W = 48;
 /** the "now" line sits this far in from the right edge */
 const NOW_PAD = 24;
 /** a held note's bar fades in over this long once it shows, and dims over this long once it ends */
@@ -29,12 +29,13 @@ function readColours() {
   const v = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
   return {
     bg: v("--color-slate-950", "#020617"),
-    row: v("--color-slate-900", "#0f172a"),
-    line: v("--color-slate-800", "#1e293b"),
-    white: v("--color-slate-200", "#e2e8f0"),
+    row: v("--color-slate-800", "#1e293b"),
+    rowBlack: v("--color-slate-900", "#0f172a"),
+    line: v("--color-slate-700", "#334155"),
+    white: v("--color-slate-300", "#cbd5e1"),
     black: v("--color-slate-700", "#334155"),
+    text: v("--color-slate-900", "#0f172a"),
     amber: v("--color-amber-300", "#fcd34d"),
-    amberDeep: v("--color-amber-500", "#f59e0b"),
     green: v("--color-emerald-400", "#34d399"),
     off: v("--color-sky-400", "#38bdf8"),
   };
@@ -105,40 +106,58 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     const now_ = samples.current.at(-1)?.midi ?? null;
     const liveKey = now_ === null ? null : Math.round(now_);
     const yOf = (m: number) => (HI - m) * rowH;
-    const label = `600 ${full ? 11 : 9}px ui-sans-serif, system-ui, sans-serif`;
+    const label = `600 ${full ? 13 : 11}px ui-sans-serif, system-ui, sans-serif`;
 
-    // the rows
-    for (let m = HI; m >= LO; m--) {
-      const y = yOf(m);
-      g.fillStyle = BLACK.has(pcOf(m)) ? col.bg : col.row;
-      g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
-      if (inScale(m)) {
-        g.fillStyle = col.amber;
-        g.globalAlpha = isTonic(m) ? 0.16 : 0.08;
-        g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
-        g.globalAlpha = 1;
-      }
-      g.fillStyle = col.line;
-      const c0 = pcOf(m) === 0;
-      g.fillRect(KEYS_W, y + rowH - (c0 ? 1 : 0.5), width - KEYS_W, c0 ? 1 : 0.5);
-    }
-
-    // the keys: white keys full width, black keys shorter; the scale's keys yellow, the heard key green or blue
+    // the rows, as the interval singer's roll draws them: white keys' rows lighter, a faint line under each; the scale's
+    // rows a touch warmer, the key note's a little more
     for (let m = HI; m >= LO; m--) {
       const y = yOf(m);
       const black = BLACK.has(pcOf(m));
-      const w = black ? KEYS_W * 0.62 : KEYS_W - 2;
-      let fill = black ? col.black : col.white;
-      if (inScale(m)) fill = isTonic(m) ? col.amberDeep : col.amber;
-      if (m === liveKey && now_ !== null) fill = tuned(now_) ? col.green : col.off;
-      g.fillStyle = fill;
-      g.fillRect(0, y + 0.5, w, rowH - 1);
-      if (pcOf(m) === 0 || m === liveKey) {
-        g.fillStyle = black && m !== liveKey ? col.white : col.bg;
+      g.globalAlpha = black ? 0.9 : 0.35;
+      g.fillStyle = black ? col.rowBlack : col.row;
+      g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
+      if (inScale(m)) {
+        g.globalAlpha = isTonic(m) ? 0.07 : 0.035;
+        g.fillStyle = col.amber;
+        g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
+      }
+      g.globalAlpha = pcOf(m) === 0 ? 0.8 : 0.4;
+      g.fillStyle = col.line;
+      g.fillRect(KEYS_W, y + rowH - 0.5, width - KEYS_W, pcOf(m) === 0 ? 1 : 0.5);
+      g.globalAlpha = 1;
+    }
+
+    // the keys, a row each: white keys light, black keys dark; the scale's keys lightly tinted yellow, the heard key
+    // green or blue; C and the heard key named
+    for (let m = HI; m >= LO; m--) {
+      const y = yOf(m);
+      const black = BLACK.has(pcOf(m));
+      const heardHere = m === liveKey && now_ !== null;
+      g.fillStyle = black ? col.black : col.white;
+      g.globalAlpha = black ? 1 : 0.85;
+      g.fillRect(0, y, KEYS_W - 4, rowH);
+      if (inScale(m) && !heardHere) {
+        g.fillStyle = col.amber;
+        g.globalAlpha = isTonic(m) ? 0.4 : black ? 0.22 : 0.18;
+        g.fillRect(0, y, KEYS_W - 4, rowH);
+      }
+      if (heardHere) {
+        g.fillStyle = tuned(now_) ? col.green : col.off;
+        g.globalAlpha = 1;
+        g.fillRect(0, y, KEYS_W - 4, rowH);
+      }
+      g.globalAlpha = 1;
+      // a hairline between keys, so neighbouring white keys stay two
+      g.fillStyle = col.bg;
+      g.globalAlpha = 0.35;
+      g.fillRect(0, y + rowH - 0.5, KEYS_W - 4, 0.5);
+      g.globalAlpha = 1;
+      if (pcOf(m) === 0 || heardHere) {
+        g.fillStyle = black && !heardHere ? col.white : col.text;
         g.font = label;
         g.textBaseline = "middle";
         g.textAlign = "right";
-        g.fillText(midiToName(m), KEYS_W - 6, y + rowH / 2 + 0.5);
+        g.fillText(midiToName(m), KEYS_W - 8, y + rowH / 2 + 0.5);
       }
     }
 
@@ -164,8 +183,8 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
       const inA = Math.min(1, Math.max(0, (now - n.start - MIN_HOLD_MS) / FADE_MS));
       const outA = n.live ? 1 : 1 - 0.35 * Math.min(1, Math.max(0, (now - n.end) / FADE_MS));
       const colour = n.meanCents <= cents ? col.green : col.off;
-      const y = yOf(n.midi) + 1.5;
-      const h = rowH - 3;
+      const y = yOf(n.midi) + 2;
+      const h = rowH - 4;
       g.globalAlpha = 0.45 * inA * outA;
       g.fillStyle = colour;
       g.beginPath();
@@ -244,7 +263,7 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
   };
 
   return (
-    <div ref={scroller} className={`overflow-y-auto overscroll-contain rounded-2xl border border-slate-800 bg-slate-950 ${full ? "min-h-0 flex-1" : "h-[min(70vh,560px)]"}`}>
+    <div ref={scroller} className={`overflow-y-auto overscroll-contain rounded-2xl border border-slate-800 bg-slate-950 ${full ? "min-h-0 flex-1" : "h-[min(75vh,640px)]"}`}>
       <canvas
         ref={canvas}
         onClick={hear}
