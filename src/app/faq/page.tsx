@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
@@ -19,10 +20,13 @@ const FREE_LINE = PAYMENTS
 const TRY_LINE = "Yes. The guides have exercises you do right on the page, with no account: vocal warm-ups and pitch matching exercises. Start the mic and your voice is drawn over the note as you sing.";
 const REFUND_LINE = `Yes. Email us within ${P.guaranteeDays} days of paying for a full refund, no reason needed. That is on top of your rights under Australian Consumer Law.`;
 
+const DESCRIPTION = `Answers to common questions about attunr: ${PAYMENTS ? "" : "the beta, "}where your practice is saved, microphone setup, latency, the Practice plan, the price and the 30-day money-back guarantee.`;
+
 export const metadata: Metadata = {
   title: "Frequently Asked Questions · attunr",
-  description: `Answers to common questions about attunr: ${PAYMENTS ? "" : "the beta, "}where your practice is saved, microphone setup, latency, the Practice plan, the price and the 30-day money-back guarantee.`,
+  description: DESCRIPTION,
   alternates: { canonical: "/faq" },
+  ...shareMeta({ path: "/faq", title: "Frequently asked questions", description: DESCRIPTION }),
 };
 
 const faqJsonLd = {

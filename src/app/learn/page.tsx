@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import PageShell from "@/components/PageShell";
 import GlassShapes from "@/components/landing/GlassShapes";
 import { ARTICLES } from "@/features/articles";
@@ -9,8 +10,7 @@ export const metadata: Metadata = {
   title: "Learn: singing and guitar practice guides · attunr",
   description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live.",
   alternates: { canonical: "/learn" },
-  openGraph: { type: "website", siteName: "attunr", url: "/learn", title: "Learn: singing and guitar practice guides", description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live." },
-  twitter: { card: "summary_large_image", title: "Learn: singing and guitar practice guides", description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live." },
+  ...shareMeta({ path: "/learn", title: "Learn: singing and guitar practice guides", description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live." }),
 };
 
 /** The public articles (`features/articles`), one card each, with the topic filter over them (`LearnList`). */

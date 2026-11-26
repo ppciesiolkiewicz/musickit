@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import PageShell from "@/components/PageShell";
 import { A, LegalSections, Contact, type LegalSection } from "@/components/legal";
 import { EARLY_OFFER, PRICING } from "@/features/account/pricing";
@@ -13,10 +14,13 @@ import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
  * pages never disagree. What happens to a player's data is on /privacy; the Privacy section here is its short form.
  */
 
+const DESCRIPTION = "The terms for using attunr: your account, the subscriptions and the early price, how plans are made, the 30-day money-back guarantee, your notes and plans, and what happens if attunr closes.";
+
 export const metadata: Metadata = {
   title: "Terms of use · attunr",
-  description: "The terms for using attunr: your account, the subscriptions and the early price, how plans are made, the 30-day money-back guarantee, your notes and plans, and what happens if attunr closes.",
+  description: DESCRIPTION,
   alternates: { canonical: "/terms" },
+  ...shareMeta({ path: "/terms", title: "Terms of use", description: DESCRIPTION }),
 };
 
 const { player, school } = PRICING;

@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import PageShell from "@/components/PageShell";
 import IntroVideos from "@/features/intro/IntroVideos";
 
+const DESCRIPTION = "Two short tours of attunr: a daily practice plan for a person who practices on their own, and weekly plans and lesson notes for teachers and schools.";
+
 export const metadata: Metadata = {
   title: "Quick tour · attunr",
-  description: "Two short tours of attunr: a daily practice plan for a person who practices on their own, and weekly plans and lesson notes for teachers and schools.",
+  description: DESCRIPTION,
   alternates: { canonical: "/intro" },
+  ...shareMeta({ path: "/intro", title: "Quick tour of attunr", description: DESCRIPTION, sitePicture: true }),
 };
 
 export default function IntroPage() {

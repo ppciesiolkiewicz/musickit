@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/PageShell";
 import { HintProvider } from "@/components/ui";
@@ -11,13 +12,15 @@ export const dynamicParams = false;
 export const generateStaticParams = (): Params[] => Object.keys(DEMO_PLANS).map((slug) => ({ slug }));
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
-  const demo = demoPlan((await params).slug);
+  const { slug } = await params;
+  const demo = demoPlan(slug);
   return {
     title: `${demo?.label ?? "Demo"}: a ready-made practice plan · attunr`,
     description: "A week of guitar and voice practice from attunr's library: open any day and try its tools.",
     // the same page as /plan, so search sends people there
     alternates: { canonical: "/plan" },
     robots: { index: false },
+    ...shareMeta({ path: `/demo/${slug}`, title: `${demo?.label ?? "Demo"}: a ready-made practice plan`, description: "A week of guitar and voice practice from attunr's library: open any day and try its tools." }),
   };
 }
 

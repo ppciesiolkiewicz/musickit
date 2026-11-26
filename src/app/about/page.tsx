@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import GlassShapes from "@/components/landing/GlassShapes";
@@ -12,8 +13,7 @@ export const metadata: Metadata = {
   title: "About Pio, the founder of attunr",
   description,
   alternates: { canonical: AUTHOR.path },
-  openGraph: { type: "profile", siteName: "attunr", url: AUTHOR.path, title: "About Pio, the founder of attunr", description },
-  twitter: { card: "summary", title: "About Pio, the founder of attunr", description },
+  ...shareMeta({ path: AUTHOR.path, title: "About Pio, the founder of attunr", description, type: "profile" }),
 };
 
 /** Who writes the /learn articles and made attunr, in Pio's words (`AUTHOR`), with the ProfilePage structured data the articles' author points at. */

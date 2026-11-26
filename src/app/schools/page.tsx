@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import AutoplanHome, { SchoolsEnding } from "@/components/landing/home/AutoplanHome";
 import { publicPlans } from "@/features/account/server/publicPlans";
 import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
@@ -12,8 +13,7 @@ export const metadata: Metadata = {
   title: "attunr for Music Schools: Weekly Practice Plans for Guitar & Voice",
   description: DESCRIPTION,
   alternates: { canonical: "/schools" },
-  openGraph: { type: "website", siteName: "attunr", url: "/schools", title: TITLE, description: DESCRIPTION },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  ...shareMeta({ path: "/schools", title: TITLE, description: DESCRIPTION }),
 };
 
 /** The Pricing section reads the plans table: the page is rebuilt at most once an hour, so a changed price shows within the hour. */

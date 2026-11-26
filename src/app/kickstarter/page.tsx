@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import FoundingHome from "@/components/landing/home/FoundingHome";
 import { earlyTaken } from "@/features/account/server/earlyTaken";
 
@@ -11,8 +12,7 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/kickstarter" },
-  openGraph: { type: "website", siteName: "attunr", url: "/kickstarter", title: TITLE, description: DESCRIPTION },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  ...shareMeta({ path: "/kickstarter", title: TITLE, description: DESCRIPTION }),
 };
 
 export default async function Kickstarter() {

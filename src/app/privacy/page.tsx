@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import PageShell from "@/components/PageShell";
 import { A, LegalSections, Contact, Out, type LegalSection } from "@/components/legal";
 import { AnalyticsSwitch } from "@/components/AnalyticsChoice";
@@ -12,10 +13,13 @@ import { PRIVACY_UPDATED } from "@/features/account/terms";
  * Europe or the UK is owed as well. The counting rules it promises are code: lib/analyticsChoice.ts.
  */
 
+const DESCRIPTION = "What attunr keeps about you, why, which companies handle it, how long it is kept, and how to see, change or delete it.";
+
 export const metadata: Metadata = {
   title: "Privacy policy · attunr",
-  description: "What attunr keeps about you, why, which companies handle it, how long it is kept, and how to see, change or delete it.",
+  description: DESCRIPTION,
   alternates: { canonical: "/privacy" },
+  ...shareMeta({ path: "/privacy", title: "Privacy policy", description: DESCRIPTION }),
 };
 
 const SECTIONS: LegalSection[] = [

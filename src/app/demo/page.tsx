@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import Icon, { type IconName } from "@/components/Icon";
@@ -12,11 +13,14 @@ import { PageHeading, PageIntro, pageBar } from "@/components/PageHeading";
 import TourCard from "@/features/intro/TourCard";
 import { SHOW_NOTES } from "@/lib/notesHidden";
 
+const DESCRIPTION = "Try a week of practice from attunr's library, and a lesson note a student can play. No account needed.";
+
 export const metadata: Metadata = {
   title: "Demos: ready-made practice plans and teacher notes · attunr",
-  description: "Try a week of practice from attunr's library, and a lesson note a student can play. No account needed.",
+  description: DESCRIPTION,
   alternates: { canonical: "/plan" },
   robots: { index: false },
+  ...shareMeta({ path: "/demo", title: "Demos: ready-made practice plans and teacher notes", description: DESCRIPTION }),
 };
 
 /** The groups the plans sit in, each with its icon and colour. Class names are written out whole so Tailwind keeps them. */

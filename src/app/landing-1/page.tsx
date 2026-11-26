@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import SiteNav from "@/components/SiteNav";
@@ -14,10 +15,13 @@ import { FAMILIES, modeSteps } from "@/features/theory/theory";
 const MODE_NAMES = ["Lydian", "Ionian", "Mixolydian", "Dorian", "Aeolian", "Phrygian", "Locrian"];
 
 /* The first, fuller landing page, kept for comparison; the home page is the simpler one. */
+const DESCRIPTION = "Find the sound you love, then learn to play it. Every scale, mode and chord on the guitar neck, coloured by each note's job and played back as you tap. Free in your browser; early access to the course is open.";
+
 export const metadata: Metadata = {
   robots: { index: false },
   title: "attunr: Guitar Scales, Chords, CAGED, Tuner & Looper",
-  description: "Find the sound you love, then learn to play it. Every scale, mode and chord on the guitar neck, coloured by each note's job and played back as you tap. Free in your browser; early access to the course is open.",
+  description: DESCRIPTION,
+  ...shareMeta({ path: "/landing-1", title: "attunr: Guitar Scales, Chords, CAGED, Tuner & Looper", description: DESCRIPTION, sitePicture: true }),
 };
 
 const DISPLAY: CSSProperties = { fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' };

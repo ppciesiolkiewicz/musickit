@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { shareMeta } from "@/app/_og/share";
 import PageShell from "@/components/PageShell";
 import { A, LegalSections, type LegalSection } from "@/components/legal";
 
@@ -8,10 +9,13 @@ import { A, LegalSections, type LegalSection } from "@/components/legal";
  * It is there to make people aware, not a contract: the terms say the same in "Your voice and your body".
  */
 
+const DESCRIPTION = "How to sing without straining your voice: warm up, sing at an easy volume, and when to stop and see a doctor.";
+
 export const metadata: Metadata = {
   title: "Look after your voice · attunr",
-  description: "How to sing without straining your voice: warm up, sing at an easy volume, and when to stop and see a doctor.",
+  description: DESCRIPTION,
   alternates: { canonical: "/voice-care" },
+  ...shareMeta({ path: "/voice-care", title: "Look after your voice", description: DESCRIPTION }),
 };
 
 const SECTIONS: LegalSection[] = [
