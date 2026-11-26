@@ -6,9 +6,9 @@
   "model": "claude-opus-5-5",
   "versions": {
     "agents": 2,
-    "teaching": 12
+    "teaching": 12,
+    "voice": 1
   },
-  "voice": "Friendly and casual, a little playful, proposing things to try; on top of the teaching-voice skill's plain-English rules. The author's own words win where they differ from teaching-voice (\"don't worry\" on lip rolls).",
   "notes": [
     "we link vocal warmups link and also generate vocal warmups article with exercises we have",
     "In a lip rolls we need to ensure wording like \"dont worry if you're not on the pitch or your microphone cant \"",

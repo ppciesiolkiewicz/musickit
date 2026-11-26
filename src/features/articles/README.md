@@ -11,13 +11,14 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 
 ## Where things are
 
+- `VOICE.md`: how the articles sound, on top of `teaching-voice`, with its `version` (`ARTICLE_VOICE_VERSION`).
 - `model.ts`: `Article` (title, search title and description, intro, `updated`, `sings`, `blocks`) and `ArticleBlock`: `p`,
   `h2`, `list`, `care` (the plan's care line, `CareLine`) and `exercise` (a heading, its lines, the tool, lines after it). Text
   takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`). `ArticleSeed`: what an article was
   written from.
 - `content/<slug>.ts`: one article each. `index.ts`: `ARTICLES`, in the order `/learn` lists them, and `articleOf`.
-- `seeds/<slug>.json`: the article's seed info: the search it is written for, the persona, the date, the model, the teaching
-  documents' versions it was written to (`DOC_VERSIONS`), the voice asked for, the author's own notes verbatim, the library
+- `seeds/<slug>.json`: the article's seed info: the search it is written for, the persona, the date, the model, the versions
+  it was written to (the teaching documents', `DOC_VERSIONS`, and the voice's, `VOICE.md`), the author's own notes verbatim, the library
   blocks it reuses, the calculator runs, the sources read, and what is still open. Rewrite the article from it when the rules change.
 - `ui/ArticleView.tsx`: the body. Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`.
 - `articles.test.ts`: unique slugs, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search

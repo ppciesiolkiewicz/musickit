@@ -1,8 +1,8 @@
 # Articles: rules
 
-- Every word is written with the `teaching-voice` skill loaded, and checked with `review-teaching-text` before it ships. On top of
-  it the articles are friendly, casual and a little playful, and suggest things to try ("Then try it backwards for fun"). Where
-  the author's own wording differs from `teaching-voice` (the lip roll's "Don't worry if you're not on the note"), the author's wins.
+- Every word is written in the articles' voice, `VOICE.md` beside this file, on top of the `teaching-voice` skill (load it
+  first), and checked with `review-teaching-text` before it ships. The voice lives only there: a seed file records its version
+  (`versions.voice`), never the voice itself.
 - Music facts come from the theory calculator (`npm run -s theory -- …`), recorded in the seed file's `calculator`.
 - Exercises reuse the library's tools and wording: name the seed blocks in the seed file's `blocks`. A tool is set up as the
   plan's parser accepts it (the test checks). Name controls by their label on the screen: Start microphone, Play, Start.

@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "./index";
-import type { ArticleSeed } from "./model";
+import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
 
 const seedOf = (slug: string): ArticleSeed => JSON.parse(readFileSync(new URL(`./seeds/${slug}.json`, import.meta.url), "utf8"));
 const texts = (a: (typeof ARTICLES)[number]) =>
@@ -16,7 +16,8 @@ describe("articles", () => {
     for (const a of ARTICLES) {
       const s = seedOf(a.slug);
       assert.equal(s.slug, a.slug);
-      assert.ok(s.versions.teaching <= DOC_VERSIONS.teaching && s.versions.agents <= DOC_VERSIONS.agents, a.slug);
+      assert.ok(s.versions.teaching <= DOC_VERSIONS.teaching && s.versions.agents <= DOC_VERSIONS.agents && s.versions.voice <= ARTICLE_VOICE_VERSION, a.slug);
+      assert.ok(!("voice" in s), `${a.slug}: the voice is in VOICE.md, not the seed file`);
     }
   });
 
@@ -30,6 +31,10 @@ describe("articles", () => {
       assert.ok(a.description.length <= 160, a.slug);
       for (const t of texts(a)) for (const [, href] of t.matchAll(/\]\((.+?)\)/g)) if (href.startsWith("/learn/")) assert.ok(slugs.has(href.slice(7)), href);
     }
+  });
+
+  it("VOICE.md's version is ARTICLE_VOICE_VERSION", () => {
+    assert.equal(Number(/^version: (\d+)$/m.exec(readFileSync(new URL("./VOICE.md", import.meta.url), "utf8"))?.[1]), ARTICLE_VOICE_VERSION);
   });
 
   it("write practice, not practise", () => {

@@ -1,3 +1,6 @@
+/** The version of `VOICE.md`, the articles' voice; a seed file records the one it was written to. */
+export const ARTICLE_VOICE_VERSION = 1;
+
 /**
  * One block of a public article. Text takes two inline marks: `**bold**` and `[label](href)` links. A `care` block is the
  * one line that keeps a reader from hurting their voice, drawn as the plan's care line.
@@ -39,10 +42,8 @@ export interface ArticleSeed {
   persona: "guitarist" | "singer" | "teacher";
   written: string;
   model: string;
-  /** the teaching documents' versions it was written to (DOC_VERSIONS) */
-  versions: { agents: number; teaching: number };
-  /** how it should sound, as asked */
-  voice: string;
+  /** the versions it was written to: the teaching documents' (DOC_VERSIONS) and the articles' voice (`VOICE.md`) */
+  versions: { agents: number; teaching: number; voice: number };
   /** the author's own words that set what goes in, verbatim */
   notes: string[];
   /** the library blocks whose tools and wording it reuses */
