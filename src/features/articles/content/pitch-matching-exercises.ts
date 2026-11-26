@@ -10,6 +10,7 @@ export const pitchMatchingExercises: Article = {
   sings: true,
   blocks: [
     { type: "p", text: "Pitch matching is singing the note you hear, right on it. Lots of singers sit a little under or over on some notes without hearing it. Working on that precision is what makes a voice sound sure of itself." },
+    { type: "p", text: "These exercises are meant to improve your singing accuracy and agility." },
     { type: "p", text: "**Live feedback** helps: each exercise draws your voice as a line over the note, so you can nudge it until the two meet. When you're right on it, the wobble in the sound goes away." },
 
     { type: "h2", text: "Before you start" },
