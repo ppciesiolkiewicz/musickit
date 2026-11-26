@@ -1532,7 +1532,6 @@ beat while a take records; it is saved as straight pieces with a copy of the too
 at the video's own time (exact on a seek), with Tool over the video to hide it. Checked with Playwright: a riff take
 and a melody take each sent the right clock (60 and 90 bpm), and a mocked video in the library drew the tab and the
 staff at the seeked beats and moved while playing. Not checked: a real saved video (no Blob token), phone width.
-ContentVideos6: [NEW 2026-11-25] Notes in the database for content people (author, deployed commit).
 ContentVideos7: [NEW 2026-11-25] Later: course sections with empty video spots a content person records into (a video field
 on a section).
 ContentVideos8: [NEW 2026-11-25] Later: pick an existing video for an exercise or course section from the content view (reuse).
@@ -1557,6 +1556,12 @@ tool for its overlay (the overlay draws one tool's settings); the "one video per
 Tools videos shows a topic (its own group, listing the tools it spans) and what the record page draws when the topic spans
 tools (pick one tool to show over the camera). Brainstorm and write a design before building. Topics a player reads are
 teaching text (teaching-voice).
+
+[2026-11-26 done, stand-ins] Before any recording: each of the 20 scripted tools shows a stand-in wherever it has no
+recorded video, the script's words as timed captions on black (model/standIn.ts, ui/ScriptVideo.tsx; no file, no row,
+replaced level by level as videos are recorded). Not seen in the browser. Still open here: video topics (above), and
+"tracks" (user, 2026-11-26): a player on an exercise can watch the earlier videos that match it; what "match" means is
+not decided yet.
 
 TaskSeries Upkeep: keeping the stack up to date (2026-11-18)
 Upkeep1: [NEW 2026-11-18] Next.js security upgrade. `next dev` stops on its first start with a security advisory and
@@ -1588,6 +1593,9 @@ This probably could use some sort of injection mechanism or predefined slots.
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+
+ContentVideos6: [DONE 2026-11-26, dropped] Notes in the database for content people (author, deployed commit). Not
+needed (user): notes stay in local storage and are shared by copying them into a chat.
 
 TaskSeries SeedStandalone: seed exercises that only make sense next to another day of their week (from NEW7, 2026-11-18)
 The composer (NEW7) hands out one block at a time, for a player's day and for a teacher's seven days, so a block

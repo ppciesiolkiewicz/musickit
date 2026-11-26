@@ -1,19 +1,26 @@
+import { standInFor } from "./standIn";
 import type { CellAsk } from "./slot";
 
 /** A saved tool video: the tool it covers and the steps it covers there (null for a tool with no ladder). */
 export interface ToolVideo { id: string; tool: string | null; steps: string[] | null }
 
-export interface CellVideo { cell: number; id: string; from: "block" | "tool"; repeat: boolean }
+/** `script`: no recorded video, so the tool's stand-in (`standIn.ts`), its script read as captions. */
+export interface CellVideo { cell: number; id: string; from: "block" | "tool" | "script"; repeat: boolean }
 
 const holds = (row: ToolVideo, ask: CellAsk): boolean =>
   row.tool === ask.tool && (ask.step === null ? row.steps === null : (row.steps?.includes(ask.step) ?? false));
 
-/** The video a tool cell shows: the block's own for that cell, else the tool's video holding its step. No borrowing. */
-export function videoFor(ask: CellAsk, own: Record<number, string>, rows: ToolVideo[]): { id: string; from: "block" | "tool" } | null {
+/**
+ * The video a tool cell shows: the block's own for that cell, else the tool's video holding its step, else the tool's
+ * stand-in when it has a script. No borrowing from another step.
+ */
+export function videoFor(ask: CellAsk, own: Record<number, string>, rows: ToolVideo[]): { id: string; from: CellVideo["from"] } | null {
   const mine = own[ask.cell];
   if (mine) return { id: mine, from: "block" };
   const row = rows.find((r) => holds(r, ask));
-  return row ? { id: row.id, from: "tool" } : null;
+  if (row) return { id: row.id, from: "tool" };
+  const stand = standInFor(ask.tool);
+  return stand ? { id: stand, from: "script" } : null;
 }
 
 /** True at the first place of each id; false at a repeat and at null. */

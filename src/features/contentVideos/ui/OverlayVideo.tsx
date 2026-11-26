@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import type { PlanTool } from "@/features/plan/model/tools";
 import { contentVideoFileUrl } from "../client/api";
+import ScriptVideo from "./ScriptVideo";
 import { beatAt, type Piece } from "../model/clock";
 import { PLAYBACK_LOOK, readOverlay, type Overlay } from "../model/overlay";
 import { panelClass, panelStyle } from "./lookPanel";
@@ -75,7 +76,7 @@ export function ToolOverVideo({ video, overlay, draw, hidden = false }: { video:
  * gives a way to draw it (`OverlayDrawProvider`), with `ToolOverVideo`. **Tool over the video** hides it.
  */
 export default function OverlayVideo({ video, autoPlay = false, className = "", style, onError }: {
-  video: Pick<PlayInfo, "id" | "title" | "overlay">;
+  video: Pick<PlayInfo, "id" | "title" | "overlay"> & Partial<Pick<PlayInfo, "seconds" | "cues">>;
   autoPlay?: boolean;
   className?: string;
   style?: CSSProperties;
@@ -86,6 +87,7 @@ export default function OverlayVideo({ video, autoPlay = false, className = "", 
   const [el, setEl] = useState<HTMLVideoElement | null>(null);
   const [shown, setShown] = useState(true);
 
+  if (video.cues) return <ScriptVideo title={video.title} seconds={video.seconds ?? 0} cues={video.cues} autoPlay={autoPlay} style={style} className={className.replace(/\bobject-contain\b/, "")} />;
   const player = (
     <video ref={setEl} src={contentVideoFileUrl(video.id)} controls autoPlay={autoPlay} playsInline preload="metadata" aria-label={video.title}
       style={style} className={className} onError={onError} />

@@ -235,6 +235,15 @@ describe("the lookup", () => {
     assert.deepEqual(asked, [[["a"], ["picking-drill", "backing-band"]]]);
   });
 
+  test("a scripted tool with no recorded video gets its stand-in, with captions", async () => {
+    const out = await lookUp(fresh(), [{ key: "k", cells: [{ cell: 0, tool: "chord-shapes", step: null }, { cell: 1, tool: "song-chart", step: "none" }] }]);
+    assert.deepEqual(out.blocks.k, [{ cell: 0, id: "script:chord-shapes", from: "script", repeat: false }]);
+    const info = out.videos["script:chord-shapes"];
+    assert.equal(info.title, "Reading a chord box");
+    assert.ok(info.cues!.length > 3 && info.seconds > 30);
+    assert.equal(info.cues!.some((c) => c.say.includes("[")), false);
+  });
+
   test("the answer carries no path, recorder or size", async () => {
     const repo = await setup();
     const out = await lookUp(repo, [{ key: "k", cells }]);

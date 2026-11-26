@@ -6,6 +6,7 @@ import { checkUpload, isPrivateBlobUrl, isVideoId } from "@/features/videos/serv
 import { blockVideos, type CellVideo } from "../model/lookup";
 import { readOverlay } from "../model/overlay";
 import { toolKeyOf } from "../model/slot";
+import { scriptCues, standInPlan, type Cue } from "../model/standIn";
 import type { CellAsk } from "../model/slot";
 import type { ContentVideoRepo, ContentVideoRow, Lost, Pointers } from "./repo";
 import { cleanNote, contentVideoPath, isMadeFor, readTarget } from "./rules";
@@ -155,8 +156,16 @@ export async function deleteContentVideo(repo: ContentVideoRepo, id: string): Pr
   return out.ok ? out : { ok: false, status: 409, error: STILL_SHOWN, pointers: out.pointers };
 }
 
-/** What a page may know of a video to play it: no store path, recorder or size. */
-export interface PlayInfo { id: string; title: string; note: string; seconds: number; width: number; height: number; overlay: unknown | null }
+/** What a page may know of a video to play it: no store path, recorder or size. A stand-in (no file yet) carries its script's `cues` instead. */
+export interface PlayInfo { id: string; title: string; note: string; seconds: number; width: number; height: number; overlay: unknown | null; cues?: Cue[] }
+
+/** A stand-in's play details, from its script; null for an id that is no stand-in. */
+export function standInInfo(id: string): PlayInfo | null {
+  const plan = standInPlan(id);
+  if (!plan) return null;
+  const { cues, seconds } = scriptCues(plan.script);
+  return { id, title: plan.title, note: "", seconds, width: 1920, height: 1080, overlay: null, cues };
+}
 
 /** An id's file never changes; a deleted video may still play from a cache for up to an hour. */
 export const CONTENT_VIDEO_CACHE = "public, max-age=3600";
@@ -191,8 +200,11 @@ export function readLookup(raw: unknown): LookupAsk[] | null {
   return out;
 }
 
-/** Which video each tool cell of each block shows, and the play details of those videos only. A cell whose video's row is gone is left out. */
-export async function lookUp(repo: ContentVideoRepo, asks: LookupAsk[]): Promise<{ blocks: Record<string, CellVideo[]>; videos: Record<string, PlayInfo> }> {
+/** A site with no database has no recorded videos; its lookup still answers the stand-ins. */
+export const NO_VIDEOS: Pick<ContentVideoRepo, "forLookup"> = { forLookup: async () => ({ own: {}, rows: [] }) };
+
+/** Which video each tool cell of each block shows, and the play details of those videos only. A cell whose video's row is gone is left out; a cell with no recorded video gets its tool's stand-in when it has a script. */
+export async function lookUp(repo: Pick<ContentVideoRepo, "forLookup">, asks: LookupAsk[]): Promise<{ blocks: Record<string, CellVideo[]>; videos: Record<string, PlayInfo> }> {
   const blockIds = [...new Set(asks.flatMap((a) => (a.blockId === undefined ? [] : [a.blockId])))];
   const tools = [...new Set(asks.flatMap((a) => a.cells.map((c) => c.tool)))];
   const { own, rows } = await repo.forLookup(blockIds, tools);
@@ -202,11 +214,12 @@ export async function lookUp(repo: ContentVideoRepo, asks: LookupAsk[]): Promise
   const videos = new Map<string, PlayInfo>();
   for (const a of asks) {
     const mine = a.blockId !== undefined && Object.hasOwn(own, a.blockId) ? own[a.blockId] : {};
-    const found = blockVideos(a.cells, mine, rows).filter((v) => byId.has(v.id));
+    const found = blockVideos(a.cells, mine, rows).filter((v) => byId.has(v.id) || (v.from === "script" && standInPlan(v.id)));
     blocks.push([a.key, found]);
     for (const v of found) {
-      const r = byId.get(v.id)!;
-      videos.set(v.id, { id: r.id, title: r.title, note: r.note, seconds: r.seconds, width: r.width, height: r.height, overlay: r.overlay ?? null });
+      const r = byId.get(v.id);
+      if (!r) videos.set(v.id, standInInfo(v.id)!);
+      else videos.set(v.id, { id: r.id, title: r.title, note: r.note, seconds: r.seconds, width: r.width, height: r.height, overlay: r.overlay ?? null });
     }
   }
   return { blocks: Object.fromEntries(blocks), videos: Object.fromEntries(videos) };
