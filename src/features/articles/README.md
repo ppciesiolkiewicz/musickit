@@ -32,14 +32,18 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `author.ts`: `AUTHOR`, Pio's name, photo and note, shown in the join card and on `/about` (`src/app/about/page.tsx`, a ProfilePage), and `authorJsonLd`, the Person every article's structured data names as its author (`jsonLd.ts`).
 - `ui/LearnList.tsx`: /learn's cards with the topic buttons over them (All, Singing, Guitar, Theory); each card (`ui/ArticleCard.tsx`) shows its topic tags.
 - `ui/TempoTool.tsx`: a sung tune or run (melody-singer, run-singer) with a Tempo selector over it, 40, 60, 80 or 90 bpm (`ARTICLE_TEMPOS`), starting on the tempo the article wrote (40).
-- `ui/ArticleCard.tsx`: an article as a card: title, intro, how many exercises it has (or how many minutes it takes to read, from
+- `art.ts`: `articleArt(slug)`, the article's picture, `public/images/learn/art/<slug>.svg` (1200 × 480, no words in it), drawn by
+  `scripts/learn-art.mjs` (`node scripts/learn-art.mjs public/images/learn/art`), one function per slug; a new article needs one
+  there (`art.test.ts` checks). It is the small picture on the article's card, the banner over its body (cropped to 3:1) and the
+  top of its link preview.
+- `ui/ArticleCard.tsx`: an article as a card: title, intro, its picture beside them, how many exercises it has (or how many minutes it takes to read, from
   `stats.ts`, `articleStats`), **Uses your mic** when it `sings`, and **Read**. On `/learn` and under each article's **More guides**.
 - Each article page has **All guides** over its title, back to `/learn` (`PageShell`'s `back`).
 - `ui/ArticleView.tsx`: the body, ending on the updated date, `JoinCard` (Pio's photo and note from `author.ts`, `AUTHOR`: who writes the articles and why attunr exists, with **More about me** to `/about`; then the line asking a reader to join, and **Start your plan** to `/plan`, the home page's main button; `/learn` shows it too) and **More guides** (two other articles' cards and **All guides** back to `/learn`). Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`. Both draw the home and demo pages' glass shapes and side glows behind the column (`GlassShapes` as the shell's `decor`), and each exercise and the join card are `metal-panel` cards.
 - Search and shared links: `src/app/learn/[slug]/page.tsx` gives each article its own `openGraph` and `twitter` (left out, a page
   takes the root layout's, the home page's title with it) and its JSON-LD, `jsonLd.ts` (`articleJsonLd`: an `Article` published
   by the root layout's `#organization`, and the breadcrumb Home › Learn › the article). `opengraph-image.tsx` beside it draws the
-  link preview: the title, the intro and, when the article `sings`, the line that it is sung on the page.
+  link preview: the article's picture over its title, and, when the article `sings`, the line that it is sung on the page.
 - `articles.test.ts`: unique slugs, each glossary word marked once per article with the text kept, the cards' exercise counts, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search
   description of 160 characters or less, the JSON-LD, `/learn/` links to articles that exist, and "practice", never "practise".
 

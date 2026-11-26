@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { articleArt } from "@/features/articles/art";
 import PageShell from "@/components/PageShell";
 import GlassShapes from "@/components/landing/GlassShapes";
 import { ARTICLES, articleOf } from "@/features/articles";
@@ -37,6 +39,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   return (
     <PageShell active="/learn" back={{ href: "/learn", label: "All guides" }} column devices={a.sings} mic={a.sings} title={a.title} intro={a.intro} decor={<GlassShapes />}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(a, SITE_URL)).replace(/</g, "\\u003c") }} />
+      <Image src={articleArt(a.slug)} width={1200} height={480} alt="" unoptimized priority className="mb-6 aspect-3/1 w-full rounded-2xl border border-slate-800 object-cover" />
       <ArticleView article={a} />
     </PageShell>
   );
