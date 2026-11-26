@@ -3,9 +3,8 @@ import type { ReactNode } from "react";
 import ContactForm from "@/components/landing/ContactForm";
 
 /*
- * The parts the terms of use (/terms) and the privacy policy (/privacy) share: a link, the link to the contact form, and
- * the page body (a numbered list of what is on the page, one short section per subject, then the contact form). No email
- * address on these pages yet: every "reach us" goes to the form at the end of the page.
+ * The parts the terms of use (/terms) and the privacy policy (/privacy) share: a link, how to reach us (`Contact`), and
+ * the page body (a numbered list of what is on the page, one short section per subject, then the contact form).
  */
 
 const LINK = "text-sky-300 underline decoration-sky-500/40 underline-offset-4 hover:text-sky-200";
@@ -15,8 +14,22 @@ export const A = ({ href, children }: { href: string; children: ReactNode }) => 
 /** A link to another site. */
 export const Out = ({ href, children }: { href: string; children: ReactNode }) => <a href={href} className={LINK}>{children}</a>;
 
-/** "the contact form", a link to the form at the end of the page. */
-export const Contact = () => <a href="#contact" className={LINK}>the contact form</a>;
+/**
+ * The address on the legal pages. None yet: hello@attunr.app doesn't receive mail. Set it once it does, and every
+ * `Contact` names it beside the form.
+ */
+const CONTACT_EMAIL: string | null = null;
+
+/**
+ * How to reach us, with its preposition, to follow a verb: "You can reach us <Contact />.", "send us a message
+ * <Contact />". "through the contact form" (a link to the form at the end of the page), or with `CONTACT_EMAIL` set
+ * "at hello@… or through the contact form". Write the sentence so it reads both ways.
+ */
+export const Contact = () => {
+  const form = <a href="#contact" className={LINK}>the contact form</a>;
+  if (!CONTACT_EMAIL) return <>through {form}</>;
+  return <>at <a href={`mailto:${CONTACT_EMAIL}`} className={LINK}>{CONTACT_EMAIL}</a> or through {form}</>;
+};
 
 export type LegalSection = { title: string; body: ReactNode };
 

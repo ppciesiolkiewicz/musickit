@@ -34,7 +34,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>attunr is run by Piotr Ciesiolkiewicz, trading as attunr, a sole trader in Australia (ABN 48 737 987 261). In these terms, &ldquo;we&rdquo; and &ldquo;attunr&rdquo; mean that business, and &ldquo;you&rdquo; means the person or school using it.</p>
-        <p>You can reach us through <Contact />.</p>
+        <p>You can reach us <Contact />.</p>
       </>
     ),
   },
@@ -109,7 +109,7 @@ const SECTIONS: LegalSection[] = [
     title: "30-day money-back guarantee",
     body: (
       <>
-        <p>If attunr isn&apos;t for you, send us a message through <Contact /> within {player.guaranteeDays} days of paying and we refund the whole payment. No reason needed. We refund to the card or account you paid with, within 14 days of your message.</p>
+        <p>If attunr isn&apos;t for you, send us a message <Contact /> within {player.guaranteeDays} days of paying and we refund the whole payment. No reason needed. We refund to the card or account you paid with, within 14 days of your message.</p>
         <p>The guarantee covers your first payment for a subscription, once. It does not cover a renewal, a second refund of the same kind, or a payment made more than {player.guaranteeDays} days ago.</p>
         <p>This guarantee is on top of your rights under the Australian Consumer Law, which it does not take away. If attunr is faulty or not as described, you have the remedies that law gives you, however long ago you paid.</p>
       </>
@@ -173,7 +173,7 @@ const SECTIONS: LegalSection[] = [
         <p>The <A href="/privacy">privacy policy</A> says what we keep about you, why, which companies handle it and how long we keep it. It is part of these terms.</p>
         <p>In short: we store what the app needs, such as your email, your name, and the plans, notes, ratings and videos you make. The tuner and the singing drills listen in your browser to find the pitch; the sound is never sent to us.</p>
         <p>We don&apos;t sell your data and we don&apos;t run advertising. We email you about your account and about changes to attunr; emails with news and offers are only ever opt-in.</p>
-        <p>You can see your data and delete your account on <A href="/account">Your profile</A>. For a copy of everything we hold about you, send us a message through <Contact />.</p>
+        <p>You can see your data and delete your account on <A href="/account">Your profile</A>. For a copy of everything we hold about you, send us a message <Contact />.</p>
       </>
     ),
   },

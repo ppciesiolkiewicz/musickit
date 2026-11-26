@@ -24,7 +24,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>attunr is run by Piotr Ciesiolkiewicz, trading as attunr, a sole trader in Australia (ABN 48 737 987 261). We decide what data attunr keeps and why, so we are the one to ask about it.</p>
-        <p>You can reach us through <Contact />. This policy goes with the <A href="/terms">terms of use</A>.</p>
+        <p>You can reach us <Contact />. This policy goes with the <A href="/terms">terms of use</A>.</p>
       </>
     ),
   },
@@ -126,7 +126,7 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>You can see and change your name, your plan and your news emails on <A href="/account">Your profile</A>. Your plans and notes are on their own pages.</p>
         <p>You can delete your account on <A href="/account">Your profile</A>, with Delete account at the bottom of the page.</p>
-        <p>For a copy of everything we hold about you, in a file you can take elsewhere, send us a message through <Contact />. Send one too if you want something corrected, or want us to stop using some of your data. We answer within 30 days, and it costs nothing.</p>
+        <p>For a copy of everything we hold about you, in a file you can take elsewhere, send us a message <Contact />. Send one too if you want something corrected, or want us to stop using some of your data. We answer within 30 days, and it costs nothing.</p>
         <p>If you think we handled your data wrongly, tell us first and we will put it right. If you are not happy with our answer, you can complain to the <Out href="https://www.oaic.gov.au/privacy/privacy-complaints">Office of the Australian Information Commissioner</Out>, or to the data protection authority of the country you live in.</p>
       </>
     ),
@@ -137,7 +137,7 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>You must be 16 or older to make your own account. A younger student uses attunr through a teacher or a school, or with a parent or guardian who agrees for them.</p>
         <p>We send a student&apos;s account no news or offers unless they ask, and we show a student no advertising.</p>
-        <p>A parent or guardian can ask us through <Contact /> to see, correct or delete a child&apos;s data. If a child has made an account without a parent, a guardian or a teacher, tell us and we will delete it.</p>
+        <p>A parent or guardian can ask us <Contact /> to see, correct or delete a child&apos;s data. If a child has made an account without a parent, a guardian or a teacher, tell us and we will delete it.</p>
       </>
     ),
   },
