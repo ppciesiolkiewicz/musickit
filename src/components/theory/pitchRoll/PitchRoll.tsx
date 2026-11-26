@@ -16,8 +16,8 @@ import RollCanvas, { HI, LO, WINDOW_S, type Sample } from "./RollCanvas";
 /**
  * A pitch detector drawn as a full piano roll: a row for every key of the piano, the keys down the left, and the pitch the
  * mic hears as a line that runs right to left over the last few seconds. A note held for a moment shows as a bar on its
- * row (caught by Easy's band), green when it is as close as the accuracy picked, as is the dot. The key and scale only
- * tint their keys and rows yellow. The controls sit above the roll (key, scale, volume and accuracy too: no side panel); Full screen makes it a page modal (Esc closes it).
+ * row (caught by Easy's band), green when it is as close as the accuracy picked, as is the dot. The key and scale mark
+ * their rows and a strip by the keys in yellow; every key is named. The controls sit above the roll (key, scale, volume and accuracy too: no side panel); Full screen makes it a page modal (Esc closes it).
  * The readings live here, so they carry on into full screen and back; the roll itself is `RollCanvas`.
  */
 export default function PitchRoll() {

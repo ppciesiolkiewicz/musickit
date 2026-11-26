@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
-import { midiToName, playSequence } from "@/features/sound";
-import type { KeyContext } from "@/features/theory/piano/key";
+import { playSequence } from "@/features/sound";
+import { spellNote, type KeyContext } from "@/features/theory/piano/key";
 import { MIN_HOLD_MS, type createHeldNotes } from "@/features/theory/heldNotes";
 
 /** the whole piano: A0 to C8 */
@@ -13,7 +13,9 @@ export const WINDOW_S = 5;
 const ROW_H = 26;
 /** full screen the rows grow, so the roll reads from a step back */
 const FULL_ROW_H = 34;
-const KEYS_W = 48;
+/** the keys, then a strip that marks the scale's notes */
+const KEYS_W = 60;
+const MARK_W = 6;
 /** a held note's bar fades in over this long once it shows, and dims over this long once it ends */
 const FADE_MS = 150;
 const BLACK = new Set([1, 3, 6, 8, 10]);
@@ -40,7 +42,7 @@ function readColours() {
 }
 
 /**
- * The pitch roll's drawing, on a canvas: every key of the piano as a row (the key and scale's keys and rows tinted
+ * The pitch roll's drawing, on a canvas: every key of the piano as a row, named (the scale's rows and a strip by their keys
  * yellow), the held notes as bars, the pitch as a line and a dot at the "now" line, halfway across. It shows the rows that fit its box
  * and never scrolls by hand: the view glides up or down after the pitch when it nears an edge. Tap a key to hear it. Keyed by
  * full screen in the parent, so it mounts afresh in the modal; the readings it draws live in the parent.
@@ -109,18 +111,16 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     const liveKey = now_ === null ? null : Math.round(now_);
     const top = topOf();
     const yOf = (m: number) => (top - m) * rowH;
-    const label = `600 ${full ? 13 : 11}px ui-sans-serif, system-ui, sans-serif`;
 
-    // the rows, as the interval singer's roll draws them: white keys' rows lighter, a faint line under each; the scale's
-    // rows a touch warmer, the key note's a little more
+    // the rows, all alike (the keys show white and black), a faint line under each and a firmer one under C; only the
+    // scale's rows are lighter, tinted yellow, the key note's row more
     for (let m = HI; m >= LO; m--) {
       const y = yOf(m);
-      const black = BLACK.has(pcOf(m));
-      g.globalAlpha = black ? 0.9 : 0.35;
-      g.fillStyle = black ? col.rowBlack : col.row;
+      g.globalAlpha = 0.9;
+      g.fillStyle = col.rowBlack;
       g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
       if (inScale(m)) {
-        g.globalAlpha = isTonic(m) ? 0.07 : 0.035;
+        g.globalAlpha = isTonic(m) ? 0.2 : 0.1;
         g.fillStyle = col.amber;
         g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
       }
@@ -130,38 +130,35 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
       g.globalAlpha = 1;
     }
 
-    // the keys, a row each: white keys light, black keys dark; the scale's keys lightly tinted yellow, the heard key
-    // green or blue; C and the heard key named
+    // the keys, a row each, every one named (spelled in the key): white keys light, black keys dark, the heard key
+    // green or blue. Between the keys and the rows a strip marks the scale's notes in yellow, the key note's brighter.
+    const keyW = KEYS_W - MARK_W - 2;
+    g.textBaseline = "middle";
+    g.textAlign = "right";
     for (let m = HI; m >= LO; m--) {
       const y = yOf(m);
+      if (y > height || y + rowH < 0) continue;
       const black = BLACK.has(pcOf(m));
       const heardHere = m === liveKey && now_ !== null;
-      g.fillStyle = black ? col.black : col.white;
-      g.globalAlpha = black ? 1 : 0.85;
-      g.fillRect(0, y, KEYS_W - 4, rowH);
-      if (inScale(m) && !heardHere) {
-        g.fillStyle = col.amber;
-        g.globalAlpha = isTonic(m) ? 0.4 : black ? 0.22 : 0.18;
-        g.fillRect(0, y, KEYS_W - 4, rowH);
-      }
-      if (heardHere) {
-        g.fillStyle = tuned(now_) ? col.green : col.off;
-        g.globalAlpha = 1;
-        g.fillRect(0, y, KEYS_W - 4, rowH);
-      }
-      g.globalAlpha = 1;
+      const scaleNote = inScale(m);
+      g.fillStyle = heardHere ? (tuned(now_) ? col.green : col.off) : black ? col.black : col.white;
+      g.globalAlpha = heardHere || black ? 1 : 0.85;
+      g.fillRect(0, y, keyW, rowH);
       // a hairline between keys, so neighbouring white keys stay two
       g.fillStyle = col.bg;
       g.globalAlpha = 0.35;
-      g.fillRect(0, y + rowH - 0.5, KEYS_W - 4, 0.5);
-      g.globalAlpha = 1;
-      if (pcOf(m) === 0 || heardHere) {
-        g.fillStyle = black && !heardHere ? col.white : col.text;
-        g.font = label;
-        g.textBaseline = "middle";
-        g.textAlign = "right";
-        g.fillText(midiToName(m), KEYS_W - 8, y + rowH / 2 + 0.5);
+      g.fillRect(0, y + rowH - 0.5, keyW, 0.5);
+      if (scaleNote) {
+        g.fillStyle = col.amber;
+        g.globalAlpha = isTonic(m) ? 1 : 0.55;
+        g.fillRect(keyW + 1, y + 1, MARK_W, rowH - 2);
       }
+      const n = spellNote(keyContext, m);
+      g.font = `${scaleNote || heardHere || chromatic ? 600 : 500} ${full ? 13 : 11}px ui-sans-serif, system-ui, sans-serif`;
+      g.fillStyle = black && !heardHere ? col.white : col.text;
+      g.globalAlpha = heardHere || scaleNote || chromatic ? 1 : 0.6;
+      g.fillText(`${n.name}${n.octave}`, keyW - 5, y + rowH / 2 + 0.5);
+      g.globalAlpha = 1;
     }
 
     // the "now" line, and the dot on it, halfway across the rows
@@ -262,7 +259,7 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
 
   const hear = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    if (e.clientX - r.left > KEYS_W) return;
+    if (e.clientX - r.left > KEYS_W - MARK_W - 2) return;
     const m = Math.ceil(topOf() - (e.clientY - r.top) / rowH);
     if (m >= LO && m <= HI) playSequence([{ note: m, at: 0, hold: 700 }]);
   };
