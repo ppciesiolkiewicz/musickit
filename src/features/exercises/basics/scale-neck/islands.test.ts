@@ -39,11 +39,13 @@ describe("scale-neck islands", () => {
     assert.deepEqual(where("natural-minor-aeolian", A, [0, 5, 7]), major);
   });
 
-  it("play an island low to high, then back to the root", () => {
+  it("play an island rising, from the root to the root an octave up, a note under the root taken an octave up", () => {
     const [i] = findIslands(neck("natural-minor-aeolian", A), [10, 0, 2]);
-    assert.deepEqual(islandTune(i).map((c) => c.name), ["G", "A", "B", "A"]);
+    assert.deepEqual(islandTune(i, neck("natural-minor-aeolian", A)).map((c) => c.name), ["A", "B", "G", "A"]);
     const [j] = findIslands(neck("natural-minor-aeolian", A), [0, 5, 7]);
-    assert.deepEqual(islandTune(j).map((c) => c.name), ["A", "D", "E", "A"]);
+    assert.deepEqual(islandTune(j, neck("natural-minor-aeolian", A)).map((c) => c.name), ["A", "D", "E", "A"]);
+    const tune = islandTune(i, neck("natural-minor-aeolian", A));
+    assert.deepEqual(tune.map((c) => c.midi - i.root.midi), [0, 2, 10, 12], "rising, ending an octave up");
   });
 
   it("are parsed as degrees in their order, the root added when missing, count 1-4", () => {

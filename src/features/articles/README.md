@@ -16,7 +16,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 
 - `VOICE.md`: how the articles sound, on top of `teaching-voice`, with its `version` (`ARTICLE_VOICE_VERSION`).
 - `model.ts`: `Article` (title, search title and description, intro, `updated`, `sings`, `topics` (Singing, Guitar, Theory: `TOPICS`), `blocks`) and `ArticleBlock`: `p`,
-  `h2`, `list`, `care` (the plan's care line, `CareLine`), `figure` (a photo in `public/images/learn` with its caption and the credit its licence asks for) and `exercise` (a heading, its lines, the tool, lines after it; `beside`, a second tool to the right of the first on a wide screen, the card widened past the column to fit both, for two scales compared). Text
+  `h2`, `list`, `care` (the plan's care line, `CareLine`), `figure` (a photo in `public/images/learn` with its caption and the credit its licence asks for) and `exercise` (a heading, its lines, the tool, lines after it; `beside`, a second tool under the first, for two scales compared). Text
   takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`), and explained words: `marks.ts`
   (`markArticle`) runs the plan's glossary (`explain()`, `GLOSSARY` in `features/course/glossary.ts`) over the article's
   paragraphs, lists, care lines and exercise lines, each word marked once per article and never inside a link or a heading;
@@ -54,10 +54,10 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   the C drone, the same in A (staff with a drone), Mi and Sol from Do in C, F or A (`interval-singer`), and naming M2, M3,
   P5 or P8 by ear (`interval-ears`).
 - `major-and-minor-scales-guitar`: part 1 of a series on one key all over the guitar neck (CAGED in one key, task NEW22). A minor and
-  A major on the whole neck side by side (minor on the left, each exercise's `beside`), with two **islands** each (the scale-neck's
+  A major one above the other (minor on top, A major each exercise's `beside`), with two **islands** each (the scale-neck's
   `islands`, every other note faded, with the tool's key, `IslandLegend`, under each neck): the 1st, 4th and 5th framed in the same
-  places in both, then ♭7 1 2 against 7 1 2, the other A notes circled in red, an Island button to hear each group.
-- `scale-degrees-guitar-any-key`: part 2. Do Re Do as the smallest island, in A minor and then in E minor (the same frets, one
-  string lower), then ♭7 1 2 in E minor; links back to part 1 and to `scale-degree-feelings`.
+  places in both, then ♭7 1 2 against 7 1 2, every A circled in red, an Island button to hear each group.
+- `scale-degrees-guitar-any-key`: part 2. Do Re Do as the smallest island, in A minor and then in E minor (Island 1 on the
+  same frets, one string lower), then ♭7 1 2 in E minor; links back to part 1 and to `scale-degree-feelings`.
 - `microphone-and-audio-interface-for-singing`: a Shure SM58 and a Focusrite Scarlett Solo, or a 2i2 to plug in more than one
   thing, why direct monitoring matters for singing, and how to plug it together. Not sponsored, and it says so.

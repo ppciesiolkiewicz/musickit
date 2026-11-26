@@ -1,5 +1,5 @@
 /**
- * The key to a scale-neck drawn with `islands`: what the frame, the root, the red circle and a faded dot mean. Drawn under
+ * The key to a scale-neck drawn with `islands`: what the frame, the red-circled root and a faded dot mean. Drawn under
  * the neck by the tool; exported so a page that shows the islands its own way says it in the same words.
  */
 export function IslandLegend({ root }: { /** the root's note name, "A" */ root: string }) {
@@ -10,16 +10,12 @@ export function IslandLegend({ root }: { /** the root's note name, "A" */ root: 
         Island
       </li>
       <li className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="inline-block size-3 rounded-full bg-white" />
+        <span aria-hidden className="inline-block size-3 rounded-full bg-white ring-2 ring-rose-500 ring-offset-1 ring-offset-slate-900" />
         {root}, the root
       </li>
       <li className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="inline-block size-3 rounded-full border-2 border-rose-500" />
-        Other {root} notes
-      </li>
-      <li className="inline-flex items-center gap-1.5">
         <span aria-hidden className="inline-block size-3 rounded-full bg-slate-400 opacity-35" />
-        Other notes of the scale, faded
+        Other notes of the scale
       </li>
     </ul>
   );

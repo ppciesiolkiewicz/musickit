@@ -1,4 +1,6 @@
 import { explain, type Piece } from "@/features/course/glossary";
+import { parseKeySlug } from "@/features/theory/keySlug";
+import type { NoteRoot } from "@/features/plan/model/noteText";
 import type { Article, ArticleBlock } from "./model";
 
 /** A run of article text: plain, `**bold**` or a `_care line_`, split into glossary pieces; or a `[label](href)` link, never marked. */
@@ -22,10 +24,10 @@ export function runsOf(text: string): ({ kind: "text" | "bold" | "care"; text: s
 
 /** The lines of a block the glossary reads: paragraphs, list items, care lines and an exercise's lines (not titles or headings). */
 const linesOf = (b: ArticleBlock): string[] =>
-  b.type === "p" || b.type === "care" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.after ?? [])] : [];
+  b.type === "p" || b.type === "care" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.between ?? []), ...(b.after ?? [])] : [];
 
 /**
- * Every line of an article as marked runs, per block (`[block][line]`, an exercise's `lines` then its `after`). The glossary
+ * Every line of an article as marked runs, per block (`[block][line]`, an exercise's `lines`, its `between`, then its `after`). The glossary
  * reads the whole article as plan text reads a block: each word marked once, at its first use. Links are left alone.
  */
 export function markArticle(article: Article): Mark[][][] {
@@ -34,4 +36,18 @@ export function markArticle(article: Article): Mark[][][] {
   const pieces = explain(texts);
   let n = 0;
   return lines.map((block) => block.map((runs) => runs.map((r): Mark => (r.kind === "link" ? r : { kind: r.kind, pieces: pieces[n++] }))));
+}
+
+const keyOf = (b: ArticleBlock): number | null => (b.type === "exercise" && b.tool.key != null ? parseKeySlug(String(b.tool.key)) : null);
+
+/**
+ * The root each block's `{{1}}` notes count from: its own tool's key, else the next exercise's, else the last one before it
+ * (as plan text reads the tool after it). Null when no exercise has a key.
+ */
+export function blockRoots(article: Article): (NoteRoot | null)[] {
+  const keys = article.blocks.map(keyOf);
+  return keys.map((own, i) => {
+    const root = own ?? keys.slice(i + 1).find((k) => k !== null) ?? keys.slice(0, i).reverse().find((k) => k !== null) ?? null;
+    return root === null ? null : { root };
+  });
 }

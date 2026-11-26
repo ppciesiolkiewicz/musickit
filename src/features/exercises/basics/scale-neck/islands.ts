@@ -81,7 +81,20 @@ function pickFrom(all: readonly Island[], count: number): Island[] {
   return (best as { set: Island[] } | null)?.set ?? [];
 }
 
-/** What an island plays: its notes low to high, then back to the root, so it ends at home (Te Do Re Do; Do Fa Sol Do). */
-export function islandTune(island: Island): ScaleCell[] {
-  return island.cells[island.cells.length - 1] === island.root ? island.cells : [...island.cells, island.root];
+/**
+ * What an island plays, always rising: the root, its other notes above it in order (a note under the root an octave up),
+ * then the root an octave up (Do Fa Sol Do; Do Re Te Do; Do Re Do). A note outside the island lights its nearest place in
+ * `cells`.
+ */
+export function islandTune(island: Island, cells: readonly ScaleCell[]): ScaleCell[] {
+  const root = island.root;
+  const above = island.cells
+    .filter((c) => c !== root)
+    .map((c) => (c.midi < root.midi ? c.midi + 12 : c.midi))
+    .sort((a, b) => a - b);
+  const place = (midi: number) =>
+    island.cells.find((c) => c.midi === midi) ??
+    cells.filter((c) => c.midi === midi).sort((a, b) => cost(root, a) - cost(root, b) || a.string - b.string)[0] ??
+    { ...root, midi };
+  return [root, ...above.map(place), place(root.midi + 12)];
 }

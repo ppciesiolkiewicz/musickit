@@ -32,10 +32,18 @@ export function setLabelSystem(v: LabelSystem) {
   listeners.forEach((f) => f());
 }
 
-/** The global "how are notes labelled" setting, shared by every page and persisted. */
+/** The global "how are notes labelled" setting, shared by every page and persisted; `FixedLabelSystem` overrides it for a page. */
 export function useLabelSystem(): [LabelSystem, (v: LabelSystem) => void] {
+  const fixed = useContext(FixedSystem);
   const v = useSyncExternalStore(subscribe, () => current, () => DEFAULT_LABEL_SYSTEM);
-  return [v, setLabelSystem];
+  return [fixed ?? v, setLabelSystem];
+}
+
+const FixedSystem = createContext<LabelSystem | null>(null);
+
+/** Every note inside is labelled this way, whatever the global setting: a page that teaches with one system (an article). */
+export function FixedLabelSystem({ value, children }: { value: LabelSystem; children: ReactNode }) {
+  return <FixedSystem.Provider value={value}>{children}</FixedSystem.Provider>;
 }
 
 /**

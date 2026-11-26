@@ -1,39 +1,46 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment } from "react";
-import Explained from "@/components/course/Explained";
 import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
 import { parseTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
-import { CareLine } from "@/features/plan/ui/reader/NoteText";
+import type { NoteRoot } from "@/features/plan/model/noteText";
+import { CareLine, NoteText } from "@/features/plan/ui/reader/NoteText";
+import { FixedLabelSystem } from "@/features/theory/useLabelSystem";
 import { ARTICLES } from "../index";
 import { AUTHOR } from "../author";
-import { markArticle, type Mark } from "../marks";
+import { blockRoots, markArticle, type Mark } from "../marks";
 import type { Article, ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
 import PlayerControls from "./PlayerControls";
 import TempoTool from "./TempoTool";
 
-/** One line of article text as marked runs (`markArticle`): bold, links, care lines, and the glossary's explained words, with no course link (the course needs a login). */
-export function Inline({ runs }: { runs: Mark[] }) {
+/** A link to another guide opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
+const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("#"));
+
+/**
+ * One line of article text as marked runs (`markArticle`): bold, links, care lines, the glossary's explained words with no
+ * course link (the course needs a login), and `{{1}}` notes as dots counted from `root`.
+ */
+export function Inline({ runs, root = null }: { runs: Mark[]; root?: NoteRoot | null }) {
   return runs.map((r, k) =>
-    r.kind === "link" ? <Link key={k} href={r.href} className="text-sky-300 underline-offset-2 hover:underline">{r.text}</Link>
-    : r.kind === "bold" ? <strong key={k} className="font-semibold text-slate-50"><Explained pieces={r.pieces} link={false} /></strong>
-    : r.kind === "care" ? <CareLine key={k}><Explained pieces={r.pieces} link={false} /></CareLine>
-    : <Fragment key={k}><Explained pieces={r.pieces} link={false} /></Fragment>,
+    r.kind === "link" ? <Link key={k} href={r.href} {...(opensNewTab(r.href) ? { target: "_blank", rel: "noopener" } : {})} className="text-sky-300 underline-offset-2 hover:underline">{r.text}</Link>
+    : r.kind === "bold" ? <strong key={k} className="font-semibold text-slate-50"><NoteText pieces={r.pieces} root={root} link={false} /></strong>
+    : r.kind === "care" ? <CareLine key={k}><NoteText pieces={r.pieces} root={root} link={false} /></CareLine>
+    : <Fragment key={k}><NoteText pieces={r.pieces} root={root} link={false} /></Fragment>,
   );
 }
 
-function Block({ block, lines }: { block: ArticleBlock; /** the block's lines, marked (`markArticle`) */ lines: Mark[][] }) {
+function Block({ block, lines, root }: { block: ArticleBlock; /** the block's lines, marked (`markArticle`) */ lines: Mark[][]; /** what its notes count from (`blockRoots`) */ root: NoteRoot | null }) {
   switch (block.type) {
     case "p":
-      return <p className="text-slate-300"><Inline runs={lines[0]} /></p>;
+      return <p className="text-slate-300"><Inline runs={lines[0]} root={root} /></p>;
     case "h2":
       return <h2 className="mt-4 text-xl font-semibold text-slate-50">{block.text}</h2>;
     case "list":
-      return <ul className="flex list-disc flex-col gap-1.5 pl-5 text-slate-300">{block.items.map((t, i) => <li key={t}><Inline runs={lines[i]} /></li>)}</ul>;
+      return <ul className="flex list-disc flex-col gap-1.5 pl-5 text-slate-300">{block.items.map((t, i) => <li key={t}><Inline runs={lines[i]} root={root} /></li>)}</ul>;
     case "care":
-      return <p><CareLine><Inline runs={lines[0]} /></CareLine></p>;
+      return <p><CareLine><Inline runs={lines[0]} root={root} /></CareLine></p>;
     case "player":
       return <PlayerControls />;
     case "figure":
@@ -52,17 +59,22 @@ function Block({ block, lines }: { block: ArticleBlock; /** the block's lines, m
     case "exercise": {
       const tools = [block.tool, ...(block.beside ? [block.beside] : [])].map((t) => parseTool(t)).filter((t) => t !== null);
       const pair = tools.length > 1;
+      const between = block.between ?? [], at = block.lines.length;
       return (
-        // two tools side by side: the card reaches past the column on a wide screen, so each neck keeps its size
-        <section aria-label={block.title} className={`metal-panel mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5 ${pair ? "lg:-mx-16 xl:-mx-40" : ""}`}>
+        <section aria-label={block.title} className="metal-panel mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
           <h2 className="text-lg font-semibold text-slate-50">{block.title}</h2>
-          {block.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[i]} /></p>)}
+          {block.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[i]} root={root} /></p>)}
           {tools.length > 0 && (
-            <div className={pair ? "grid gap-6 lg:grid-cols-2 lg:gap-4" : "contents"}>
-              {tools.map((tool, i) => <div key={i} className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>)}
+            <div className={pair ? "flex flex-col gap-6" : "contents"}>
+              {tools.map((tool, i) => (
+                <Fragment key={i}>
+                  {i === 1 && between.map((t, j) => <p key={t} className="text-slate-300"><Inline runs={lines[at + j]} root={root} /></p>)}
+                  <div className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>
+                </Fragment>
+              ))}
             </div>
           )}
-          {block.after?.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[block.lines.length + i]} /></p>)}
+          {block.after?.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[at + between.length + i]} root={root} /></p>)}
         </section>
       );
     }
@@ -112,13 +124,15 @@ function MoreGuides({ current }: { current: string }) {
 /** An article's body: its blocks in order, the singing tools under one Your voice picker. Glossary words are marked once each across the whole article. */
 export default function ArticleView({ article }: { article: Article }) {
   const marked = markArticle(article);
+  const roots = blockRoots(article);
   const body = (
     <div className="flex flex-col gap-4 leading-relaxed">
-      {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} /></Fragment>)}
+      {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} root={roots[i]} /></Fragment>)}
       <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
       <JoinCard />
       <MoreGuides current={article.slug} />
     </div>
   );
-  return article.sings ? <VoicePicker data={article.blocks}>{body}</VoicePicker> : body;
+  const page = article.sings ? <VoicePicker data={article.blocks}>{body}</VoicePicker> : body;
+  return article.labels ? <FixedLabelSystem value={article.labels}>{page}</FixedLabelSystem> : page;
 }

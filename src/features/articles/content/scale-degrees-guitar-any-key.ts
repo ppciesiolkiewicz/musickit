@@ -9,34 +9,35 @@ export const scaleDegreesGuitarAnyKey: Article = {
   updated: "2026-11-26",
   sings: false,
   topics: ["guitar", "theory"],
+  labels: "interval",
   blocks: [
     { type: "p", text: "In [part 1](/learn/major-and-minor-scales-guitar) I framed small **islands** of notes on A major and A minor: three notes around a root, under one hand. This time it's the smallest island there is, two notes: Do and Re, the root and the note a step above it." },
     { type: "p", text: "Play Do Re Do anywhere on the neck and it sounds the same, just higher or lower. Move it to another key and it still sounds the same. That's what a scale degree is: a note named by its place from Do, not by its letter. More on that in [Learning music theory as a way of naming feelings](/learn/scale-degree-feelings)." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Tune your guitar first.",
-      "Tap any dot on the neck to hear it. The white dots are Do, the root.",
+      "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
+      "Tap any dot on the neck to hear it. Each dot is labelled with its interval, how far it is from Do: {{1}} is Do, the root, and {{2}} is Re, the 2nd.",
       "Each island has a frame and a number. Press its button under the neck, Island 1 for the first, to hear it.",
     ] },
     { type: "care", text: "Stop if your hand or wrist aches: shake it out and come back later." },
 
     { type: "exercise", title: "1. Do Re Do in A minor", lines: [
-      "This is the A minor scale on the whole neck. Each island is A and B: Do and Re. The red circles mark the other A notes.",
-      "Press Island 1 below to hear Do Re Do. Then play it on your guitar and sing along on the note names.",
+      "This is the A minor scale on the whole neck. Each island is {{1}} and {{2}}: A and B, Do and Re. The red circles mark every A.",
+      "Press Island 1 below to hear Do, Re and the Do above. Then play it on your guitar and sing along on the note names.",
       "Do the same with Island 2 and Island 3.",
-      "Listen for the same little step up and back, each time higher.",
+      "Listen for the same little climb, each time higher.",
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["1", "2"] } } },
 
     { type: "exercise", title: "2. Do Re Do in E minor", lines: [
       "Now the E minor scale. Do is E and Re is F♯. Island 1 sits on the same frets as Island 1 in A minor, one string lower.",
-      "Press Island 1 below, then play it and sing Do Re Do. Then play the first island of A minor above and this one, one after the other.",
-      "Listen for the step up and back: the same in both keys, only the starting note has moved.",
+      "Press Island 1 below, then play it and sing Do, Re, Do. Then play the first island of A minor above and this one, one after the other.",
+      "Listen for the climb: the same in both keys, only the starting note has moved.",
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "e", islands: { notes: ["1", "2"] } } },
 
     { type: "exercise", title: "3. Add the ♭7 under Do", lines: [
-      "A bigger island in E minor: D, E and F♯, the ♭7 under Do, then Do and Re.",
-      "Press Island 1 below to hear it: the ♭7, Do, Re and back to Do. Play it on your guitar. Then do the same with Island 2.",
+      "A bigger island in E minor: {{b7}}, {{1}} and {{2}}, D under Do, then E and F♯.",
+      "Press Island 1 below to hear it rising from Do: Do, Re, the ♭7 above them and the Do above that. Play it on your guitar. Then do the same with Island 2.",
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "e", islands: { notes: ["b7", "1", "2"], count: 2 } }, after: [
       "Practice until you can play an island from any red-circled E without counting frets.",
     ] },

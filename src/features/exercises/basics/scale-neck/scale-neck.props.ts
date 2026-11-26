@@ -56,8 +56,8 @@ export interface ScaleNeckProps {
   chordStrings?: string;
   /**
    * islands: a few notes of the scale around one root, under one hand, framed at a few places on the whole neck (1 to 4
-   * of them, spread along the neck, none sharing a fret), the rest of the scale faded and every other root circled in red,
-   * with a Play button per island (its notes low to high, then back to the root). `notes` are degrees low to high: the ones
+   * of them, spread along the neck, none sharing a fret), the rest of the scale faded and every root circled in red,
+   * with a Play button per island (always rising: the root, its notes above it, a note under it an octave up, then the root an octave up). `notes` are degrees low to high: the ones
    * written before "1" sit under the root, the ones after it above (["b7","1","2"]: Te Do Re; ["1","4","5"]: Do Fa Sol).
    * `count` 1-4, default 3. With no `parts`, the neck alone. For showing that a small shape of scale degrees comes back all along
    * the neck and sounds the same wherever it is played, or comparing a major and a minor scale on one root

@@ -12,11 +12,11 @@ import InlineNote from "../InlineNote";
  * key, with a card on hover; a note or chord that can't be read stays as text. A line
  * written `_like this_` is a care line (don't reach for high notes): it sits on a low, half-transparent band of amber.
  */
-export function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) {
+export function NoteText({ pieces, root, link = true }: { pieces: Piece[]; root: NoteRoot | null; /** false: explained words without the course link (`Explained`) */ link?: boolean }) {
   const parts = pieces.flatMap((p): (string | Exclude<Piece, string> | { note: string } | { chord: string })[] => (typeof p === "string" ? splitNotes(p) : [p]));
   const draw = (part: (typeof parts)[number], key: string) => {
     if (typeof part === "string") return <span key={key}>{keepTogether(part)}</span>;
-    if ("term" in part) return <Explained key={key} pieces={[part]} />;
+    if ("term" in part) return <Explained key={key} pieces={[part]} link={link} />;
     if ("chord" in part) {
       const chord = inlineChord(part.chord, root);
       return chord ? <InlineChord key={key} info={chord} /> : <span key={key}>{part.chord}</span>;

@@ -1,8 +1,12 @@
+import type { LabelSystem } from "@/features/theory/labels";
+
 /** The version of `VOICE.md`, the articles' voice; a seed file records the one it was written to. */
 export const ARTICLE_VOICE_VERSION = 4;
 
 /**
- * One block of a public article. Text takes two inline marks: `**bold**` and `[label](href)` links. A `care` block is the
+ * One block of a public article. Text takes two inline marks: `**bold**` and `[label](href)` links (one to another `/learn` guide opens in place, any other in a new tab), and notes written as plan
+ * text writes them (`{{1}}`, `{{b7}}`, `{{a}}`), drawn as the neck's dots and counted from the key of the nearest exercise's
+ * tool (`blockRoots`). A `care` block is the
  * one line that keeps a reader from hurting their voice, drawn as the plan's care line.
  */
 export type ArticleBlock =
@@ -16,10 +20,10 @@ export type ArticleBlock =
   | { type: "figure"; src: string; width: number; height: number; alt: string; caption: string; credit: { by: string; license: string; licenseUrl: string; source: string } }
   /**
    * something to sing on the page: a heading, its lines (one paragraph each) and the tool, written as a seed exercise writes it
-   * (`parseTool` reads it). `beside`: a second tool drawn to the right of it on a wide screen, the card widened past the column
-   * to fit both (under it on a narrower one), for two scales compared on the same neck
+   * (`parseTool` reads it). `beside`: a second tool drawn under it, for two scales compared on the same neck, with `between`, lines
+   * between the two
    */
-  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; after?: string[] };
+  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[] };
 
 /** The topics an article is tagged with, in the order /learn's filter shows them, with the word on the screen. */
 export const TOPICS = { singing: "Singing", guitar: "Guitar", theory: "Theory" } as const;
@@ -42,6 +46,8 @@ export interface Article {
   sings: boolean;
   /** what it is about, shown as tags on its /learn card and used by the topic filter there; one or more */
   topics: Topic[];
+  /** every dot on the page, on the necks and in the text, labelled this way whatever the reader's setting; absent: their setting */
+  labels?: LabelSystem;
   blocks: ArticleBlock[];
 }
 
