@@ -76,8 +76,11 @@ export default function PitchRoll() {
       <FullScreenFrame full={full} onClose={closeFull} label="Pitch roll">
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
           <MicButton on={on} onClick={toggle} />
-          <PianoSettings look="inline" tonicPc={tonicPc} scale={scale} onChange={changeKey} />
-          <ToolSettings accuracy />
+          <div role="group" aria-label="Highlight scale" className="flex items-center gap-2">
+            <span className="text-sm text-slate-400">Highlight scale:</span>
+            <PianoSettings look="inline" tonicPc={tonicPc} scale={scale} onChange={changeKey} />
+          </div>
+          <ToolSettings accuracy volume={false} />
           <div className="flex min-w-[7.5rem] items-baseline gap-2 tabular-nums" aria-live="polite">
             <span className={`text-2xl font-semibold ${heard ? "text-slate-100" : "text-slate-600"}`}>{heard ? midiToName(heard.midi) : "–"}</span>
             {heard && (
