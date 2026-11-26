@@ -42,7 +42,7 @@ function usePlay() {
     playSequence(hits.map(({ note, at, hold }) => ({ note, at, hold }))); // silences the last one, which clears its lights
     for (const h of hits) {
       timers.current.push(setTimeout(() => setLit((l) => [...l, h.mark]), h.at));
-      timers.current.push(setTimeout(() => setLit((l) => l.filter((m) => m !== h.mark)), h.at + Math.min(h.hold, 600)));
+      timers.current.push(setTimeout(() => setLit((l) => l.filter((m) => m !== h.mark)), h.at + h.hold));
     }
   };
   return { lit, play };
@@ -63,6 +63,7 @@ function PlayButton({ label, onPlay }: { label: string; onPlay: () => void }) {
 
 const W = 240;
 const STEP_MS = 380;
+const RING_MS = 1600;
 
 function Tune({ figure }: { figure: TuneFigure }) {
   const { lit, play } = usePlay();
@@ -86,8 +87,10 @@ function Tune({ figure }: { figure: TuneFigure }) {
 
   const playGroup = (gi: number) => {
     const g = groups[gi];
-    const hits: Hit[] = g.dots.map((d, k) => ({ note: midi(d.note), at: k * STEP_MS, hold: STEP_MS * 0.9, mark: d.mark }));
-    if (figure.drone) hits.push({ note: midi(figure.drone), at: 0, hold: g.dots.length * STEP_MS + 300, mark: -1 });
+    // The last note rings on, so the ending is heard: settled on Do, left hanging anywhere else.
+    const last = g.dots.length - 1;
+    const hits: Hit[] = g.dots.map((d, k) => ({ note: midi(d.note), at: k * STEP_MS, hold: k === last ? RING_MS : STEP_MS * 0.9, mark: d.mark }));
+    if (figure.drone) hits.push({ note: midi(figure.drone), at: 0, hold: last * STEP_MS + RING_MS, mark: -1 });
     play(hits);
   };
 
