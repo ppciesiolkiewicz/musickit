@@ -1,5 +1,5 @@
 /** The version of `VOICE.md`, the articles' voice; a seed file records the one it was written to. */
-export const ARTICLE_VOICE_VERSION = 3;
+export const ARTICLE_VOICE_VERSION = 4;
 
 /**
  * One block of a public article. Text takes two inline marks: `**bold**` and `[label](href)` links. A `care` block is the
