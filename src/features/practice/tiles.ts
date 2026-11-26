@@ -18,9 +18,12 @@ function groupOf(s: TheorySection): TileGroup | null {
   return "Learn";
 }
 
+/** A tool the Singing menu also lists (`alsoIn` singing, the pitch roll) gets a second tile there. */
+const alsoSinging = (s: TheorySection) => s.group !== "singing" && !!s.alsoIn?.some((a) => a.group === "singing");
+
 /** Every page as a tile, grouped and in menu order. Read from `THEORY_SECTIONS`, so a new page there gets a tile. */
 export function practiceTiles(): { label: TileGroup; tiles: TheorySection[] }[] {
-  return TILE_GROUPS.map((label) => ({ label, tiles: THEORY_SECTIONS.filter((s) => groupOf(s) === label) }));
+  return TILE_GROUPS.map((label) => ({ label, tiles: THEORY_SECTIONS.filter((s) => groupOf(s) === label || (label === "Singing" && alsoSinging(s))) }));
 }
 
 /**
