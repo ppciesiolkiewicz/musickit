@@ -26,8 +26,8 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 ## The articles
 
 - `pitch-matching-exercises`: live feedback and why a slightly flat or sharp note matters, looking after your voice, set-up, then
-  five exercises: one note over the drone, the siren to Sol, two agility patterns (Do Re Do, Do Mi Do… and Do Re Do Mi Do Fa Do
-  Sol) sung over a staff of Do to Sol, and hear it and sing it back (`interval-ears`).
+  five exercises: one note over the drone, the siren to Sol, two agility warm-ups (Do Re Do, Do Mi Do… and Do Re Do Mi Do Fa Do
+  Sol, then down to Do) as runs of the runs book (`out-from-do` in `RUN_STAGES`, also the library blocks `voice-warm-up-agility-*`), and hear it and sing it back (`interval-ears`).
 - `vocal-warm-ups`: a five-minute routine from the warm-up blocks: breathe in, hold, breathe out; a hiss then a buzz; lip rolls
   down and as a siren (saying plainly that the note and the mic don't matter, the buzz does); hum, then open.
 - `microphone-and-audio-interface-for-singing`: a Shure SM58 and a Focusrite Scarlett Solo, or a 2i2 to plug in more than one

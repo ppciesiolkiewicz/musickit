@@ -45,19 +45,22 @@ export const pitchMatchingExercises: Article = {
       "_Don't reach for high notes: turn the siren round at Sol._",
     ] },
 
-    { type: "exercise", title: "3. Agility: back to Do every time", lines: [
-      "Now let's get your voice moving. Every note goes out from Do and comes straight back, one step further each time:",
+    { type: "exercise", title: "3. Agility: out from Do and back", lines: [
+      "Now let's get your voice moving. This one is an agility warm-up: every note goes out from Do and comes straight back, one step further each time:",
       "**Do Re Do, Do Mi Do, Do Fa Do, Do Sol Do.**",
-      "Start on the low Do and sing along on the note names. Go slowly, one note at a time, and check each one lands on its line before you move on. Coming back to Do every time gives your ear a home to check against.",
-      "Once it feels easy, sing it a little faster, as one smooth line. Practice until each note starts in tune, with no slide into it.",
-    ], tool: { type: "staff", scale: "major-ionian", key: "c", voice: "tenor", labels: "solfege", notes: ["1", "2", "3", "4", "5"], highlight: ["1"], drone: true } },
+      "Press Play below to hear the run: the mic starts with it. Sing along on the note names, and watch your line land on each note. Coming back to Do every time gives your ear a home to check against.",
+      "Each pass starts a semitone higher. Switch to \"oo\" when the run gets high, and let a pass go when its top stops feeling easy.",
+      "Too quick at first? Hum it along with the piano a few times before you sing the names.",
+    ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 0 }, voice: "tenor" } },
 
-    { type: "exercise", title: "4. Agility: Do in between", lines: [
-      "Same notes, a quicker pattern. Do comes back after each note, but you keep climbing:",
-      "**Do Re Do Mi Do Fa Do Sol.**",
-      "This one is trickier, because each jump out from Do is a little bigger than the last. Start on the low Do and sing it slowly first, on the note names. Listen for each jump landing straight on its note, not sliding into it.",
-      "Then try it backwards for fun: Do Sol Do Fa Do Mi Do Re Do.",
-    ], tool: { type: "staff", scale: "major-ionian", key: "c", voice: "tenor", labels: "solfege", notes: ["1", "2", "3", "4", "5"], highlight: ["1"], drone: true } },
+    { type: "exercise", title: "4. Agility: Do between each step", lines: [
+      "Same notes, a quicker pattern. Do comes back between the notes, but you keep climbing, then walk back down home:",
+      "**Do Re Do Mi Do Fa Do Sol, then Fa Mi Re Do.**",
+      "Press Play below to hear the run: the mic starts with it. Sing along on the note names. Each jump out from Do is a step wider than the last, so listen for each one landing straight on its note, not sliding into it.",
+      "Then sing it on \"ah\" or \"oo\" for fun: same jumps, no names to lean on.",
+    ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 1 }, voice: "tenor" }, after: [
+      "_Don't reach for high notes: each pass goes a semitone higher, so stop when the top stops feeling easy._",
+    ] },
 
     { type: "exercise", title: "5. Hear it, sing it back", lines: [
       "No line on the screen for this one: just your ears. Press Start below to hear two notes, one after the other.",

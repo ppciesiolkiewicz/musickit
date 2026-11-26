@@ -1,0 +1,50 @@
+{
+  "id": "voice-warm-up-agility-do-between-steps",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "prompt": 21,
+    "agents": 2,
+    "teaching": 12
+  },
+  "note": "An intermediate agility warm-up (part 3), the author's pattern Do Re Do Mi Do Fa Do Sol, then down by step to Do, as a run (RUN_STAGES out-from-do, the second); also sung on /learn/pitch-matching-exercises.",
+  "exercise": {
+    "title": "Agility: Do between each step",
+    "kind": "warm-up",
+    "warmUpPart": 3,
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "why": "Do comes back between the notes as they climb, so each jump out from Do is a step wider than the last, and the walk back down from Sol lands you home by step.",
+    "learnBefore": [
+      "/course/6/vocal-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on the note names: {{1}} {{2}} {{1}} {{3}} {{1}} {{4}} {{1}} {{5}}, then walk back down {{4}} {{3}} {{2}} to {{1}}.\nEach pass starts a semitone higher. Change to \"oo\" when the run gets high.\n_Don't reach for high notes: let a pass go when its top stops feeling easy._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "stage": "out-from-do",
+            "index": 1
+          },
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [],
+      "minutes": 2
+    }
+  ]
+}

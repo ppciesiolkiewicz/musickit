@@ -14,15 +14,18 @@
     "Then some safety precautions about proper technique",
     "we link vocal warmups link",
     "the pitch matching exercises can be a few, e.g. Agility warmup could be DO RE DO DO MI DO DO FA DO DO SOL DO and then DO RE DO MI DO FA DO SOL",
-    "We still want to propose ideas and be playful"
+    "We still want to propose ideas and be playful",
+    "I'd rather use the melody component",
+    "Let's add them - they were meant for warmups, like intermediate warmup"
   ],
   "blocks": [
     "voice-beginner-a-long-steady-do",
     "voice-beginner-siren-to-sol",
-    "voice-warm-up-out-from-do-going-up",
     "voice-warm-up-out-from-do-going-down",
     "voice-beginner-hear-and-sing-back",
-    "voice-beginner-hum-then-open"
+    "voice-beginner-hum-then-open",
+    "voice-warm-up-agility-out-from-do-and-back",
+    "voice-warm-up-agility-do-between-steps"
   ],
   "calculator": [
     "npm run -s theory -- scale C major"
@@ -36,7 +39,7 @@
     "/admin/dev/search"
   ],
   "open": [
-    "The agility patterns are sung over a staff with the notes Do to Sol; they are not yet a run in the runs book (RUN_STAGES), which would play them and move up a key each pass.",
-    "Search volume for \"pitch matching exercises\" not checked yet."
+    "Search volume for \"pitch matching exercises\" not checked yet.",
+    "The agility runs climb a semitone each pass to the top of the chosen voice, as every run does; the text and the care line say to let a pass go when it stops feeling easy."
   ]
 }

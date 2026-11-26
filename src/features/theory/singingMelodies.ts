@@ -272,6 +272,13 @@ export const RUN_STAGES: Stage[] = [
     hint: "The whole scale in sixteenths, up and down",
     tunes: ["1s 2s 3s 4s 5s 6s 7s 1's 7s 6s 5s 4s 3s 2s 1s 7,s | 1w", "1s 2s 3s 4s 5s 6s 7s 1's 2's 3's 2's 1's 7s 6s 5s 4s | 3s 4s 3s 2s 1s 2s 1s 7,s 1h | 1w"],
   },
+  {
+    // last, so no run before it changes its number
+    id: "out-from-do",
+    title: "Out from Do and back",
+    hint: "Out from Do and back, one step further each time: Do Re Do, Do Mi Do… then Do Re Do Mi Do Fa Do Sol",
+    tunes: ["1e 2e 1 1e 3e 1 | 1e 4e 1 1e 5e 1 | 1w", "1e 2e 1e 3e 1e 4e 1e 5e | 4 3 2h | 1w"],
+  },
 ];
 
 /** a run goes round this many keys, a semitone up each time, all on its one staff */
