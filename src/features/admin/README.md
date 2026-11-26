@@ -15,17 +15,19 @@ read by `next.config.ts`. Rules: `CLAUDE.md`.
 - `messages/MessagesInbox.tsx`: the inbox.
 - `invites/InvitesAdmin.tsx`: teacher invites.
 - `src/app/admin/admin/users/page.tsx`: the users list, a server page over `listUsers` and `listSessionTimes` on `AuthRepo`
-  and `listPlanSummaries` on `UserDataRepo`, drawn by `users/UsersTable.tsx`.
+  `listPlanSummaries` on `UserDataRepo` and `listAll` on `ReminderRepo`, drawn by `users/UsersTable.tsx`.
 - `users/PermissionTicks.tsx`: one person's Dev, Content and Admin boxes on the users list; `users/messages.ts` holds what it says when a save fails.
 - `users/DeleteUser.tsx`: Delete on a users row and its question; `users/deleteLines.ts` turns the count of what goes into its lines.
 - Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`, `src/app/api/admin/users` (PATCH a person's permissions), `src/app/api/admin/users/[id]` (GET what deleting the account takes, DELETE it).
 
 ## Users (`/admin/admin/users`)
 
-Every account, newest first: name, email, role, its permissions, the day it was made, its last log-in and when it was last seen, and
-how many plans it holds (its own, the running one and earlier ones, plus any a teacher gave). Under each row, its latest
-questionnaire answers fold open: areas, minutes a day and how many times it answered, then each topic's picked line,
-voice, keys, styles and notes, in the questionnaire's own words.
+Every account, newest first: name, email, role, its permissions, its consents, the day it was made, when it was last seen,
+and how many plans it holds (its own, the running one and earlier ones, plus any a teacher gave). The consents are three
+boxes the admin can't change: Terms of use (`termsAcceptedAt`), News and offers (`emailUpdatesAt`) and Daily reminder
+(`listAll` on `ReminderRepo`, ticked when on). Under each row a fold opens on its last log-in, the consents' dates and
+versions, the reminder's time, zone and last send, then its latest questionnaire answers: areas, minutes a day and how
+many times it answered, then each topic's picked line, voice, keys, styles and notes, in the questionnaire's own words.
 
 Log-in times come from `sessions`: the newest `created_at` and `last_seen_at` over all the account's browsers.
 `last_seen_at` moves at most once a day, and logging out deletes the session, so an account logged out everywhere

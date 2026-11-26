@@ -8,6 +8,8 @@ export interface ReminderRepo {
   /** Switches the email off (the unsubscribe link). False when the account has no reminder. */
   turnOff(userId: string, now: Date): Promise<boolean>;
   listEnabled(): Promise<Array<Reminder & { userId: string }>>;
+  /** Every reminder, on or off, for the admin users list. */
+  listAll(): Promise<Array<Reminder & { userId: string }>>;
   /** True when this call set `sentOn` to `date` (it was null or another date); false when it already was `date`. */
   claim(userId: string, date: string): Promise<boolean>;
   /** Puts `sentOn` back to `previous` after a failed send. */

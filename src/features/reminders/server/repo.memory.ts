@@ -24,6 +24,9 @@ export function memoryReminderRepo(): ReminderRepo {
     async listEnabled() {
       return [...rows].filter(([, r]) => r.enabled).map(([userId, r]) => ({ ...r, userId }));
     },
+    async listAll() {
+      return [...rows].map(([userId, r]) => ({ ...r, userId }));
+    },
     async claim(id, date) {
       const r = rows.get(id);
       if (!r || r.sentOn === date) return false;

@@ -27,6 +27,9 @@ export function drizzleReminderRepo(db: Db): ReminderRepo {
     async listEnabled() {
       return db.select({ userId: reminders.userId, ...cols }).from(reminders).where(eq(reminders.enabled, true));
     },
+    async listAll() {
+      return db.select({ userId: reminders.userId, ...cols }).from(reminders);
+    },
     async claim(userId, date) {
       // one conditional statement, so of two runs at once only one gets the row back
       const rows = await db.update(reminders).set({ sentOn: date })
