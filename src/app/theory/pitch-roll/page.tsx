@@ -14,7 +14,7 @@ export default function PitchRollPage() {
       active="/theory/pitch-roll"
       mic
       title="Pitch roll"
-      intro="Sing or play a note and watch your pitch as a line on the piano roll. Press Start microphone below to begin. Hold a note and it shows as a bar on its row, green when you are as close as the Accuracy you picked. The notes of the key and scale you pick are tinted yellow, so you can see when you leave the scale. Tap a key on the left to hear it."
+      intro="Sing or play a note and watch your pitch as a line on the piano roll. Press Start microphone below to begin. Hold a note and it shows as a bar on its row, green when you are as close as the Accuracy you picked. The notes of the key and scale you pick are tinted, each in its own colour and the key note in white, so you can see when you leave the scale. Tap a key on the left to hear it."
     >
       <PitchRoll />
     </PageShell>

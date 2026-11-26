@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { playSequence } from "@/features/sound";
 import { spellNote, type KeyContext } from "@/features/theory/piano/key";
+import { degreeColour } from "@/features/theory/scales";
+import { degreeIndexOf } from "@/components/chordKit/palette";
 import { MIN_HOLD_MS, type createHeldNotes } from "@/features/theory/heldNotes";
 
 /** the whole piano: A0 to C8 */
@@ -43,7 +45,7 @@ function readColours() {
 
 /**
  * The pitch roll's drawing, on a canvas: every key of the piano as a row, named (the scale's rows and a strip by their keys
- * yellow), the held notes as bars, the pitch as a line and a dot at the "now" line, halfway across. It shows the rows that fit its box
+ * in degree colours), the held notes as bars, the pitch as a line and a dot at the "now" line, halfway across. It shows the rows that fit its box
  * and never scrolls by hand: the view glides up or down after the pitch when it nears an edge. Tap a key to hear it. Keyed by
  * full screen in the parent, so it mounts afresh in the modal; the readings it draws live in the parent.
  */
@@ -106,6 +108,8 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     const chromatic = keyContext.scale === "chromatic";
     const inScale = (m: number) => !chromatic && keyContext.scalePcs.has(pcOf(m));
     const isTonic = (m: number) => !chromatic && pcOf(m) === keyContext.tonicPc;
+    // a scale note's colour is its degree's, the same as on every neck and dot in the app
+    const degColour = (m: number) => degreeColour(degreeIndexOf(spellNote(keyContext, m).degree) ?? 0);
     const tuned = (m: number) => Math.abs(m - Math.round(m)) * 100 <= cents;
     const now_ = samples.current.at(-1)?.midi ?? null;
     const liveKey = now_ === null ? null : Math.round(now_);
@@ -113,15 +117,15 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     const yOf = (m: number) => (top - m) * rowH;
 
     // the rows, all alike (the keys show white and black), a faint line under each and a firmer one under C; only the
-    // scale's rows are lighter, tinted yellow, the key note's row more
+    // scale's rows are lighter, tinted in their degree's colour, the key note's row more
     for (let m = HI; m >= LO; m--) {
       const y = yOf(m);
       g.globalAlpha = 0.9;
       g.fillStyle = col.rowBlack;
       g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
       if (inScale(m)) {
-        g.globalAlpha = isTonic(m) ? 0.2 : 0.1;
-        g.fillStyle = col.amber;
+        g.globalAlpha = isTonic(m) ? 0.2 : 0.13;
+        g.fillStyle = degColour(m);
         g.fillRect(KEYS_W, y, width - KEYS_W, rowH);
       }
       g.globalAlpha = pcOf(m) === 0 ? 0.8 : 0.4;
@@ -131,7 +135,7 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     }
 
     // the keys, a row each, every one named (spelled in the key): white keys light, black keys dark, the heard key
-    // green or blue. Between the keys and the rows a strip marks the scale's notes in yellow, the key note's brighter.
+    // green or blue. Between the keys and the rows a strip marks the scale's notes in their degree's colour.
     const keyW = KEYS_W - MARK_W - 2;
     g.textBaseline = "middle";
     g.textAlign = "right";
@@ -149,8 +153,8 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
       g.globalAlpha = 0.35;
       g.fillRect(0, y + rowH - 0.5, keyW, 0.5);
       if (scaleNote) {
-        g.fillStyle = col.amber;
-        g.globalAlpha = isTonic(m) ? 1 : 0.55;
+        g.fillStyle = degColour(m);
+        g.globalAlpha = 1;
         g.fillRect(keyW + 1, y + 1, MARK_W, rowH - 2);
       }
       const n = spellNote(keyContext, m);
@@ -257,9 +261,14 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     if (!live) draw(performance.now());
   }, [live, draw]);
 
+  const onKeys = (e: React.MouseEvent<HTMLCanvasElement>) =>
+    e.clientX - e.currentTarget.getBoundingClientRect().left <= KEYS_W - MARK_W - 2;
+  const hover = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.currentTarget.style.cursor = onKeys(e) ? "pointer" : "";
+  };
   const hear = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    if (e.clientX - r.left > KEYS_W - MARK_W - 2) return;
+    if (!onKeys(e)) return;
     const m = Math.ceil(topOf() - (e.clientY - r.top) / rowH);
     if (m >= LO && m <= HI) playSequence([{ note: m, at: 0, hold: 700 }]);
   };
@@ -269,6 +278,7 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
       <canvas
         ref={canvas}
         onClick={hear}
+        onMouseMove={hover}
         style={{ width, height, display: "block" }}
         role="img"
         aria-label={`A piano roll of every key, with the notes of ${scaleName} tinted and the pitch the microphone hears drawn as a line`}
