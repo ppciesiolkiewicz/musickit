@@ -7,6 +7,7 @@ import { Tool } from "@/features/plan/ui/Tool";
 import type { NoteRoot } from "@/features/plan/model/noteText";
 import { CareLine, NoteText } from "@/features/plan/ui/reader/NoteText";
 import { FixedLabelSystem } from "@/features/theory/useLabelSystem";
+import { NeckFrets } from "@/components/chordKit/ScaleNeck";
 import { ARTICLES } from "../index";
 import { AUTHOR } from "../author";
 import { blockRoots, markArticle, type Mark } from "../marks";
@@ -56,6 +57,10 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
           </figcaption>
         </figure>
       );
+    case "row": {
+      const tools = block.tools.map((t) => parseTool(t)).filter((t) => t !== null);
+      return <div className="grid gap-4 sm:grid-cols-2">{tools.map((tool, i) => <div key={i} className="min-w-0"><Tool tool={tool} /></div>)}</div>;
+    }
     case "exercise": {
       const tools = [block.tool, ...(block.beside ? [block.beside] : [])].map((t) => parseTool(t)).filter((t) => t !== null);
       const pair = tools.length > 1;
@@ -134,5 +139,6 @@ export default function ArticleView({ article }: { article: Article }) {
     </div>
   );
   const page = article.sings ? <VoicePicker data={article.blocks}>{body}</VoicePicker> : body;
-  return article.labels ? <FixedLabelSystem value={article.labels}>{page}</FixedLabelSystem> : page;
+  const framed = article.frets ? <NeckFrets to={article.frets}>{page}</NeckFrets> : page;
+  return article.labels ? <FixedLabelSystem value={article.labels}>{framed}</FixedLabelSystem> : framed;
 }

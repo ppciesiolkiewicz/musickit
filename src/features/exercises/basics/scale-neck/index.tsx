@@ -82,8 +82,9 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
   // the islands on the neck: their notes as they are, every root circled, the rest faded
   const islands = useMemo(() => (islandSpec ? findIslands(neckCells.filter((c) => c.fret <= SCALE_NECK_FRETS), islandSpec.notes, islandSpec.count) : []), [islandSpec, neckCells]);
   const inIsland = useMemo(() => new Set(islands.flatMap((i) => i.cells.map(cellKey))), [islands]);
-  // islands sit low on the neck (findIslands): draw it only one fret past the last one, not the empty frets above
-  const neckTo = islands.length ? Math.min(12, Math.max(...islands.map((i) => i.to)) + 1) : undefined;
+  // islands sit low on the neck (findIslands): draw it only one fret past the last one, not the empty frets above, and at
+  // least 4 frets, so a row of small necks (an article's intervals) draws them all the same size
+  const neckTo = islands.length ? Math.min(12, Math.max(4, ...islands.map((i) => i.to + 1))) : undefined;
   const circled = useMemo(() => (islandSpec ? new Set(neckCells.filter((c) => c.semi === 0).map(cellKey)) : undefined), [islandSpec, neckCells]);
   const ringed = (rings: Set<string> | undefined, c: ScaleCell) => {
     const s = state(c.pc);

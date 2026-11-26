@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 23 (2026-11-26)
+
+- `scale-neck` `islands`: islands sit by fret 7 when they all fit there and never past fret 12, and the neck is drawn only one fret past the last one; every root is ringed in red; each island plays rising, from the root to the root an octave up (Do Fa Sol Do); `"8"` in `notes` is the root an octave up (an island of Do and the Do above).
+
 ### 22 (2026-11-26)
 
 - `scale-neck` has a new prop, `islands` (`notes`, degrees low to high, and `count`): a few groups of those degrees framed on the whole neck, the other roots circled in red, a Play button per island.

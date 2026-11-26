@@ -109,7 +109,7 @@ export const KEY_PANELS = ["relative-modes", "mode-intervals", "key-chords", "tr
 export type KeyPanelName = (typeof KEY_PANELS)[number];
 
 type PlanToolProps =
-  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement; /** degrees of the key (0-based) found as triads in the positions */ chords?: number[]; /** "321", "432", "543", "654"; absent: "321" */ chordStrings?: string; /** a few groups of these degrees (semitones above the key, low to high: the ones before 0 sit under the root) framed on the neck, the other roots circled; `count` 1-4, absent: 3 */ islands?: Islands } & Marks
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement; /** degrees of the key (0-based) found as triads in the positions */ chords?: number[]; /** "321", "432", "543", "654"; absent: "321" */ chordStrings?: string; /** a few groups of these degrees (semitones above the key, low to high: the ones before 0 sit under the root; 12 the root an octave up) framed on the neck, every root ringed; `count` 1-4, absent: 3 */ islands?: Islands } & Marks
   | { type: "position-neck"; scale: string; key: number; /** "3nps": the scale's seven 3-notes-per-string positions, one at a time; absent: its own five */ kind?: "3nps"; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: KeyPanelName; key: number; scale: string }
   /** the chord on `degree` (1-7) of the scale, with its sus and extended chords around it */
@@ -345,8 +345,10 @@ export type Islands = { notes: number[]; count?: number };
 const islandsOf = (v: unknown, d: Diag): { islands?: Islands } => {
   if (v == null) return {};
   const o = (v && typeof v === "object" && !Array.isArray(v) ? v : { notes: v }) as Record<string, unknown>;
-  lost(d, "islands", o.notes, degreeOf);
-  const notes = [...new Set(list(o.notes).map(degreeOf).filter((n): n is number => n !== null))];
+  // "8" is the root an octave up, for an island of Do and the Do above
+  const islandDegree = (x: unknown) => (String(x).trim() === "8" ? 12 : degreeOf(x));
+  lost(d, "islands", o.notes, islandDegree);
+  const notes = [...new Set(list(o.notes).map(islandDegree).filter((n): n is number => n !== null))];
   if (notes.length < 2) { d.notes.push("dropped islands (it needs the root and at least one more degree)."); return {}; }
   if (!notes.includes(0)) { notes.unshift(0); if (!d.stored) d.notes.push("islands had no \"1\"; put the root first."); }
   const count = o.count == null ? 3 : intOr(d, "islands count", o.count, 1, 4, 3);

@@ -56,7 +56,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `major-and-minor-scales-guitar`: part 1 of a series on one key all over the guitar neck (CAGED in one key, task NEW22). A minor and
   A major one above the other (minor on top, A major each exercise's `beside`), with two **islands** each (the scale-neck's
   `islands`, every other note faded, with the tool's key, `IslandLegend`, under each neck): the 1st, 4th and 5th framed in the same
-  places in both, then ♭7 1 2 against 7 1 2, every A circled in red, an Island button to hear each group.
+  places in both, then ♭7 1 2 against 7 1 2, every A circled in red, an Island button to hear each group. It opens with four intervals from one A (2nd, 4th, 5th, octave) as `row`s of small necks, and ends with the A minor and A major pentatonic scales: whole necks, islands, then islands from one A to the next. `labels: "interval"` and `frets: 12` for the page.
 - `scale-degrees-guitar-any-key`: part 2. Do Re Do as the smallest island, in A minor and then in E minor (Island 1 on the
   same frets, one string lower), then ♭7 1 2 in E minor; links back to part 1 and to `scale-degree-feelings`.
 - `microphone-and-audio-interface-for-singing`: a Shure SM58 and a Focusrite Scarlett Solo, or a 2i2 to plug in more than one

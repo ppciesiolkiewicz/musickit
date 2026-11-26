@@ -16,7 +16,16 @@
     "add words like visual and interactive",
     "These are intervals of the scale so try to show that these shapes repeat and then Do Re Do will have the same feeling And then we go to another key soo technicaly But first i want to show major and minor side by side with few islands of notes highlighted (same scale degrees) (or possibly have 2 articles in depth as well as one side by side",
     "CAGED can also be an article series (relayed by the coordinator, 2026-11-26)",
-    "Should show pentatonic minor on left and major on right (bit of negative margin) to fit them better. Not every note should be enabled, 2 islands of the same G major and minor, every note of scale should be muted. Should contain leged (Legend should be component exported from the tool or setting). Same for when we just show 4 and 5 and 1 (2026-11-26)"
+    "Should show pentatonic minor on left and major on right (bit of negative margin) to fit them better. Not every note should be enabled, 2 islands of the same G major and minor, every note of scale should be muted. Should contain leged (Legend should be component exported from the tool or setting). Same for when we just show 4 and 5 and 1 (2026-11-26)",
+    "dont go to higher frets than 12 , preferably 7 (2026-11-26)",
+    "We need to hide exceesss frets (2026-11-26)",
+    "\"A, the root / Other A notes / Other notes of the scale, faded\" No need to say faded. All root notes are circled (2026-11-26)",
+    "Also label for this should use intervals and explain about them. Use note component everywhere (2026-11-26)",
+    "Actually - the frets one under the other - this is too busy (2026-11-26)",
+    "Also the islands should start from Do and end on do. And just go always raising as a rule.. Also need Do Fa Sol Do(higher) (2026-11-26)",
+    "Between scales we need to say : You can note that this is exactly the same for both major and minor scale (2026-11-26)",
+    "And then add one more section where we compare entire pentatonic. islands and then last one where we add notes above and show how hey connect (2026-11-26)",
+    "And also super introduction to intervals with Do Re, Do Fa, Do Sol, Do DO (higher) on separate charts (Maybe 2 rows and text between them) (2026-11-26)"
   ],
   "blocks": [],
   "calculator": [
@@ -25,7 +34,10 @@
     "npm run -s theory -- intervals A major --interval 2 --strings 66 --frets 0-17",
     "npm run -s theory -- intervals A minor --interval 2 --strings 66 --frets 0-17",
     "npm run -s theory -- intervals A minor --interval 4 --frets 0-17",
-    "Islands drawn by the scale-neck's own findIslands (src/features/exercises/basics/scale-neck/islands.ts, tested in islands.test.ts): 1 4 5 at A string open / D string 7 / G string 14 in both A major and A minor"
+    "Islands drawn by the scale-neck's own findIslands (src/features/exercises/basics/scale-neck/islands.ts, tested in islands.test.ts): 1 4 5 at A string open / D string 7 / G string 14 in both A major and A minor",
+    "npm run -s theory -- scale A aeolian; npm run -s theory -- scale A ionian (A B C D E F G; A B C♯ D E F♯ G♯)",
+    "npm run -s theory -- positions A aeolian pentatonic; npm run -s theory -- positions A ionian pentatonic (A C D E G; A B C♯ E F♯)",
+    "Islands by findIslands: intervals from the open A (A string 0 to 2, D 0, D 2, G 2); minor pentatonic b7 1 b3 at frets 0-3 and 7-10; the whole octave 1 b3 4 5 b7 8 at A string 0 to G 2 and D 7 to B 10 (Island 2 is Island 1 one string over and 7 frets up, the B string notes one fret higher)"
   ],
   "sources": [
     "/admin/dev/search"
@@ -34,7 +46,6 @@
     "Part 1 of a CAGED-in-one-key series. Planned next: 2. the islands feel the same in another key; 3. CAGED position by position; 4. how to find chords for a song. Link each to the next once it exists.",
     "No library block reuses the islands yet: the exercises are scale-neck tools written here (islands is a new scale-neck prop, 2026-11-26).",
     "Search volume for the query not checked yet.",
-    "The author's note of 2026-11-26 says \"pentatonic minor\" and \"G\": the pairs still use the natural minor scale in A (♭7 1 2 needs the 2nd, which the minor pentatonic scale doesn't have, and part 2 builds on A). Confirm with the author.",
     "The ♭7 1 2 islands in A minor and the 7 1 2 islands in A major don't sit in the same places, so the text doesn't say they match."
   ]
 }

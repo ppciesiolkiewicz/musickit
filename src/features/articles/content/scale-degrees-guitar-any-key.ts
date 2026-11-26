@@ -10,6 +10,7 @@ export const scaleDegreesGuitarAnyKey: Article = {
   sings: false,
   topics: ["guitar", "theory"],
   labels: "interval",
+  frets: 12,
   blocks: [
     { type: "p", text: "In [part 1](/learn/major-and-minor-scales-guitar) I framed small **islands** of notes on A major and A minor: three notes around a root, under one hand. This time it's the smallest island there is, two notes: Do and Re, the root and the note a step above it." },
     { type: "p", text: "Play Do Re Do anywhere on the neck and it sounds the same, just higher or lower. Move it to another key and it still sounds the same. That's what a scale degree is: a note named by its place from Do, not by its letter. More on that in [Learning music theory as a way of naming feelings](/learn/scale-degree-feelings)." },
@@ -24,14 +25,14 @@ export const scaleDegreesGuitarAnyKey: Article = {
 
     { type: "exercise", title: "1. Do Re Do in A minor", lines: [
       "This is the A minor scale on the whole neck. Each island is {{1}} and {{2}}: A and B, Do and Re. The red circles mark every A.",
-      "Press Island 1 below to hear Do, Re and the Do above. Then play it on your guitar and sing along on the note names.",
+      "Press Island 1 below to hear Do and Re. Then play it on your guitar and sing along on the note names.",
       "Do the same with Island 2 and Island 3.",
       "Listen for the same little climb, each time higher.",
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["1", "2"] } } },
 
     { type: "exercise", title: "2. Do Re Do in E minor", lines: [
       "Now the E minor scale. Do is E and Re is F♯. Island 1 sits on the same frets as Island 1 in A minor, one string lower.",
-      "Press Island 1 below, then play it and sing Do, Re, Do. Then play the first island of A minor above and this one, one after the other.",
+      "Press Island 1 below, then play it and sing Do, Re. Then play the first island of A minor above and this one, one after the other.",
       "Listen for the climb: the same in both keys, only the starting note has moved.",
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "e", islands: { notes: ["1", "2"] } } },
 

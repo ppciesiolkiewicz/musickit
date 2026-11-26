@@ -23,7 +23,9 @@ export type ArticleBlock =
    * (`parseTool` reads it). `beside`: a second tool drawn under it, for two scales compared on the same neck, with `between`, lines
    * between the two
    */
-  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[] };
+  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[] }
+  /** small tools side by side (two to a row on a wide screen, one under the other on a phone), with no text: a row of charts */
+  | { type: "row"; tools: Record<string, unknown>[] };
 
 /** The topics an article is tagged with, in the order /learn's filter shows them, with the word on the screen. */
 export const TOPICS = { singing: "Singing", guitar: "Guitar", theory: "Theory" } as const;
@@ -48,6 +50,8 @@ export interface Article {
   topics: Topic[];
   /** every dot on the page, on the necks and in the text, labelled this way whatever the reader's setting; absent: their setting */
   labels?: LabelSystem;
+  /** every guitar neck on the page ends by this fret; absent: the tools' own */
+  frets?: number;
   blocks: ArticleBlock[];
 }
 

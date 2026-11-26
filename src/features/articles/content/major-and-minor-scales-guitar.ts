@@ -10,6 +10,7 @@ export const majorAndMinorScalesGuitar: Article = {
   sings: false,
   topics: ["guitar", "theory"],
   labels: "interval",
+  frets: 12,
   blocks: [
     { type: "p", text: "Most of us learn a scale as one position: a block of frets to run up and down. But the neck doesn't stop there. The same notes come back all the way up, and small groups of them come back together." },
     { type: "p", text: "I call those groups **islands**: three notes around a root, under one hand. Below, A minor sits on top of A major, with two islands of the same scale notes framed on both. Play one island, then the other one up the neck: same notes, same tune, just higher or lower." },
@@ -29,6 +30,14 @@ export const majorAndMinorScalesGuitar: Article = {
       "Play slowly and lightly. Ten easy minutes beat an hour of tired hands.",
     ] },
     { type: "care", text: "Stop if your hand or wrist aches: shake it out and come back later." },
+
+    { type: "h2", text: "Four intervals from Do" },
+    { type: "p", text: "An interval is how far one note is from another, and every label on these necks counts from A. Here are four, each from the same open A. Press Island 1 under a neck to hear it, then play it on your guitar." },
+    { type: "row", tools: [{ type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["1", "2"], count: 1 } }, { type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["1", "4"], count: 1 } }] },
+    { type: "p", text: "{{1}} to {{2}} is a 2nd, Do to Re: two frets up the same string. {{1}} to {{4}} is a 4th, Do to Fa: the same fret, one string up." },
+    { type: "row", tools: [{ type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["1", "5"], count: 1 } }, { type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["1", "8"], count: 1 } }] },
+    { type: "p", text: "{{1}} to {{5}} is a 5th, Do to Sol: one string up and two frets up. Do to the Do above is an octave: two strings up and two frets up." },
+    { type: "p", text: "Practice until you can sing the second note before you press Island 1." },
 
     { type: "exercise", title: "1. The 1st, 4th and 5th in minor and major", lines: [
       "Each island holds {{1}}, {{4}} and {{5}}: A, D and E, the 1st, 4th and 5th notes of the scale, or Do, Fa and Sol.",
@@ -51,6 +60,38 @@ export const majorAndMinorScalesGuitar: Article = {
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["b7", "1", "2"], count: 2 } },
     beside: { type: "scale-neck", scale: "major-ionian", key: "a", islands: { notes: ["7", "1", "2"], count: 2 } }, after: [
       "Practice until you can find an island from any red-circled A without counting frets.",
+    ] },
+
+    { type: "h2", text: "The pentatonic scale" },
+    { type: "p", text: "A pentatonic scale keeps five of the seven notes. A minor pentatonic is {{1}}, {{b3}}, {{4}}, {{5}} and {{b7}}: A, C, D, E and G. A major pentatonic is {{1}}, {{2}}, {{3}}, {{5}} and {{6}}: A, B, C♯, E and F♯." },
+
+    { type: "exercise", title: "3. A minor and A major pentatonic", lines: [
+      "Here is each one up to fret 12, A minor pentatonic on top. Tap any dot to hear it.",
+    ], tool: { type: "scale-neck", scale: "minor-pentatonic", key: "a", parts: { neck: "always" } },
+    between: [
+      "Only {{1}} and {{5}}, A and E, are in both. The other three notes are different.",
+    ],
+    beside: { type: "scale-neck", scale: "major-pentatonic", key: "a", parts: { neck: "always" } } },
+
+    { type: "exercise", title: "4. Islands in the pentatonic", lines: [
+      "In A minor pentatonic, each island is {{b7}}, {{1}} and {{b3}}: G, A and C.",
+      "Press Island 1 under the A minor pentatonic neck to hear it rising from A: A, C, G and the A above. Then play it on your guitar and sing along on the note names.",
+    ], tool: { type: "scale-neck", scale: "minor-pentatonic", key: "a", islands: { notes: ["b7", "1", "b3"], count: 2 } },
+    between: [
+      "In A major pentatonic, each island is {{6}}, {{1}} and {{2}}: F♯, A and B. Press Island 1 under the neck below and play it: A, B, F♯ and the A above.",
+    ],
+    beside: { type: "scale-neck", scale: "major-pentatonic", key: "a", islands: { notes: ["6", "1", "2"], count: 2 } } },
+
+    { type: "exercise", title: "5. From one A to the next", lines: [
+      "Now add the notes above, up to the next A. Each island holds the whole A minor pentatonic scale under one hand, from A to the A above.",
+      "Press Island 1 under the A minor pentatonic neck to hear it, then play it on your guitar. Then do the same with Island 2.",
+    ], tool: { type: "scale-neck", scale: "minor-pentatonic", key: "a", islands: { notes: ["1", "b3", "4", "5", "b7", "8"], count: 2 } },
+    between: [
+      "The same in A major pentatonic: A, B, C♯, E, F♯ and the A above.",
+    ],
+    beside: { type: "scale-neck", scale: "major-pentatonic", key: "a", islands: { notes: ["1", "2", "3", "5", "6", "8"], count: 2 } }, after: [
+      "Look at how the two islands on the A minor pentatonic neck connect: Island 2 is Island 1 moved one string over and seven frets up, with the notes on the B string one fret higher.",
+      "Practice until you can start the island from any red-circled A without counting frets.",
     ] },
 
     { type: "h2", text: "Make it your own" },

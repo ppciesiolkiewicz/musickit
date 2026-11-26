@@ -2,6 +2,7 @@
 
 import { FretboardBase, fretGeometry } from "./Fretboard";
 import usePhone from "@/components/usePhone";
+import { createContext, useContext, type ReactNode } from "react";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
 import { hoverLabel, noteLabel, type LabelSystem } from "@/features/theory/labels";
 import { SCALE_NECK_FRETS, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
@@ -41,6 +42,13 @@ interface NeckProps {
   to?: number;
 }
 
+const PageFrets = createContext<number | null>(null);
+
+/** Every `ScaleNeck` inside ends by this fret (unless its own `to` is lower): a page that keeps to the low end of the neck (an article). */
+export function NeckFrets({ to, children }: { to: number; children: ReactNode }) {
+  return <PageFrets.Provider value={to}>{children}</PageFrets.Provider>;
+}
+
 const isActive = (active: string | null, c: ScaleCell) => active !== null && (active === cellKey(c) || active === `d${c.degree}` || active === `pc${c.pc}`);
 
 /** a note lights up when it is playing, and wherever the note the microphone hears falls (`HeardNote`) */
@@ -49,11 +57,12 @@ function useLit(active: string | null): (c: ScaleCell) => boolean {
   return (c) => isActive(active, c) || heard === c.pc;
 }
 
-/** The whole neck, frets 0-17 (0-12 when compact, or up to `to`), with every note of the scale. Tap a note to hear it. */
+/** The whole neck, frets 0-17 (0-12 when compact, or up to `to` or the page's `NeckFrets`), with every note of the scale. Tap a note to hear it. */
 export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title, states, sounding, fingers, groups = [], circled, to: last }: NeckProps) {
   const heard = useLit(active);
   const lit = (c: ScaleCell) => heard(c) || !!sounding?.has(cellKey(c));
-  const to = last ?? (compact ? 12 : SCALE_NECK_FRETS);
+  const page = useContext(PageFrets);
+  const to = Math.min(last ?? (compact ? 12 : SCALE_NECK_FRETS), page ?? Infinity);
   // a phone fits the whole neck on screen: narrower frets, so the dots come out bigger once it is scaled down
   const phone = usePhone();
   const g = compact ? fretGeometry(0, to, 34, 22, 36) : phone ? fretGeometry(0, to, 28, 26, 36) : fretGeometry(0, to, 54, 36, 42);

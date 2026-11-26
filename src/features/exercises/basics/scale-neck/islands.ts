@@ -1,7 +1,11 @@
 import type { ScaleCell } from "@/lib/chordKit/scalePositions";
 
-/** How far an island's notes may sit from its root: one string over, and this many frets either way (a hand's span). */
+/**
+ * How far an island's notes may sit from its root: one string over, two for the octave or in an island of more than three
+ * notes (a whole octave of a pentatonic), and this many frets either way (a hand's span).
+ */
 const STRING_REACH = 1;
+const WIDE_STRING_REACH = 2;
 const FRET_REACH = 4;
 
 /** A few scale notes around one root, all under one hand: the same notes in the same order wherever on the neck it is played. */
@@ -25,7 +29,8 @@ export function islandSteps(semis: readonly number[]): number[] {
   return [...new Set([0, ...steps])].sort((a, b) => a - b);
 }
 
-const near = (root: ScaleCell, c: ScaleCell) => Math.abs(c.string - root.string) <= STRING_REACH && Math.abs(c.fret - root.fret) <= FRET_REACH;
+const near = (root: ScaleCell, c: ScaleCell, wide: boolean) =>
+  Math.abs(c.string - root.string) <= (wide || Math.abs(c.midi - root.midi) >= 12 ? WIDE_STRING_REACH : STRING_REACH) && Math.abs(c.fret - root.fret) <= FRET_REACH;
 /** the closer place wins, a step along the string before a string over */
 const cost = (root: ScaleCell, c: ScaleCell) => Math.abs(c.fret - root.fret) + 2 * Math.abs(c.string - root.string);
 
@@ -35,7 +40,7 @@ export function islandAt(cells: readonly ScaleCell[], root: ScaleCell, steps: re
   for (const step of steps) {
     if (step === 0) { picked.push(root); continue; }
     const best = cells
-      .filter((c) => c.midi === root.midi + step && near(root, c))
+      .filter((c) => c.midi === root.midi + step && near(root, c, steps.length > 3))
       .sort((a, b) => cost(root, a) - cost(root, b) || a.string - b.string || a.fret - b.fret)[0];
     if (!best) return null;
     picked.push(best);
@@ -83,7 +88,7 @@ function pickFrom(all: readonly Island[], count: number): Island[] {
 
 /**
  * What an island plays, always rising: the root, its other notes above it in order (a note under the root an octave up),
- * then the root an octave up (Do Fa Sol Do; Do Re Te Do; Do Re Do). A note outside the island lights its nearest place in
+ * then the root an octave up (Do Fa Sol Do; Do Re Te Do). Two notes are an interval and play just the two (Do Re; Do Do). A note outside the island lights its nearest place in
  * `cells`.
  */
 export function islandTune(island: Island, cells: readonly ScaleCell[]): ScaleCell[] {
@@ -96,5 +101,7 @@ export function islandTune(island: Island, cells: readonly ScaleCell[]): ScaleCe
     island.cells.find((c) => c.midi === midi) ??
     cells.filter((c) => c.midi === midi).sort((a, b) => cost(root, a) - cost(root, b) || a.string - b.string)[0] ??
     { ...root, midi };
-  return [root, ...above.map(place), place(root.midi + 12)];
+  // two notes are an interval: just the two; an island with the octave in it already ends on the Do above
+  const top = island.cells.length > 2 && above[above.length - 1] !== root.midi + 12 ? [place(root.midi + 12)] : [];
+  return [root, ...above.map(place), ...top];
 }

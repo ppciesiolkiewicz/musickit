@@ -38,7 +38,10 @@ export function markArticle(article: Article): Mark[][][] {
   return lines.map((block) => block.map((runs) => runs.map((r): Mark => (r.kind === "link" ? r : { kind: r.kind, pieces: pieces[n++] }))));
 }
 
-const keyOf = (b: ArticleBlock): number | null => (b.type === "exercise" && b.tool.key != null ? parseKeySlug(String(b.tool.key)) : null);
+const keyOf = (b: ArticleBlock): number | null => {
+  const tool = b.type === "exercise" ? b.tool : b.type === "row" ? b.tools[0] : null;
+  return tool?.key != null ? parseKeySlug(String(tool.key)) : null;
+};
 
 /**
  * The root each block's `{{1}}` notes count from: its own tool's key, else the next exercise's, else the last one before it
