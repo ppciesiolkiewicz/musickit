@@ -5,9 +5,12 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { eachLine, keepTogether, type Piece } from "@/features/course/glossary";
 
-/** Text from `explain()`: each glossary term keeps its wording, is underlined, and shows its meaning and a link to the article on hover or focus. */
-export default function Explained({ pieces }: { pieces: Piece[] }) {
-  return pieces.map((p, i) => (typeof p === "string" ? keepTogether(p) : <Term key={i} piece={p} />));
+/**
+ * Text from `explain()`: each glossary term keeps its wording, is underlined, and shows its meaning and a link to the article
+ * on hover or focus. `link` false leaves the link out: on a public page (/learn) the course needs a login.
+ */
+export default function Explained({ pieces, link = true }: { pieces: Piece[]; link?: boolean }) {
+  return pieces.map((p, i) => (typeof p === "string" ? keepTogether(p) : <Term key={i} piece={p} link={link} />));
 }
 
 /** distance kept from the window's edges */
@@ -19,7 +22,7 @@ const WIDTH = 256;
  * The note is drawn in a portal with fixed coordinates, so a parent that clips (a scroll box, a card) can't cut it off,
  * and it is placed inside the window: moved in from a side edge, and above the word when there is no room below.
  */
-function Term({ piece }: { piece: Exclude<Piece, string> }) {
+function Term({ piece, link }: { piece: Exclude<Piece, string>; link: boolean }) {
   const [open, setOpen] = useState(false);
   const word = useRef<HTMLSpanElement>(null);
   const note = useRef<HTMLSpanElement>(null);
@@ -97,7 +100,7 @@ function Term({ piece }: { piece: Exclude<Piece, string> }) {
               <span className="font-medium text-slate-100">{piece.term.label}</span>
               <span>{piece.term.short}</span>
               {line && <span className="text-slate-200">{line}</span>}
-              <Link href={piece.term.href} target="_blank" rel="noopener" className="text-sky-300 hover:underline">Read the article →</Link>
+              {link && <Link href={piece.term.href} target="_blank" rel="noopener" className="text-sky-300 hover:underline">Read the article →</Link>}
             </span>
           </span>,
           document.body,

@@ -388,7 +388,10 @@ one-line meaning and a link to the course article. The AI writes plain text; `ex
 `src/features/course/glossary.ts` finds the terms (plurals, -ing forms, multi-word and hyphenated) and marks each once
 per exercise. To add a word: an entry in `GLOSSARY`, and an article; if there is none yet, add an empty `section()` to
 the course and point at it. The prompt lists the terms with their meanings (generated from `GLOSSARY`) and asks the
-AI to use them by name without defining them.
+AI to use them by name without defining them. A term marked `exact` ("Do") matches only as written, and not as a
+sentence's first word unless another solfège name follows, so "do" and "Do it" the verbs stay plain. The public articles
+(`/learn`, `features/articles/marks.ts`) run the same `explain()` once per article, and their notes leave out the course
+link, which needs a login.
 
 ## Seed library
 

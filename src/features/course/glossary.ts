@@ -12,6 +12,11 @@ export interface Term {
   href: string;
   /** a line for each form, keyed by the form in lower case, shown under `short` where that form is found; a term with these is marked once per form */
   each?: Record<string, string>;
+  /**
+   * the forms match only as written (no plurals, no other case), and not as a sentence's first word unless another
+   * solfège name follows: "Do" the note, never "do" or "Do it" the verb
+   */
+  exact?: true;
 }
 
 export const GLOSSARY: Term[] = [
@@ -33,6 +38,8 @@ export const GLOSSARY: Term[] = [
   { id: "chord-box", label: "Chord box", forms: ["chord box", "chord diagram"], short: "A diagram of a chord on the neck: the lines are strings and frets, each dot is where a finger presses, O plays a string open and X leaves it out.", href: "/course/1/tab-and-chord-boxes" },
   { id: "eighths", label: "Eighths", forms: ["eighths", "eighth", "eighth note", "8th", "8th note"], short: "Two even notes or strums per beat, counted \"1 & 2 & 3 & 4 &\".", href: "/course/2/all-downstrums" },
   { id: "sixteenths", label: "Sixteenths", forms: ["sixteenths", "sixteenth", "sixteenth note", "16th", "16th note"], short: "Four even notes or strums per beat, counted \"1 e & a\".", href: "/course/2/sixteenths" },
+  { id: "do", label: "Do", forms: ["Do"], short: "The home note of the key, in solfège. In C major Do is C, in G major it is G, and Re, Mi, Fa and the rest are counted up from it.", href: "/course/3/solfege", exact: true },
+  { id: "relative-pitch", label: "Relative pitch", forms: ["relative pitch"], short: "Hearing a note by where it sits from Do, not by its letter name. It is why a tune is the same tune in any key.", href: "/course/3/solfege" },
   { id: "home-note", label: "Home note", forms: ["home note", "tonic"], short: "The note a key is named after (Do), where melodies sound finished.", href: "/course/3/home-note" },
   { id: "drone", label: "Drone", forms: ["drone"], short: "One note held underneath, so you hear how every other note sits against it.", href: "/course/3/home-note" },
   { id: "degree", label: "Degree", forms: ["scale degree", "degree"], short: "A note's number in the scale, counted from the home note: 1, 2, 3 up to 7.", href: "/course/3/do-re-mi" },
@@ -103,11 +110,15 @@ export const eachLine = (piece: Exclude<Piece, string>) => piece.term.each?.[pie
 export const keepTogether = (text: string) => text.replace(/\b(on)[ \t]+(?=["“])/gi, "$1\u00a0");
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const pattern = (form: string) => escape(form).split(/\s+/).join("[\\s-]+") + "(?:e?s)?";
+const pattern = (form: string, exact?: true) => escape(form).split(/\s+/).join("[\\s-]+") + (exact ? "" : "(?:e?s)?");
 
 /** Longest forms first, so "guide tones" wins over a shorter overlapping form. */
 const ENTRIES = GLOSSARY.flatMap((term) => term.forms.map((form) => ({ form, term }))).sort((a, b) => b.form.length - a.form.length);
-const RE = new RegExp(`(?<![\\w-])(?:${ENTRIES.map((e) => `(${pattern(e.form)})`).join("|")})(?![\\w-])`, "gi");
+const RE = new RegExp(`(?<![\\w-])(?:${ENTRIES.map((e) => `(${pattern(e.form, e.term.exact)})`).join("|")})(?![\\w-])`, "gi");
+
+/** An `exact` form found in another case, or as a sentence's first word with no solfège name after it ("Do it slowly"). */
+const notExact = (text: string, at: number, found: string, form: string) =>
+  found !== form || (/(^|[.!?]["”')]*\s+|\n\s*)$/.test(text.slice(0, at)) && !/^\s+(Re|Mi|Fa|Sol|La|Ti)\b/.test(text.slice(at + found.length)));
 
 /**
  * Splits each text into plain strings and glossary terms. A term is marked once, at its first use across all the texts
@@ -120,6 +131,7 @@ export function explain(texts: string[]): Piece[][] {
     let last = 0;
     for (const m of text.matchAll(RE)) {
       const { term, form } = ENTRIES[m.slice(1).findIndex((g) => g !== undefined)];
+      if (term.exact && notExact(text, m.index, m[0], form)) continue;
       const id = term.each ? `${term.id}:${form}` : term.id;
       if (seen.has(id)) continue;
       seen.add(id);

@@ -1,44 +1,39 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment, type ReactNode } from "react";
+import { Fragment } from "react";
+import Explained from "@/components/course/Explained";
 import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
 import { parseTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
 import { CareLine } from "@/features/plan/ui/reader/NoteText";
 import { ARTICLES } from "../index";
 import { AUTHOR } from "../author";
+import { markArticle, type Mark } from "../marks";
 import type { Article, ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
 import PlayerControls from "./PlayerControls";
 import TempoTool from "./TempoTool";
 
-/** `**bold**`, `[label](href)` and `_care line_` inside a line of article text. */
-export function Inline({ text }: { text: string }) {
-  const parts: ReactNode[] = [];
-  const re = /\*\*(.+?)\*\*|\[(.+?)\]\((.+?)\)|_(.+?)_/g;
-  let last = 0;
-  for (let m = re.exec(text); m; m = re.exec(text)) {
-    if (m.index > last) parts.push(text.slice(last, m.index));
-    const k = parts.length;
-    if (m[1]) parts.push(<strong key={k} className="font-semibold text-slate-50">{m[1]}</strong>);
-    else if (m[2]) parts.push(<Link key={k} href={m[3]} className="text-sky-300 underline-offset-2 hover:underline">{m[2]}</Link>);
-    else parts.push(<CareLine key={k}>{m[4]}</CareLine>);
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) parts.push(text.slice(last));
-  return <>{parts}</>;
+/** One line of article text as marked runs (`markArticle`): bold, links, care lines, and the glossary's explained words, with no course link (the course needs a login). */
+export function Inline({ runs }: { runs: Mark[] }) {
+  return runs.map((r, k) =>
+    r.kind === "link" ? <Link key={k} href={r.href} className="text-sky-300 underline-offset-2 hover:underline">{r.text}</Link>
+    : r.kind === "bold" ? <strong key={k} className="font-semibold text-slate-50"><Explained pieces={r.pieces} link={false} /></strong>
+    : r.kind === "care" ? <CareLine key={k}><Explained pieces={r.pieces} link={false} /></CareLine>
+    : <Fragment key={k}><Explained pieces={r.pieces} link={false} /></Fragment>,
+  );
 }
 
-function Block({ block }: { block: ArticleBlock }) {
+function Block({ block, lines }: { block: ArticleBlock; /** the block's lines, marked (`markArticle`) */ lines: Mark[][] }) {
   switch (block.type) {
     case "p":
-      return <p className="text-slate-300"><Inline text={block.text} /></p>;
+      return <p className="text-slate-300"><Inline runs={lines[0]} /></p>;
     case "h2":
       return <h2 className="mt-4 text-xl font-semibold text-slate-50">{block.text}</h2>;
     case "list":
-      return <ul className="flex list-disc flex-col gap-1.5 pl-5 text-slate-300">{block.items.map((t) => <li key={t}><Inline text={t} /></li>)}</ul>;
+      return <ul className="flex list-disc flex-col gap-1.5 pl-5 text-slate-300">{block.items.map((t, i) => <li key={t}><Inline runs={lines[i]} /></li>)}</ul>;
     case "care":
-      return <p><CareLine>{block.text}</CareLine></p>;
+      return <p><CareLine><Inline runs={lines[0]} /></CareLine></p>;
     case "player":
       return <PlayerControls />;
     case "figure":
@@ -59,9 +54,9 @@ function Block({ block }: { block: ArticleBlock }) {
       return (
         <section aria-label={block.title} className="metal-panel mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
           <h2 className="text-lg font-semibold text-slate-50">{block.title}</h2>
-          {block.lines.map((t) => <p key={t} className="text-slate-300"><Inline text={t} /></p>)}
+          {block.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[i]} /></p>)}
           {tool && <div className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>}
-          {block.after?.map((t) => <p key={t} className="text-slate-300"><Inline text={t} /></p>)}
+          {block.after?.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[block.lines.length + i]} /></p>)}
         </section>
       );
     }
@@ -108,11 +103,12 @@ function MoreGuides({ current }: { current: string }) {
   );
 }
 
-/** An article's body: its blocks in order, the singing tools under one Your voice picker. */
+/** An article's body: its blocks in order, the singing tools under one Your voice picker. Glossary words are marked once each across the whole article. */
 export default function ArticleView({ article }: { article: Article }) {
+  const marked = markArticle(article);
   const body = (
     <div className="flex flex-col gap-4 leading-relaxed">
-      {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} /></Fragment>)}
+      {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} /></Fragment>)}
       <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
       <JoinCard />
       <MoreGuides current={article.slug} />

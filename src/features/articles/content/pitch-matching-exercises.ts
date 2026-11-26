@@ -17,7 +17,7 @@ export const pitchMatchingExercises: Article = {
     { type: "list", items: [
       "Warm up first: [a five-minute routine](/learn/vocal-warm-ups).",
       "Sing quietly, in the comfortable middle of your voice.",
-      "Ten focused minutes beat an hour of tired singing.",
+      "Ten focused minutes do more than an hour of tired singing.",
       "Stop if your throat feels tight or sore. More in [Look after your voice](/voice-care).",
       "Pick your voice in **Your voice** above, so the notes sit where you can sing them.",
     ] },

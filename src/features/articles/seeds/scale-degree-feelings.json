@@ -1,0 +1,39 @@
+{
+  "slug": "scale-degree-feelings",
+  "query": "scale degrees ear training",
+  "persona": "singer",
+  "written": "2026-11-26",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "Also article \"Learning music theory as a way of naming feelings\". Article goes like \"Music is relative, we get same sensations in relative keys and sensations can be mapped to intervals or scale degrees (these articles should use highlighted word functionality - could be its own feature)",
+    "Decided 2026-11-26: reuse GLOSSARY and `explain()` in the articles; add the missing terms (scale degree, relative, Do). GLOSSARY links go to /course, which needs a login: on a public article hide the link or send it to sign-up.",
+    "Making your body vibrate with a note brings me back into my body, the way yoga does. (the About note, author.ts)"
+  ],
+  "blocks": [
+    "voice-beginner-mix-whole-octave",
+    "voice-beginner-do-mi-sol-in-three-keys",
+    "voice-new-3rd-and-5th-from-do",
+    "voice-beginner-hear-and-sing-back"
+  ],
+  "calculator": [
+    "npm run -s theory -- scale C major",
+    "npm run -s theory -- scale G major",
+    "npm run -s theory -- scale A major"
+  ],
+  "sources": [
+    "https://openbooks.macewan.ca/introtoeartraining/chapter/the-major-scale/",
+    "https://www.stringkick.com/scale-degree-ear-trainer/",
+    "https://www.musical-u.com/modules/melodies/ear-expansion-scales",
+    "/admin/dev/search"
+  ],
+  "open": [
+    "Search volume for \"scale degrees ear training\" not checked yet; it is not on /admin/dev/search. Musical U holds the nearby \"ear training for singers intervals\".",
+    "How each note feels (Do home, Ti pulls up to Do, La soft) is written as Pio's own words; the author may want his own.",
+    "\"Relative\" is used only as \"relative pitch\" (notes heard against Do), never \"relative key\", which means relative major or minor."
+  ]
+}

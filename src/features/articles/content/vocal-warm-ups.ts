@@ -12,7 +12,7 @@ export const vocalWarmUps: Article = {
     { type: "p", text: "A warm-up wakes your voice up gently before you ask anything hard of it. Each one below asks a little more than the last." },
     { type: "list", items: [
       "Start quiet and low. Nothing should hurt.",
-      "Skip it on a sore throat: rest is the warm-up then.",
+      "Leave it out on a sore throat: rest is the warm-up then.",
       "Keep water nearby. More in [Look after your voice](/voice-care).",
     ] },
 

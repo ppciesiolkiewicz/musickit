@@ -17,7 +17,11 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `VOICE.md`: how the articles sound, on top of `teaching-voice`, with its `version` (`ARTICLE_VOICE_VERSION`).
 - `model.ts`: `Article` (title, search title and description, intro, `updated`, `sings`, `blocks`) and `ArticleBlock`: `p`,
   `h2`, `list`, `care` (the plan's care line, `CareLine`), `figure` (a photo in `public/images/learn` with its caption and the credit its licence asks for) and `exercise` (a heading, its lines, the tool, lines after it). Text
-  takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`). `ArticleSeed`: what an article was
+  takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`), and explained words: `marks.ts`
+  (`markArticle`) runs the plan's glossary (`explain()`, `GLOSSARY` in `features/course/glossary.ts`) over the article's
+  paragraphs, lists, care lines and exercise lines, each word marked once per article and never inside a link or a heading;
+  its note shows the meaning with no link, since the course needs a login. A word the glossary marks wrongly (a verb such as
+  "beat" or "skip") is reworded in the article, not dropped from the glossary. `ArticleSeed`: what an article was
   written from.
 - `content/<slug>.ts`: one article each. `index.ts`: `ARTICLES`, in the order `/learn` lists them, and `articleOf`.
 - `seeds/<slug>.json`: the article's seed info: the search it is written for, the persona, the date, the model, the versions
@@ -33,7 +37,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   takes the root layout's, the home page's title with it) and its JSON-LD, `jsonLd.ts` (`articleJsonLd`: an `Article` published
   by the root layout's `#organization`, and the breadcrumb Home › Learn › the article). `opengraph-image.tsx` beside it draws the
   link preview: the title, the intro and, when the article `sings`, the line that it is sung on the page.
-- `articles.test.ts`: unique slugs, the cards' exercise counts, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search
+- `articles.test.ts`: unique slugs, each glossary word marked once per article with the text kept, the cards' exercise counts, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search
   description of 160 characters or less, the JSON-LD, `/learn/` links to articles that exist, and "practice", never "practise".
 
 ## The articles
@@ -43,5 +47,10 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   Sol, then down to Do) as runs of the runs book (`out-from-do` in `RUN_STAGES`, also the library blocks `voice-warm-up-agility-*`), and hear it and sing it back (`interval-ears`).
 - `vocal-warm-ups`: a five-minute routine from the warm-up blocks: breathe in, hold, breathe out; a hiss then a buzz; lip rolls
   down and as a siren (saying plainly that the note and the mic don't matter, the buzz does); hum, then open.
+- `scale-degree-feelings` ("Learning music theory as a way of naming feelings"): music is relative, so each note of the scale
+  has a feeling that comes back in any key, named by its scale degree or its interval; the same E as Mi in C major and La in
+  G major; how each note feels to Pio, and holding a note over a drone like a yoga pose. Then four exercises: each note over
+  the C drone, the same in A (staff with a drone), Mi and Sol from Do in C, F or A (`interval-singer`), and naming M2, M3,
+  P5 or P8 by ear (`interval-ears`).
 - `microphone-and-audio-interface-for-singing`: a Shure SM58 and a Focusrite Scarlett Solo, or a 2i2 to plug in more than one
   thing, why direct monitoring matters for singing, and how to plug it together. Not sponsored, and it says so.

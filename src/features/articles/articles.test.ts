@@ -5,6 +5,7 @@ import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "./index";
 import { articleJsonLd } from "./jsonLd";
+import { markArticle, runsOf } from "./marks";
 import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
 import { articleStats, articleTexts } from "./stats";
 
@@ -54,6 +55,20 @@ describe("articles", () => {
       assert.deepEqual(article.publisher, { "@id": "https://x.test/#organization" });
       assert.deepEqual(crumbs.itemListElement?.map((c) => c.item), ["https://x.test/", "https://x.test/learn", `https://x.test/learn/${a.slug}`]);
     }
+  });
+
+  it("mark each glossary word once per article, never inside a link, keeping every line's text", () => {
+    for (const a of ARTICLES) {
+      const marked = markArticle(a);
+      const ids = marked.flat(3).flatMap((r) => (r.kind === "link" ? [] : r.pieces.flatMap((p) => (typeof p === "string" ? [] : [p.term.each ? `${p.term.id}:${p.text.toLowerCase()}` : p.term.id]))));
+      assert.equal(new Set(ids).size, ids.length, a.slug);
+      a.blocks.forEach((b, i) => {
+        const lines = b.type === "p" || b.type === "care" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.after ?? [])] : [];
+        lines.forEach((t, j) => assert.deepEqual(marked[i][j].map((r) => (r.kind === "link" ? r.text : r.pieces.map((p) => (typeof p === "string" ? p : p.text)).join(""))), runsOf(t).map((r) => r.text)));
+      });
+    }
+    const words = (slug: string) => markArticle(ARTICLES.find((a) => a.slug === slug)!).flat(3).flatMap((r) => (r.kind === "link" ? [] : r.pieces.flatMap((p) => (typeof p === "string" ? [] : [p.term.id]))));
+    for (const id of ["relative-pitch", "do", "degree", "interval", "drone", "solfege"]) assert.ok(words("scale-degree-feelings").includes(id), id);
   });
 
   it("write practice, not practise", () => {
