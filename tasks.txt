@@ -1887,6 +1887,10 @@ positions), position-neck, double-stops-neck (3rds/6ths on a string pair), chord
 `theory boxes|box|neighbours|dyads|fit`. Missing: a neck that rings a few root groups and circles every other root in
 another colour (a small scale-neck option). Research: /admin/dev/search (CAGED and "chords in a key" are the gap: rivals show
 static diagrams). Load course-article/teaching-voice, exercise-example for any seed block, review-teaching-text before done.
+Answer 2026-11-26 on "1 4 5 / 1 2 b7" (verbatim): "These are intervals of the scale so try to show that these shapes repeat
+and then Do Re Do will have the same feeling And then we go to another key soo technicaly But first i want to show major and
+minor side by side with few islands of notes highlighted (same scale degrees) (or possibly have 2 articles in depth as well
+as one side by side".
 
 NEW23: [NEW 2026-11-26] Article "Learning music theory as a way of naming feelings" (/learn), and highlighted words
 The author's words (verbatim where quoted): "Also article \"Learning music theory as a way of naming feelings\". Article
@@ -1898,3 +1902,5 @@ degrees (these articles should use highlighted word functionality - could be its
   explained where it stands. The app already has explained words: `GLOSSARY` in src/features/course/glossary.ts, which
   plan text marks with an (i). Brainstorm whether the articles reuse it (an `Inline` mark in features/articles/ui) or it
   becomes its own shared feature. Words written with teaching-voice; facts from `npm run theory`.
+Decided 2026-11-26: reuse GLOSSARY and `explain()` in the articles; add the missing terms (scale degree, relative, Do).
+GLOSSARY links go to /course, which needs a login: on a public article hide the link or send it to sign-up.
