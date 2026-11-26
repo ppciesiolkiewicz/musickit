@@ -18,9 +18,11 @@ export const scaleDegreesGuitarAnyKey: Article = {
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
       "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
-      "Tap any dot on the neck to hear it. Each dot is labelled with its interval, how far it is from Do: {{1}} is Do, the root, and {{2}} is Re, the 2nd.",
+      "Tap any dot on the neck to hear it. Each dot is labelled by how far it is from Do, as an interval or in solfège: the root is {{1}}, R or Do, and the 2nd is {{2}}, Re.",
       "Each island has a frame and a number. Press its button under the neck, Island 1 for the first, to hear it.",
     ] },
+    { type: "p", text: "Use the Labels selector below to pick intervals or solfège for every dot on this page." },
+    { type: "labels" },
     { type: "care", text: "Stop if your hand or wrist aches: shake it out and come back later." },
 
     { type: "exercise", title: "1. Do Re Do in A minor", lines: [

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
 import { PageHeading, PageHeadingRow, PageIntro, pageBar } from "@/components/PageHeading";
 import SiteFooter from "@/components/landing/SiteFooter";
@@ -25,7 +26,7 @@ const COLUMN = "mx-auto w-full max-w-[51rem]";
  * form (log in, create account). `column` keeps the title and content to one reading column in the middle (the plan, whose
  * cards hold a column of text and tools), while the nav and footer keep the page's width.
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, pageId, tour, tourNudge = false, decor, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, back, pageId, tour, tourNudge = false, decor, children }: {
   /** the page's heading; a node when the browser decides its words (a given plan's page, by the plan) */
   title: ReactNode;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
@@ -47,6 +48,8 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   header?: ReactNode;
   /** links to related pages, under the intro and its notices (AlsoTry) */
   related?: ReactNode;
+  /** a link back to the page this one sits under, over the title ("All guides" on an article) */
+  back?: { href: string; label: string };
   /** turns on the guide: the level switch, tour button and "?" in the title row, and `Tier` knowing this page */
   pageId?: string;
   /** the page's tour, walked by the tour button; needs `pageId` */
@@ -77,6 +80,11 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
               <span aria-hidden>›</span>
               <span className="text-slate-400">{section.label}</span>
             </nav>
+          )}
+          {back && (
+            <Link href={back.href} className="mb-3 flex w-fit items-center gap-1 text-sm text-sky-300 underline-offset-2 hover:underline">
+              <Icon name="chevron-left" size={14} /> {back.label}
+            </Link>
           )}
           {header ?? (
             <>

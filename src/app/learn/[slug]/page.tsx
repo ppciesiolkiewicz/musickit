@@ -35,7 +35,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const a = articleOf((await params).slug);
   if (!a) notFound();
   return (
-    <PageShell active="/learn" column devices={a.sings} mic={a.sings} title={a.title} intro={a.intro} decor={<GlassShapes />}>
+    <PageShell active="/learn" back={{ href: "/learn", label: "All guides" }} column devices={a.sings} mic={a.sings} title={a.title} intro={a.intro} decor={<GlassShapes />}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(a, SITE_URL)).replace(/</g, "\\u003c") }} />
       <ArticleView article={a} />
     </PageShell>

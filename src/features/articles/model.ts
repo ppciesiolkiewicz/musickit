@@ -24,8 +24,18 @@ export type ArticleBlock =
    * between the two
    */
   | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[] }
+  /**
+   * the Labels switch, Intervals or Solfège (`ui/ArticleLabels.tsx`): every dot on the page follows it, starting from the
+   * reader's setting or else the article's `labels`; with the line that either is fine and the link to `NAMES_ARTICLE`
+   */
+  | { type: "labels" }
+  /** every note of the octave from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it (`ui/NamesChart.tsx`) */
+  | { type: "names" }
   /** small tools side by side (two to a row on a wide screen, one under the other on a phone), with no text: a row of charts */
   | { type: "row"; tools: Record<string, unknown>[] };
+
+/** The article with every solfège name and interval on a piano, which the Labels switch links to. */
+export const NAMES_ARTICLE = "intervals-and-solfege";
 
 /** The topics an article is tagged with, in the order /learn's filter shows them, with the word on the screen. */
 export const TOPICS = { singing: "Singing", guitar: "Guitar", theory: "Theory" } as const;

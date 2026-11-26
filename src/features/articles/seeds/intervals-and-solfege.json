@@ -1,0 +1,31 @@
+{
+  "slug": "intervals-and-solfege",
+  "query": "intervals vs solfege",
+  "persona": "singer",
+  "written": "2026-11-26",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "I dont want anyone to use solfeggio over intervals. We should enable swithc between the two and link articles where we have full solfeggio and intervals example and piano notes to play above them (2026-11-26)",
+    "This should be linked to check this article next to label selector (Just Solfeggio and intervals) but the copy should say \"It's okay to go with your feeling now\" - both systems are interchengable (2026-11-26)"
+  ],
+  "blocks": [
+    "voice-beginner-hear-and-sing-back",
+    "voice-new-3rd-and-5th-from-do"
+  ],
+  "calculator": [
+    "No calculator command lists the twelve notes from Do. The chart (ui/NamesChart.tsx) names each one with the app's own code: intervalName (R b2 2 b3 3 p4 b5 p5 b6 6 b7 7), solfege() of that interval (Do Ra Re Me Mi Fa Se Sol Le La Te Ti, so b5 is Se as on a neck), and INTERVALS in src/lib/chordKit/intervals.ts for the full names (minor 2nd ... octave)",
+    "npm run -s theory -- scale C major"
+  ],
+  "sources": [
+    "src/components/practice/EarGame.tsx (answers m3, M3, P4, P5 with Do–Me, Do–Mi, Do–Fa, Do–Sol under them)"
+  ],
+  "open": [
+    "Search volume for the query not checked yet.",
+    "The app's chromatic solfège list (solfegeOfSemis) names 6 semitones Fi, the chart Se (from b5, as the necks do): the ear game never asks the tritone here."
+  ]
+}

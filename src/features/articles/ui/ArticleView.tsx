@@ -13,6 +13,8 @@ import { AUTHOR } from "../author";
 import { blockRoots, markArticle, type Mark } from "../marks";
 import type { Article, ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
+import { ArticleLabels, LabelSwitch } from "./ArticleLabels";
+import NamesChart from "./NamesChart";
 import PlayerControls from "./PlayerControls";
 import TempoTool from "./TempoTool";
 
@@ -44,6 +46,10 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
       return <p><CareLine><Inline runs={lines[0]} root={root} /></CareLine></p>;
     case "player":
       return <PlayerControls />;
+    case "labels":
+      return <LabelSwitch />;
+    case "names":
+      return <NamesChart />;
     case "figure":
       return (
         <figure className="flex flex-col gap-2">
@@ -141,5 +147,7 @@ export default function ArticleView({ article }: { article: Article }) {
   );
   const page = article.sings ? <VoicePicker data={article.blocks}>{body}</VoicePicker> : body;
   const framed = article.frets ? <NeckFrets to={article.frets}>{page}</NeckFrets> : page;
+  // a page with the Labels switch follows it; any other page with `labels` keeps them whatever the reader's setting
+  if (article.blocks.some((b) => b.type === "labels")) return <ArticleLabels fallback={article.labels ?? "interval"}>{framed}</ArticleLabels>;
   return article.labels ? <FixedLabelSystem value={article.labels}>{framed}</FixedLabelSystem> : framed;
 }

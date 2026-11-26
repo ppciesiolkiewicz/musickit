@@ -19,10 +19,13 @@ export const majorAndMinorScalesGuitar: Article = {
     { type: "list", items: [
       "A minor is on top and A major under it.",
       "The low E string is at the bottom, as you see it looking down at your guitar.",
-      "Each dot is labelled with its interval: how far it is from A. {{1}} is A itself, the root. {{4}} and {{5}} are the 4th and 5th (p for perfect), {{2}} is the 2nd and {{b7}} the ♭7.",
+      "Each dot is labelled by how far it is from A, as an interval or in solfège. A itself, the root, is {{1}}: R or Do.",
+      "The 4th and 5th, {{4}} and {{5}}, are p4 and p5, or Fa and Sol (p is for perfect). The 2nd, {{2}}, is Re, and the ♭7, {{b7}}, is Te.",
       "Each island has a frame and a number. Press its button under the neck, Island 1 for the first, to hear it.",
       "The key under each neck says what the frames and the red circles mean. Tap any dot to hear it.",
     ] },
+    { type: "p", text: "Use the Labels selector below to pick intervals or solfège for every dot on this page." },
+    { type: "labels" },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [

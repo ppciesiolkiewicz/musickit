@@ -16,7 +16,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 
 - `VOICE.md`: how the articles sound, on top of `teaching-voice`, with its `version` (`ARTICLE_VOICE_VERSION`).
 - `model.ts`: `Article` (title, search title and description, intro, `updated`, `sings`, `topics` (Singing, Guitar, Theory: `TOPICS`), `blocks`) and `ArticleBlock`: `p`,
-  `h2`, `list`, `care` (the plan's care line, `CareLine`), `figure` (a photo in `public/images/learn` with its caption and the credit its licence asks for) and `exercise` (a heading, its lines, the tool, lines after it; `beside`, a second tool under the first, for two scales compared). Text
+  `h2`, `list`, `care` (the plan's care line, `CareLine`), `figure` (a photo in `public/images/learn` with its caption and the credit its licence asks for), `labels` (the Labels selector, Intervals or Solfège, `ui/ArticleLabels.tsx`: every dot on the page follows it, starting from the reader's Labels setting when it is one of the two, else the article's `labels`; picking one changes that setting; under it "It's okay to go with your feeling now" and a link to `NAMES_ARTICLE`), `names` (`ui/NamesChart.tsx`: one octave of a piano from Do, each key with its interval and solfège name, Play to run up it, and the same as a table with each interval's full name) and `exercise` (a heading, its lines, the tool, lines after it; `beside`, a second tool under the first, for two scales compared). Text
   takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`), and explained words: `marks.ts`
   (`markArticle`) runs the plan's glossary (`explain()`, `GLOSSARY` in `features/course/glossary.ts`) over the article's
   paragraphs, lists, care lines and exercise lines, each word marked once per article and never inside a link or a heading;
@@ -33,6 +33,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `ui/TempoTool.tsx`: a sung tune or run (melody-singer, run-singer) with a Tempo selector over it, 40, 60, 80 or 90 bpm (`ARTICLE_TEMPOS`), starting on the tempo the article wrote (40).
 - `ui/ArticleCard.tsx`: an article as a card: title, intro, how many exercises it has (or how many minutes it takes to read, from
   `stats.ts`, `articleStats`), **Uses your mic** when it `sings`, and **Read**. On `/learn` and under each article's **More guides**.
+- Each article page has **All guides** over its title, back to `/learn` (`PageShell`'s `back`).
 - `ui/ArticleView.tsx`: the body, ending on the updated date, `JoinCard` (Pio's photo and note from `author.ts`, `AUTHOR`: who writes the articles and why attunr exists, with **More about me** to `/about`; then the line asking a reader to join, and **Start your plan** to `/plan`, the home page's main button; `/learn` shows it too) and **More guides** (two other articles' cards and **All guides** back to `/learn`). Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`. Both draw the home and demo pages' glass shapes and side glows behind the column (`GlassShapes` as the shell's `decor`), and each exercise and the join card are `metal-panel` cards.
 - Search and shared links: `src/app/learn/[slug]/page.tsx` gives each article its own `openGraph` and `twitter` (left out, a page
   takes the root layout's, the home page's title with it) and its JSON-LD, `jsonLd.ts` (`articleJsonLd`: an `Article` published
@@ -53,10 +54,11 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   G major; how each note feels to Pio, and holding a note over a drone like a yoga pose. Then four exercises: each note over
   the C drone, the same in A (staff with a drone), Mi and Sol from Do in C, F or A (`interval-singer`), and naming M2, M3,
   P5 or P8 by ear (`interval-ears`).
+- `intervals-and-solfege`: every note from Do to the Do above named both ways (the `names` chart), how to read the names (R, the numbers, ♭, p), then naming m3, M3, P4 and P5 by ear (`interval-ears`) and singing Me, Mi and Sol from Do (`interval-singer`). The guitar articles' Labels selector links here.
 - `major-and-minor-scales-guitar`: part 1 of a series on one key all over the guitar neck (CAGED in one key, task NEW22). A minor and
   A major one above the other (minor on top, A major each exercise's `beside`), with two **islands** each (the scale-neck's
   `islands`, every other note faded, with the tool's key, `IslandLegend`, under each neck): the 1st, 4th and 5th framed in the same
-  places in both, then ♭7 1 2 against 7 1 2, every A circled in red, an Island button to hear each group. It opens with four intervals from one A (2nd, 4th, 5th, octave) as `row`s of small necks, and ends with the A minor and A major pentatonic scales: whole necks, islands, then islands from one A to the next. `labels: "interval"` and `frets: 12` for the page.
+  places in both, then ♭7 1 2 against 7 1 2, every A circled in red, an Island button to hear each group. It opens with four intervals from one A (2nd, 4th, 5th, octave) as `row`s of small necks, and ends with the A minor and A major pentatonic scales: whole necks, islands, then islands from one A to the next. `labels: "interval"` (the Labels selector's starting point, under How to read the neck) and `frets: 12` for the page.
 - `scale-degrees-guitar-any-key`: part 2. Do Re Do as the smallest island, in A minor and then in E minor (Island 1 on the
   same frets, one string lower), then ♭7 1 2 in E minor; links back to part 1 and to `scale-degree-feelings`.
 - `microphone-and-audio-interface-for-singing`: a Shure SM58 and a Focusrite Scarlett Solo, or a 2i2 to plug in more than one
