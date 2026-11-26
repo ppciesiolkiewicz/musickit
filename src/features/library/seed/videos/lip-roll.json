@@ -1,0 +1,79 @@
+{
+  "id": "9a3c0223-56d5-4821-9dd9-5a9b75b8da5c",
+  "kind": "script",
+  "madeFor": "tool:lip-roll",
+  "tool": "lip-roll",
+  "steps": null,
+  "title": "The lip roll",
+  "seconds": 80,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 10,
+      "show": "Your face close up, doing a lip roll with no sound from the tool.",
+      "say": "This is a lip roll. Your lips are loose and closed, and the air makes them buzz, like a child playing with a toy car."
+    },
+    {
+      "start": 11,
+      "end": 19,
+      "show": "Close up: a finger on each cheek, lip roll again.",
+      "say": "If your lips stop, put a finger on each cheek and lift a little. Keep the breath steady and gentle."
+    },
+    {
+      "start": 20,
+      "end": 30,
+      "show": "The lip roll tool on screen. Point at the line and where your line will be drawn.",
+      "say": "The tool plays a soft tone that slides through your voice, and draws its path as a line. The microphone draws your line over it."
+    },
+    {
+      "start": 31,
+      "end": 34.2,
+      "show": "Press Start and do two rounds.",
+      "say": "Press Start below. The microphone starts with it."
+    },
+    {
+      "start": 34.2,
+      "end": 39.400000000000006,
+      "show": "Press Start and do two rounds.",
+      "say": "First the tone plays, then you lip roll the same slide by yourself."
+    },
+    {
+      "start": 40.400000000000006,
+      "end": 48.800000000000004,
+      "show": "Point at your line wandering around the tool's line.",
+      "say": "Your line doesn't have to sit exactly on the tool's line. An easy, steady buzz matters more than the exact note."
+    },
+    {
+      "start": 48.800000000000004,
+      "end": 53.2,
+      "show": "Point at your line wandering around the tool's line.",
+      "say": "_Keep it quiet: a lip roll should never feel like pushing._"
+    },
+    {
+      "start": 53.2,
+      "end": 57.2,
+      "show": "Point at your line wandering around the tool's line.",
+      "say": "Practice until the buzz stays even through the whole slide."
+    },
+    {
+      "start": 58.2,
+      "end": 68.2,
+      "show": "Open the settings button: Tone, then Speed. Do a lip roll on a tune you know.",
+      "say": "Try things with it. The settings button has Tone, where you can roll along with the tone or with no tone at all, and Speed."
+    },
+    {
+      "start": 68.2,
+      "end": 72.60000000000001,
+      "show": "Open the settings button: Tone, then Speed. Do a lip roll on a tune you know.",
+      "say": "Away from the tool, lip roll a tune you know well."
+    },
+    {
+      "start": 72.60000000000001,
+      "end": 79.80000000000001,
+      "show": "Open the settings button: Tone, then Speed. Do a lip roll on a tune you know.",
+      "say": "Slide from as low as is easy to as high as is easy, then back, on one breath."
+    }
+  ]
+}

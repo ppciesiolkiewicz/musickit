@@ -1,0 +1,99 @@
+{
+  "id": "2504c4f0-4b9a-40d8-85e4-87fbe6f3f0bf",
+  "kind": "script",
+  "madeFor": "tool:run-singer",
+  "tool": "run-singer",
+  "steps": [
+    "run-stages:five",
+    "run-stages:arpeggio-run",
+    "run-stages:turns",
+    "run-stages:pentatonic-run",
+    "run-stages:nine",
+    "run-stages:octave-run",
+    "none"
+  ],
+  "title": "Singing a run",
+  "seconds": 87,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 10,
+      "show": "You at the mic, the run on the staff on screen.",
+      "say": "A run is a quick line of notes sung on one breath. This tool plays one, and moves it a little higher on every pass."
+    },
+    {
+      "start": 11,
+      "end": 19.8,
+      "show": "Tap the notes of the run slowly, singing each on its name.",
+      "say": "Learn the notes first. Tap each note on the staff and sing it on its note name, as slowly as you like."
+    },
+    {
+      "start": 20.8,
+      "end": 26.4,
+      "show": "Press the Play button and listen to one pass.",
+      "say": "Press the Play button below to hear the run. The microphone starts with it."
+    },
+    {
+      "start": 26.4,
+      "end": 30.799999999999997,
+      "show": "Press the Play button and listen to one pass.",
+      "say": "The line above the staff says which pass you are on."
+    },
+    {
+      "start": 31.799999999999997,
+      "end": 37.4,
+      "show": "Sing along for a few passes. Point at your line.",
+      "say": "Sing along on the note names. Your line shows your voice against the notes."
+    },
+    {
+      "start": 37.4,
+      "end": 45.4,
+      "show": "Sing along for a few passes. Point at your line.",
+      "say": "Every note gets its own small pulse of breath, so each one is clear and none slides into the next."
+    },
+    {
+      "start": 46.4,
+      "end": 50,
+      "show": "Stop when it gets high. Press Stop.",
+      "say": "Each pass is a little higher than the last."
+    },
+    {
+      "start": 50,
+      "end": 55.2,
+      "show": "Stop when it gets high. Press Stop.",
+      "say": "_Don't reach for high notes: press Stop when your voice stops feeling easy._"
+    },
+    {
+      "start": 55.2,
+      "end": 62,
+      "show": "Stop when it gets high. Press Stop.",
+      "say": "Practice until every note of the run is clear at the passes that are comfortable for you."
+    },
+    {
+      "start": 63,
+      "end": 67.8,
+      "show": "Sing it on \"oo\", then with Tune muted, then with a bounce.",
+      "say": "Try things with it. Sing the run on \"oo\", then on \"ee\"."
+    },
+    {
+      "start": 67.8,
+      "end": 73.39999999999999,
+      "show": "Sing it on \"oo\", then with Tune muted, then with a bounce.",
+      "say": "Press Tune below to mute the run and sing it over what is left."
+    },
+    {
+      "start": 73.39999999999999,
+      "end": 79.39999999999999,
+      "show": "Sing it on \"oo\", then with Tune muted, then with a bounce.",
+      "say": "Sing it with a little laugh on each note, then as smoothly as you can."
+    },
+    {
+      "start": 79.39999999999999,
+      "end": 86.19999999999999,
+      "show": "Sing it on \"oo\", then with Tune muted, then with a bounce.",
+      "say": "Then sing only the way up, hold the top note, and come down on the next pass."
+    }
+  ]
+}

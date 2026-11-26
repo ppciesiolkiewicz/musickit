@@ -62,7 +62,7 @@ export default function LibraryStrip({ blockId, children }: {
       else if (v.repeat) body = <span className="text-slate-400">Same video as a tool above: “{play.title}”.</span>;
       else {
         const info = infos.get(v.id);
-        const from = v.from === "script" ? `Not filmed yet: the script for ${toolName(ask.tool)}` : v.from === "block" ? "For this block only" : `For ${toolName(ask.tool)}${info?.tool ? (info.steps === null ? "" : `, ${levelsText(ask.tool, info.steps)}`) : level}`;
+        const from = play.cues ? `Not filmed yet: the script for ${toolName(ask.tool)}` : v.from === "block" ? "For this block only" : `For ${toolName(ask.tool)}${info?.tool ? (info.steps === null ? "" : `, ${levelsText(ask.tool, info.steps)}`) : level}`;
         body = <StripVideo play={play} from={from} />;
       }
     }

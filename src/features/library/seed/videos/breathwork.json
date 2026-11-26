@@ -1,0 +1,91 @@
+{
+  "id": "282fb45c-cfe8-4e1a-88ab-f38e01b61820",
+  "kind": "script",
+  "madeFor": "tool:breathwork",
+  "tool": "breathwork",
+  "steps": [
+    "farinelli:new",
+    "farinelli:beginner",
+    "farinelli:intermediate",
+    "farinelli:advanced",
+    "none"
+  ],
+  "title": "Breathing with the circle",
+  "seconds": 83,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 6,
+      "show": "You standing or sitting tall, the circle on screen before Start.",
+      "say": "This is a breathing exercise for singing. There is no microphone and nothing to sing."
+    },
+    {
+      "start": 7,
+      "end": 17,
+      "show": "Point at the circle, the count in the middle, the strip of phases under it.",
+      "say": "The circle grows while you breathe in, stays while you hold, and shrinks while you breathe out. The number in the middle counts each one."
+    },
+    {
+      "start": 17,
+      "end": 20.2,
+      "show": "Point at the circle, the count in the middle, the strip of phases under it.",
+      "say": "The strip under it shows what comes next."
+    },
+    {
+      "start": 21.2,
+      "end": 31.2,
+      "show": "You from the side: a hand on the belly, breathing in and out.",
+      "say": "Put a hand on your belly. When you breathe in, the hand moves out and your ribs open to the sides. Your shoulders stay down."
+    },
+    {
+      "start": 32.2,
+      "end": 39,
+      "show": "Press Start in the circle and follow a few rounds.",
+      "say": "Press Start in the circle. It first asks you to breathe out fully, then the rounds begin."
+    },
+    {
+      "start": 39,
+      "end": 45.4,
+      "show": "Press Start in the circle and follow a few rounds.",
+      "say": "Breathe in through your nose and out through your mouth, as slowly as the circle moves."
+    },
+    {
+      "start": 46.4,
+      "end": 49.6,
+      "show": "Stop, breathe normally for a moment.",
+      "say": "_Stop and breathe normally if you feel dizzy._"
+    },
+    {
+      "start": 49.6,
+      "end": 59.2,
+      "show": "Stop, breathe normally for a moment.",
+      "say": "A break is always fine. The goal of this practice is a breath out that is even from the first count to the last."
+    },
+    {
+      "start": 60.2,
+      "end": 66.60000000000001,
+      "show": "Breathe out on a hiss, then on a hum. Do a round lying down or with hands on the ribs.",
+      "say": "Try things with it. Breathe out on a long quiet hiss and keep the sound even."
+    },
+    {
+      "start": 66.60000000000001,
+      "end": 71.00000000000001,
+      "show": "Breathe out on a hiss, then on a hum. Do a round lying down or with hands on the ribs.",
+      "say": "Breathe out on a hum, and feel where the sound starts."
+    },
+    {
+      "start": 71.00000000000001,
+      "end": 77.80000000000001,
+      "show": "Breathe out on a hiss, then on a hum. Do a round lying down or with hands on the ribs.",
+      "say": "Put your hands on the sides of your ribs and feel them open as you breathe in."
+    },
+    {
+      "start": 77.80000000000001,
+      "end": 82.20000000000002,
+      "show": "Breathe out on a hiss, then on a hum. Do a round lying down or with hands on the ribs.",
+      "say": "The bell button turns the ticking off if you want silence."
+    }
+  ]
+}

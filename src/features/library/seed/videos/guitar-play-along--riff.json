@@ -1,0 +1,79 @@
+{
+  "id": "08814caf-0f74-4112-bce3-0c7510839200",
+  "kind": "script",
+  "madeFor": "tool:guitar-play-along:riff",
+  "tool": "guitar-play-along:riff",
+  "steps": null,
+  "title": "Learning a riff",
+  "seconds": 73,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 6.4,
+      "show": "You with the guitar, the riff's tab on screen.",
+      "say": "A riff is a short line that repeats. This one is written out note by note."
+    },
+    {
+      "start": 7.4,
+      "end": 15,
+      "show": "Press the Play button and listen, hands off the guitar.",
+      "say": "Press the Play button below and just listen. Hum along until you can hum the riff before it plays."
+    },
+    {
+      "start": 16,
+      "end": 23.2,
+      "show": "Stop. Play the first few notes alone, slowly, fretting hand visible.",
+      "say": "Now learn it in pieces. Play only the first few notes, slowly, and say which finger goes where."
+    },
+    {
+      "start": 23.2,
+      "end": 26.4,
+      "show": "Stop. Play the first few notes alone, slowly, fretting hand visible.",
+      "say": "When those come easily, add the next few."
+    },
+    {
+      "start": 27.4,
+      "end": 33.8,
+      "show": "Use − under Tempo, press Play, and play along.",
+      "say": "Under Tempo, press the minus button to slow it down. Then press Play and play along."
+    },
+    {
+      "start": 33.8,
+      "end": 40.599999999999994,
+      "show": "Use − under Tempo, press Play, and play along.",
+      "say": "The notes are spaced by how long they last, so a wide gap is a long note."
+    },
+    {
+      "start": 41.599999999999994,
+      "end": 48.8,
+      "show": "Play it from memory with the tool, eyes on the guitar.",
+      "say": "Practice until you can play the riff with your eyes on the guitar and not on the screen."
+    },
+    {
+      "start": 49.8,
+      "end": 58.199999999999996,
+      "show": "Play it muted, then louder, then an octave up or on other strings.",
+      "say": "Try things with it. Rest the side of your picking hand on the strings by the bridge and play it muted."
+    },
+    {
+      "start": 58.199999999999996,
+      "end": 62.599999999999994,
+      "show": "Play it muted, then louder, then an octave up or on other strings.",
+      "say": "Play it with only down strokes, then with down and up."
+    },
+    {
+      "start": 62.599999999999994,
+      "end": 68.19999999999999,
+      "show": "Play it muted, then louder, then an octave up or on other strings.",
+      "say": "Find the same notes somewhere else on the neck and play the riff there."
+    },
+    {
+      "start": 68.19999999999999,
+      "end": 72.6,
+      "show": "Play it muted, then louder, then an octave up or on other strings.",
+      "say": "Then change the last two notes and make it your own."
+    }
+  ]
+}

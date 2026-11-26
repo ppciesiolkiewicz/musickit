@@ -1,0 +1,67 @@
+{
+  "id": "26c0a05e-4096-44d7-926f-dd2eaffc2089",
+  "kind": "script",
+  "madeFor": "tool:caged-neck",
+  "tool": "caged-neck",
+  "steps": null,
+  "title": "One chord, five shapes",
+  "seconds": 84,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 12,
+      "show": "You with the guitar, the CAGED shapes on screen.",
+      "say": "One chord can be played in five places on the neck. Each place has a shape, named after the open chord it looks like: C, A, G, E and D."
+    },
+    {
+      "start": 13,
+      "end": 25,
+      "show": "Play the open chord, then the same chord in the next shape up the neck.",
+      "say": "Here is the chord down by the nut. And here it is again higher up, with the next shape. The notes are the same, so it is the same chord."
+    },
+    {
+      "start": 26,
+      "end": 34.8,
+      "show": "Point at where two shapes meet on the neck: the notes they share.",
+      "say": "Each shape starts where the one before it ends. The notes they share are how you get from one to the next."
+    },
+    {
+      "start": 35.8,
+      "end": 45.8,
+      "show": "On one shape's panel: press Play on the chord, the arpeggio, the pentatonic and the scale.",
+      "say": "Inside each shape sit four things: the chord, its arpeggio, the pentatonic scale and the full scale. Press Play under each one to hear it."
+    },
+    {
+      "start": 45.8,
+      "end": 49.8,
+      "show": "On one shape's panel: press Play on the chord, the arpeggio, the pentatonic and the scale.",
+      "say": "They all fit under the hand in the same place."
+    },
+    {
+      "start": 50.8,
+      "end": 62,
+      "show": "Walk the chord up the neck through all five shapes.",
+      "say": "Play the chord in all five shapes, from the lowest up the neck. Practice until you know where the next shape starts from the one you are in."
+    },
+    {
+      "start": 63,
+      "end": 69.8,
+      "show": "Press Sample melody. Then play chord, arpeggio and a scale line in one shape without moving.",
+      "say": "Try things with it. Press Sample melody to hear a short tune made from one shape's notes."
+    },
+    {
+      "start": 69.8,
+      "end": 78.2,
+      "show": "Press Sample melody. Then play chord, arpeggio and a scale line in one shape without moving.",
+      "say": "Stay in one shape and play the chord, then its arpeggio, then a line from the scale, without moving your hand."
+    },
+    {
+      "start": 78.2,
+      "end": 83.8,
+      "show": "Press Sample melody. Then play chord, arpeggio and a scale line in one shape without moving.",
+      "say": "Find the root in each shape and play only the roots, up the neck."
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "id": "4cb27dfb-447f-4011-8cbd-a46cc4db6278",
+  "kind": "script",
+  "madeFor": "tool:interval-singer",
+  "tool": "interval-singer",
+  "steps": [
+    "interval-singer:new",
+    "interval-singer:beginner",
+    "interval-singer:intermediate",
+    "interval-singer:advanced",
+    "none"
+  ],
+  "title": "Singing a leap from Do",
+  "seconds": 96,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 8,
+      "show": "You at the mic, the tool's cover on screen with Start.",
+      "say": "An interval is the distance between two notes. Here you hear one note, Do, and sing the other one yourself."
+    },
+    {
+      "start": 9,
+      "end": 12.2,
+      "show": "Press Start. Point at the heading that names the interval, Do on the piano roll, and the \"?\".",
+      "say": "Press Start below. The microphone starts with it."
+    },
+    {
+      "start": 12.2,
+      "end": 21.799999999999997,
+      "show": "Press Start. Point at the heading that names the interval, Do on the piano roll, and the \"?\".",
+      "say": "The heading names the interval. Do plays and shows on the piano roll, and the note to find is marked with a question mark."
+    },
+    {
+      "start": 22.799999999999997,
+      "end": 35.199999999999996,
+      "show": "Hum Do, then sing the other note and hold it until it counts.",
+      "say": "Hum Do first, so it is in your voice. Then sing the other note and hold it. When you are on it, the tool counts it and plays both notes back."
+    },
+    {
+      "start": 36.199999999999996,
+      "end": 47.8,
+      "show": "Miss one. Tap Do and the \"?\" to hear them, press Restart, sing again.",
+      "say": "If you can't find the note, tap Do and tap the question mark to hear them both. Then press Restart to hear Do again, and sing it from there."
+    },
+    {
+      "start": 47.8,
+      "end": 51.8,
+      "show": "Miss one. Tap Do and the \"?\" to hear them, press Restart, sing again.",
+      "say": "Show me gives you the answer, and Skip moves on."
+    },
+    {
+      "start": 52.8,
+      "end": 55.8,
+      "show": "Press Next and do another. Then switch Plays to Do and the note.",
+      "say": "Press Next for another interval."
+    },
+    {
+      "start": 55.8,
+      "end": 69,
+      "show": "Press Next and do another. Then switch Plays to Do and the note.",
+      "say": "Next to Plays you can pick Do and the note: then the tool plays the whole leap first and you copy it. Pick Do when you want to find the note by yourself."
+    },
+    {
+      "start": 70,
+      "end": 80.4,
+      "show": "Sing the notes in between, then only the leap. Press Staff.",
+      "say": "Try things with it. Walk up from Do one note at a time until you reach the note, then sing only the first and the last."
+    },
+    {
+      "start": 80.4,
+      "end": 85.2,
+      "show": "Sing the notes in between, then only the leap. Press Staff.",
+      "say": "Think of a tune you know that starts with the same leap."
+    },
+    {
+      "start": 85.2,
+      "end": 89.2,
+      "show": "Sing the notes in between, then only the leap. Press Staff.",
+      "say": "Sing the leap on \"oo\", then on the note names."
+    },
+    {
+      "start": 89.2,
+      "end": 96,
+      "show": "Sing the notes in between, then only the leap. Press Staff.",
+      "say": "The goal of this practice is to hear the note in your head before you sing it."
+    }
+  ]
+}

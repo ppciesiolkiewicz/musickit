@@ -1,0 +1,85 @@
+{
+  "id": "0ab95431-5b6d-4a04-b5b8-f71b3bdb2a09",
+  "kind": "script",
+  "madeFor": "tool:note-finder",
+  "tool": "note-finder",
+  "steps": [
+    "note-finder:new",
+    "note-finder:beginner",
+    "note-finder:intermediate",
+    "note-finder:advanced",
+    "none"
+  ],
+  "title": "Finding notes on the neck",
+  "seconds": 90,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 4.8,
+      "show": "You with the guitar, the game on screen before Start.",
+      "say": "This game is for learning where the notes are on the neck."
+    },
+    {
+      "start": 5.8,
+      "end": 16.6,
+      "show": "Point at the tags above the game: the strings, the frets, the kind of question.",
+      "say": "The tags at the top say what the game will ask: which strings, which frets, and whether it wants one note or every place a note sits."
+    },
+    {
+      "start": 17.6,
+      "end": 27.6,
+      "show": "Press Start. Answer a few by tapping the neck on screen.",
+      "say": "Press Start below to get the first note. Find it on the guitar first, then tap the same place on the neck on the screen."
+    },
+    {
+      "start": 27.6,
+      "end": 34,
+      "show": "Press Start. Answer a few by tapping the neck on screen.",
+      "say": "The game says whether it was right, and names the note you tapped if it wasn't."
+    },
+    {
+      "start": 35,
+      "end": 43.8,
+      "show": "Press Hear the note, then Skip on another one.",
+      "say": "Press Hear the note to listen to the note the game asked for. Press Skip to leave one and get the next."
+    },
+    {
+      "start": 44.8,
+      "end": 55.199999999999996,
+      "show": "On the guitar: open string, then count up the frets, saying the names.",
+      "say": "Here is a way to find any note. Start from the open string and say the names as you go up, one fret at a time."
+    },
+    {
+      "start": 55.199999999999996,
+      "end": 63.199999999999996,
+      "show": "On the guitar: open string, then count up the frets, saying the names.",
+      "say": "B to C and E to F are one fret apart. Every other pair of letters is two frets apart."
+    },
+    {
+      "start": 64.19999999999999,
+      "end": 72.19999999999999,
+      "show": "Press Playing it (mic) and answer one on the guitar. Then say the note names aloud while playing.",
+      "say": "Try things with it. Press Playing it (mic), then Start microphone, and answer by playing the note on your guitar."
+    },
+    {
+      "start": 72.19999999999999,
+      "end": 75.79999999999998,
+      "show": "Press Playing it (mic) and answer one on the guitar. Then say the note names aloud while playing.",
+      "say": "Say each note's name aloud as you play it."
+    },
+    {
+      "start": 75.79999999999998,
+      "end": 82.59999999999998,
+      "show": "Press Playing it (mic) and answer one on the guitar. Then say the note names aloud while playing.",
+      "say": "Find the same note on two strings and listen: is it the same note, or one higher?"
+    },
+    {
+      "start": 82.59999999999998,
+      "end": 89.39999999999998,
+      "show": "Press Playing it (mic) and answer one on the guitar. Then say the note names aloud while playing.",
+      "say": "The goal of this practice is to find a note without counting up from the open string."
+    }
+  ]
+}

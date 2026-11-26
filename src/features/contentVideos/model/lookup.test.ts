@@ -10,18 +10,13 @@ const ask = (cell: number, tool: string, step: string | null) => ({ cell, tool, 
 test("the block's own video wins", () => assert.deepEqual(videoFor(ask(1, "picking-drill", "picking-drill:beginner"), { 1: "v-own" }, [beginner]), { id: "v-own", from: "block" }));
 test("the tool's video holding the step", () => assert.deepEqual(videoFor(ask(0, "picking-drill", "picking-drill:beginner"), {}, [every, beginner]), { id: "v-beg", from: "tool" }));
 test("No level uses the video holding none", () => assert.equal(videoFor(ask(0, "picking-drill", "none"), {}, [every, beginner])?.id, "v-all"));
-test("a step no video holds borrows nothing: a scripted tool falls back to its stand-in", () => assert.deepEqual(videoFor(ask(0, "picking-drill", "picking-drill:beginner"), {}, [every]), { id: "script:picking-drill", from: "script" }));
-test("a tool with no script and no video shows nothing", () => assert.equal(videoFor(ask(0, "song-chart", "none"), {}, []), null));
+test("a step no video holds shows nothing: no borrowing", () => assert.equal(videoFor(ask(0, "picking-drill", "picking-drill:beginner"), {}, [every]), null));
 test("a tool with no ladder uses its video with null steps", () => assert.equal(videoFor(ask(0, "backing-band", null), {}, [band])?.id, "v-band"));
 test("null steps never match a step, and steps never match a tool with none", () => {
   assert.equal(videoFor(ask(0, "backing-band", "none"), {}, [band]), null);
-  assert.equal(videoFor(ask(0, "picking-drill", null), {}, [every])?.from, "script");
+  assert.equal(videoFor(ask(0, "picking-drill", null), {}, [every]), null);
 });
-test("a video with no tool shows nowhere", () => assert.equal(videoFor(ask(0, "song-chart", "none"), {}, [{ id: "x", tool: null, steps: null }]), null));
-test("a stand-in shows once per block, like a video", () => {
-  const asks = [ask(0, "picking-drill", "picking-drill:new"), ask(1, "picking-drill", "picking-drill:beginner")];
-  assert.deepEqual(blockVideos(asks, {}, []).map((v) => [v.id, v.from, v.repeat]), [["script:picking-drill", "script", false], ["script:picking-drill", "script", true]]);
-});
+test("a video with no tool shows nowhere", () => assert.equal(videoFor(ask(0, "picking-drill", "none"), {}, [{ id: "x", tool: null, steps: null }]), null));
 test("a block shows each video once, by video and not by tool", () => {
   const asks = [ask(0, "picking-drill", "picking-drill:new"), ask(1, "picking-drill", "picking-drill:advanced"), ask(2, "picking-drill", "picking-drill:beginner")];
   assert.deepEqual(blockVideos(asks, {}, [every, beginner]).map((v) => [v.cell, v.id, v.repeat]), [[0, "v-all", false], [1, "v-all", true], [2, "v-beg", false]]);

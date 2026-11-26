@@ -1,0 +1,85 @@
+{
+  "id": "d5e44495-1e63-4772-9069-b790c1562e36",
+  "kind": "script",
+  "madeFor": "tool:finger-pattern",
+  "tool": "finger-pattern",
+  "steps": [
+    "finger-pattern:new",
+    "finger-pattern:beginner",
+    "finger-pattern:intermediate",
+    "finger-pattern:advanced",
+    "none"
+  ],
+  "title": "One finger for each fret",
+  "seconds": 82,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 10,
+      "show": "You with the guitar, the drill's tab on screen.",
+      "say": "This is a warm-up for the hand on the neck. Each finger gets its own fret, and the fingers go down one at a time."
+    },
+    {
+      "start": 11,
+      "end": 18.2,
+      "show": "Point at the tab, then the finger numbers under it.",
+      "say": "The tab shows the frets to play, and the numbers under it show which finger plays each one."
+    },
+    {
+      "start": 19.2,
+      "end": 27.6,
+      "show": "Fretting hand close up. Play the pattern on one string without the tool, slowly.",
+      "say": "Play one note with each finger, in the order on the screen. Keep each finger down until the next one lands."
+    },
+    {
+      "start": 27.6,
+      "end": 32,
+      "show": "Fretting hand close up. Play the pattern on one string without the tool, slowly.",
+      "say": "Your thumb sits behind the neck, about under your second finger."
+    },
+    {
+      "start": 33,
+      "end": 41.8,
+      "show": "Press the Play button and play along across all six strings.",
+      "say": "Press the Play button below to start the metronome and the notes. It starts straight away, with one note on each beat."
+    },
+    {
+      "start": 41.8,
+      "end": 46.599999999999994,
+      "show": "Press the Play button and play along across all six strings.",
+      "say": "Play along, and move to the next string when the tab does."
+    },
+    {
+      "start": 47.599999999999994,
+      "end": 53.599999999999994,
+      "show": "Stop, open the hand and shake it out.",
+      "say": "_Stop and shake your hand out as soon as it feels tight or it hurts._"
+    },
+    {
+      "start": 53.599999999999994,
+      "end": 60.39999999999999,
+      "show": "Stop, open the hand and shake it out.",
+      "say": "Practice until the order is in your muscle memory: your fingers go without you thinking about them."
+    },
+    {
+      "start": 61.39999999999999,
+      "end": 68.19999999999999,
+      "show": "Press Notes to mute the notes, then play with only the click. Then play it backwards.",
+      "say": "Try things with it. Press Notes below to mute the notes and play with only the metronome."
+    },
+    {
+      "start": 68.19999999999999,
+      "end": 73.79999999999998,
+      "show": "Press Notes to mute the notes, then play with only the click. Then play it backwards.",
+      "say": "Play the same order coming back down, from your little finger to your first."
+    },
+    {
+      "start": 73.79999999999998,
+      "end": 81.39999999999998,
+      "show": "Press Notes to mute the notes, then play with only the click. Then play it backwards.",
+      "say": "Move your hand to another fret and play it there: higher up the neck the frets are closer together."
+    }
+  ]
+}

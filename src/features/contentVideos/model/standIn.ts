@@ -1,25 +1,40 @@
 import { VIDEO_PLANS, type Beat } from "./scripts";
+import { stepsOfTool } from "./slot";
 
 /**
- * A stand-in video: a scripted tool's video before it is recorded. No file and no row: the lookup gives it to a tool cell
- * that has no recorded video, and the player shows the script's words as timed captions on black (`ui/ScriptVideo.tsx`).
- * A recorded video for the cell's level wins, so recording one replaces the stand-in there with no other change. Pure.
+ * A stand-in video: a scripted tool's video before it is recorded, its script's words as timed captions on black
+ * (`ui/ScriptVideo.tsx`). The stand-ins are seed files, `src/features/library/seed/videos/<file>.json`, one per tool in
+ * `VIDEO_PLANS`, written by `scripts/gen-stand-in-seeds.ts` (`standInSeed`) and kept in step with the scripts by
+ * `server/standInSeeds.test.ts`. Not enabled: no seed command puts them in the database, `db:seed-blocks` never reads
+ * them, and the lookup serves none. Pure.
  */
 
-const PREFIX = "script:";
+/** A stand-in's seed file: a `content_videos` row for every level of its tool, with `cues` in place of a file. */
+export interface StandInSeed {
+  /** the row's id, kept across rewrites of the file */
+  id: string;
+  kind: "script";
+  madeFor: string;
+  tool: string;
+  /** every level of the tool and No level (`stepsOfTool`); null for a tool with no ladder */
+  steps: string[] | null;
+  title: string;
+  seconds: number;
+  width: number;
+  height: number;
+  cues: Cue[];
+}
 
-/** The stand-in's id for a tool key: `script:<tool key>`. Never a video id (`isVideoId`), so it never reaches the file route. */
-export const standInId = (tool: string): string => `${PREFIX}${tool}`;
-export const isStandIn = (id: string): boolean => id.startsWith(PREFIX);
+/** The file name of a tool's stand-in: the tool key with `:` as `--` (`guitar-play-along--riff.json`). */
+export const standInFile = (tool: string): string => `${tool.replace(/:/g, "--")}.json`;
 
-/** The stand-in a tool cell falls back to: the tool's scripted video, or null for a tool with no script. */
-export const standInFor = (tool: string): string | null => (Object.hasOwn(VIDEO_PLANS, tool) ? standInId(tool) : null);
-
-/** The script a stand-in id plays, or null. */
-export const standInPlan = (id: string) => {
-  const tool = id.slice(PREFIX.length);
-  return isStandIn(id) && Object.hasOwn(VIDEO_PLANS, tool) ? VIDEO_PLANS[tool] : null;
-};
+/** A tool's stand-in seed from its script; null for a tool with no script. `id` is the file's id when it has one. */
+export function standInSeed(tool: string, id: string): StandInSeed | null {
+  if (!Object.hasOwn(VIDEO_PLANS, tool)) return null;
+  const plan = VIDEO_PLANS[tool];
+  const { cues, seconds } = scriptCues(plan.script);
+  return { id, kind: "script", madeFor: `tool:${tool}`, tool, steps: stepsOfTool(tool), title: plan.title, seconds, width: 1920, height: 1080, cues };
+}
 
 /** One caption: a line of what is said, with what is on screen for its part, from `start` to `end` seconds. */
 export interface Cue { start: number; end: number; show: string; say: string }

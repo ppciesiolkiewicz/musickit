@@ -1,0 +1,110 @@
+{
+  "id": "cca37400-3bef-45b5-90b0-bd8a81782988",
+  "kind": "script",
+  "madeFor": "tool:melody-singer",
+  "tool": "melody-singer",
+  "steps": [
+    "melody-stages:do-re",
+    "melody-stages:mi",
+    "melody-stages:fa",
+    "melody-stages:sol",
+    "melody-stages:skips",
+    "melody-stages:thirds",
+    "melody-stages:la",
+    "melody-stages:ti",
+    "melody-stages:arpeggio",
+    "melody-stages:chords",
+    "melody-stages:under",
+    "melody-stages:fourths",
+    "melody-stages:fifths",
+    "melody-stages:sixths",
+    "melody-stages:sevenths",
+    "melody-stages:octave",
+    "melody-stages:tenths",
+    "none"
+  ],
+  "title": "Singing a tune from the staff",
+  "seconds": 86,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 7.2,
+      "show": "You at the mic, the tune on the staff on screen.",
+      "say": "This tool teaches you a short tune and shows you how close your voice is to each note."
+    },
+    {
+      "start": 8.2,
+      "end": 14.2,
+      "show": "Tap a few notes on the staff.",
+      "say": "The tune is written on the staff. Tap a note to hear it by itself."
+    },
+    {
+      "start": 15.2,
+      "end": 20.799999999999997,
+      "show": "Press the Play button and listen once without singing.",
+      "say": "Press the Play button below to hear the tune. The microphone starts with it."
+    },
+    {
+      "start": 20.799999999999997,
+      "end": 26.4,
+      "show": "Press the Play button and listen once without singing.",
+      "say": "The first time, only listen, and follow the bar that runs over the notes."
+    },
+    {
+      "start": 27.4,
+      "end": 30.4,
+      "show": "Press Play again and sing along on the note names. Point at your line.",
+      "say": "Now sing along on the note names."
+    },
+    {
+      "start": 30.4,
+      "end": 44,
+      "show": "Press Play again and sing along on the note names. Point at your line.",
+      "say": "Your line shows where your voice is. On a note it sits on the note. If it is under the note, your voice is low. If it is over it, your voice is high."
+    },
+    {
+      "start": 44,
+      "end": 48.8,
+      "show": "Press Play again and sing along on the note names. Point at your line.",
+      "say": "_Don't reach for high notes: sing only where your voice feels easy._"
+    },
+    {
+      "start": 49.8,
+      "end": 58.199999999999996,
+      "show": "Press Tune to mute the tune and sing over the chords. Then press Chords too.",
+      "say": "Sing along with the tune a few times. Then press Tune below to mute it, and sing over the chords alone."
+    },
+    {
+      "start": 58.199999999999996,
+      "end": 63.4,
+      "show": "Press Tune to mute the tune and sing over the chords. Then press Chords too.",
+      "say": "Then press Chords to mute them as well, and sing it a cappella."
+    },
+    {
+      "start": 64.4,
+      "end": 71.60000000000001,
+      "show": "Press Piano roll, then Staff. Sing it on \"oo\", then quietly, then hum it.",
+      "say": "Try things with it. Press Piano roll to see the tune as bars, and Staff to go back."
+    },
+    {
+      "start": 71.60000000000001,
+      "end": 75.60000000000001,
+      "show": "Press Piano roll, then Staff. Sing it on \"oo\", then quietly, then hum it.",
+      "say": "Sing it on \"oo\", then on \"la\", then hum it."
+    },
+    {
+      "start": 75.60000000000001,
+      "end": 80.00000000000001,
+      "show": "Press Piano roll, then Staff. Sing it on \"oo\", then quietly, then hum it.",
+      "say": "Sing it very quietly. Sing it short and bouncy, then smooth."
+    },
+    {
+      "start": 80.00000000000001,
+      "end": 85.60000000000001,
+      "show": "Press Piano roll, then Staff. Sing it on \"oo\", then quietly, then hum it.",
+      "say": "The goal of this practice is to hum the whole tune before it plays."
+    }
+  ]
+}

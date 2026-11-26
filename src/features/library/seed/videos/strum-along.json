@@ -1,0 +1,85 @@
+{
+  "id": "df5c22a3-16c1-4a8a-976e-508f61b8b6be",
+  "kind": "script",
+  "madeFor": "tool:strum-along",
+  "tool": "strum-along",
+  "steps": null,
+  "title": "Strumming chords in time",
+  "seconds": 91,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 4.4,
+      "show": "You with the guitar, the strum-along stopped on screen.",
+      "say": "This tool is for strumming chords in time with the metronome."
+    },
+    {
+      "start": 5.4,
+      "end": 10.600000000000001,
+      "show": "Point at a chord box in the row, then at its arrows.",
+      "say": "Each box is one bar, with the chord to play written in it."
+    },
+    {
+      "start": 10.600000000000001,
+      "end": 23.8,
+      "show": "Point at a chord box in the row, then at its arrows.",
+      "say": "The arrows are the strums: an arrow down is a strum down, an arrow up is a strum up. Where there is a dot your hand still moves, but it misses the strings."
+    },
+    {
+      "start": 24.8,
+      "end": 37.2,
+      "show": "Press the Play button. Let the count-in run, then strum along for two rounds, counting aloud.",
+      "say": "Press the Play button below to start the metronome. You get one bar of count-in, then the lit box shows the chord to play and the lit arrow shows the strum."
+    },
+    {
+      "start": 37.2,
+      "end": 41.6,
+      "show": "Press the Play button. Let the count-in run, then strum along for two rounds, counting aloud.",
+      "say": "Count the beats aloud while you strum: 1, 2, 3, 4."
+    },
+    {
+      "start": 42.6,
+      "end": 49.4,
+      "show": "Come late to a chord change on purpose, keep the hand moving, come back in.",
+      "say": "If a chord change comes late, keep your strumming hand going and catch the next beat 1."
+    },
+    {
+      "start": 49.4,
+      "end": 54.6,
+      "show": "Come late to a chord change on purpose, keep the hand moving, come back in.",
+      "say": "The hand that strums never stops. The hand on the neck catches up."
+    },
+    {
+      "start": 55.6,
+      "end": 62.800000000000004,
+      "show": "Use − under Tempo to slow it down, then + to speed it up a little.",
+      "say": "Under Tempo, the minus button makes it slower. Start slow: slow gives you time to hear every strum."
+    },
+    {
+      "start": 62.800000000000004,
+      "end": 68.4,
+      "show": "Use − under Tempo to slow it down, then + to speed it up a little.",
+      "say": "Practice until your strumming hand keeps moving down and up through every chord change."
+    },
+    {
+      "start": 69.4,
+      "end": 77.80000000000001,
+      "show": "Play the same pattern in a few ways: muted strings, loud and soft, only the down strums.",
+      "say": "Try things with it. Rest your fretting hand on the strings and strum the pattern with no chord, just the rhythm."
+    },
+    {
+      "start": 77.80000000000001,
+      "end": 85.4,
+      "show": "Play the same pattern in a few ways: muted strings, loud and soft, only the down strums.",
+      "say": "Play the first beat of every bar louder. Play only the down strums, then put the up strums back."
+    },
+    {
+      "start": 85.4,
+      "end": 91,
+      "show": "Play the same pattern in a few ways: muted strings, loud and soft, only the down strums.",
+      "say": "Then make the tempo a little faster and see what changes in your hand."
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "21b5850c-0b8d-47aa-858a-3973e650120f",
+  "kind": "script",
+  "madeFor": "tool:guitar-play-along:chord-steps",
+  "tool": "guitar-play-along:chord-steps",
+  "steps": null,
+  "title": "Playing along with a written part",
+  "seconds": 86,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 10.4,
+      "show": "You with the guitar, the play-along stopped on screen.",
+      "say": "This is the play-along. It gives you a part to play in time, one step on each beat, with a metronome and a piano under you."
+    },
+    {
+      "start": 11.4,
+      "end": 19.4,
+      "show": "Point along the tab: a strum, a single note, notes stacked together.",
+      "say": "The tab has six lines, one for each string, with the thickest string at the bottom. The numbers are frets."
+    },
+    {
+      "start": 19.4,
+      "end": 27.799999999999997,
+      "show": "Point along the tab: a strum, a single note, notes stacked together.",
+      "say": "Numbers stacked on top of each other are played together. The line above the tab names the chord you are on."
+    },
+    {
+      "start": 28.799999999999997,
+      "end": 36.4,
+      "show": "Press the Play button and listen to one loop without playing.",
+      "say": "Press the Play button below to start it. It starts straight away and goes round until you stop it."
+    },
+    {
+      "start": 36.4,
+      "end": 41.6,
+      "show": "Press the Play button and listen to one loop without playing.",
+      "say": "Listen to one round first, and follow the lit step with your eyes."
+    },
+    {
+      "start": 42.6,
+      "end": 50.2,
+      "show": "Play along for a few loops, counting aloud.",
+      "say": "Now play along. If you miss a step, leave it and come back in on the next beat 1."
+    },
+    {
+      "start": 51.2,
+      "end": 57.6,
+      "show": "Use − under Tempo to slow down, then play again.",
+      "say": "Under Tempo, the minus button makes it slower. Slow gives you time to place each note."
+    },
+    {
+      "start": 57.6,
+      "end": 61.2,
+      "show": "Use − under Tempo to slow down, then play again.",
+      "say": "Practice until you play the whole loop without stopping."
+    },
+    {
+      "start": 62.2,
+      "end": 71.8,
+      "show": "Press notes, then neck, then tab. Change one thing in the part.",
+      "say": "Try things with it. Above the tab, press notes to see the note names, or neck to see the part on the guitar neck."
+    },
+    {
+      "start": 71.8,
+      "end": 78.2,
+      "show": "Press notes, then neck, then tab. Change one thing in the part.",
+      "say": "Play the part louder on beat 1. Leave one step out and let it be silent."
+    },
+    {
+      "start": 78.2,
+      "end": 85.4,
+      "show": "Press notes, then neck, then tab. Change one thing in the part.",
+      "say": "Then change the part a little: swap a single note for a strum and hear what it does."
+    }
+  ]
+}

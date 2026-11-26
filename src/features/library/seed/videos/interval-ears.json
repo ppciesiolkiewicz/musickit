@@ -1,0 +1,97 @@
+{
+  "id": "99775a59-b039-4d98-8fd5-2c92cd90a050",
+  "kind": "script",
+  "madeFor": "tool:interval-ears",
+  "tool": "interval-ears",
+  "steps": [
+    "interval-ears:1",
+    "interval-ears:2",
+    "interval-ears:3",
+    "interval-ears:4",
+    "interval-ears:5",
+    "chord-changes:1",
+    "chord-changes:2",
+    "chord-changes:3",
+    "chord-changes:4",
+    "chord-changes:5",
+    "none"
+  ],
+  "title": "Naming what you hear",
+  "seconds": 85,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 8,
+      "show": "You, no guitar, the game on screen before Start.",
+      "say": "This game trains your ears. You need no instrument and no microphone: you listen, and you name what you heard."
+    },
+    {
+      "start": 9,
+      "end": 17,
+      "show": "Point at the tags and the answer buttons.",
+      "say": "The tags at the top say what it will play: two notes going up, going down or together, or chords."
+    },
+    {
+      "start": 17,
+      "end": 20,
+      "show": "Point at the tags and the answer buttons.",
+      "say": "The buttons under it are the answers."
+    },
+    {
+      "start": 21,
+      "end": 24.2,
+      "show": "Press Start. Sing the two notes back, press Replay, then pick an answer.",
+      "say": "Press Start below to hear the first one."
+    },
+    {
+      "start": 24.2,
+      "end": 33.4,
+      "show": "Press Start. Sing the two notes back, press Replay, then pick an answer.",
+      "say": "Before you answer, sing back what you heard. Press Replay to hear it again as often as you like. Then press your answer."
+    },
+    {
+      "start": 34.4,
+      "end": 46.8,
+      "show": "Get one wrong. Press the right answer and the wrong one to compare.",
+      "say": "After you answer, the game names what it was. Now every answer button plays its own sound: press the right one, then the one you picked, and hear how they differ."
+    },
+    {
+      "start": 47.8,
+      "end": 55,
+      "show": "Press Next for a few more, through to Next stage.",
+      "say": "Press Next for another one. The questions come in short stages, and Skip leaves one you can't get."
+    },
+    {
+      "start": 55,
+      "end": 61.4,
+      "show": "Press Next for a few more, through to Next stage.",
+      "say": "The goal of this practice is to know the answer before you look at the buttons."
+    },
+    {
+      "start": 62.4,
+      "end": 67.2,
+      "show": "Play two of the answers on the guitar or sing them. Name a leap in a tune you know.",
+      "say": "Try things with it. Guess first with your eyes closed, then look."
+    },
+    {
+      "start": 67.2,
+      "end": 72.8,
+      "show": "Play two of the answers on the guitar or sing them. Name a leap in a tune you know.",
+      "say": "Sing each answer up from one note, so your voice learns the distance too."
+    },
+    {
+      "start": 72.8,
+      "end": 78.8,
+      "show": "Play two of the answers on the guitar or sing them. Name a leap in a tune you know.",
+      "say": "Find a tune you know that starts with each sound, and use it to remember."
+    },
+    {
+      "start": 78.8,
+      "end": 84.39999999999999,
+      "show": "Play two of the answers on the guitar or sing them. Name a leap in a tune you know.",
+      "say": "If you play, find the same two notes on your guitar after each question."
+    }
+  ]
+}

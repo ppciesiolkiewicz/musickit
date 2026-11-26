@@ -1,0 +1,85 @@
+{
+  "id": "28f1f948-de02-4c74-9d29-cc9f06f00a4b",
+  "kind": "script",
+  "madeFor": "tool:picking-drill",
+  "tool": "picking-drill",
+  "steps": [
+    "picking-drill:new",
+    "picking-drill:beginner",
+    "picking-drill:intermediate",
+    "picking-drill:advanced",
+    "none"
+  ],
+  "title": "Picking down and up",
+  "seconds": 83,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 6.8,
+      "show": "You with the guitar, the drill's tab on screen with the pick strokes under it.",
+      "say": "This drill is for the hand that holds the pick. The same strokes repeat across the strings."
+    },
+    {
+      "start": 7.8,
+      "end": 15,
+      "show": "Picking hand close up: the grip, then one down stroke and one up stroke.",
+      "say": "Hold the pick between your thumb and the side of your first finger, with only the tip showing."
+    },
+    {
+      "start": 15,
+      "end": 23.4,
+      "show": "Picking hand close up: the grip, then one down stroke and one up stroke.",
+      "say": "A down stroke goes towards the floor. An up stroke comes back. The movement is small and comes from the wrist."
+    },
+    {
+      "start": 24.4,
+      "end": 33.599999999999994,
+      "show": "Point at the stroke marks under the tab. Press Pick if the finger numbers are showing.",
+      "say": "Under the tab are the strokes to use for each note. If you see finger numbers there, press Pick to see the strokes."
+    },
+    {
+      "start": 34.599999999999994,
+      "end": 41.39999999999999,
+      "show": "Press the Play button and play along across the strings.",
+      "say": "Press the Play button below to start the metronome and the notes, one note on each beat."
+    },
+    {
+      "start": 41.39999999999999,
+      "end": 50.19999999999999,
+      "show": "Press the Play button and play along across the strings.",
+      "say": "When the tab moves to the next string, your hand moves with it and the strokes carry on in the same order."
+    },
+    {
+      "start": 51.19999999999999,
+      "end": 56.39999999999999,
+      "show": "Play a few notes with a weak up stroke, then even them out.",
+      "say": "Listen for the up strokes. They are often quieter than the down strokes."
+    },
+    {
+      "start": 56.39999999999999,
+      "end": 61.19999999999999,
+      "show": "Play a few notes with a weak up stroke, then even them out.",
+      "say": "Practice until the up stroke is as loud as the down stroke."
+    },
+    {
+      "start": 62.19999999999999,
+      "end": 72.6,
+      "show": "Press Click to mute the metronome and play alone. Then play it on open strings only.",
+      "say": "Try things with it. Take your other hand off the neck and play the strokes on the open strings, so you only think about the pick."
+    },
+    {
+      "start": 72.6,
+      "end": 77,
+      "show": "Press Click to mute the metronome and play alone. Then play it on open strings only.",
+      "say": "Play it very quietly, then loudly, with the same small movement."
+    },
+    {
+      "start": 77,
+      "end": 82.2,
+      "show": "Press Click to mute the metronome and play alone. Then play it on open strings only.",
+      "say": "Press Click below to mute the metronome and keep the beat by yourself."
+    }
+  ]
+}

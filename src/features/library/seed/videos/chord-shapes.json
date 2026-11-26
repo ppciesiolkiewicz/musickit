@@ -1,0 +1,79 @@
+{
+  "id": "c345bf4e-818e-4d62-8052-b666c5c75db3",
+  "kind": "script",
+  "madeFor": "tool:chord-shapes",
+  "tool": "chord-shapes",
+  "steps": null,
+  "title": "Reading a chord box",
+  "seconds": 82,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 5.6,
+      "show": "You with the guitar, the chord boxes of the exercise on screen.",
+      "say": "These are chord boxes. Each one shows where your fingers go for one chord."
+    },
+    {
+      "start": 6.6,
+      "end": 15,
+      "show": "Point along one chord box: the strings, the frets, a dot.",
+      "say": "The lines going down are the strings, with the thickest string on the left. The lines going across are the frets."
+    },
+    {
+      "start": 15,
+      "end": 24.2,
+      "show": "Point along one chord box: the strings, the frets, a dot.",
+      "say": "Each dot is a finger, and the number on it says which finger: 1 is your first finger, 4 is your little finger."
+    },
+    {
+      "start": 25.2,
+      "end": 28.4,
+      "show": "Tap a chord box to hear it. Then press Intervals, then Fingers again.",
+      "say": "Tap a chord box to hear the chord."
+    },
+    {
+      "start": 28.4,
+      "end": 38.4,
+      "show": "Tap a chord box to hear it. Then press Intervals, then Fingers again.",
+      "say": "Press Intervals above the chord boxes to see which note of the chord each dot is. Press Fingers to go back to the finger numbers."
+    },
+    {
+      "start": 39.4,
+      "end": 45,
+      "show": "Fretting hand close up: place the first chord one finger at a time, then pick each string.",
+      "say": "Put your fingers down one at a time, each one just behind its fret."
+    },
+    {
+      "start": 45,
+      "end": 55,
+      "show": "Fretting hand close up: place the first chord one finger at a time, then pick each string.",
+      "say": "Then pick the strings one by one. If a string buzzes, move that finger closer to the fret and stand it up on its tip."
+    },
+    {
+      "start": 56,
+      "end": 62.8,
+      "show": "Lift the hand off and put the chord back a few times, then change to the next chord box.",
+      "say": "Now lift your hand off and put the chord back. Practice until all your fingers land together."
+    },
+    {
+      "start": 63.8,
+      "end": 71.39999999999999,
+      "show": "Play the chord a few different ways: strummed, one string at a time, only the thin strings.",
+      "say": "Try things with it. Strum it, then play one string at a time. Play only the three thinnest strings."
+    },
+    {
+      "start": 71.39999999999999,
+      "end": 77.8,
+      "show": "Play the chord a few different ways: strummed, one string at a time, only the thin strings.",
+      "say": "Press Intervals and find the note marked 1, then play that note alone and sing it."
+    },
+    {
+      "start": 77.8,
+      "end": 81.39999999999999,
+      "show": "Play the chord a few different ways: strummed, one string at a time, only the thin strings.",
+      "say": "Then do the same with the next chord box."
+    }
+  ]
+}

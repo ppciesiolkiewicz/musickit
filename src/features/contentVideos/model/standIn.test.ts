@@ -1,26 +1,23 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isVideoId } from "@/features/videos/server/rules";
 import { STAGES, VIDEO_PLANS } from "./scripts";
-import { cueAt, isStandIn, plainSay, scriptCues, standInFor, standInId, standInPlan } from "./standIn";
+import { stepsOfTool } from "./slot";
+import { cueAt, plainSay, scriptCues, standInFile, standInSeed } from "./standIn";
 
-test("a scripted tool has a stand-in, another tool none", () => {
-  assert.equal(standInFor("chord-shapes"), "script:chord-shapes");
-  assert.equal(standInFor("staff"), null);
-  assert.equal(standInFor("__proto__"), null);
+test("a scripted tool's seed is a row for every level, with its captions", () => {
+  const seed = standInSeed("picking-drill", "id-1")!;
+  assert.equal(seed.madeFor, "tool:picking-drill");
+  assert.deepEqual(seed.steps, stepsOfTool("picking-drill"));
+  assert.equal(seed.title, VIDEO_PLANS["picking-drill"].title);
+  assert.ok(seed.cues.length > 0 && seed.seconds >= seed.cues.at(-1)!.end);
+  assert.equal(standInSeed("staff", "x"), null);
+  assert.equal(standInSeed("__proto__", "x"), null);
 });
 
-test("every staged tool has a stand-in that reads its plan back", () => {
-  for (const tool of STAGES.flatMap((s) => s.tools)) {
-    const id = standInFor(tool)!;
-    assert.ok(isStandIn(id));
-    assert.equal(standInPlan(id), VIDEO_PLANS[tool]);
-  }
-  assert.equal(standInPlan("script:nope"), null);
-  assert.equal(standInPlan("chord-shapes"), null);
+test("every staged tool has a seed, and a file name with no colon", () => {
+  for (const tool of STAGES.flatMap((s) => s.tools)) assert.ok(standInSeed(tool, "x"));
+  assert.equal(standInFile("guitar-play-along:riff"), "guitar-play-along--riff.json");
 });
-
-test("a stand-in id is never a video id", () => assert.equal(isVideoId(standInId("chord-shapes")), false));
 
 test("brackets come off", () => assert.equal(plainSay("Play [the chord] slowly. "), "Play the chord slowly."));
 

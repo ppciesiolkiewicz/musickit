@@ -1,0 +1,76 @@
+{
+  "id": "bde49291-5107-4bf9-8d06-b8b40474947f",
+  "kind": "script",
+  "madeFor": "tool:guitar-play-along:melody",
+  "tool": "guitar-play-along:melody",
+  "steps": [
+    "guitar-tunes:octave-leap",
+    "none"
+  ],
+  "title": "Playing a tune",
+  "seconds": 73,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 6,
+      "show": "You with the guitar, the tune's tab on screen.",
+      "say": "This is a short tune to play on the guitar, one note at a time."
+    },
+    {
+      "start": 7,
+      "end": 11.8,
+      "show": "Press the Play button, listen, then sing or hum the tune.",
+      "say": "Press the Play button below to hear it. Sing or hum along."
+    },
+    {
+      "start": 11.8,
+      "end": 19.4,
+      "show": "Press the Play button, listen, then sing or hum the tune.",
+      "say": "A tune you can sing is much easier to play: your ear tells you when a note is wrong."
+    },
+    {
+      "start": 20.4,
+      "end": 34.4,
+      "show": "Press notes, then neck, then tab, above the music.",
+      "say": "Above the tab you can pick how to read it: tab for strings and frets, notes for the note names, neck for dots on the guitar neck. Use the one that is easiest for you."
+    },
+    {
+      "start": 35.4,
+      "end": 39.8,
+      "show": "Play along slowly, fretting hand visible, saying the fingers.",
+      "say": "Now play along. Under Tempo, the minus button slows it down."
+    },
+    {
+      "start": 39.8,
+      "end": 45,
+      "show": "Play along slowly, fretting hand visible, saying the fingers.",
+      "say": "Keep your hand in one place and give each fret its own finger."
+    },
+    {
+      "start": 46,
+      "end": 53.6,
+      "show": "Play it without the tool running.",
+      "say": "Practice until you can play the tune with the tool stopped, and you hear a wrong note at once."
+    },
+    {
+      "start": 54.6,
+      "end": 59,
+      "show": "Sing along while playing. Start from another fret. Change the rhythm.",
+      "say": "Try things with it. Sing the tune while you play it."
+    },
+    {
+      "start": 59,
+      "end": 65.8,
+      "show": "Sing along while playing. Start from another fret. Change the rhythm.",
+      "say": "Start the tune from another fret on the same string and work out the rest by ear."
+    },
+    {
+      "start": 65.8,
+      "end": 72.6,
+      "show": "Sing along while playing. Start from another fret. Change the rhythm.",
+      "say": "Play it with long notes, then short ones. Then change the ending to one you like better."
+    }
+  ]
+}

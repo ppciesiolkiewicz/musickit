@@ -1,0 +1,73 @@
+{
+  "id": "550392b7-cfd5-4221-871f-45b3e73ed79f",
+  "kind": "script",
+  "madeFor": "tool:position-neck",
+  "tool": "position-neck",
+  "steps": null,
+  "title": "Positions along the neck",
+  "seconds": 82,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 8,
+      "show": "You with the guitar, the whole neck on screen with one position framed.",
+      "say": "This is the whole neck with the notes of the scale. The same notes repeat all the way along it."
+    },
+    {
+      "start": 9,
+      "end": 19,
+      "show": "Point at the frame, then at the faint notes outside it.",
+      "say": "The frame is one position: the part of the neck your hand covers without moving. The faint notes outside it belong to the other positions."
+    },
+    {
+      "start": 20,
+      "end": 29.2,
+      "show": "Press Play, then play the framed position on the guitar.",
+      "say": "Press Play below to hear the framed notes up and back down. Then play them on the guitar, one finger for each fret."
+    },
+    {
+      "start": 30.2,
+      "end": 36.6,
+      "show": "Press another position in the row under the neck. Play that one.",
+      "say": "Under the neck is a row of positions. Press one to frame it on the neck."
+    },
+    {
+      "start": 36.6,
+      "end": 43,
+      "show": "Press another position in the row under the neck. Play that one.",
+      "say": "This one starts where the last one ended, so the two share a row of notes."
+    },
+    {
+      "start": 44,
+      "end": 54.4,
+      "show": "Play up one position, slide on one string, carry on in the next.",
+      "say": "To get from one position to the next, slide one finger along a string to a note the next position has, and carry on from there."
+    },
+    {
+      "start": 54.4,
+      "end": 59.199999999999996,
+      "show": "Play up one position, slide on one string, carry on in the next.",
+      "say": "Practice until you can move between two positions without stopping the line."
+    },
+    {
+      "start": 60.199999999999996,
+      "end": 67.8,
+      "show": "Press two positions so both are framed. Play one note on one string all the way up the neck.",
+      "say": "Try things with it. Frame two positions next to each other and play through both as one long scale."
+    },
+    {
+      "start": 67.8,
+      "end": 75.39999999999999,
+      "show": "Press two positions so both are framed. Play one note on one string all the way up the neck.",
+      "say": "Play along a single string, from the first fret as high as you can go, using only the dots."
+    },
+    {
+      "start": 75.39999999999999,
+      "end": 81.39999999999999,
+      "show": "Press two positions so both are framed. Play one note on one string all the way up the neck.",
+      "say": "Find the ringed note in every position: it is the same note, higher each time."
+    }
+  ]
+}

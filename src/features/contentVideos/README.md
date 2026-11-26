@@ -14,11 +14,13 @@ This is not `src/features/videos` (a player's or teacher's own takes, per accoun
 
 ## Which video a tool cell shows
 
-`model/lookup.ts`: the block's own video for that cell (`from: "block"`), else the tool's video whose steps hold the cell's step (`from: "tool"`; a cell with no step matches a video with `steps` null), else the tool's **stand-in** when the tool has a script in `VIDEO_PLANS` (`from: "script"`, below), else none. A video met again at a later cell of the same block is `repeat: true`. A cell whose video's row is gone is left out.
+`model/lookup.ts`: the block's own video for that cell (`from: "block"`), else the tool's video whose steps hold the cell's step (`from: "tool"`; a cell with no step matches a video with `steps` null), else none. A video met again at a later cell of the same block is `repeat: true`. A cell whose video's row is gone is left out.
 
-## Stand-ins: the script before the video
+## Stand-ins: the script before the video (seeded, not enabled)
 
-A scripted tool (one of the first 20, `model/scripts.ts`) shows a stand-in wherever it has no recorded video: no file and no row, made from the script by the lookup (`model/standIn.ts`). Its id is `script:<tool key>` (never a video id, so it never reaches the file route); `PlayInfo` carries its `cues` (each said line of the script, brackets taken off, timed at about 2.5 words a second, at least 3 seconds a line, a second between parts) and `seconds`, their whole length. `OverlayVideo` plays a `PlayInfo` with `cues` as `ui/ScriptVideo.tsx`: black, the part's **show** line small above, the said line as a caption, **Play**/**Pause**, a time bar, and "Not filmed yet: the words of the video, in time." The library strip says "Not filmed yet: the script for <tool>". Recording a video for a level replaces the stand-in there; levels still unrecorded keep it. A site with no database answers stand-ins only (`NO_VIDEOS`). The Tools videos page still lists the tool as **Missing**.
+A stand-in is a scripted tool's video before it is recorded: the script's words as captions on black, timed at reading pace. Each of the 20 tools in `VIDEO_PLANS` has one as a seed file, `src/features/library/seed/videos/<tool key, ":" as "--">.json` (`StandInSeed` in `model/standIn.ts`): a `content_videos` row for every level of the tool (`kind: "script"`, a fixed id, `madeFor`, `tool`, `steps` from `stepsOfTool`, `title`, `seconds`, 1920×1080) with `cues` in place of a file: each said line of the script, brackets taken off, about 2.5 words a second, at least 3 seconds a line, a second between parts. `scripts/gen-stand-in-seeds.ts` writes them from the scripts and keeps each file's id; `server/standInSeeds.test.ts` fails when a file is out of step.
+
+**Not enabled.** No seed command puts them in the database, `db:seed-blocks` never reads the folder, and the lookup serves none. The player is ready for them: a `PlayInfo` with `cues` plays as `ui/ScriptVideo.tsx` (the part's **show** line small above, the said line as a caption, **Play**/**Pause**, a time bar, "Not filmed yet: the words of the video, in time."), and the library strip says "Not filmed yet: the script for <tool>". Enabling them needs a seed step that writes the rows (with no file, so the file route, delete and the Tools videos page must know a row with `cues`), and the lookup handing `cues` on.
 
 ## In a plan's day
 
@@ -84,7 +86,8 @@ An exercise opened on `/admin/content/library` (its row, `LibraryItem` → `Exam
 | `model/drawn.ts` | Pure. `drawnAsks` (a block's tool cells as the reader draws them, chips and version applied) and `dayVideos` (a day's videos, each at its first place). |
 | `model/coverage.ts` | Pure. What the Tools videos page lists: `videoTools`, `stepGroups`, `seedUse`, `coverage`, `coveredCount`, `levelsText`; and `wouldLose` (what a save would take off other videos). |
 | `model/scripts.ts` | Pure data. The first videos: `STAGES` (the order), `VIDEO_PLANS` (title, minutes, script), `Beat`, `VideoPlan`, `Stage`. |
-| `model/standIn.ts` | Pure. Stand-ins: `standInId`, `isStandIn`, `standInFor` (a tool's stand-in, or null with no script), `standInPlan`, `Cue`, `scriptCues`, `cueAt`, `plainSay`. |
+| `model/standIn.ts` | Pure. Stand-ins: `StandInSeed`, `standInSeed`, `standInFile`, `Cue`, `scriptCues`, `cueAt`, `plainSay`. |
+| `server/standInSeeds.test.ts` | The seed files in `library/seed/videos` match the scripts. |
 | `model/recordPlan.ts` | Pure. `LATER_PLANS`, `NO_VIDEO`, `recordPlan` (the stages with their numbered rows, the later rows, the tools with none), `blocksUsing`, `minutesLeft`. Re-exports scripts.ts. |
 | `model/clock.ts` | Pure. The overlay's clock: `Sample`, `Piece`, `squeeze`, `beatAt`, `readPieces`. |
 | `model/takeNotes.ts` | Pure. `clickClock` (a take made with the click only) and `takeNotes`: a tool's notes (`KitNote`, `exercises/cues/cueNotes.ts`) timed onto a take's clock, repeated each loop, none while the tool is stopped. |

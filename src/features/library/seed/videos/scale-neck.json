@@ -1,0 +1,67 @@
+{
+  "id": "7840f89e-93d4-48c2-a7eb-dec68de25815",
+  "kind": "script",
+  "madeFor": "tool:scale-neck",
+  "tool": "scale-neck",
+  "steps": null,
+  "title": "A scale position on the neck",
+  "seconds": 73,
+  "width": 1920,
+  "height": 1080,
+  "cues": [
+    {
+      "start": 0,
+      "end": 8.8,
+      "show": "You with the guitar, the neck with the scale's notes on screen.",
+      "say": "This is the neck of the guitar with the notes of the scale on it. Each dot is a note to play."
+    },
+    {
+      "start": 9.8,
+      "end": 17.4,
+      "show": "Point at the ringed notes, then tap a few dots.",
+      "say": "The ringed dots are the home note of the scale: name it. Tap a dot to hear that note."
+    },
+    {
+      "start": 18.4,
+      "end": 26,
+      "show": "Press Play under the position and listen without playing.",
+      "say": "Press Play under the neck to hear the notes, from the lowest up to the highest and back down."
+    },
+    {
+      "start": 27,
+      "end": 37.8,
+      "show": "Play it on the guitar, slowly, fretting hand visible.",
+      "say": "Now play it. Start on the lowest ringed note, play the dots on each string up to the thinnest string, then come back down the same way."
+    },
+    {
+      "start": 37.8,
+      "end": 43,
+      "show": "Play it on the guitar, slowly, fretting hand visible.",
+      "say": "Use one finger for each fret, so your hand stays in one place."
+    },
+    {
+      "start": 44,
+      "end": 49.2,
+      "show": "Play it again, looking away from the screen.",
+      "say": "Practice until your fingers find the dots without you looking at the screen."
+    },
+    {
+      "start": 50.2,
+      "end": 56.6,
+      "show": "Play only the ringed notes. Then skip a note each time. Then a short line of your own.",
+      "say": "Try things with it. Play only the ringed notes and listen to how alike they sound."
+    },
+    {
+      "start": 56.6,
+      "end": 59.800000000000004,
+      "show": "Play only the ringed notes. Then skip a note each time. Then a short line of your own.",
+      "say": "Play up the scale skipping every second note."
+    },
+    {
+      "start": 59.800000000000004,
+      "end": 72.2,
+      "show": "Play only the ringed notes. Then skip a note each time. Then a short line of your own.",
+      "say": "Then pick three or four dots next to each other and make up a short line of your own. End it on a ringed note and hear how it sounds finished."
+    }
+  ]
+}
