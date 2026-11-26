@@ -19,7 +19,8 @@ export default function SearchResearchPage() {
         <h2 className="text-lg font-semibold text-slate-100">Search research</h2>
         <p className="max-w-3xl text-sm text-slate-400">
           Who ranks on Google for what each persona searches, for the public articles in NEW21. From a US-only web search on {SEARCH_CHECKED};
-          Australian results may differ. No search volumes yet. Change it in model/searchResearch.ts.
+          Australian results may differ. No search volumes yet. How hard is a guess from who holds the first page (big brands or small
+          sites), not Ahrefs&apos; keyword difficulty. Change it in model/searchResearch.ts.
         </p>
       </div>
 
