@@ -26,7 +26,7 @@ export const microphoneAndAudioInterface: Article = {
     { type: "h2", text: "The audio interface: Focusrite Scarlett Solo or 2i2" },
     { type: "p", text: "The box between the mic and your computer: mic and headphones in, USB to the computer." },
     { type: "figure", src: "/images/learn/focusrite-scarlett-2i2.jpg", width: 1200, height: 675, alt: "A red Focusrite Scarlett 2i2 audio interface on a desk, with two microphone cables plugged into its front",
-      caption: "A Scarlett 2i2 with two mics plugged in. The Direct Monitor button is on the right. The Solo looks the same with one mic input.",
+      caption: "A 3rd generation Scarlett 2i2 with two mics plugged in, Direct Monitor on the right. We'd get the newer 4th generation. The Solo is the smaller one, with one mic input.",
       credit: { by: "Peter Placzek", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", source: "https://commons.wikimedia.org/wiki/File:Focusrite_Scarlett_Solo_3rd_Gen.jpg" } },
     { type: "list", items: [
       "**Scarlett Solo** if it's just you and the mic.",
