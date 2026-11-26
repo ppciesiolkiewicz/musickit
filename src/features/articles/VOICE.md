@@ -1,5 +1,5 @@
 ---
-version: 2
+version: 3
 ---
 
 # The articles' voice
@@ -28,7 +28,8 @@ holds only what the articles add to it. Each article's seed file records the ver
   the warm-ups article.
 - Exercises on the page with the app's own tools, each with its heading, what to press, what to sing or play, and one feel to
   reach or one thing to do when it goes wrong.
-- A last line that points to attunr's daily plan, said plainly, once.
+- No call to join in the text: the page ends every article with the same card ("Join attunr for more interactive exercises and a
+  curated practice plan for every day." and **Start your plan**, `JoinCard` in `ui/ArticleView.tsx`).
 
 ## Products
 

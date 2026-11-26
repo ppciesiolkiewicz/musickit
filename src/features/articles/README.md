@@ -20,7 +20,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `seeds/<slug>.json`: the article's seed info: the search it is written for, the persona, the date, the model, the versions
   it was written to (the teaching documents', `DOC_VERSIONS`, and the voice's, `VOICE.md`), the author's own notes verbatim, the library
   blocks it reuses, the calculator runs, the sources read, and what is still open. Rewrite the article from it when the rules change.
-- `ui/ArticleView.tsx`: the body. Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`.
+- `ui/ArticleView.tsx`: the body, ending on `JoinCard` (the line asking a reader to join, and **Start your plan** to `/plan`, the home page's main button). Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`.
 - `articles.test.ts`: unique slugs, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search
   description of 160 characters or less, `/learn/` links to articles that exist, and "practice", never "practise".
 

@@ -7,7 +7,7 @@
   "versions": {
     "agents": 2,
     "teaching": 12,
-    "voice": 2
+    "voice": 3
   },
   "notes": [
     "start with introduction saying that pitch matching exercises with live feedback can be super beneficial in strengthening your voice. A lot of singers would be slightly below or above the note in some notes and working on precision can ..",
@@ -17,7 +17,8 @@
     "We still want to propose ideas and be playful",
     "I'd rather use the melody component",
     "Let's add them - they were meant for warmups, like intermediate warmup",
-    "Also maybe bit less words on each article"
+    "Also maybe bit less words on each article",
+    "Each article should finish with CTA like \"Join attunr for more intarctive exercises and curated training plans for every day\""
   ],
   "blocks": [
     "voice-beginner-a-long-steady-do",

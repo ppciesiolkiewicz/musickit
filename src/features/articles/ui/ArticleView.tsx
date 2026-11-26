@@ -47,11 +47,22 @@ function Block({ block }: { block: ArticleBlock }) {
   }
 }
 
+/** The ending of every article: one line and the home page's main button. The words are here, not in the articles. */
+function JoinCard() {
+  return (
+    <aside aria-label="Join attunr" className="mt-6 flex flex-col items-start gap-3 rounded-xl border border-sky-500/30 bg-sky-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <p className="font-medium text-slate-100">Join attunr for more interactive exercises and a curated practice plan for every day.</p>
+      <Link href="/plan" className="shrink-0 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-sky-400">Start your plan</Link>
+    </aside>
+  );
+}
+
 /** An article's body: its blocks in order, the singing tools under one Your voice picker. */
 export default function ArticleView({ article }: { article: Article }) {
   const body = (
     <div className="flex flex-col gap-4 leading-relaxed">
       {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} /></Fragment>)}
+      <JoinCard />
       <p className="mt-6 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
     </div>
   );

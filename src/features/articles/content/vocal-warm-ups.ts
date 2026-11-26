@@ -45,6 +45,6 @@ export const vocalWarmUps: Article = {
       "_Don't reach for high notes: Sol here is the one just above the low Do._",
     ] },
 
-    { type: "p", text: "Warm? Try the [pitch matching exercises](/learn/pitch-matching-exercises) next. Or let [attunr](/) put a warm-up at the start of each day's plan." },
+    { type: "p", text: "Warm? Try the [pitch matching exercises](/learn/pitch-matching-exercises) next." },
   ],
 };

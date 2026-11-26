@@ -58,6 +58,6 @@ export const pitchMatchingExercises: Article = {
       "Hum the note first, then open to \"oo\".",
       "Sing with your eyes closed, then check your line.",
     ] },
-    { type: "p", text: "First the start of each note gets cleaner, then long notes get steadier. Want this every day? [attunr](/) puts it in a short daily plan." },
+    { type: "p", text: "First the start of each note gets cleaner, then long notes get steadier." },
   ],
 };

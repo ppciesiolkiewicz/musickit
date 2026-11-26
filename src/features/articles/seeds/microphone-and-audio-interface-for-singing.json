@@ -7,7 +7,7 @@
   "versions": {
     "agents": 2,
     "teaching": 12,
-    "voice": 2
+    "voice": 3
   },
   "notes": [
     "just recommending Scarlett Focusrite Solo or 2i2 (4th gen if this is the newest) and basic SM58 microphone if you wondered what to purchase",
@@ -15,7 +15,8 @@
     "2i2 should be (if you want to plug in more than one device)",
     "Mention that direct monitoring good for singing practice since we can hear ourselves with no delay",
     "I think this is good recommendation for many beginners (but i'm not paid for this)",
-    "Also maybe bit less words on each article"
+    "Also maybe bit less words on each article",
+    "Each article should finish with CTA like \"Join attunr for more intarctive exercises and curated training plans for every day\""
   ],
   "blocks": [],
   "calculator": [],
