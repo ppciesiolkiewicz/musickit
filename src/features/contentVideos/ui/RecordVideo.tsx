@@ -200,6 +200,10 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
   // the take's clock (its overlay's, else the click's grid) and the kit's notes timed onto it, for the neck readers and the log
   const clock = useMemo(() => takeClock(take?.overlay, take?.click), [take?.overlay, take?.click]);
   const notes = useTakeNotes(kit, clock, take?.seconds ?? 0);
+  // over the camera, the kit's notes on the beat the kit views read (the click's while recording to it, else the tool's), in
+  // seconds at the tempo, so Read the neck (OpenCV) lights each note on its place in time with the playing
+  const liveClock = useCallback(() => { const b = liveBeat(); return b === null ? null : (b * 60) / bpm; }, [liveBeat, bpm]);
+  const liveNotes = useTakeNotes(kit, useMemo(() => [[0, 0, bpm / 60]], [bpm]), MAX_TAKE_SECONDS);
 
   const stopCamera = () => {
     stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; mic.current?.close(); mic.current = null;
@@ -662,7 +666,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
             <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera and the take. Not while recording: Export with overlay puts them in the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
               <input type="checkbox" checked={readNeck} onChange={(e) => { setReadNeck(e.target.checked); if (e.target.checked) setReadCv(false); }} className="accent-sky-500" /> Read the neck
             </label>
-            <label className="flex items-center gap-1.5 text-slate-300" title="Finds the fret markers with OpenCV and draws each fret with its number above and below. Turns Read the neck off. OpenCV downloads the first time, about 10 MB.">
+            <label className="flex items-center gap-1.5 text-slate-300" title="Finds the fret markers with OpenCV and draws each fret with its number above and below. While the tool or the click plays, it lights each of the tool's notes on its fret, in time. Turns Read the neck off. OpenCV downloads the first time, about 10 MB.">
               <input type="checkbox" checked={readCv} onChange={(e) => { setReadCv(e.target.checked); if (e.target.checked) setReadNeck(false); }} className="accent-sky-500" /> Read the neck (OpenCV)
             </label>
           </div>
@@ -679,9 +683,10 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
         {/* the face camera's canvas (both cameras) goes here, over the guitar camera */}
         {camera && <div ref={faceHolder} className="pointer-events-none absolute inset-0" />}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
-        {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
+        {/* Read the neck not while recording: its hand model would compete with the recorder and the tool's beat. The OpenCV
+            reader runs on: while the tool or the click runs it draws the kit's notes, timed, not what it hears */}
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
-        {camera && readCv && phase !== "recording" && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} keyOf={kit?.key} live fit="cover" />}
+        {camera && readCv && <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} keyOf={kit?.key} live notes={liveNotes} clock={liveNotes ? liveClock : undefined} fit="cover" />}
         {/* one tree for every place and every view, so changing either never restarts the tool */}
         <ToolBox look={look} unsetBox={unsetBox} narrow={narrow} shown={toolShown} frame={frame}
           onBox={(box) => setLookState((l) => ({ ...l, box }))} onLetGo={() => setLookState((l) => { store(LOOK_KEY, l); return l; })}>

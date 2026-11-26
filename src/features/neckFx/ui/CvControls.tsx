@@ -58,13 +58,13 @@ export default function CvControls({ cv, set, hasKey = false }: { cv: CvSettings
       <label className={field} title="A ring from each note's place as it is played, its name while it sounds, and the chord the notes make above the board (on a take with Chord shapes on, over the shape).">
         <input type="checkbox" checked={cv.pulse} onChange={(e) => set({ pulse: e.target.checked })} className="accent-sky-500" /> Pick pulse
       </label>
-      <label className={field} title="On a take, notes played together are joined in one shape with the chord's name over it.">
+      <label className={field} title="On a take, and over the camera while the tool or the click plays, notes played together are joined in one shape with the chord's name over it.">
         <input type="checkbox" checked={cv.chords} onChange={(e) => set({ chords: e.target.checked })} className="accent-sky-500" /> Chord shapes
       </label>
-      <label className={field} title="On a take, the finger that plays each note, as a small number beside it.">
+      <label className={field} title="On a take, and over the camera while the tool or the click plays, the finger that plays each note, as a small number beside it.">
         <input type="checkbox" checked={cv.fingers} onChange={(e) => set({ fingers: e.target.checked })} className="accent-sky-500" /> Fingers
       </label>
-      <label className={field} title="On a take, the places of the next notes show faintly just before they are played.">
+      <label className={field} title="On a take, and over the camera while the tool or the click plays, the places of the next notes show faintly just before they are played.">
         <input type="checkbox" checked={cv.next} onChange={(e) => set({ next: e.target.checked })} className="accent-sky-500" /> Coming next
       </label>
       <label className={field} title={`What the notes on the neck show: their names, or their numbers in the key (1, 3, 5).${hasKey ? "" : " This page gives no key, so notes show their names."}`}>

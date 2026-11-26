@@ -2,7 +2,7 @@
 
 Reads a guitar neck from printed ArUco markers and the hands, works out where the frets are, and draws test effects over a
 video: the live camera or a recorded take. Used by the content video recorder (`contentVideos/ui/RecordVideo.tsx`), on the record page and the riff maker, behind its
-**Read the neck** tick. It doesn't run while a take records (the hand model would compete with the recorder);
+**Read the neck** tick. It doesn't run while a take records (the hand model would compete with the recorder; the OpenCV reader below does);
 it draws over the take as it plays back, and each page's **Export with overlay** (`contentVideos/client/burn.ts`) records the take
 with the effects in the picture. `bare` hides the status line for that.
 
@@ -58,7 +58,7 @@ and what its own controls (`ui/CvControls.tsx`, kept under `musickit.neckCv`; `m
   key** (`noteLabel`, the app's `degreeLabel`: counted in the page's mode, ♭ and ♯ for a note outside it) when the page gives a
   key (`keyOf`, from the kit); with no key that choice is greyed out, the list reads Note names (its hint says why) and names are shown. The status line keeps the name.
 
-Live, only what can be known is drawn: the notes heard, named through Labels; no shapes, fingers or coming notes.
+Live, only what can be known is drawn: the notes heard, named through Labels; no shapes, fingers or coming notes. Unless the page gives `clock` with `notes` (the recorder does, from its kit: the click's grid while recording to it, else the tool's beat, in seconds): while `clock` reads a time, the camera is drawn as a take is, with the notes at their times on their strings and frets (Pick pulse, Chord shapes, Coming next, Fingers), and the notes heard are dropped. This runs while a take records, so the player sees each note land on the neck in time with the riff; when `clock` reads null (the tool and the click stopped) the notes heard come back.
 
 How it reads: `ui/NeckCvView.tsx` draws; `client/cv.ts` loads OpenCV.js (the
 `@techstark/opencv-js` build, from jsDelivr on first use, about 10 MB) and does the image work; `model/cvFrets.ts` is the maths.

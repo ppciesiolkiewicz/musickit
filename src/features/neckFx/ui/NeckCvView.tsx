@@ -71,7 +71,7 @@ function tongue(hue: number): HTMLCanvasElement {
  * finger beside it). Every note's label is its name or, with `keyOf`, its number in the key (`cv.labels`). A note heard (live: from `video`'s stream; a take: `notes` at their times) is placed by the fingers
  * and lights its spot and string. Markers come from `markers` (each one's size from Markers or the A3 layout).
  */
-export default function NeckCvView({ video, markers, cv, keyOf, live = false, notes, fit = "contain", bare = false }: {
+export default function NeckCvView({ video, markers, cv, keyOf, live = false, notes, clock, fit = "contain", bare = false }: {
   video: HTMLVideoElement | null;
   /** "id@fret, …" (the Markers setting) */
   markers: string;
@@ -82,6 +82,9 @@ export default function NeckCvView({ video, markers, cv, keyOf, live = false, no
   live?: boolean;
   /** a take's notes, at their times in the video, with their string and fret when the riff has them */
   notes?: TakeNote[];
+  /** live only: the time `notes` are timed on, now (s; null while the tool is stopped). While it runs, the notes are drawn
+   * as on a take and the sound heard is not used; without it, or while it is null, the notes heard are. */
+  clock?: () => number | null;
   fit?: "contain" | "cover";
   /** no status line: the take is being exported with the drawing in it */
   bare?: boolean;
@@ -98,6 +101,8 @@ export default function NeckCvView({ video, markers, cv, keyOf, live = false, no
   useEffect(() => { keyRef.current = keyOf; }, [keyOf]);
   const timed = useRef(notes);
   useEffect(() => { timed.current = notes; }, [notes]);
+  const clockRef = useRef(clock);
+  useEffect(() => { clockRef.current = clock; }, [clock]);
   const picks = useRef<{ midi: number | null; level: number }[]>([]);
   const [status, setStatus] = useState("Loading OpenCV…");
   const [problem, setProblem] = useState("");
@@ -138,6 +143,8 @@ export default function NeckCvView({ video, markers, cv, keyOf, live = false, no
     const embers: Ember[] = [];
     const wisps: Wisp[] = [];
     let energy = 0, lastNow = -1;
+    // the notes' time at the last frame read: the video's, or `clock`'s live
+    let noteBefore: number | null = null;
     // the chord on screen: its name and colour, where, when it came and when it stopped sounding
     let shownChord = "";
     let chord: { name: string; hue: number; at: Pt; from: number; until: number } | null = null;
@@ -156,6 +163,9 @@ export default function NeckCvView({ video, markers, cv, keyOf, live = false, no
         const now = performance.now() / 1000, dt = lastNow < 0 ? 0 : Math.min(0.1, now - lastNow);
         lastNow = now;
         const set = settings.current;
+        // the notes' time now: the video's, or live the page's clock (null: the tool is stopped, so the notes heard count)
+        const noteT = clockRef.current ? clockRef.current() : video.currentTime;
+        const onClock = !!clockRef.current && noteT !== null;
         const wantHands = set.notes || set.fire || set.pulse;
         if (wantHands && !hand && !handLoading) {
           handLoading = true;
@@ -163,8 +173,9 @@ export default function NeckCvView({ video, markers, cv, keyOf, live = false, no
         }
 
         if (video.currentTime !== lastTime) {
-          const before = lastTime;
           lastTime = video.currentTime;
+          const before = noteBefore;
+          noteBefore = noteT;
           k = Math.min(1, READ_SIDE / Math.max(w, h));
           const rw = Math.round(w * k), rh = Math.round(h * k);
           if (scratch.width !== rw || scratch.height !== rh) { scratch.width = rw; scratch.height = rh; }
@@ -185,9 +196,11 @@ export default function NeckCvView({ video, markers, cv, keyOf, live = false, no
           }
 
           // notes heard: a take's as the video passes them (not on a seek), live ones from the sound
-          const passed = before >= 0 && lastTime > before && lastTime - before < 0.5
-            ? (timed.current ?? []).filter((x) => x.start > before && x.start <= lastTime).map((x) => ({ midi: x.midi as number | null, level: 0.7, at: x.string !== undefined && x.fret !== undefined ? { string: x.string, fret: x.fret } : null })) : [];
-          for (const p of [...passed, ...picks.current.splice(0).map((x) => ({ ...x, at: null }))]) {
+          const passed = before !== null && noteT !== null && noteT > before && noteT - before < 0.5
+            ? (timed.current ?? []).filter((x) => x.start > before && x.start <= noteT).map((x) => ({ midi: x.midi as number | null, level: 0.7, at: x.string !== undefined && x.fret !== undefined ? { string: x.string, fret: x.fret } : null })) : [];
+          // on a running clock the notes are the tool's, so what the sound gives is dropped
+          const picked = picks.current.splice(0).map((x) => ({ ...x, at: null }));
+          for (const p of [...passed, ...(onClock ? [] : picked)]) {
             energy = Math.min(1, energy + 0.12 + 0.25 * p.level);
             if (p.midi === null) continue;
             const place = p.at ?? guessPlace(p.midi, fingers);
@@ -382,7 +395,7 @@ export default function NeckCvView({ video, markers, cv, keyOf, live = false, no
         }
 
         // a take's layers, on the video's clock: under Pick pulse, the coming notes and the chord shapes
-        const take = timed.current, t = video.currentTime;
+        const take = noteT === null ? undefined : timed.current, t = noteT ?? 0;
         const gap = Math.hypot(n.strings[1].a.x - n.strings[0].a.x, n.strings[1].a.y - n.strings[0].a.y) || 12;
         const placeOf = (x: TakeNote): Place | null => (x.string !== undefined && x.fret !== undefined ? { string: x.string, fret: x.fret } : guessPlace(x.midi, fingers));
         const spotsOf = (list: TakeNote[]) => list.flatMap((x) => { const p = placeOf(x); return p ? [spotOf(n, p.string, p.fret)] : []; });
