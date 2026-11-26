@@ -190,12 +190,12 @@ export function Tour({ steps, root, open, onClose }: { steps: TourStep[]; root?:
   return createPortal(
     <div className="fixed inset-0 z-[2200]">
       {/* swallows clicks on the dimmed page; the dimming itself is the lit box's huge shadow (or this layer, when there is no box) */}
-      <div aria-hidden className={`absolute inset-0 ${rect ? "" : "bg-black/65"}`} />
+      <div aria-hidden className={`absolute inset-0 ${rect ? "" : "bg-black/40"}`} />
       {rect && (
         <div
           aria-hidden
           style={{ top: rect.top, left: rect.left, width: rect.width, height: rect.height }}
-          className="pointer-events-none fixed rounded-xl shadow-[0_0_0_9999px_rgb(0_0_0/0.65)] outline-2 outline-sky-400"
+          className="pointer-events-none fixed rounded-xl shadow-[0_0_0_9999px_rgb(0_0_0/0.4)] outline-2 outline-sky-400"
         />
       )}
       <div
