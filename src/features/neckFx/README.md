@@ -13,10 +13,6 @@ with the effects in the picture. `bare` hides the status line for that.
   typed into **Markers** as `id@fret`: fret N is the middle of fret space N, level with the dot inlays; fret 0 is the nut, with
   the marker's size after a slash when its edge is by the nut (`0@0/25`), and how far that edge is past the nut after a plus
   (`0@0/30+8`, in mm).
-- **Big dots** (`neck-dots-strat-big-a3.pdf`, printed by `scripts/neck-dots-big.mjs`): for a 25.5" neck, two dots for each
-  fret space, one for the lower half of the board (green) and one for the upper (cyan), each 70% of its fret space (7 to 20 mm),
-  labelled with its fret and mm from the nut, landmark frets in their colour; three kits and a calibration card on one A3 page.
-  For trying out; no reader reads them yet.
 - **Hands**: MediaPipe Hand Landmarker, its runtime and model fetched from jsDelivr and Google storage on first use.
 - **The grid** (`model/grid.ts`): a straight line through the placed markers seen, fitted to where a 25.5" scale puts their
   frets. No perspective and no strings yet: it gives the fret along the neck only. Two placed markers in view are enough.
