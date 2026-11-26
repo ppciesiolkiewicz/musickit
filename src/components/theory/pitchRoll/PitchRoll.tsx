@@ -80,7 +80,7 @@ export default function PitchRoll() {
             <span className="text-sm text-slate-400">Highlight scale:</span>
             <PianoSettings look="inline" tonicPc={tonicPc} scale={scale} onChange={changeKey} />
           </div>
-          <ToolSettings accuracy volume={false} />
+          <ToolSettings accuracy />
           <div className="flex min-w-[7.5rem] items-baseline gap-2 tabular-nums" aria-live="polite">
             <span className={`text-2xl font-semibold ${heard ? "text-slate-100" : "text-slate-600"}`}>{heard ? midiToName(heard.midi) : "–"}</span>
             {heard && (
