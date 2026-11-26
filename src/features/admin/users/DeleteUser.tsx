@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Modal, toast } from "@/components/ui";
+import { Modal, onError, ShownError, errorText, toast } from "@/components/ui";
 import type { UserFootprint } from "@/features/account/server/repo";
 import { deleteLines } from "./deleteLines";
 import { DELETE_FAILED, deleteMessage, LOAD_FAILED } from "./messages";
@@ -10,20 +10,16 @@ import { DELETE_FAILED, deleteMessage, LOAD_FAILED } from "./messages";
 const BTN = "inline-flex cursor-pointer items-center rounded-lg border px-3 py-1 text-xs font-medium disabled:cursor-default disabled:opacity-50";
 
 async function call(url: string, method: "GET" | "DELETE", fallback: string): Promise<{ footprint?: UserFootprint }> {
-  let res: Response;
-  try {
-    res = await fetch(url, { method, cache: "no-store", signal: AbortSignal.timeout(15_000) });
-  } catch {
-    throw new Error(fallback);
-  }
+  const res = await fetch(url, { method, cache: "no-store", signal: AbortSignal.timeout(15_000) });
   const body = (await res.json().catch(() => ({}))) as { footprint?: UserFootprint; error?: string };
-  if (!res.ok) throw new Error(deleteMessage(body.error, fallback));
+  if (!res.ok) throw new ShownError(deleteMessage(body.error, fallback));
   return body;
 }
 
 /**
  * Delete on a row of /admin/admin/users: opens a question that lists what goes with the account (`GET
  * /api/admin/users/<id>`), and deletes it all on Delete account (`DELETE`), then reloads the list. Not on your own row.
+ * A failure is said in the question and as a notice (`onError`): the route's refusal by name, else what failed.
  */
 export default function DeleteUser({ userId, name }: { userId: string; name: string }) {
   const router = useRouter();
@@ -41,7 +37,8 @@ export default function DeleteUser({ userId, name }: { userId: string; name: str
     try {
       setFootprint((await call(url, "GET", LOAD_FAILED)).footprint ?? null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : LOAD_FAILED);
+      setError(errorText(e, LOAD_FAILED));
+      onError(e, LOAD_FAILED);
     } finally {
       setBusy(false);
     }
@@ -56,7 +53,8 @@ export default function DeleteUser({ userId, name }: { userId: string; name: str
       toast(`Deleted ${name}'s account.`);
       router.refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : DELETE_FAILED);
+      setError(errorText(e, DELETE_FAILED));
+      onError(e, DELETE_FAILED);
     } finally {
       setBusy(false);
     }

@@ -1,8 +1,8 @@
 import { and, count, desc, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { authTokens, blockOwners, identities, messages, messageThreads, payments, planClaims, planDayTimes, planRequests, plans, progressEntries, reminders, sessions, shares, teacherInvites, teacherStudents, userDocuments, users, userVoices, videos } from "@/lib/db/schema";
+import { authTokens, identities, payments, planRequests, plans, sessions, teacherInvites, teacherStudents, users } from "@/lib/db/schema";
 import type { Plan } from "../plans";
-import type { AuthRepo, InviteRow, TokenRow } from "./repo";
+import type { AuthRepo, InviteRow, TokenRow, UserFootprint } from "./repo";
 
 const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, permissions: users.permissions, planId: users.planId, billing: users.billing, paymentExempt: users.paymentExempt, planEndsAt: users.planEndsAt, stripeCustomerId: users.stripeCustomerId, stripeSubscriptionId: users.stripeSubscriptionId, subscriptionStatus: users.subscriptionStatus, emailUpdatesAt: users.emailUpdatesAt, termsAcceptedAt: users.termsAcceptedAt, termsVersion: users.termsVersion, createdAt: users.createdAt };
 
@@ -194,50 +194,31 @@ export function drizzleRepo(db: Db): AuthRepo {
     async userFootprint(id) {
       const [user] = await db.select(userCols).from(users).where(eq(users.id, id)).limit(1);
       if (!user) return null;
-      const n = db.$count.bind(db);
-      const [sessionsN, identitiesN, tokensN, invitesN, studentsN, teacherN, planRequestN, docs, progressN, dayTimesN, videosN, sharesN, planClaimsN, threadsN, messagesN, voiceN, reminderN, blocksN, paymentsN] = await Promise.all([
-        n(sessions, eq(sessions.userId, id)),
-        n(identities, eq(identities.userId, id)),
-        n(authTokens, eq(authTokens.email, user.email)),
-        n(teacherInvites, eq(teacherInvites.claimedBy, id)),
-        n(teacherStudents, eq(teacherStudents.teacherId, id)),
-        n(teacherStudents, eq(teacherStudents.studentId, id)),
-        n(planRequests, eq(planRequests.userId, id)),
-        db.select({ kind: userDocuments.kind }).from(userDocuments).where(eq(userDocuments.userId, id)).orderBy(userDocuments.kind),
-        n(progressEntries, eq(progressEntries.userId, id)),
-        n(planDayTimes, eq(planDayTimes.userId, id)),
-        n(videos, eq(videos.userId, id)),
-        n(shares, eq(shares.userId, id)),
-        n(planClaims, eq(planClaims.userId, id)),
-        n(messageThreads, eq(messageThreads.userId, id)),
-        db.select({ n: count() }).from(messages).innerJoin(messageThreads, eq(messageThreads.id, messages.threadId)).where(eq(messageThreads.userId, id)).then(([r]) => r?.n ?? 0),
-        n(userVoices, eq(userVoices.userId, id)),
-        n(reminders, eq(reminders.userId, id)),
-        n(blockOwners, eq(blockOwners.userId, id)),
-        n(payments, eq(payments.userId, id)),
-      ]);
-      return {
-        user,
-        sessions: sessionsN,
-        identities: identitiesN,
-        tokens: tokensN,
-        invites: invitesN,
-        students: studentsN,
-        teacher: teacherN,
-        planRequest: planRequestN,
-        documents: docs.map((d) => d.kind),
-        progress: progressN,
-        dayTimes: dayTimesN,
-        videos: videosN,
-        shares: sharesN,
-        planClaims: planClaimsN,
-        threads: threadsN,
-        messages: messagesN,
-        voice: voiceN,
-        reminder: reminderN,
-        blocks: blocksN,
-        payments: paymentsN,
-      };
+      // One statement, not a query per table: run side by side, many queries stall on Supabase's transaction pooler.
+      const rows = (await db.execute(sql`
+        select
+          (select count(*)::int from sessions where user_id = ${id}) as sessions,
+          (select count(*)::int from identities where user_id = ${id}) as identities,
+          (select count(*)::int from auth_tokens where email = ${user.email}) as tokens,
+          (select count(*)::int from teacher_invites where claimed_by = ${id}) as invites,
+          (select count(*)::int from teacher_students where teacher_id = ${id}) as students,
+          (select count(*)::int from teacher_students where student_id = ${id}) as teacher,
+          (select count(*)::int from plan_requests where user_id = ${id}) as "planRequest",
+          (select coalesce(array_agg(kind order by kind), '{}') from user_documents where user_id = ${id}) as documents,
+          (select count(*)::int from progress_entries where user_id = ${id}) as progress,
+          (select count(*)::int from plan_day_times where user_id = ${id}) as "dayTimes",
+          (select count(*)::int from videos where user_id = ${id}) as videos,
+          (select count(*)::int from shares where user_id = ${id}) as shares,
+          (select count(*)::int from plan_claims where user_id = ${id}) as "planClaims",
+          (select count(*)::int from message_threads where user_id = ${id}) as threads,
+          (select count(*)::int from messages m join message_threads t on t.id = m.thread_id where t.user_id = ${id}) as messages,
+          (select count(*)::int from user_voices where user_id = ${id}) as voice,
+          (select count(*)::int from reminders where user_id = ${id}) as reminder,
+          (select count(*)::int from block_owners where user_id = ${id}) as blocks,
+          (select count(*)::int from payments where user_id = ${id}) as payments
+      `)) as unknown as Omit<UserFootprint, "user">[];
+      const r = rows[0];
+      return { user, ...r };
     },
     async purgeUser(id) {
       return db.transaction(async (tx) => {
