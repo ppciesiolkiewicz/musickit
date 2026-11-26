@@ -19,6 +19,8 @@ import type { VideoId } from "@/features/intro/data";
 import { FOUNDING_OFFER, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
 import { FIRST_STUDENTS, FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 import { SHOW_NOTES } from "@/lib/notesHidden";
+import { ARTICLES } from "@/features/articles";
+import ArticleCard from "@/features/articles/ui/ArticleCard";
 
 /*
  * The two home pages, / (solo musicians) and /schools (music schools), in one shape: the Practice plan first, then
@@ -430,10 +432,23 @@ export function SchoolsEnding() {
   );
 }
 
-/** The solo musicians' page's ending: why attunr exists, then the plan again. */
+/** The solo musicians' page's ending: the guides at /learn to try with no account, why attunr exists, then the plan again. */
 export function PlayersEnding() {
   return (
     <>
+      <section id="guides" aria-labelledby="guides-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-xl">
+            <Eyebrow tone="text-amber-300">Try it now</Eyebrow>
+            <H2 id="guides-h">Sing an exercise <span className="ls-accent italic text-amber-300">right here.</span></H2>
+            <p className="mt-4 text-slate-300">Our guides have exercises on the page. Start the mic and your voice is drawn over the note as you sing. No account needed.</p>
+          </div>
+          <Link href="/learn" className={SECONDARY}><Icon name="book-open" size={16} /> All guides</Link>
+        </div>
+        <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {ARTICLES.map((a) => <li key={a.slug}><ArticleCard article={a} heading="h3" /></li>)}
+        </ul>
+      </section>
       <section aria-labelledby="story-h" className="sect-rule py-12 sm:py-16">
         <div className="mx-auto max-w-3xl">
           <Eyebrow tone="text-amber-300">Why I built attunr</Eyebrow>

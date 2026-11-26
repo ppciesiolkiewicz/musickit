@@ -3,9 +3,9 @@ import type { Article } from "../model";
 export const vocalWarmUps: Article = {
   slug: "vocal-warm-ups",
   title: "Vocal warm-ups for beginners: a five-minute routine",
-  metaTitle: "Vocal Warm-ups for Beginners: a 5-Minute Routine with the Mic · attunr",
-  description: "A gentle five-minute vocal warm-up on this page: breathing, a hiss and a buzz, lip rolls, a hum that opens into a note, and the five-tone scale.",
-  intro: "Five minutes, six warm-ups, all on this page. Breath first, then buzz, then sound.",
+  metaTitle: "Vocal Warm-ups for Beginners: Sing Along on the Page · attunr",
+  description: "A five-minute vocal warm-up to sing right on this page, your voice drawn live as you sing: breathing, a buzz, lip rolls, a hum, the five-tone scale.",
+  intro: "Five minutes, six warm-ups, sung right here with your mic. Breath first, then buzz, then sound.",
   updated: "2026-11-26",
   sings: true,
   blocks: [

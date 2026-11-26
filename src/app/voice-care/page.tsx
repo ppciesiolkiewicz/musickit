@@ -19,7 +19,7 @@ const SECTIONS: LegalSection[] = [
     title: "Before you sing",
     body: (
       <ul className="list-disc space-y-1 pl-5">
-        <li>Warm up first with a gentle hum, starting low and quiet.</li>
+        <li>Warm up first with a gentle hum, starting low and quiet. The <A href="/learn/vocal-warm-ups">five-minute vocal warm-up</A> takes you through one.</li>
         <li>Don&apos;t sing when you&apos;re hoarse, losing your voice or have a sore throat.</li>
       </ul>
     ),

@@ -7,8 +7,10 @@ import { JoinCard } from "@/features/articles/ui/ArticleView";
 
 export const metadata: Metadata = {
   title: "Learn: singing and guitar practice guides · attunr",
-  description: "Short guides to practicing singing and guitar, with exercises you can do on the page.",
+  description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live.",
   alternates: { canonical: "/learn" },
+  openGraph: { type: "website", siteName: "attunr", url: "/learn", title: "Learn: singing and guitar practice guides", description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live." },
+  twitter: { card: "summary_large_image", title: "Learn: singing and guitar practice guides", description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live." },
 };
 
 /** The public articles (`features/articles`), one card each. */

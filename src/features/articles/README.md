@@ -2,7 +2,9 @@
 
 Public articles at `/learn/<slug>`, each written for one search a persona makes (task NEW21 in `tasks.txt`; who ranks for
 what is on `/admin/dev/search`). Anyone can read them without logging in (`/learn` is in `MARKETING`, `src/lib/publicPaths.ts`),
-and they are in the sitemap (`src/app/sitemap.ts`) and linked as **Learn** in the site footer. `/learn` lists them as cards, then the
+and they are in the sitemap (`src/app/sitemap.ts`, dated by each article's `updated`). They are linked as **Learn** in the site
+footer, as cards in the home page's **Try it now** section (`PlayersEnding`), from the FAQ ("Can I try attunr before I sign up?")
+and from `/voice-care`. `/learn` lists them as cards, then the
 join card.
 
 An article does what the app's pages do: it ends in something to sing or play. Its exercises are the plan's own tools (`Tool`
@@ -25,8 +27,12 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `ui/ArticleCard.tsx`: an article as a card: title, intro, how many exercises it has (or how many minutes it takes to read, from
   `stats.ts`, `articleStats`), **Uses your mic** when it `sings`, and **Read**. On `/learn` and under each article's **More guides**.
 - `ui/ArticleView.tsx`: the body, ending on the updated date, `JoinCard` (the line asking a reader to join, and **Start your plan** to `/plan`, the home page's main button; `/learn` shows it too) and **More guides** (two other articles' cards and **All guides** back to `/learn`). Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`. Both draw the home and demo pages' glass shapes and side glows behind the column (`GlassShapes` as the shell's `decor`), and each exercise and the join card are `metal-panel` cards.
+- Search and shared links: `src/app/learn/[slug]/page.tsx` gives each article its own `openGraph` and `twitter` (left out, a page
+  takes the root layout's, the home page's title with it) and its JSON-LD, `jsonLd.ts` (`articleJsonLd`: an `Article` published
+  by the root layout's `#organization`, and the breadcrumb Home › Learn › the article). `opengraph-image.tsx` beside it draws the
+  link preview: the title, the intro and, when the article `sings`, the line that it is sung on the page.
 - `articles.test.ts`: unique slugs, the cards' exercise counts, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search
-  description of 160 characters or less, `/learn/` links to articles that exist, and "practice", never "practise".
+  description of 160 characters or less, the JSON-LD, `/learn/` links to articles that exist, and "practice", never "practise".
 
 ## The articles
 

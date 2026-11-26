@@ -4,6 +4,7 @@ import { describe, it } from "node:test";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "./index";
+import { articleJsonLd } from "./jsonLd";
 import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
 import { articleStats } from "./stats";
 
@@ -43,6 +44,17 @@ describe("articles", () => {
 
   it("VOICE.md's version is ARTICLE_VOICE_VERSION", () => {
     assert.equal(Number(/^version: (\d+)$/m.exec(readFileSync(new URL("./VOICE.md", import.meta.url), "utf8"))?.[1]), ARTICLE_VOICE_VERSION);
+  });
+
+  it("give search engines an Article and its breadcrumb, published by the site's organization", () => {
+    for (const a of ARTICLES) {
+      const [article, crumbs] = articleJsonLd(a, "https://x.test")["@graph"];
+      assert.equal(article.headline, a.title);
+      assert.equal(article.dateModified, a.updated);
+      assert.equal(article.image, `https://x.test/learn/${a.slug}/opengraph-image`);
+      assert.deepEqual(article.publisher, { "@id": "https://x.test/#organization" });
+      assert.deepEqual(crumbs.itemListElement?.map((c) => c.item), ["https://x.test/", "https://x.test/learn", `https://x.test/learn/${a.slug}`]);
+    }
   });
 
   it("write practice, not practise", () => {

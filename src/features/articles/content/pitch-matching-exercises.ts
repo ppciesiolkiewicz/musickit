@@ -3,8 +3,8 @@ import type { Article } from "../model";
 export const pitchMatchingExercises: Article = {
   slug: "pitch-matching-exercises",
   title: "Pitch matching exercises for singers",
-  metaTitle: "Pitch Matching Exercises for Singers, with Live Feedback · attunr",
-  description: "Six pitch matching exercises to sing right here, your pitch drawn live over the note: a held Do, a slide, the five-tone scale, agility runs, sing-back.",
+  metaTitle: "Pitch Matching Exercises: Sing and See Your Pitch Live · attunr",
+  description: "Sing into your mic and watch your pitch drawn live over the note, then nudge it until it's right on. Six exercises in your browser, nothing to install.",
   intro: "Sing a note, see where you landed, nudge it. Six exercises you can do right on this page.",
   updated: "2026-11-26",
   sings: true,
