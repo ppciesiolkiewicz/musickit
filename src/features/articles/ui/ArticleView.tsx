@@ -131,7 +131,8 @@ export default function ArticleView({ article }: { article: Article }) {
   const marked = markArticle(article);
   const roots = blockRoots(article);
   const body = (
-    <div className="flex flex-col gap-4 leading-relaxed">
+    // the plan reader's text is 18px from sm up, its inline note dots 1.9em of that: the same 34px here on 16px text
+    <div className="flex flex-col gap-4 leading-relaxed sm:[--note-dot:2.15em]">
       {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} root={roots[i]} /></Fragment>)}
       <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
       <JoinCard />
