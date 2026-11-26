@@ -16,6 +16,7 @@ import { ArticleLabels, LabelSwitch } from "./ArticleLabels";
 import NamesChart from "./NamesChart";
 import PlayerControls from "./PlayerControls";
 import TempoTool from "./TempoTool";
+import ReadFirst from "./ReadFirst";
 
 /** A link to another guide opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
 const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("#"));
@@ -140,6 +141,7 @@ export default function ArticleView({ article }: { article: Article }) {
   const body = (
     // the plan reader's text is 18px from sm up, its inline note dots 1.9em of that: the same 34px here on 16px text
     <div className="flex flex-col gap-4 leading-relaxed sm:[--note-dot:2.15em]">
+      <ReadFirst slugs={article.requires} />
       {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} root={roots[i]} /></Fragment>)}
       {dots && <LabelSwitch />}
       <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>

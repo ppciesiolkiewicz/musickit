@@ -23,6 +23,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   its note shows the meaning with no link, since the course needs a login. A word the glossary marks wrongly (a verb such as
   "beat" or "skip") is reworded in the article, not dropped from the glossary. `ArticleSeed`: what an article was
   written from.
+- `requires` on an article: the guides to read before it, by slug, linked above its first block by `ui/ReadFirst.tsx` ("Read this first: …"). Only what the article leans on, not every guide it mentions.
 - `content/<slug>.ts`: one article each. `index.ts`: `ARTICLES`, in the order `/learn` lists them, and `articleOf`.
 - `seeds/<slug>.json`: the article's seed info: the search it is written for, the persona, the date, the model, the versions
   it was written to (the teaching documents', `DOC_VERSIONS`, and the voice's, `VOICE.md`), the author's own notes verbatim, the library

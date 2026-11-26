@@ -8,6 +8,7 @@ export const majorAndMinorScalesGuitar: Article = {
   intro: "A visual, interactive look at A major and A minor on the whole neck, with a few small islands of notes to play and hear. Part 1 of a series on knowing one key all over the neck.",
   updated: "2026-11-26",
   sings: false,
+  requires: ["intervals-and-solfege"],
   topics: ["guitar", "theory"],
   frets: 12,
   blocks: [

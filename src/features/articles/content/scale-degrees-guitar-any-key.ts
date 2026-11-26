@@ -8,6 +8,7 @@ export const scaleDegreesGuitarAnyKey: Article = {
   intro: "A visual, interactive drill: one small island of notes, Do Re Do, found all over the neck in A minor and then in E minor. Part 2 of a series on knowing one key all over the neck.",
   updated: "2026-11-26",
   sings: false,
+  requires: ["major-and-minor-scales-guitar"],
   topics: ["guitar", "theory"],
   frets: 12,
   blocks: [

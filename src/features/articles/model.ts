@@ -64,6 +64,8 @@ export interface Article {
    * the bottom of the page (`ui/ArticleLabels.tsx`) switches it. Absent: `articleLabels`, Intervals for a guitar article, else Solfège
    */
   labels?: LabelSystem;
+  /** the guides to read before this one, by slug, linked above the first block ("Read this first"); absent: none */
+  requires?: string[];
   /** every guitar neck on the page ends by this fret; absent: the tools' own */
   frets?: number;
   blocks: ArticleBlock[];
