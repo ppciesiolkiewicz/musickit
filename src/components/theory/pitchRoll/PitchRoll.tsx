@@ -76,7 +76,9 @@ export default function PitchRoll() {
       <FullScreenFrame full={full} onClose={closeFull} label="Pitch roll">
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
           <MicButton on={on} onClick={toggle} />
-          <div className="flex items-baseline gap-2 tabular-nums" aria-live="polite">
+          <PianoSettings look="inline" tonicPc={tonicPc} scale={scale} onChange={changeKey} />
+          <ToolSettings accuracy />
+          <div className="flex min-w-[7.5rem] items-baseline gap-2 tabular-nums" aria-live="polite">
             <span className={`text-2xl font-semibold ${heard ? "text-slate-100" : "text-slate-600"}`}>{heard ? midiToName(heard.midi) : "–"}</span>
             {heard && (
               <span className={`text-sm ${Math.abs(heard.cents) <= cents ? "text-emerald-300" : "text-sky-300"}`}>
@@ -84,9 +86,7 @@ export default function PitchRoll() {
               </span>
             )}
           </div>
-          <div className="ml-auto flex items-center gap-2">
-            <PianoSettings look="inline" tonicPc={tonicPc} scale={scale} onChange={changeKey} />
-            <ToolSettings accuracy />
+          <div className="ml-auto">
             <FullScreenButton full={full} onClick={() => setFull(!full)} description="Enlarges the piano roll. Esc closes it." />
           </div>
         </div>

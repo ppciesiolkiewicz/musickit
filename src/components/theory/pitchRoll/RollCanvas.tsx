@@ -43,8 +43,8 @@ function readColours() {
 
 /**
  * The pitch roll's drawing, on a canvas: every key of the piano as a row (the key and scale's keys and rows tinted
- * yellow), the held notes as bars, the pitch as a line and a dot at the "now" line. Scrolls up and down, following the
- * pitch when it leaves the view (unless the player scrolled in the last few seconds). Tap a key to hear it. Keyed by
+ * yellow), the held notes as bars, the pitch as a line and a dot at the "now" line. It shows the rows that fit its box
+ * and never scrolls by hand: the view glides up or down after the pitch when it nears an edge. Tap a key to hear it. Keyed by
  * full screen in the parent, so it mounts afresh in the modal; the readings it draws live in the parent.
  */
 export default function RollCanvas({ full, live, samples, held, cents, keyContext, scaleName }: {
@@ -59,30 +59,34 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
   scaleName: string;
 }) {
   const rowH = full ? FULL_ROW_H : ROW_H;
-  const height = (HI - LO + 1) * rowH;
-  const scroller = useRef<HTMLDivElement>(null);
+  const box = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const [width, setWidth] = useState(0);
+  const [{ width, height }, setSize] = useState({ width: 0, height: 0 });
   const colours = useRef<ReturnType<typeof readColours> | null>(null);
-  const lastScroll = useRef(0);
+  // the note in the middle of the view, fractional while it glides; it starts on the note last heard, or E4
+  const centre = useRef<number | null>(null);
+  const goal = useRef<number | null>(null);
 
   useLayoutEffect(() => {
-    const el = scroller.current;
+    const el = box.current;
     if (!el) return;
-    // start on the note last heard, or with middle C in the middle
-    const at = samples.current.findLast((s) => s.midi !== null)?.midi ?? 60;
-    el.scrollTop = (HI - at) * rowH - el.clientHeight / 2;
-    const ro = new ResizeObserver(([e]) => setWidth(Math.round(e.contentRect.width)));
+    const ro = new ResizeObserver(([e]) => setSize({ width: Math.round(e.contentRect.width), height: Math.round(e.contentRect.height) }));
     ro.observe(el);
-    const mark = () => { lastScroll.current = performance.now(); };
-    el.addEventListener("wheel", mark, { passive: true });
-    el.addEventListener("touchmove", mark, { passive: true });
-    return () => {
-      ro.disconnect();
-      el.removeEventListener("wheel", mark);
-      el.removeEventListener("touchmove", mark);
-    };
-  }, [rowH, samples]);
+    return () => ro.disconnect();
+  }, []);
+
+  /** the view's middle note, kept so the view stays inside the piano */
+  const clampCentre = useCallback((m: number) => {
+    const half = height / rowH / 2;
+    return Math.min(HI + 0.5 - half, Math.max(LO - 0.5 + half, m));
+  }, [height, rowH]);
+  /** the midi number at the top edge of the view: row m spans (top - m) to (top - m + 1) rows down */
+  const topOf = useCallback(() => {
+    centre.current ??= clampCentre(Math.round(samples.current.findLast((s) => s.midi !== null)?.midi ?? 64));
+    // a resize can leave the middle past the piano's ends
+    centre.current = clampCentre(centre.current);
+    return centre.current + height / rowH / 2 - 0.5;
+  }, [clampCentre, height, rowH, samples]);
 
   const draw = useCallback((now: number) => {
     const c = canvas.current;
@@ -105,7 +109,8 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     const tuned = (m: number) => Math.abs(m - Math.round(m)) * 100 <= cents;
     const now_ = samples.current.at(-1)?.midi ?? null;
     const liveKey = now_ === null ? null : Math.round(now_);
-    const yOf = (m: number) => (HI - m) * rowH;
+    const top = topOf();
+    const yOf = (m: number) => (top - m) * rowH;
     const label = `600 ${full ? 13 : 11}px ui-sans-serif, system-ui, sans-serif`;
 
     // the rows, as the interval singer's roll draws them: white keys' rows lighter, a faint line under each; the scale's
@@ -225,7 +230,7 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
       g.stroke();
     }
     g.restore();
-  }, [width, height, rowH, full, keyContext, cents, samples, held]);
+  }, [width, height, rowH, full, keyContext, cents, samples, held, topOf]);
 
   // while the mic is on: draw every frame and follow the pitch up and down the roll
   useEffect(() => {
@@ -235,20 +240,21 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
     const tick = () => {
       const now = performance.now();
       const midi = samples.current.at(-1)?.midi ?? null;
-      const el = scroller.current;
-      if (el && midi !== null && now - lastScroll.current > 2500) {
-        const y = (HI - midi) * rowH;
-        const margin = el.clientHeight * 0.2;
-        if (y < el.scrollTop + margin || y > el.scrollTop + el.clientHeight - margin) {
-          el.scrollTo({ top: y - el.clientHeight / 2, behavior: "smooth" });
-        }
+      // the pitch nearing an edge (outside the middle 60%) sets a new middle; the view glides there
+      const half = height / rowH / 2;
+      const c = centre.current;
+      if (midi !== null && c !== null && Math.abs(midi - c) > half * 0.6) goal.current = clampCentre(midi);
+      if (c !== null && goal.current !== null) {
+        const d = goal.current - c;
+        centre.current = Math.abs(d) < 0.02 ? goal.current : c + d * 0.12;
+        if (centre.current === goal.current) goal.current = null;
       }
       draw(now);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [live, draw, rowH, samples]);
+  }, [live, draw, rowH, height, samples, clampCentre]);
 
   // still: draw once when the key, the scale or the size changes
   useEffect(() => {
@@ -258,12 +264,12 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
   const hear = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
     if (e.clientX - r.left > KEYS_W) return;
-    const m = HI - Math.floor((e.clientY - r.top) / rowH);
+    const m = Math.ceil(topOf() - (e.clientY - r.top) / rowH);
     if (m >= LO && m <= HI) playSequence([{ note: m, at: 0, hold: 700 }]);
   };
 
   return (
-    <div ref={scroller} className={`overflow-y-auto overscroll-contain rounded-2xl border border-slate-800 bg-slate-950 ${full ? "min-h-0 flex-1" : "h-[min(75vh,640px)]"}`}>
+    <div ref={box} className={`overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 ${full ? "min-h-0 flex-1" : "h-[min(75vh,640px)]"}`}>
       <canvas
         ref={canvas}
         onClick={hear}
