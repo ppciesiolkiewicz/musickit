@@ -29,15 +29,15 @@ export const scaleDegreesGuitarAnyKey: Article = {
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "a", islands: { notes: ["1", "2"] } } },
 
     { type: "exercise", title: "2. Do Re Do in E minor", lines: [
-      "Now the E minor scale. Do is E and Re is F♯, and the islands sit on the same frets as in A minor, one string lower.",
+      "Now the E minor scale. Do is E and Re is F♯. Island 1 sits on the same frets as Island 1 in A minor, one string lower.",
       "Press Island 1 below, then play it and sing Do Re Do. Then play the first island of A minor above and this one, one after the other.",
       "Listen for the step up and back: the same in both keys, only the starting note has moved.",
     ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "e", islands: { notes: ["1", "2"] } } },
 
     { type: "exercise", title: "3. Add the ♭7 under Do", lines: [
       "A bigger island in E minor: D, E and F♯, the ♭7 under Do, then Do and Re.",
-      "Press Island 1 below to hear it: the ♭7, Do, Re and back to Do. Play it on your guitar. Then do the same with Island 2 and Island 3.",
-    ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "e", islands: { notes: ["b7", "1", "2"] } }, after: [
+      "Press Island 1 below to hear it: the ♭7, Do, Re and back to Do. Play it on your guitar. Then do the same with Island 2.",
+    ], tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: "e", islands: { notes: ["b7", "1", "2"], count: 2 } }, after: [
       "Practice until you can play an island from any red-circled E without counting frets.",
     ] },
 

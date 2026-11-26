@@ -21,7 +21,7 @@
     "npm run -s theory -- scale E minor",
     "npm run -s theory -- intervals A minor --interval 2 --strings 66 --frets 0-17",
     "npm run -s theory -- intervals E minor --interval 2 --strings 66 --frets 0-3",
-    "Islands drawn by the scale-neck's own findIslands (src/features/exercises/basics/scale-neck/islands.ts): Do Re in A minor at A string 0-2, D string 7-9, G string 14-16; in E minor at low E 0-2, A string 7-9, D string 14-16 (same frets, one string lower); ♭7 1 2 in E minor at B 3 / e 0-2, G 7-11, B 15 / e 14"
+    "Islands drawn by the scale-neck's own findIslands (src/features/exercises/basics/scale-neck/islands.ts): islands stay by fret 7 when they all fit there, never past 12. Do Re in A minor at A string 0-2, low E 5-7, B string 10-12; in E minor at low E 0-2, B string 5-7, G string 9-11 (only Island 1 on the same frets, one string lower); ♭7 1 2 in E minor (2 islands) at B 3 / e 0-2, G 7-11"
   ],
   "sources": [
     "/admin/dev/search"

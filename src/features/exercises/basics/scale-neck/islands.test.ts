@@ -17,19 +17,25 @@ describe("scale-neck islands", () => {
   });
 
   it("find three islands spread along the neck, none sharing a fret, each with the root and its notes in reach", () => {
-    const islands = findIslands(neck("natural-minor-aeolian", A), [10, 0, 2]);
+    const islands = findIslands(neck("natural-minor-aeolian", A), [0, 2]);
     assert.equal(islands.length, 3);
     for (const [k, i] of islands.entries()) {
-      assert.deepEqual(i.cells.map((c) => c.midi - i.root.midi), [-2, 0, 2]);
+      assert.deepEqual(i.cells.map((c) => c.midi - i.root.midi), [0, 2]);
       assert.ok(i.to - i.from <= 4);
       if (k) assert.ok(i.from > islands[k - 1].to);
     }
-    assert.ok(islands[0].from <= 3 && islands[2].to >= 12, "spread from the nut up the neck");
+    assert.ok(islands[0].from <= 3 && islands[2].to >= 10, "spread from the nut up the neck");
+  });
+
+  it("stay by fret 7 when they all fit there, and never go past fret 12", () => {
+    assert.ok(findIslands(neck("major-ionian", A), [0, 5, 7], 2).every((i) => i.to <= 7));
+    for (const [slug, notes] of [["natural-minor-aeolian", [10, 0, 2]], ["major-ionian", [11, 0, 2]], ["natural-minor-aeolian", [0, 5, 7]]] as const)
+      for (const pc of [0, 4, 7, 9, 11]) assert.ok(findIslands(neck(slug, pc), [...notes]).every((i) => i.to <= 12), `${slug} ${pc}`);
   });
 
   it("ring 1 4 5 in the same places in A major and A minor (guitar strings, 1 = high e : fret)", () => {
     const major = where("major-ionian", A, [0, 5, 7]);
-    assert.deepEqual(major, ["5:0 4:0 4:2", "4:7 3:7 3:9", "3:14 2:15 2:17"]);
+    assert.deepEqual(major, ["5:0 4:0 4:2", "6:5 5:5 5:7", "2:10 1:10 1:12"]);
     assert.deepEqual(where("natural-minor-aeolian", A, [0, 5, 7]), major);
   });
 

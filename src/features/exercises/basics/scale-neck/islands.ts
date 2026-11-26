@@ -48,15 +48,27 @@ export function islandAt(cells: readonly ScaleCell[], root: ScaleCell, steps: re
  * Up to `count` islands of these degrees (semitones above the key, in the order `islandSteps` reads) along the neck, none
  * sharing a fret with another, as far apart as they can be: of every such set, the one with the widest smallest gap
  * between two neighbours, then the one nearest the nut. The same cells and steps give the same islands, so a major and a
- * minor scale on one root ring a shared island (1 4 5) in the same places.
+ * minor scale on one root ring a shared island (1 4 5) in the same places. Islands end by fret 7 when there's room for
+ * `count` of them there, and never past fret 12.
  */
 export function findIslands(cells: readonly ScaleCell[], semis: readonly number[], count = 3): Island[] {
   const steps = islandSteps(semis);
-  const all = cells
+  const found = cells
     .filter((c) => c.semi === 0)
     .map((root) => islandAt(cells, root, steps))
     .filter((i): i is Island => i !== null)
     .sort((a, b) => a.from - b.from || a.to - b.to || a.root.string - b.root.string);
+  // Low on the neck, where a beginner plays: up to fret 7 when that still gives every island, never past 12.
+  const low = found.filter((i) => i.to <= PREFERRED_TOP);
+  const all = pickFrom(low, count).length >= count ? low : found.filter((i) => i.to <= HIGHEST_TOP);
+  return pickFrom(all, count);
+}
+
+/** Islands end by this fret when there's room for them all, and never past `HIGHEST_TOP`. */
+const PREFERRED_TOP = 7;
+const HIGHEST_TOP = 12;
+
+function pickFrom(all: readonly Island[], count: number): Island[] {
   let best: { set: Island[]; gap: number; start: number } | null = null;
   const walk = (set: Island[], next: number) => {
     const gap = set.length < 2 ? 0 : Math.min(...set.slice(1).map((i, k) => i.from - set[k].to));
