@@ -1,0 +1,34 @@
+{
+  "slug": "scale-degrees-guitar-any-key",
+  "query": "scale degrees guitar fretboard",
+  "persona": "guitarist",
+  "written": "2026-11-26",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "This can also start with fitting single root notes, then go to fit double-stops and learn the repeating pattern on the fretboard (show highlighted 2 different 1 4 5 1 2 b7 for minor and same for major) - just 2 or three not overlapping and then other roots just circled in red or something",
+    "add words like visual and interactive",
+    "These are intervals of the scale so try to show that these shapes repeat and then Do Re Do will have the same feeling And then we go to another key soo technicaly But first i want to show major and minor side by side with few islands of notes highlighted (same scale degrees) (or possibly have 2 articles in depth as well as one side by side",
+    "CAGED can also be an article series (relayed by the coordinator, 2026-11-26)"
+  ],
+  "blocks": [],
+  "calculator": [
+    "npm run -s theory -- scale A minor",
+    "npm run -s theory -- scale E minor",
+    "npm run -s theory -- intervals A minor --interval 2 --strings 66 --frets 0-17",
+    "npm run -s theory -- intervals E minor --interval 2 --strings 66 --frets 0-3",
+    "Islands drawn by the scale-neck's own findIslands (src/features/exercises/basics/scale-neck/islands.ts): Do Re in A minor at A string 0-2, D string 7-9, G string 14-16; in E minor at low E 0-2, A string 7-9, D string 14-16 (same frets, one string lower); ♭7 1 2 in E minor at B 3 / e 0-2, G 7-11, B 15 / e 14"
+  ],
+  "sources": [
+    "/admin/dev/search"
+  ],
+  "open": [
+    "Part 2 of the CAGED-in-one-key series; part 1 is major-and-minor-scales-guitar. Planned next: 3. CAGED position by position; 4. how to find chords for a song. Link this one to part 3 once it exists.",
+    "No key selector on the scale-neck: the other key is a second tool, written here.",
+    "Search volume for the query not checked yet."
+  ]
+}

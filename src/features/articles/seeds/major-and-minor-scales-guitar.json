@@ -1,0 +1,38 @@
+{
+  "slug": "major-and-minor-scales-guitar",
+  "query": "major vs minor scale guitar fretboard",
+  "persona": "guitarist",
+  "written": "2026-11-26",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "another article about CAGED in a single scale. These are like 2 articles -> one focuses on learning CAGED position by position with interactive diagrams and second one answers \"How to find chords for a song\" with both minor and major caged and relations between open chords.",
+    "This can also start with fitting single root notes, then go to fit double-stops and learn the repeating pattern on the fretboard (show highlighted 2 different 1 4 5 1 2 b7 for minor and same for major) - just 2 or three not overlapping and then other roots just circled in red or something",
+    "use design skill",
+    "add words like visual and interactive",
+    "These are intervals of the scale so try to show that these shapes repeat and then Do Re Do will have the same feeling And then we go to another key soo technicaly But first i want to show major and minor side by side with few islands of notes highlighted (same scale degrees) (or possibly have 2 articles in depth as well as one side by side",
+    "CAGED can also be an article series (relayed by the coordinator, 2026-11-26)"
+  ],
+  "blocks": [],
+  "calculator": [
+    "npm run -s theory -- scale A major",
+    "npm run -s theory -- scale A minor",
+    "npm run -s theory -- intervals A major --interval 2 --strings 66 --frets 0-17",
+    "npm run -s theory -- intervals A minor --interval 2 --strings 66 --frets 0-17",
+    "npm run -s theory -- intervals A minor --interval 4 --frets 0-17",
+    "Islands drawn by the scale-neck's own findIslands (src/features/exercises/basics/scale-neck/islands.ts, tested in islands.test.ts): 1 4 5 at A string open / D string 7 / G string 14 in both A major and A minor"
+  ],
+  "sources": [
+    "/admin/dev/search"
+  ],
+  "open": [
+    "Part 1 of a CAGED-in-one-key series. Planned next: 2. the islands feel the same in another key; 3. CAGED position by position; 4. how to find chords for a song. Link each to the next once it exists.",
+    "No library block reuses the islands yet: the exercises are scale-neck tools written here (islands is a new scale-neck prop, 2026-11-26).",
+    "The 7 1 2 islands in A major and the ♭7 1 2 islands in A minor share their first two places; the third sits on a different A (A string 12 in major, G string 14 in minor), so the text doesn't say they match.",
+    "Search volume for the query not checked yet."
+  ]
+}

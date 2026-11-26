@@ -52,5 +52,10 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   G major; how each note feels to Pio, and holding a note over a drone like a yoga pose. Then four exercises: each note over
   the C drone, the same in A (staff with a drone), Mi and Sol from Do in C, F or A (`interval-singer`), and naming M2, M3,
   P5 or P8 by ear (`interval-ears`).
+- `major-and-minor-scales-guitar`: part 1 of a series on one key all over the guitar neck (CAGED in one key, task NEW22). A major and
+  A minor on the whole neck, one above the other, with **islands** (the scale-neck's `islands`): the 1st, 4th and 5th framed in the
+  same places in both, then 7 1 2 against ♭7 1 2, the other A notes circled in red, an Island button to hear each group.
+- `scale-degrees-guitar-any-key`: part 2. Do Re Do as the smallest island, in A minor and then in E minor (the same frets, one
+  string lower), then ♭7 1 2 in E minor; links back to part 1 and to `scale-degree-feelings`.
 - `microphone-and-audio-interface-for-singing`: a Shure SM58 and a Focusrite Scarlett Solo, or a 2i2 to plug in more than one
   thing, why direct monitoring matters for singing, and how to plug it together. Not sponsored, and it says so.
