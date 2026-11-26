@@ -11,6 +11,7 @@ import type { PlacedNote } from "@/features/theory/singingMelodies";
 import type { MelodyChord } from "@/features/theory/melodyChords";
 import { PassStart } from "./PassStart";
 import type { Frame } from "./useSingAlong";
+import { IN_TUNE_CENTS } from "@/features/theory/singing";
 import { DOT, PLAYED, camera, inView, judge } from "./view";
 
 const BEAT_W = 56;
@@ -20,6 +21,16 @@ const ROW_H = 18;
 const ROOM = 3;
 const GUTTER = 44;
 const CHORDS_H = 20;
+/** the thinnest a note's bar gets, so a Pro bar can still be seen and clicked */
+const MIN_BAR_H = 3;
+/** a bar this tall or taller has room for its name inside it */
+const LABEL_IN_H = 11;
+
+/**
+ * A note's bar is as tall as the band the voice counts as on it (±`cents`), to the roll's scale: a row is a semitone,
+ * so the line the voice leaves has to stay inside the bar. Easy draws a fat bar, Pro a thin one.
+ */
+const barHeight = (cents: number) => Math.max(MIN_BAR_H, Math.min(ROW_H - 2, ((2 * cents) / 100) * ROW_H));
 
 /**
  * The tune as a DAW's piano roll: a row a semitone (the scale's rows lighter, named in the gutter), each note a bar as
@@ -72,6 +83,8 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
   const colour = DOT[j.fit];
   const inScale = new Map(ladder.notes.map((n) => [((n.midi % 12) + 12) % 12, n]));
   const rows = Array.from({ length: hi - lo + 1 }, (_, k) => hi - k);
+  const barH = barHeight(cents ?? IN_TUNE_CENTS);
+  const labelIn = barH >= LABEL_IN_H;
 
   // the voice's line, broken where it went quiet, kept to what is in view
   let d = "";
@@ -134,8 +147,13 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
                     const col = degreeColour(n.degree);
                     return (
                       <g key={`n${c.i}`} role="button" aria-label={`Play ${n.spelled.name}`} className="cursor-pointer" onClick={() => onNote(c.i)}>
-                        <rect x={x + 1} y={yOf(n.midi) - ROW_H / 2 + 1} width={w} height={ROW_H - 2} rx={3} fill={col} fillOpacity={on ? 0.95 : 0.55} stroke={on ? (j.hit ? DOT.in : "white") : "none"} strokeWidth={1.5} />
-                        {w > 24 && <text x={x + 5} y={yOf(n.midi) + 4} fontSize={11} fontWeight={700} fill="var(--color-slate-950)">{solfege(n.label)}</text>}
+                        {/* the whole row stays clickable however thin the bar */}
+                        <rect x={x + 1} y={yOf(n.midi) - ROW_H / 2} width={w} height={ROW_H} fill="transparent" />
+                        <rect x={x + 1} y={yOf(n.midi) - barH / 2} width={w} height={barH} rx={Math.min(3, barH / 2)} fill={col} fillOpacity={on ? 0.95 : 0.55} stroke={on ? (j.hit ? DOT.in : "white") : "none"} strokeWidth={1.5} />
+                        {w > 24 && (labelIn
+                          ? <text x={x + 5} y={yOf(n.midi) + 4} fontSize={11} fontWeight={700} fill="var(--color-slate-950)">{solfege(n.label)}</text>
+                          // a thin bar: the name sits on it in the bar's colour, outlined so it reads over the line
+                          : <text x={x + 5} y={yOf(n.midi) + 4} fontSize={11} fontWeight={700} fill={col} stroke="var(--color-slate-950)" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round">{solfege(n.label)}</text>)}
                       </g>
                     );
                   })}

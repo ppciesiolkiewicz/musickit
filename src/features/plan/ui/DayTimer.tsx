@@ -174,6 +174,8 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
 
   const exercise = running || (elapsed > 0 && clock.left > 0) ? focused : null;
   const leftInExercise = exercise === null ? 0 : Math.max(0, (minutes[exercise] ?? 0) * 60 - (spent[exercise] ?? 0));
+  // the exercise in view has had its minutes: a small tick after its time, nothing louder
+  const exerciseDone = exercise !== null && (minutes[exercise] ?? 0) > 0 && leftInExercise === 0;
   useEffect(() => report.current(exercise), [exercise]);
   useEffect(() => tellRunning.current?.(running), [running]);
   useEffect(() => () => tellRunning.current?.(false), []);
@@ -200,7 +202,7 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
         </p>
         <p className={`text-lg font-semibold sm:text-2xl leading-tight tabular-nums ${finished ? "text-emerald-300" : "text-slate-50"}`} aria-live="off">{fmt(clock.left)}</p>
         <p className="truncate text-xs text-slate-400" title={exercise !== null ? titles[exercise] : undefined}>
-          {finished && !(running && exercise !== null) ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(leftInExercise)}</span> · <span className="text-sky-300">{exercise + 1}.<span className="max-sm:hidden"> {titles[exercise]}</span></span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
+          {finished && !(running && exercise !== null) ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(leftInExercise)}</span>{exerciseDone && <Icon name="check" size={11} className="ml-0.5 inline-block align-[-1px] text-emerald-400/80" label="Exercise time done" />} · <span className="text-sky-300">{exercise + 1}.<span className="max-sm:hidden"> {titles[exercise]}</span></span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
         </p>
       </div>
       <div className="flex items-center gap-1 sm:flex-col">
@@ -232,5 +234,6 @@ export function Corner({ above, children }: { above?: ReactNode; children?: Reac
     return () => { ro.disconnect(); root.removeProperty("--corner-stack"); };
   }, [shown]);
   if (!shown) return null;
-  return <div ref={ref} className="fixed bottom-6 right-2 z-40 flex flex-col items-end gap-2">{above}{children}</div>;
+  // over a tool's full screen (z-[70]), under modals and floating windows
+  return <div ref={ref} className="fixed bottom-6 right-2 z-[80] flex flex-col items-end gap-2">{above}{children}</div>;
 }
