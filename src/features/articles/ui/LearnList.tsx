@@ -3,18 +3,19 @@
 import { useState } from "react";
 import { TOPICS, type Article, type Topic } from "../model";
 import ArticleCard from "./ArticleCard";
+import { TOPIC_STYLE, tagOf } from "./topicTags";
 
-/** /learn's list of articles with a row of topic buttons over it: All, Singing, Guitar, Theory. Every card is in the page's HTML; the filter only hides cards. */
+/** /learn's list of articles with a row of topic buttons over it: All, #Singing, #Guitar, #Theory, each topic in its colour. Every card is in the page's HTML; the filter only hides cards. */
 export default function LearnList({ articles }: { articles: Article[] }) {
   const [topic, setTopic] = useState<Topic | null>(null);
-  const chip = (on: boolean) =>
-    `rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${on ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-950/40 text-slate-300 hover:border-slate-500"}`;
+  const chip = (on: boolean, t?: Topic) =>
+    `rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${t ? TOPIC_STYLE[t][on ? "on" : "off"] : on ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-950/40 text-slate-300 hover:border-slate-500"}`;
   return (
     <>
       <div role="group" aria-label="Show guides about" className="mb-4 flex flex-wrap gap-2">
         <button type="button" aria-pressed={topic === null} className={chip(topic === null)} onClick={() => setTopic(null)}>All</button>
         {(Object.keys(TOPICS) as Topic[]).map((t) => (
-          <button key={t} type="button" aria-pressed={topic === t} className={chip(topic === t)} onClick={() => setTopic(t)}>{TOPICS[t]}</button>
+          <button key={t} type="button" aria-pressed={topic === t} className={chip(topic === t, t)} onClick={() => setTopic(t)}>{tagOf(t)}</button>
         ))}
       </div>
       <ul className="flex flex-col gap-4">
