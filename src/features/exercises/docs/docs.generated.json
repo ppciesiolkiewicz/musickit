@@ -1404,6 +1404,12 @@
         "type": "string",
         "required": false,
         "description": "the three strings the chords sit on, as guitar numbers: \"321\" (default: G, B, high e), \"432\", \"543\", \"654\""
+      },
+      {
+        "name": "islands",
+        "type": "{ notes: Degree[]; count?: number }",
+        "required": false,
+        "description": "islands: a few notes of the scale around one root, under one hand, framed at a few places on the whole neck (1 to 4\nof them, spread along the neck, none sharing a fret), the rest of the scale faded and every other root circled in red,\nwith a Play button per island (its notes low to high, then back to the root). `notes` are degrees low to high: the ones\nwritten before \"1\" sit under the root, the ones after it above ([\"b7\",\"1\",\"2\"]: Te Do Re; [\"1\",\"4\",\"5\"]: Do Fa Sol).\n`count` 1-4, default 3. With no `parts`, the neck alone. For showing that a small shape of scale degrees comes back all along\nthe neck and sounds the same wherever it is played, or comparing a major and a minor scale on one root"
       }
     ]
   },

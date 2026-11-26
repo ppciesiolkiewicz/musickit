@@ -33,6 +33,10 @@ interface NeckProps {
   sounding?: ReadonlySet<string>;
   /** the finger that frets a note (1 index ... 4 pinky), shown in a badge; undefined draws none */
   fingers?: (c: ScaleCell) => number | undefined;
+  /** groups of notes to frame, each numbered under its frame from 1 (a scale-neck's `islands`) */
+  groups?: readonly (readonly ScaleCell[])[];
+  /** places (`cellKey`) circled in red: the roots outside the groups */
+  circled?: ReadonlySet<string>;
 }
 
 const isActive = (active: string | null, c: ScaleCell) => active !== null && (active === cellKey(c) || active === `d${c.degree}` || active === `pc${c.pc}`);
@@ -44,7 +48,7 @@ function useLit(active: string | null): (c: ScaleCell) => boolean {
 }
 
 /** The whole neck, frets 0-17 (0-12 when compact), with every note of the scale. Tap a note to hear it. */
-export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title, states, sounding, fingers }: NeckProps) {
+export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside = true, active, labelSystem, onNote, compact = false, title, states, sounding, fingers, groups = [], circled }: NeckProps) {
   const heard = useLit(active);
   const lit = (c: ScaleCell) => heard(c) || !!sounding?.has(cellKey(c));
   const to = compact ? 12 : SCALE_NECK_FRETS;
@@ -58,6 +62,11 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
   const shown = cells.filter((c) => c.fret <= to && (!states || states(c) !== "hidden") && (rings || (big(c) && (!focused || inFocus.has(cellKey(c))))));
   // rings under the dots, the playing note last so its outline is on top
   shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(lit(a)) - Number(lit(b)));
+  const frames = groups.filter((cells) => cells.length).map((cells) => {
+    const frets = cells.map((c) => c.fret), strings = cells.map((c) => c.string);
+    const x = g.fx(Math.min(...frets)) - r - 4, y = g.sy(Math.max(...strings)) - r - 4;
+    return { x, y, w: g.fx(Math.max(...frets)) - g.fx(Math.min(...frets)) + 2 * r + 8, h: g.sy(Math.min(...strings)) - g.sy(Math.max(...strings)) + 2 * r + 8, low: Math.min(...strings) === 0 };
+  });
   return (
     <div className="min-w-0">
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={title}>
@@ -74,6 +83,9 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
             />
           );
         })}
+        {frames.map(({ x, y, w, h }, i) => (
+          <rect key={`group-${i}`} x={x} y={y} width={w} height={h} rx={r} fill="var(--color-amber-300)" fillOpacity={0.1} stroke="var(--color-amber-300)" strokeWidth={2.5} pointerEvents="none" />
+        ))}
         {shown.map((c) => (
           <Dot
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
@@ -81,6 +93,19 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
             hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
             active={lit(c)} dim={(focused && fadeOutside && !inFocus.has(cellKey(c))) || states?.(c) === "muted"} accent={states?.(c) === "highlighted"} finger={fingers?.(c)} onNote={onNote}
           />
+        ))}
+        {/* each frame's number on its lower left corner, clear of its dots, or the upper left when the frame holds the low E (the fret numbers are under it) */}
+        {frames.map(({ x, y, h, low }, i) => {
+          const badge = r * 0.72, cy = low ? y : y + h;
+          return (
+            <g key={`group-n-${i}`} pointerEvents="none">
+              <circle cx={x} cy={cy} r={badge} fill="var(--color-amber-300)" stroke="var(--color-slate-950)" strokeWidth={1.5} />
+              <text x={x} y={cy + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={badge * 1.25} fontWeight={700} fill="var(--color-slate-950)">{i + 1}</text>
+            </g>
+          );
+        })}
+        {circled && shown.filter((c) => circled.has(cellKey(c))).map((c) => (
+          <circle key={`circled-${cellKey(c)}`} cx={g.fx(c.fret)} cy={g.sy(c.string)} r={r + 3.5} fill="none" stroke="var(--color-rose-500)" strokeWidth={2.5} pointerEvents="none" />
         ))}
       </svg>
     </div>

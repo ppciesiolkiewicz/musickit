@@ -109,7 +109,7 @@ export const KEY_PANELS = ["relative-modes", "mode-intervals", "key-chords", "tr
 export type KeyPanelName = (typeof KEY_PANELS)[number];
 
 type PlanToolProps =
-  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement; /** degrees of the key (0-based) found as triads in the positions */ chords?: number[]; /** "321", "432", "543", "654"; absent: "321" */ chordStrings?: string } & Marks
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement; /** degrees of the key (0-based) found as triads in the positions */ chords?: number[]; /** "321", "432", "543", "654"; absent: "321" */ chordStrings?: string; /** a few groups of these degrees (semitones above the key, low to high: the ones before 0 sit under the root) framed on the neck, the other roots circled; `count` 1-4, absent: 3 */ islands?: Islands } & Marks
   | { type: "position-neck"; scale: string; key: number; /** "3nps": the scale's seven 3-notes-per-string positions, one at a time; absent: its own five */ kind?: "3nps"; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: KeyPanelName; key: number; scale: string }
   /** the chord on `degree` (1-7) of the scale, with its sus and extended chords around it */
@@ -340,6 +340,19 @@ const addOf = (t: Record<string, unknown>, d: Diag): number[] => {
   return add.slice(0, 4);
 };
 
+/** A scale-neck's islands: degrees as written, in order (the ones before the root sit under it), the root added when missing. */
+export type Islands = { notes: number[]; count?: number };
+const islandsOf = (v: unknown, d: Diag): { islands?: Islands } => {
+  if (v == null) return {};
+  const o = (v && typeof v === "object" && !Array.isArray(v) ? v : { notes: v }) as Record<string, unknown>;
+  lost(d, "islands", o.notes, degreeOf);
+  const notes = [...new Set(list(o.notes).map(degreeOf).filter((n): n is number => n !== null))];
+  if (notes.length < 2) { d.notes.push("dropped islands (it needs the root and at least one more degree)."); return {}; }
+  if (!notes.includes(0)) { notes.unshift(0); if (!d.stored) d.notes.push("islands had no \"1\"; put the root first."); }
+  const count = o.count == null ? 3 : intOr(d, "islands count", o.count, 1, 4, 3);
+  return { islands: { notes, ...(count !== 3 ? { count } : {}) } };
+};
+
 const scaleNeck = (t: Record<string, unknown>, d: Diag): PlanTool | null => {
   const sk = scaleKey(t, d);
   if (!sk) return null;
@@ -350,7 +363,7 @@ const scaleNeck = (t: Record<string, unknown>, d: Diag): PlanTool | null => {
   const chords = chordsOf(t, d);
   const chordStrings = typeof t.chordStrings === "string" && stringGroupOf(t.chordStrings) ? t.chordStrings : undefined;
   if (t.chordStrings != null && !chordStrings) d.notes.push(`dropped chordStrings ${JSON.stringify(t.chordStrings)?.slice(0, 20)} (use "321", "432", "543" or "654").`);
-  return { type: "scale-neck", scale, key, ...opt("boxes", boxes), ...(parts ? { parts } : { ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}) }), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key, d), ...opt("chords", chords), ...(chords.length && chordStrings ? { chordStrings } : {}) };
+  return { type: "scale-neck", scale, key, ...opt("boxes", boxes), ...(parts ? { parts } : { ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}) }), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key, d), ...opt("chords", chords), ...(chords.length && chordStrings ? { chordStrings } : {}), ...islandsOf(t.islands, d) };
 };
 
 /** A scale-neck's chords: numerals of the key ("iv", "♭VII") as degrees 0-6, each once, in order; ones that aren't numerals are noted. */

@@ -5,6 +5,8 @@ import { extraCells, pentatonicPositions, positionsFor, scaleCells, type ExtraNo
 
 export const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
 const cellKey = (c: { string: number; fret: number }) => `${c.string}-${c.fret}`;
+/** the two modes a beginner knows by another name: the title says both */
+const MODE_WORDS: Record<string, string> = { Ionian: "major (Ionian)", Aeolian: "minor (Aeolian)" };
 const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
 
 /** A note from outside the scale, as an extra note of `ctx`: coloured as the scale degree just under it. */
@@ -37,7 +39,7 @@ export function scaleBoxes(slug: string, pc: number, add?: number[]): { title: s
   } else {
     const m = findModePage(slug)!;
     const ctx = makeKeyContext(pc, m.familyIndex, m.modeIndex);
-    base = { title: `${ctx.names[0]} ${ctx.modeName}`, ctx, cells: scaleCells(ctx), positions: positionsFor(ctx, "scale") };
+    base = { title: `${ctx.names[0]} ${MODE_WORDS[ctx.modeName] ?? ctx.modeName}`, ctx, cells: scaleCells(ctx), positions: positionsFor(ctx, "scale") };
   }
   if (!add?.length) return base;
   // added notes are played: each goes into every box wherever it falls inside the box's frets

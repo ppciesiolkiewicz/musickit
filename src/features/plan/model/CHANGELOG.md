@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 22 (2026-11-26)
+
+- `scale-neck` has a new prop, `islands` (`notes`, degrees low to high, and `count`): a few groups of those degrees framed on the whole neck, the other roots circled in red, a Play button per island.
+
 ### 21 (2026-11-25)
 
 - The prompt spells it "practice" for the verb as well as the noun ("they practice with attunr", "the steps it practices"), as the app does.

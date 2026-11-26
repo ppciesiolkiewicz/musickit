@@ -12,15 +12,17 @@ import { positionTriads, stringGroupOf, voicingKeys } from "@/lib/chordKit/scale
 import { STRING_GROUPS } from "@/lib/chordKit/triads";
 import type { ScaleCell } from "@/lib/chordKit/scalePositions";
 import { useCoverage } from "@/features/guide/useCoverage";
-import { positionLine, type ScalePosition } from "@/lib/chordKit/scalePositions";
+import { SCALE_NECK_FRETS, positionLine, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { SHARP, scaleBoxes, shiftPosition } from "./boxes";
 import { GuitarView } from "./Guitar";
+import { findIslands, islandTune } from "./islands";
 
 type Part = "positions" | "neck";
 type PartMode = "on" | "off" | "always";
 export type Parts = Partial<Record<Part, PartMode>>;
 const PART_LABELS: Record<Part, string> = { positions: "Positions", neck: "Neck" };
 const BOXES_ONLY: Parts = { positions: "always" };
+const NECK_ONLY: Parts = { neck: "always" };
 /** the strings a triad sits on, as a player says them */
 const GROUP_WORDS: Record<string, string> = { "321": "G, B and high e", "432": "D, G and B", "543": "A, D and G", "654": "low E, A and D" };
 
@@ -30,8 +32,11 @@ const GROUP_WORDS: Record<string, string> = { "321": "G, B and high e", "432": "
  * position framed (the only one shown, else the one whose name was tapped), and chips for the parts the student may
  * show or hide. `chords` (degrees of the key, 0-based) adds a chip per chord: pressing one rings that triad wherever the
  * shown positions hold it on the `chordStrings` set (the rest of the position faded), on the neck too, and strums it.
+ * `islands` frames a few groups of those degrees on the neck (`findIslands`), the rest of the scale faded and every other
+ * root circled in red, with a Play button per island; with no `parts` the neck alone.
  */
-function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others, parts = BOXES_ONLY, chords, chordStrings }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; parts?: Parts; chords?: number[]; chordStrings?: string }) {
+function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others, parts: partsIn, chords, chordStrings, islands: islandSpec }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; parts?: Parts; chords?: number[]; chordStrings?: string; islands?: { notes: number[]; count?: number } }) {
+  const parts = partsIn ?? (islandSpec ? NECK_ONLY : BOXES_ONLY);
   useCoverage({ hints: 1 });
   // the marks are semitones above the key; the states work on pitch classes
   const vis = useMemo((): Visibility => {
@@ -70,9 +75,14 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
   }), [chords, inBoxes]);
   const boxRings = useMemo(() => new Map(inBoxes.map((b) => [b.number, new Set(b.triads.filter((t) => t.degree === picked).flatMap((t) => t.voicings.flatMap(voicingKeys)))])), [inBoxes, picked]);
   const neckRings = useMemo(() => new Set(picked === null ? [] : positionTriads(ctx, { notes: neckCells }, group, [picked]).flatMap((t) => t.voicings.flatMap(voicingKeys))), [picked, ctx, neckCells, group]);
+  // the islands on the neck: their notes as they are, the other roots circled, the rest faded
+  const islands = useMemo(() => (islandSpec ? findIslands(neckCells.filter((c) => c.fret <= SCALE_NECK_FRETS), islandSpec.notes, islandSpec.count) : []), [islandSpec, neckCells]);
+  const inIsland = useMemo(() => new Set(islands.flatMap((i) => i.cells.map(cellKey))), [islands]);
+  const circled = useMemo(() => (islandSpec ? new Set(neckCells.filter((c) => c.semi === 0 && !inIsland.has(cellKey(c))).map(cellKey)) : undefined), [islandSpec, neckCells, inIsland]);
   const ringed = (rings: Set<string> | undefined, c: ScaleCell) => {
     const s = state(c.pc);
-    if (picked === null || s === "hidden") return s;
+    if (s === "hidden") return s;
+    if (picked === null) return islandSpec && !inIsland.has(cellKey(c)) && c.semi !== 0 ? "muted" : s;
     return rings?.has(cellKey(c)) ? "highlighted" : "muted";
   };
   const pickChord = (chip: (typeof chordChips)[number]) => {
@@ -86,6 +96,11 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
   const [tapped, setTapped] = useState<number | null>(null);
   const focus = shown.find((p) => p.number === tapped) ?? (shown.length === 1 ? shown[0] : null);
   const canFocus = open.neck && shown.length > 1;
+  const playIsland = (i: number) => {
+    const id = `island-${i}`;
+    if (running === id) return stop();
+    play(islandTune(islands[i]).map((c) => ({ key: cellKey(c), midi: c.midi })), 420, id);
+  };
   const run = (p: ScalePosition) => {
     const up = positionLine(p).map((n) => ({ key: cellKey(n), midi: n.midi }));
     play([...up, ...up.slice(0, -1).reverse()], undefined, `box-${p.number}`);
@@ -113,7 +128,17 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
           ))}
         </ChipRow>
       )}
-      {open.neck && <ScaleNeck cells={neckCells} big={() => true} focus={focus} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title={`${title} on the guitar neck`} states={(c) => ringed(neckRings, c)} />}
+      {open.neck && <ScaleNeck cells={neckCells} big={() => true} focus={focus} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title={`${title} on the guitar neck`} states={(c) => ringed(neckRings, c)} groups={islands.map((i) => i.cells)} circled={circled} />}
+      {open.neck && islands.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Play an island">
+          {islands.map((isl, i) => (
+            <button key={i} type="button" onClick={() => playIsland(i)} title={`Plays island ${i + 1}, low to high and back to ${isl.root.name}`} className="rounded border border-amber-300/50 px-2.5 py-1 text-xs text-amber-100 hover:border-amber-300">
+              {running === `island-${i}` ? "■ Stop" : `▶ Island ${i + 1}`}
+            </button>
+          ))}
+          <span className="text-xs text-slate-400"><span aria-hidden className="mr-1 inline-block size-2.5 rounded-full border-2 border-rose-500 align-middle" />Other {islands[0].root.name} notes</span>
+        </div>
+      )}
       {open.positions && <div data-tour="scale-neck-boxes" className="grid gap-3 lg:grid-cols-2">
         {shown.map((p) => (
           <div key={p.number} className="flex flex-col gap-1">
