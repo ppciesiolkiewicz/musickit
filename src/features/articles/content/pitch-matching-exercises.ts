@@ -9,75 +9,55 @@ export const pitchMatchingExercises: Article = {
   updated: "2026-11-26",
   sings: true,
   blocks: [
-    { type: "p", text: "Pitch matching is singing the note you hear, right on it. It sounds simple, and it's one of the most useful things you can practice." },
-    { type: "p", text: "Here's the catch: lots of singers sit a little under or a little over on some notes, and can't hear it themselves. It's not a big miss. It's a slightly flat Mi, or a top note that lands a bit sharp. Working on that precision is what makes a voice sound sure of itself." },
-    { type: "p", text: "That's where **live feedback** helps. Each exercise below draws your voice as a line over the note while you sing. You hear the drone, you see your line, and you can nudge it up or down until the two meet. When you're right on the note, the wobble in the sound goes away and it turns smooth, so your ears learn the target too, not just your eyes." },
+    { type: "p", text: "Pitch matching is singing the note you hear, right on it. Lots of singers sit a little under or over on some notes without hearing it. Working on that precision is what makes a voice sound sure of itself." },
+    { type: "p", text: "**Live feedback** helps: each exercise draws your voice as a line over the note, so you can nudge it until the two meet. When you're right on it, the wobble in the sound goes away." },
 
-    { type: "h2", text: "Before you start: look after your voice" },
+    { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Warm up first. A few lip rolls and hums are enough: [here's a five-minute routine](/learn/vocal-warm-ups).",
-      "Sing at an easy volume. Pitch matching needs a quiet, steady note, not a loud one.",
-      "Stay in the comfortable middle of your voice. Every exercise here starts low.",
-      "Keep it short: ten minutes of focused practice beats an hour of tired singing.",
-      "Stop if your throat feels tight, scratchy or sore, and rest it. There's more in [Look after your voice](/voice-care).",
-    ] },
-    { type: "care", text: "Don't reach for high notes: if a note feels like a stretch, sing it an octave lower or leave it out." },
-
-    { type: "h2", text: "Set up in thirty seconds" },
-    { type: "list", items: [
-      "Pick your voice in **Your voice** above the first exercise, so the notes sit where you can sing them. Not sure? Start with the one that sounds like you and change it if the notes feel high.",
-      "Headphones help: the mic hears you and not the drone. Any mic works, even your laptop's. If you're thinking of buying one, [here's a simple setup](/learn/microphone-and-audio-interface-for-singing).",
-      "Every exercise asks for the mic. Your voice stays in your browser: nothing is recorded or sent anywhere.",
+      "Warm up first: [a five-minute routine](/learn/vocal-warm-ups).",
+      "Sing quietly, in the comfortable middle of your voice.",
+      "Ten focused minutes beat an hour of tired singing.",
+      "Stop if your throat feels tight or sore. More in [Look after your voice](/voice-care).",
+      "Pick your voice in **Your voice** above, so the notes sit where you can sing them.",
     ] },
 
     { type: "exercise", title: "1. One note, dead centre", lines: [
-      "Start with the easiest target there is: one note over a drone. Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
-      "Sing the low Do on \"oo\" and hold it. Watch your line: is it sitting on the note, a little under or a little over?",
-      "Now play with it. Slide a little sharp on purpose, then back to the centre. Then a little flat, and back. Listen for the wobble in the sound when you're off, and the moment it goes smooth.",
-      "Practice until you can land on the low Do and hold it there without the line drifting.",
+      "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
+      "Sing the low Do on \"oo\" and hold it. Then slide a little sharp on purpose and back, then a little flat and back.",
+      "Practice until you can land on the low Do and hold it without the line drifting.",
     ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", labels: "solfege", enable: ["1"], others: "hidden", drone: true } },
 
     { type: "exercise", title: "2. The siren to Sol", lines: [
-      "Same drone, two notes now: Do and Sol, the 5th note of the scale. On \"oo\", slide slowly from Do up to Sol and back down, like a siren.",
-      "Then sing the two as a clean jump, with no slide between them. The slide shows you the way; the jump checks you remember it.",
-      "If Sol lands under the note, it's usually a tired breath: take a fresh one before you jump.",
+      "On \"oo\", slide slowly from Do up to Sol and back, like a siren. Then sing the two as a clean jump.",
+      "If Sol lands under the note, take a fresh breath before you jump.",
     ], tool: { type: "staff", scale: "major-ionian", key: "f", voice: "tenor", labels: "solfege", notes: ["1", "5"], drone: true }, after: [
       "_Don't reach for high notes: turn the siren round at Sol._",
     ] },
 
     { type: "exercise", title: "3. Agility: out from Do and back", lines: [
-      "Now let's get your voice moving. This one is an agility warm-up: every note goes out from Do and comes straight back, one step further each time:",
-      "**Do Re Do, Do Mi Do, Do Fa Do, Do Sol Do.**",
-      "Press Play below to hear the run: the mic starts with it. Sing along on the note names, and watch your line land on each note. Coming back to Do every time gives your ear a home to check against.",
-      "Each pass starts a semitone higher. Switch to \"oo\" when the run gets high, and let a pass go when its top stops feeling easy.",
-      "Too quick at first? Hum it along with the piano a few times before you sing the names.",
+      "An agility warm-up: **Do Re Do, Do Mi Do, Do Fa Do, Do Sol Do.**",
+      "Press Play below to hear the run: the mic starts with it. Sing along on the note names. Coming back to Do every time gives your ear a home to check against.",
+      "Each pass starts a semitone higher. Switch to \"oo\" when it gets high.",
     ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 0 }, voice: "tenor" } },
 
     { type: "exercise", title: "4. Agility: Do between each step", lines: [
-      "Same notes, a quicker pattern. Do comes back between the notes, but you keep climbing, then walk back down home:",
-      "**Do Re Do Mi Do Fa Do Sol, then Fa Mi Re Do.**",
-      "Press Play below to hear the run: the mic starts with it. Sing along on the note names. Each jump out from Do is a step wider than the last, so listen for each one landing straight on its note, not sliding into it.",
-      "Then sing it on \"ah\" or \"oo\" for fun: same jumps, no names to lean on.",
+      "Same notes, quicker: **Do Re Do Mi Do Fa Do Sol, then Fa Mi Re Do.**",
+      "Press Play below to hear the run: the mic starts with it. Sing along on the note names, and listen for each jump landing straight on its note.",
+      "Then try it on \"oo\" for fun: same jumps, no names to lean on.",
     ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 1 }, voice: "tenor" }, after: [
-      "_Don't reach for high notes: each pass goes a semitone higher, so stop when the top stops feeling easy._",
+      "_Don't reach for high notes: let a pass go when its top stops feeling easy._",
     ] },
 
     { type: "exercise", title: "5. Hear it, sing it back", lines: [
-      "No line on the screen for this one: just your ears. Press Start below to hear two notes, one after the other.",
-      "Sing both notes back on \"la\" before you answer. Then pick the answer you think it is, and listen again.",
-      "Singing it back first is the pitch matching part. The answer just tells you whether your ears caught it.",
+      "Press Start below to hear two notes. Sing both back on \"la\" before you answer: that's the pitch matching part.",
     ], tool: { type: "interval-ears", set: [3, 4, 7, 9], dir: "up" } },
 
     { type: "h2", text: "Make it your own" },
     { type: "list", items: [
-      "Go down instead of up: Do Ti Do, Do La Do, Do Sol Do, under the low Do.",
-      "Hum the note first, then open to \"oo\" on the same pitch.",
-      "Close your eyes while you sing, then open them and check where your line is. It's a fun way to find out whether your ears or your eyes are doing the work.",
-      "Change **Your voice** to the one next to yours, and the same patterns move higher or lower.",
+      "Go down instead: Do Ti Do, Do La Do, Do Sol Do.",
+      "Hum the note first, then open to \"oo\".",
+      "Sing with your eyes closed, then check your line.",
     ] },
-
-    { type: "h2", text: "What you'll notice" },
-    { type: "p", text: "The first thing that gets easier is the start of each note: less sliding in from underneath. Then the long notes get steadier. After a while you'll catch a flat note in a song before you see it on a screen, and that's the whole point." },
-    { type: "p", text: "Want this every day, picked for your voice? [attunr](/) puts pitch matching, warm-ups and songs into a short plan for each day." },
+    { type: "p", text: "First the start of each note gets cleaner, then long notes get steadier. Want this every day? [attunr](/) puts it in a short daily plan." },
   ],
 };

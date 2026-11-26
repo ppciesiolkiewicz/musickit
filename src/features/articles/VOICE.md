@@ -1,5 +1,5 @@
 ---
-version: 1
+version: 2
 ---
 
 # The articles' voice
@@ -13,6 +13,9 @@ holds only what the articles add to it. Each article's seed file records the ver
   voice moving", contractions, "you" and "your".
 - **A little playful.** A light image now and then ("Time to sound like a motorboat"), an invitation to play with the drill
   ("Then try it backwards for fun"). Never a joke at the reader's expense, and never hype.
+- **Short.** Fewer words than feels natural: one idea to a paragraph, one or two sentences each, steps of one or two lines. Say a
+  thing once: nothing the page already says (the mic note, the Your voice picker) and nothing the tool shows. Lists of three to
+  five short items.
 - **Propose ideas.** Each article ends with a few things to try that turn a drill into a new one ("Make it your own"), and says
   what the reader will notice getting easier.
 - **The author's words win.** Where the author asks for wording that `teaching-voice` would not use (on lip rolls: "Don't worry
@@ -20,7 +23,7 @@ holds only what the articles add to it. Each article's seed file records the ver
 
 ## What every article has
 
-- An opening that says why the thing matters to the reader's voice or hands, in two or three short paragraphs.
+- An opening that says why the thing matters to the reader's voice or hands, in one or two short paragraphs.
 - Looking after your voice (or hands) before the exercises, linking to [Look after your voice](/voice-care) and, for singing,
   the warm-ups article.
 - Exercises on the page with the app's own tools, each with its heading, what to press, what to sing or play, and one feel to

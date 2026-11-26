@@ -7,14 +7,15 @@
   "versions": {
     "agents": 2,
     "teaching": 12,
-    "voice": 1
+    "voice": 2
   },
   "notes": [
     "just recommending Scarlett Focusrite Solo or 2i2 (4th gen if this is the newest) and basic SM58 microphone if you wondered what to purchase",
     "There're also a lot of other options to explore but very important of SM58 is it's popularity and for Digital interface very important to have direct feedback like Scarlett",
     "2i2 should be (if you want to plug in more than one device)",
     "Mention that direct monitoring good for singing practice since we can hear ourselves with no delay",
-    "I think this is good recommendation for many beginners (but i'm not paid for this)"
+    "I think this is good recommendation for many beginners (but i'm not paid for this)",
+    "Also maybe bit less words on each article"
   ],
   "blocks": [],
   "calculator": [],

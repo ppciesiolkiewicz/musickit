@@ -7,12 +7,13 @@
   "versions": {
     "agents": 2,
     "teaching": 12,
-    "voice": 1
+    "voice": 2
   },
   "notes": [
     "we link vocal warmups link and also generate vocal warmups article with exercises we have",
     "In a lip rolls we need to ensure wording like \"dont worry if you're not on the pitch or your microphone cant \"",
-    "Then some safety precautions about proper technique"
+    "Then some safety precautions about proper technique",
+    "Also maybe bit less words on each article"
   ],
   "blocks": [
     "voice-warm-up-in-hold-out",

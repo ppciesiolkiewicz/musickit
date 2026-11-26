@@ -7,7 +7,7 @@
   "versions": {
     "agents": 2,
     "teaching": 12,
-    "voice": 1
+    "voice": 2
   },
   "notes": [
     "start with introduction saying that pitch matching exercises with live feedback can be super beneficial in strengthening your voice. A lot of singers would be slightly below or above the note in some notes and working on precision can ..",
@@ -16,7 +16,8 @@
     "the pitch matching exercises can be a few, e.g. Agility warmup could be DO RE DO DO MI DO DO FA DO DO SOL DO and then DO RE DO MI DO FA DO SOL",
     "We still want to propose ideas and be playful",
     "I'd rather use the melody component",
-    "Let's add them - they were meant for warmups, like intermediate warmup"
+    "Let's add them - they were meant for warmups, like intermediate warmup",
+    "Also maybe bit less words on each article"
   ],
   "blocks": [
     "voice-beginner-a-long-steady-do",
