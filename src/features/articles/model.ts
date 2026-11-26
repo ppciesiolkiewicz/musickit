@@ -28,7 +28,9 @@ export type ArticleBlock =
    * every note from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it
    * (`ui/NamesChart.tsx`). One octave unless `octaves` says more: then the names come round again from each Do, and no table.
    */
-  | { type: "names"; octaves?: number }
+  | { type: "names"; octaves?: number; /** "guitar": the same names on a guitar neck, frets 0 to 12 from C (`ui/NamesNeck.tsx`), not a piano */ on?: "guitar" }
+  /** another guide as its /learn card, in the text where the reader may need it first (`Block` in `ui/ArticleView.tsx`), after `text`, the line that says why */
+  | { type: "guide"; slug: string; text: string }
   /** small tools side by side (two to a row on a wide screen, one under the other on a phone), with no text: a row of charts */
   | { type: "row"; tools: Record<string, unknown>[] };
 
@@ -64,8 +66,6 @@ export interface Article {
    * the bottom of the page (`ui/ArticleLabels.tsx`) switches it. Absent: `articleLabels`, Intervals for a guitar article, else Solfège
    */
   labels?: LabelSystem;
-  /** the guides to read before this one, by slug, linked above the first block ("Read this first"); absent: none */
-  requires?: string[];
   /** every guitar neck on the page ends by this fret; absent: the tools' own */
   frets?: number;
   blocks: ArticleBlock[];

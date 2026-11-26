@@ -14,9 +14,9 @@ import { articleLabels, type Article, type ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
 import { ArticleLabels, LabelSwitch } from "./ArticleLabels";
 import NamesChart from "./NamesChart";
+import NamesNeck from "./NamesNeck";
 import PlayerControls from "./PlayerControls";
 import TempoTool from "./TempoTool";
-import ReadFirst from "./ReadFirst";
 
 /** A link to another guide opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
 const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("#"));
@@ -47,7 +47,16 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
     case "player":
       return <PlayerControls />;
     case "names":
-      return <NamesChart octaves={block.octaves} />;
+      return block.on === "guitar" ? <NamesNeck /> : <NamesChart octaves={block.octaves} />;
+    case "guide": {
+      const guide = ARTICLES.find((a) => a.slug === block.slug);
+      return (
+        <div className="flex flex-col gap-2">
+          <p className="text-slate-300"><Inline runs={lines[0]} root={root} /></p>
+          {guide && <ArticleCard article={guide} heading="h3" />}
+        </div>
+      );
+    }
     case "figure":
       return (
         <figure className="flex flex-col gap-2">
@@ -63,7 +72,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
       );
     case "row": {
       const tools = block.tools.map((t) => parseTool(t)).filter((t) => t !== null);
-      return <div className="grid gap-4 sm:grid-cols-2">{tools.map((tool, i) => <div key={i} className="min-w-0"><Tool tool={tool} /></div>)}</div>;
+      return <div className={`grid gap-4 ${tools.length > 1 ? "sm:grid-cols-2" : ""}`}>{tools.map((tool, i) => <div key={i} className="min-w-0"><Tool tool={tool} /></div>)}</div>;
     }
     case "exercise": {
       const tools = [block.tool, ...(block.beside ? [block.beside] : [])].map((t) => parseTool(t)).filter((t) => t !== null);
@@ -141,7 +150,6 @@ export default function ArticleView({ article }: { article: Article }) {
   const body = (
     // the plan reader's text is 18px from sm up, its inline note dots 1.9em of that: the same 34px here on 16px text
     <div className="flex flex-col gap-4 leading-relaxed sm:[--note-dot:2.15em]">
-      <ReadFirst slugs={article.requires} />
       {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} root={roots[i]} /></Fragment>)}
       {dots && <LabelSwitch />}
       <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>

@@ -8,7 +8,6 @@ export const majorAndMinorScalesGuitar: Article = {
   intro: "A visual, interactive look at A major and A minor on the whole neck, with a few small islands of notes to play and hear. Part 1 of a series on knowing one key all over the neck.",
   updated: "2026-11-26",
   sings: false,
-  requires: ["intervals-and-solfege"],
   topics: ["guitar", "theory"],
   frets: 12,
   blocks: [
@@ -25,6 +24,7 @@ export const majorAndMinorScalesGuitar: Article = {
       "The key under each neck says what the frames and the red circles mean. Tap any dot to hear it.",
     ] },
     { type: "p", text: "Use the Labels selector at the bottom of this page to switch every dot between intervals and solfège." },
+    { type: "guide", slug: "intervals-and-solfege", text: "New to intervals? This guide names every note from Do, on a piano and on the guitar neck." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [

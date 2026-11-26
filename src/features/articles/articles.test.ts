@@ -35,14 +35,9 @@ describe("articles", () => {
     }
   });
 
-  it("require only guides that exist, never themselves or in a loop", () => {
-    const bySlug = new Map(ARTICLES.map((a) => [a.slug, a]));
-    const reaches = (from: string, to: string, seen = new Set<string>()): boolean =>
-      (bySlug.get(from)?.requires ?? []).some((r) => r === to || (!seen.has(r) && (seen.add(r), reaches(r, to, seen))));
-    for (const a of ARTICLES) {
-      for (const r of a.requires ?? []) assert.ok(bySlug.has(r), `${a.slug} requires ${r}`);
-      assert.ok(!reaches(a.slug, a.slug), `${a.slug} requires itself`);
-    }
+  it("point every guide block at a guide that exists, never the article itself", () => {
+    const slugs = new Set(ARTICLES.map((a) => a.slug));
+    for (const a of ARTICLES) for (const b of a.blocks) if (b.type === "guide") assert.ok(slugs.has(b.slug) && b.slug !== a.slug, `${a.slug}: ${b.slug}`);
   });
 
   it("count each article's exercises and reading minutes for its /learn card", () => {

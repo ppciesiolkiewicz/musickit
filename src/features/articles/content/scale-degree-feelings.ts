@@ -8,7 +8,6 @@ export const scaleDegreeFeelings: Article = {
   intro: "Every note of a scale has its own feeling, and it's the same in any key. Theory gives that feeling a name. Four interactive exercises to hear it and sing it on this page.",
   updated: "2026-11-26",
   sings: true,
-  requires: ["intervals-and-solfege", "pitch-matching-exercises"],
   topics: ["singing", "theory"],
   blocks: [
     { type: "p", text: "Music theory can feel like a pile of names to learn. I like to see it another way: the names are for things you can already feel." },
@@ -24,6 +23,7 @@ export const scaleDegreeFeelings: Article = {
       "By interval: the distance from one note to another. Do up to Mi is a major 3rd, in any key.",
     ] },
     { type: "p", text: "Solfège names the degree. The ear game below shows the interval too: M3 for a major 3rd, with Do–Mi under it." },
+    { type: "guide", slug: "intervals-and-solfege", text: "New to intervals? This guide names every note from Do both ways, on a piano and on the guitar neck." },
 
     { type: "h2", text: "How each note feels to me" },
     { type: "list", items: [

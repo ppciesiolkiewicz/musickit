@@ -45,7 +45,7 @@ export function LabelSwitch() {
       </ChipRow>
       <p className="text-sm text-slate-400">
         {LINE[choice.initial === "solfege" ? "solfege" : "interval"]}{" "}
-        <Link href={`/learn/${NAMES_ARTICLE}`} className="text-sky-300 underline-offset-2 hover:underline">See every name on a piano</Link>
+        <Link href={`/learn/${NAMES_ARTICLE}`} className="text-sky-300 underline-offset-2 hover:underline">See every name on a piano and a guitar neck</Link>
       </p>
     </div>
   );

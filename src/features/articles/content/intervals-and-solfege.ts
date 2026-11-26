@@ -5,7 +5,7 @@ export const intervalsAndSolfege: Article = {
   title: "Intervals and solfège: two names for every note",
   metaTitle: "Intervals vs Solfège: Every Note From Do on a Piano · attunr",
   description: "Every note from Do to the Do above on an interactive piano, named in solfège and as an interval. Tap a note to hear it, then name and sing them.",
-  intro: "A visual, interactive chart of every note from Do to the Do above, named both ways: in solfège and as an interval. Tap a note to hear it.",
+  intro: "A visual, interactive chart of every note from Do to the Do above, named both ways: in solfège and as an interval, on a piano and a guitar neck. Tap a note to hear it.",
   updated: "2026-11-26",
   sings: true,
   topics: ["theory", "singing"],
@@ -30,6 +30,12 @@ export const intervalsAndSolfege: Article = {
     { type: "p", text: "After the Do above, the names start again: Ra, Re, Me, Mi, and on up to the next Do. Here are three octaves from a low Do. Press Play below the piano to hear all three rise." },
     { type: "names", octaves: 3 },
     { type: "p", text: "Every Do is a new start, so these twelve names cover every note on the piano. A note an octave up keeps its name and its colour." },
+
+    { type: "h2", text: "The same names on the guitar" },
+    { type: "p", text: "Think of the guitar neck as a piano keyboard cut into strips and stacked. Each string is one strip, and each fret is the next key up, black or white." },
+    { type: "p", text: "Each string starts five frets higher than the one under it, four from the G string to the B string. So the same stretch of keys comes back one string up." },
+    { type: "names", on: "guitar" },
+    { type: "p", text: "Here is every note from the open strings to the 12th fret, named from C, with the same interval and colour as on the piano. Every C is Do again. Tap a dot to hear it." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [

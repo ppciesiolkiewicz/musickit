@@ -8,7 +8,6 @@ export const pitchMatchingExercises: Article = {
   intro: "Sing a note, see where you landed, nudge it. Six exercises you can do right on this page.",
   updated: "2026-11-26",
   sings: true,
-  requires: ["vocal-warm-ups"],
   topics: ["singing"],
   blocks: [
     { type: "p", text: "Pitch matching is singing the note you hear, right on it. Lots of singers sit a little under or over on some notes without hearing it. Working on that precision is what makes a voice sound sure of itself." },

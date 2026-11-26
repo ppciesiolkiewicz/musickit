@@ -12,7 +12,8 @@
   "notes": [
     "I dont want anyone to use solfeggio over intervals. We should enable swithc between the two and link articles where we have full solfeggio and intervals example and piano notes to play above them (2026-11-26)",
     "This should be linked to check this article next to label selector (Just Solfeggio and intervals) but the copy should say \"It's okay to go with your feeling now\" - both systems are interchengable (2026-11-26)",
-    "More actave piano indicating that this just repeats (2026-11-26)"
+    "More actave piano indicating that this just repeats (2026-11-26)",
+    "Or actually - maybe better if embed other articles in the content? I mainly concerned about people not knowing intervals.. Also intervals should show on guitar. guitar is cut and rolled piano analogy (2026-11-26)"
   ],
   "blocks": [
     "voice-beginner-hear-and-sing-back",
@@ -20,7 +21,8 @@
   ],
   "calculator": [
     "No calculator command lists the twelve notes from Do. The chart (ui/NamesChart.tsx) names each one with the app's own code: intervalName (R b2 2 b3 3 p4 b5 p5 b6 6 b7 7), solfege() of that interval (Do Ra Re Me Mi Fa Se Sol Le La Te Ti, so b5 is Se as on a neck), and INTERVALS in src/lib/chordKit/intervals.ts for the full names (minor 2nd ... octave)",
-    "npm run -s theory -- scale C major"
+    "npm run -s theory -- scale C major",
+    "Standard tuning E A D G B E (src/features/theory/tunings.ts): each string 5 frets above the one under it, 4 from G to B. The neck (ui/NamesNeck.tsx) names each fret with the piano chart's own named(): MIDI E2 A2 D3 G3 B3 E4 open, C as Do"
   ],
   "sources": [
     "src/components/practice/EarGame.tsx (answers m3, M3, P4, P5 with Do–Me, Do–Mi, Do–Fa, Do–Sol under them)"

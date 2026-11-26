@@ -17,7 +17,7 @@ const KW = 44, KH = 150, BW = 28, BH = 92;
  * One note `semis` above Do, named as the necks name it: its interval (`intervalName`), its solfège from that interval (so
  * ♭5 is Se, as a ♭5 on a neck), the interval's full name, and its colour, the colour of its degree on a neck.
  */
-function named(semis: number, octaves: number) {
+export function named(semis: number, octaves: number) {
   const interval = intervalName(semis);
   const degree = interval === "R" ? "R" : interval.replace(/^p/, "");
   const step = interval === "R" ? 0 : Number(degree.replace(/^b/, "")) - 1;
