@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Anton, Cormorant_Garamond, DM_Serif_Display, Fraunces, Geist, Geist_Mono, Outfit, Pacifico, Pirata_One, Shrikhand } from "next/font/google";
 import "./globals.css";
 import { AnalyticsAsk, SiteAnalytics } from "@/components/AnalyticsChoice";
@@ -16,6 +16,7 @@ import SaveNotice from "@/features/userData/client/SaveNotice";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
 import { SETTINGS_BOOT, Toasts } from "@/components/ui";
 import { SITE_URL } from "@/lib/site";
+import { APP_BACKGROUND } from "./manifest";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,6 +78,8 @@ export const metadata: Metadata = {
   creator: "attunr",
   publisher: "attunr",
   applicationName: "attunr",
+  /* installed to an iPhone's home screen: opens without Safari's bars, named attunr under the icon */
+  appleWebApp: { capable: true, title: "attunr", statusBarStyle: "black" },
   robots: {
     index: true,
     follow: true,
@@ -101,6 +104,10 @@ export const metadata: Metadata = {
     title: "attunr: guitar and voice drills, theory and practice tools",
     description: "Guitar theory, exercises and practice tools: scales and modes in every key, chord shapes, CAGED, a tuner and a looper.",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: APP_BACKGROUND,
 };
 
 const siteJsonLd = {

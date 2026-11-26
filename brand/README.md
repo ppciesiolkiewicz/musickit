@@ -1,6 +1,6 @@
 # attunr brand pictures
 
-Made by `npm run brand` from the template `scripts/brand/brand.html`. Don't edit the pictures by hand: change the template, run the command, commit what it wrote. The app's own icons (`src/app/icon.png`, `apple-icon.png`, `favicon.ico`) come from the same run, so they always match. The command needs Playwright in the npx cache, as `npm run video` does.
+Made by `npm run brand` from the template `scripts/brand/brand.html`. Don't edit the pictures by hand: change the template, run the command, commit what it wrote. The app's own icons (`src/app/icon.png`, `apple-icon.png`, `favicon.ico`, and the installed app's `public/icons/` named in `src/app/manifest.ts`) come from the same run, so they always match. The command needs Playwright in the npx cache, as `npm run video` does.
 
 The word is Outfit semibold (`src/app/_og/outfit-wordmark.ttf`, cut down to its letters) and the seven dots are one per scale degree, as in `src/components/Wordmark.tsx`. The dark ground is `#0b0b0b`.
 

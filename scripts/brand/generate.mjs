@@ -68,6 +68,10 @@ const PICTURES = [
   // the app's own icons, where Next picks them up
   { out: join(APP, "icon.png"), ...tile("letter", 96) },
   { out: join(APP, "apple-icon.png"), ...tile("mark", 180) },
+  // the installed app's icons (src/app/manifest.ts); the maskable one has square corners because the phone cuts its own shape
+  { out: join(ROOT, "public/icons/icon-192.png"), ...tile("mark", 192) },
+  { out: join(ROOT, "public/icons/icon-512.png"), ...tile("mark", 512) },
+  { out: join(ROOT, "public/icons/icon-maskable-512.png"), ...tile("mark", 512, DARK, false) },
 ];
 
 /** The SVGs: the same drawings as vectors, the word as text with Outfit embedded. */
