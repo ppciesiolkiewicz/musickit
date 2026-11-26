@@ -72,6 +72,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "tools", sub: "Play along", href: "/theory/song-chart", tone: "sky", label: "Song charts", desc: "A song's chords and form with the backing track", icon: "file-text", isNew: true },
   { group: "tools", sub: "Play along", href: "/theory/play-along", tone: "amber", label: "Guitar play-along", desc: "Intervals, tunes and arpeggios in time", icon: "guitar", isNew: true },
   { group: "tools", sub: "Tuning & theory", href: "/theory/piano", tone: "red", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
+  { group: "tools", sub: "Tuning & theory", href: "/theory/pitch-roll", tone: "teal", label: "Pitch roll", desc: "See the pitch you sing or play on a piano roll", icon: "activity", isNew: true },
   { group: "tools", sub: "Tuning & theory", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
   { group: "tools", sub: "Play along", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat", wide: true },
 ];
