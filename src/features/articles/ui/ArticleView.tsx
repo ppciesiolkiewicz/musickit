@@ -49,7 +49,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
     case "labels":
       return <LabelSwitch />;
     case "names":
-      return <NamesChart />;
+      return <NamesChart octaves={block.octaves} />;
     case "figure":
       return (
         <figure className="flex flex-col gap-2">

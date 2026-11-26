@@ -29,8 +29,11 @@ export type ArticleBlock =
    * reader's setting or else the article's `labels`; with the line that either is fine and the link to `NAMES_ARTICLE`
    */
   | { type: "labels" }
-  /** every note of the octave from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it (`ui/NamesChart.tsx`) */
-  | { type: "names" }
+  /**
+   * every note from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it
+   * (`ui/NamesChart.tsx`). One octave unless `octaves` says more: then the names come round again from each Do, and no table.
+   */
+  | { type: "names"; octaves?: number }
   /** small tools side by side (two to a row on a wide screen, one under the other on a phone), with no text: a row of charts */
   | { type: "row"; tools: Record<string, unknown>[] };
 

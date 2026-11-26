@@ -26,6 +26,11 @@ export const intervalsAndSolfege: Article = {
       "p is for perfect: the 4th and the 5th, Fa and Sol. The ear game below writes them P4 and P5.",
     ] },
 
+    { type: "h2", text: "The names repeat every octave" },
+    { type: "p", text: "After the Do above, the names start again: Ra, Re, Me, Mi, and on up to the next Do. Here are three octaves from a low Do. Press Play below the piano to hear all three rise." },
+    { type: "names", octaves: 3 },
+    { type: "p", text: "Every Do is a new start, so these twelve names cover every note on the piano. A note an octave up keeps its name and its colour." },
+
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
       "Sing quietly, in the comfortable middle of your voice. More in [Look after your voice](/voice-care).",
