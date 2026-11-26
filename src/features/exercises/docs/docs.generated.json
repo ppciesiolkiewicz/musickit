@@ -1291,6 +1291,12 @@
         "description": "voice range; default \"soprano\""
       },
       {
+        "name": "bpm",
+        "type": "number",
+        "required": false,
+        "description": "the run's tempo, 40-120; default 90. 40 to 65 for a warm-up or a new singer, starting at 40: slow leaves time to hear each note and land on it"
+      },
+      {
         "name": "chords",
         "type": "boolean",
         "required": false,

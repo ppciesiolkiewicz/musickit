@@ -64,15 +64,17 @@ function placeSinger(tune: Tune | undefined, pc: number, range: Range, chords: b
   const none: MelodyChord[] = [];
   if (!tune) return { ladder: ladderIn(pc, range), passes: [], notes: [], harmony: none };
   if (tune.keys) {
-    const passes = runPasses(tune.notes, tune.keys, ladderIn, range);
+    // a warm-up run's last pass stays `headroom` under the voice's top; the staff keeps the whole range
+    const top = tune.stage.headroom ? { ...range, high: range.high - tune.stage.headroom } : range;
+    const passes = runPasses(tune.notes, tune.keys, ladderIn, top);
     const ladder = ladderIn(passes[0].pc, range);
     if (chords) {
       // a bar of the first key's I and V before the run, so the key is heard before the singing starts
-      const h = harmoniseRun(tune.notes, tune.keys, ladderIn, range, { intro: true });
+      const h = harmoniseRun(tune.notes, tune.keys, ladderIn, top, { intro: true });
       const later = passes.map((p) => ({ ...p, notes: p.notes.map((x) => ({ ...x, at: x.at + BEATS_PER_BAR })) }));
       return { ladder, passes: later, notes: h.notes, harmony: h.chords };
     }
-    return { ladder, passes, notes: placeRun(tune.notes, tune.keys, ladderIn, range), harmony: none };
+    return { ladder, passes, notes: placeRun(tune.notes, tune.keys, ladderIn, top), harmony: none };
   }
   const ladder = ladderIn(pc, range);
   if (chords) {

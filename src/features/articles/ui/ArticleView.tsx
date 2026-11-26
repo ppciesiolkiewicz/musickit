@@ -5,6 +5,7 @@ import { parseTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
 import { CareLine } from "@/features/plan/ui/reader/NoteText";
 import type { Article, ArticleBlock } from "../model";
+import TempoTool from "./TempoTool";
 
 /** `**bold**`, `[label](href)` and `_care line_` inside a line of article text. */
 export function Inline({ text }: { text: string }) {
@@ -39,7 +40,7 @@ function Block({ block }: { block: ArticleBlock }) {
         <section aria-label={block.title} className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
           <h2 className="text-lg font-semibold text-slate-50">{block.title}</h2>
           {block.lines.map((t) => <p key={t} className="text-slate-300"><Inline text={t} /></p>)}
-          {tool && <div className="min-w-0"><Tool tool={tool} /></div>}
+          {tool && <div className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>}
           {block.after?.map((t) => <p key={t} className="text-slate-300"><Inline text={t} /></p>)}
         </section>
       );

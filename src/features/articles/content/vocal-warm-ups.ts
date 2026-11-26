@@ -4,8 +4,8 @@ export const vocalWarmUps: Article = {
   slug: "vocal-warm-ups",
   title: "Vocal warm-ups for beginners: a five-minute routine",
   metaTitle: "Vocal Warm-ups for Beginners: a 5-Minute Routine with the Mic · attunr",
-  description: "A gentle five-minute vocal warm-up you can do on this page: breathing, a hiss and a buzz, lip rolls, and a hum that opens into a note.",
-  intro: "Five minutes, five warm-ups, all on this page. Breath first, then buzz, then sound.",
+  description: "A gentle five-minute vocal warm-up on this page: breathing, a hiss and a buzz, lip rolls, a hum that opens into a note, and the five-tone scale.",
+  intro: "Five minutes, six warm-ups, all on this page. Breath first, then buzz, then sound.",
   updated: "2026-11-26",
   sings: true,
   blocks: [
@@ -43,6 +43,14 @@ export const vocalWarmUps: Article = {
       "Hum the low Do, then open it to \"oo\" without the pitch moving. Then do the same on Sol.",
     ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", labels: "solfege", notes: ["1", "5"], drone: true }, after: [
       "_Don't reach for high notes: Sol here is the one just above the low Do._",
+    ] },
+
+    { type: "exercise", title: "6. The five-tone scale", lines: [
+      "Last, a little run: **Do Re Mi Fa Sol Fa Mi Re Do.** It starts at 40 bpm, slow enough to hear each step.",
+      "Press Play below to hear the run: the mic starts with it. Sing along on \"oo\". Each pass starts a semitone higher.",
+      "Once it feels easy, use the Tempo selector above the run to speed it up.",
+    ], tool: { type: "run-singer", pick: { stage: "five", index: 0 }, voice: "tenor", bpm: 40 }, after: [
+      "_Don't reach for high notes: let a pass go when its top stops feeling easy._",
     ] },
 
     { type: "p", text: "Warm? Try the [pitch matching exercises](/learn/pitch-matching-exercises) next." },

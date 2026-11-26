@@ -462,14 +462,15 @@ import f459_voice_new_up_to_mi from "./voice-new-up-to-mi.json";
 import f460_voice_new_up_to_sol from "./voice-new-up-to-sol.json";
 import f461_voice_warm_up_agility_do_between_steps from "./voice-warm-up-agility-do-between-steps.json";
 import f462_voice_warm_up_agility_out_from_do_and_back from "./voice-warm-up-agility-out-from-do-and-back.json";
-import f463_voice_warm_up_hiss_then_buzz from "./voice-warm-up-hiss-then-buzz.json";
-import f464_voice_warm_up_in_hold_out from "./voice-warm-up-in-hold-out.json";
-import f465_voice_warm_up_lip_rolls_down from "./voice-warm-up-lip-rolls-down.json";
-import f466_voice_warm_up_lip_rolls_down_then_up from "./voice-warm-up-lip-rolls-down-then-up.json";
-import f467_voice_warm_up_lip_rolls_up_then_down from "./voice-warm-up-lip-rolls-up-then-down.json";
-import f468_voice_warm_up_out_from_do_going_down from "./voice-warm-up-out-from-do-going-down.json";
-import f469_voice_warm_up_out_from_do_going_up from "./voice-warm-up-out-from-do-going-up.json";
-import f470_voice_warm_up_the_scale_up_and_back from "./voice-warm-up-the-scale-up-and-back.json";
+import f463_voice_warm_up_five_tone_scale from "./voice-warm-up-five-tone-scale.json";
+import f464_voice_warm_up_hiss_then_buzz from "./voice-warm-up-hiss-then-buzz.json";
+import f465_voice_warm_up_in_hold_out from "./voice-warm-up-in-hold-out.json";
+import f466_voice_warm_up_lip_rolls_down from "./voice-warm-up-lip-rolls-down.json";
+import f467_voice_warm_up_lip_rolls_down_then_up from "./voice-warm-up-lip-rolls-down-then-up.json";
+import f468_voice_warm_up_lip_rolls_up_then_down from "./voice-warm-up-lip-rolls-up-then-down.json";
+import f469_voice_warm_up_out_from_do_going_down from "./voice-warm-up-out-from-do-going-down.json";
+import f470_voice_warm_up_out_from_do_going_up from "./voice-warm-up-out-from-do-going-up.json";
+import f471_voice_warm_up_the_scale_up_and_back from "./voice-warm-up-the-scale-up-and-back.json";
 
 export const FILES: Record<string, unknown> = {
   "guitar-advanced-a-dorian-find-the-6th": f0_guitar_advanced_a_dorian_find_the_6th,
@@ -935,12 +936,13 @@ export const FILES: Record<string, unknown> = {
   "voice-new-up-to-sol": f460_voice_new_up_to_sol,
   "voice-warm-up-agility-do-between-steps": f461_voice_warm_up_agility_do_between_steps,
   "voice-warm-up-agility-out-from-do-and-back": f462_voice_warm_up_agility_out_from_do_and_back,
-  "voice-warm-up-hiss-then-buzz": f463_voice_warm_up_hiss_then_buzz,
-  "voice-warm-up-in-hold-out": f464_voice_warm_up_in_hold_out,
-  "voice-warm-up-lip-rolls-down": f465_voice_warm_up_lip_rolls_down,
-  "voice-warm-up-lip-rolls-down-then-up": f466_voice_warm_up_lip_rolls_down_then_up,
-  "voice-warm-up-lip-rolls-up-then-down": f467_voice_warm_up_lip_rolls_up_then_down,
-  "voice-warm-up-out-from-do-going-down": f468_voice_warm_up_out_from_do_going_down,
-  "voice-warm-up-out-from-do-going-up": f469_voice_warm_up_out_from_do_going_up,
-  "voice-warm-up-the-scale-up-and-back": f470_voice_warm_up_the_scale_up_and_back,
+  "voice-warm-up-five-tone-scale": f463_voice_warm_up_five_tone_scale,
+  "voice-warm-up-hiss-then-buzz": f464_voice_warm_up_hiss_then_buzz,
+  "voice-warm-up-in-hold-out": f465_voice_warm_up_in_hold_out,
+  "voice-warm-up-lip-rolls-down": f466_voice_warm_up_lip_rolls_down,
+  "voice-warm-up-lip-rolls-down-then-up": f467_voice_warm_up_lip_rolls_down_then_up,
+  "voice-warm-up-lip-rolls-up-then-down": f468_voice_warm_up_lip_rolls_up_then_down,
+  "voice-warm-up-out-from-do-going-down": f469_voice_warm_up_out_from_do_going_down,
+  "voice-warm-up-out-from-do-going-up": f470_voice_warm_up_out_from_do_going_up,
+  "voice-warm-up-the-scale-up-and-back": f471_voice_warm_up_the_scale_up_and_back,
 };

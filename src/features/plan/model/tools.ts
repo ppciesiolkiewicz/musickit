@@ -125,7 +125,7 @@ type PlanToolProps =
   | { type: "interval-ears"; query: string; level?: ToolLevel; /** intervals may span more than an octave */ wide?: boolean }
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement; /** the arpeggios page's views instead of the box: the whole neck and/or its positions */ show?: NeckPart[]; /** with `show`: the root strings shown, 2-6 (6 = low E); absent: all */ roots?: number[] } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice; /** the tune's tempo, kept only when not 90 */ bpm?: number; chords?: false; metronome?: true }
-  | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
+  | { type: "run-singer"; run: number; voice?: Voice; /** the run's tempo, kept only when not 90 */ bpm?: number; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; level?: ToolLevel; metronome?: false }
   | { type: "breathwork"; drill?: BreathDrill; level?: ToolLevel; from?: number; to?: number; seconds?: number; rounds?: number }
   | { type: "voice-hill"; where?: HillWhere; sound?: HillSound; seconds?: number; reps?: number; voice?: Voice }
@@ -429,9 +429,10 @@ const singer = (t: Record<string, unknown>, d: Diag, field: "tune" | "run", ok: 
   const voice = voiceOf(t.voice);
   // chords are on unless turned off, the metronome off unless turned on, so only the change is kept
   const rest = { ...(voice ? { voice } : {}), ...(t.chords === false ? { chords: false as const } : {}), ...(t.metronome === true ? { metronome: true as const } : {}) };
-  // a tune's tempo is kept only when it is not the 90 a tune plays at by itself; a run has none
-  const bpm = field === "tune" && t.bpm != null ? intOr(d, "bpm", t.bpm, 40, 120, 90) : 90;
-  const tool: PlanTool = field === "tune" ? { type: "melody-singer", tune: n as number, key: key!, ...(bpm !== 90 ? { bpm } : {}), ...rest } : { type: "run-singer", run: n as number, ...rest };
+  // the tempo is kept only when it is not the 90 a tune or a run plays at by itself
+  const bpm = t.bpm != null ? intOr(d, "bpm", t.bpm, 40, 120, 90) : 90;
+  const tempo = bpm !== 90 ? { bpm } : {};
+  const tool: PlanTool = field === "tune" ? { type: "melody-singer", tune: n as number, key: key!, ...tempo, ...rest } : { type: "run-singer", run: n as number, ...tempo, ...rest };
   if (!exact) INEXACT_PICKS.add(tool);
   return tool;
 };
@@ -932,7 +933,7 @@ export function canFollowPart(tool: PlanTool, part: PartName): boolean {
   switch (part) {
     case "key": return canTranspose(tool);
     case "scale": return "scale" in tool && typeof tool.scale === "string";
-    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "song-chart", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "melody-singer"].includes(tool.type);
+    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "song-chart", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "melody-singer", "run-singer"].includes(tool.type);
     case "position": return tool.type === "scale-neck" || (tool.type === "position-neck" && !tool.cross);
     case "level": return hasLevel(tool);
   }

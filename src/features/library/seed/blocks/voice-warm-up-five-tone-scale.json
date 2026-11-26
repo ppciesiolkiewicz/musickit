@@ -1,0 +1,57 @@
+{
+  "id": "voice-warm-up-five-tone-scale",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "prompt": 21,
+    "agents": 2,
+    "teaching": 12
+  },
+  "note": "A warm-up (part 3): the five-tone scale, Do up to Sol and back by step, as the five-note run (RUN_STAGES five, the first) at 40 bpm, a semitone higher each pass and 5 semitones under the voice's top; also on /learn/vocal-warm-ups and /learn/pitch-matching-exercises.",
+  "exercise": {
+    "title": "The five-tone scale, up and back",
+    "kind": "warm-up",
+    "warmUpPart": 3,
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-runs",
+    "why": "Five notes up to Sol and back down by step, a key higher each pass, so your voice warms up one small step at a time.",
+    "learnBefore": [
+      "/course/6/vocal-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"oo\": {{1}} {{2}} {{3}} {{4}} {{5}} and back down to {{1}}.\nEach pass starts a semitone higher.\n_Don't reach for high notes: let a pass go when its top stops feeling easy._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "stage": "five",
+            "index": 0
+          },
+          "voice": "tenor",
+          "bpm": 40
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [],
+      "moves": {
+        "bpm": {
+          "from": 40,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 2
+    }
+  ]
+}

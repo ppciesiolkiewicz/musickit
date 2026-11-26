@@ -24,6 +24,8 @@ export interface Stage {
   /** what this stage adds */
   hint: string;
   tunes: string[];
+  /** a run's: semitones its last pass stays under the top of the voice (a warm-up's), instead of topping out on it */
+  headroom?: number;
 }
 
 export const STAGES: Stage[] = [
@@ -238,6 +240,7 @@ export const BOOK: BookTune[] = bookOf(STAGES, 1);
 export const RUN_STAGES: Stage[] = [
   {
     id: "five",
+    headroom: 5,
     title: "Five-note scale",
     hint: "Do up to Sol and back, in eighths, then sixteenths",
     tunes: ["1e 2e 3e 4e 5e 4e 3e 2e | 1w", "1e 2e 3e 4e 5h | 5e 4e 3e 2e 1h | 1e 2e 3e 4e 5e 4e 3e 2e | 1w", "1s 2s 3s 4s 5s 4s 3s 2s 1s 2s 3s 4s 5s 4s 3s 2s | 1w"],
@@ -275,6 +278,7 @@ export const RUN_STAGES: Stage[] = [
   {
     // last, so no run before it changes its number
     id: "out-from-do",
+    headroom: 5,
     title: "Out from Do and back",
     hint: "Out from Do and back, one step further each time: Do Re Do, Do Mi Do… then Do Re Do Mi Do Fa Do Sol",
     tunes: ["1e 2e 1 1e 3e 1 | 1e 4e 1 1e 5e 1 | 1w", "1e 2e 1e 3e 1e 4e 1e 5e | 4 3 2h | 1w"],

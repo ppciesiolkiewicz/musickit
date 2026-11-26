@@ -34,7 +34,8 @@
             "stage": "out-from-do",
             "index": 1
           },
-          "voice": "tenor"
+          "voice": "tenor",
+          "bpm": 40
         }
       }
     ]
@@ -44,7 +45,14 @@
       "name": "intermediate",
       "level": "intermediate",
       "steps": [],
-      "minutes": 2
+      "minutes": 2,
+      "moves": {
+        "bpm": {
+          "from": 40,
+          "to": 90,
+          "step": 10
+        }
+      }
     }
   ]
 }

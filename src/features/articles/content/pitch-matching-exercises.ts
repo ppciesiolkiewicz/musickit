@@ -4,8 +4,8 @@ export const pitchMatchingExercises: Article = {
   slug: "pitch-matching-exercises",
   title: "Pitch matching exercises for singers",
   metaTitle: "Pitch Matching Exercises for Singers, with Live Feedback · attunr",
-  description: "Five pitch matching exercises you can sing right here, with your pitch drawn live over the note: a held Do, a slide, two agility runs and sing-back.",
-  intro: "Sing a note, see where you landed, nudge it. Five exercises you can do right on this page.",
+  description: "Six pitch matching exercises to sing right here, your pitch drawn live over the note: a held Do, a slide, the five-tone scale, agility runs, sing-back.",
+  intro: "Sing a note, see where you landed, nudge it. Six exercises you can do right on this page.",
   updated: "2026-11-26",
   sings: true,
   blocks: [
@@ -34,21 +34,30 @@ export const pitchMatchingExercises: Article = {
       "_Don't reach for high notes: turn the siren round at Sol._",
     ] },
 
-    { type: "exercise", title: "3. Agility: out from Do and back", lines: [
+    { type: "h2", text: "Slow first, then loop the hard part" },
+    { type: "p", text: "The runs below start at 40 bpm: slow enough to hear every note and land on it. Once every note lands, use the Tempo selector above a run to speed it up." },
+    { type: "p", text: "Stuck on one spot? Drag the two markers on the strip above the staff round that part, and only that part repeats until it's easy." },
+
+    { type: "exercise", title: "3. The five-tone scale", lines: [
+      "Do Re Mi Fa Sol and back down: **Do Re Mi Fa Sol Fa Mi Re Do.**",
+      "Press Play below to hear the run: the mic starts with it. Sing along on the note names, one step at a time. Each pass starts a semitone higher.",
+    ], tool: { type: "run-singer", pick: { stage: "five", index: 0 }, voice: "tenor", bpm: 40 } },
+
+    { type: "exercise", title: "4. Agility: out from Do and back", lines: [
       "An agility warm-up: **Do Re Do, Do Mi Do, Do Fa Do, Do Sol Do.**",
       "Press Play below to hear the run: the mic starts with it. Sing along on the note names. Coming back to Do every time gives your ear a home to check against.",
       "Each pass starts a semitone higher. Switch to \"oo\" when it gets high.",
-    ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 0 }, voice: "tenor" } },
+    ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 0 }, voice: "tenor", bpm: 40 } },
 
-    { type: "exercise", title: "4. Agility: Do between each step", lines: [
+    { type: "exercise", title: "5. Agility: Do between each step", lines: [
       "Same notes, quicker: **Do Re Do Mi Do Fa Do Sol, then Fa Mi Re Do.**",
       "Press Play below to hear the run: the mic starts with it. Sing along on the note names, and listen for each jump landing straight on its note.",
       "Then try it on \"oo\" for fun: same jumps, no names to lean on.",
-    ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 1 }, voice: "tenor" }, after: [
+    ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 1 }, voice: "tenor", bpm: 40 }, after: [
       "_Don't reach for high notes: let a pass go when its top stops feeling easy._",
     ] },
 
-    { type: "exercise", title: "5. Hear it, sing it back", lines: [
+    { type: "exercise", title: "6. Hear it, sing it back", lines: [
       "Press Start below to hear two notes. Sing both back on \"la\" before you answer: that's the pitch matching part.",
     ], tool: { type: "interval-ears", set: [3, 4, 7, 9], dir: "up" } },
 

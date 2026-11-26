@@ -86,7 +86,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "melody-singer":
       return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} bpm={tool.bpm} chords={tool.chords} metronome={tool.metronome} />;
     case "run-singer":
-      return <RunSinger run={tool.run} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
+      return <RunSinger run={tool.run} voice={tool.voice ?? voice} bpm={tool.bpm} chords={tool.chords} metronome={tool.metronome} />;
     case "string-singer":
       return <StringSinger drill={tool.drill} metronome={tool.metronome} />;
     case "breathwork":
