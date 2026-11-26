@@ -8,14 +8,12 @@ import { MIN_HOLD_MS, type createHeldNotes } from "@/features/theory/heldNotes";
 /** the whole piano: A0 to C8 */
 export const LO = 21;
 export const HI = 108;
-/** seconds of pitch kept on screen */
-export const WINDOW_S = 8;
+/** seconds of pitch kept on screen, from the left edge to the "now" line */
+export const WINDOW_S = 5;
 const ROW_H = 26;
 /** full screen the rows grow, so the roll reads from a step back */
 const FULL_ROW_H = 34;
 const KEYS_W = 48;
-/** the "now" line sits this far in from the right edge */
-const NOW_PAD = 24;
 /** a held note's bar fades in over this long once it shows, and dims over this long once it ends */
 const FADE_MS = 150;
 const BLACK = new Set([1, 3, 6, 8, 10]);
@@ -43,7 +41,7 @@ function readColours() {
 
 /**
  * The pitch roll's drawing, on a canvas: every key of the piano as a row (the key and scale's keys and rows tinted
- * yellow), the held notes as bars, the pitch as a line and a dot at the "now" line. It shows the rows that fit its box
+ * yellow), the held notes as bars, the pitch as a line and a dot at the "now" line, halfway across. It shows the rows that fit its box
  * and never scrolls by hand: the view glides up or down after the pitch when it nears an edge. Tap a key to hear it. Keyed by
  * full screen in the parent, so it mounts afresh in the modal; the readings it draws live in the parent.
  */
@@ -166,7 +164,8 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
       }
     }
 
-    const nowX = width - NOW_PAD;
+    // the "now" line, and the dot on it, halfway across the rows
+    const nowX = KEYS_W + (width - KEYS_W) / 2;
     const pxPerS = (nowX - KEYS_W) / WINDOW_S;
     const xOf = (t: number) => nowX - ((now - t) / 1000) * pxPerS;
     g.save();
