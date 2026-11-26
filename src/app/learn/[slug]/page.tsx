@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/PageShell";
+import GlassShapes from "@/components/landing/GlassShapes";
 import { ARTICLES, articleOf } from "@/features/articles";
 import ArticleView from "@/features/articles/ui/ArticleView";
 
@@ -20,7 +21,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const a = articleOf((await params).slug);
   if (!a) notFound();
   return (
-    <PageShell active="/learn" column devices={a.sings} mic={a.sings} title={a.title} intro={a.intro}>
+    <PageShell active="/learn" column devices={a.sings} mic={a.sings} title={a.title} intro={a.intro} decor={<GlassShapes />}>
       <ArticleView article={a} />
     </PageShell>
   );

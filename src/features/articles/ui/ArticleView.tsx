@@ -37,7 +37,7 @@ function Block({ block }: { block: ArticleBlock }) {
     case "exercise": {
       const tool = parseTool(block.tool);
       return (
-        <section aria-label={block.title} className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/50 p-4">
+        <section aria-label={block.title} className="metal-panel mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
           <h2 className="text-lg font-semibold text-slate-50">{block.title}</h2>
           {block.lines.map((t) => <p key={t} className="text-slate-300"><Inline text={t} /></p>)}
           {tool && <div className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>}
@@ -51,7 +51,7 @@ function Block({ block }: { block: ArticleBlock }) {
 /** The ending of every article: one line and the home page's main button. The words are here, not in the articles. */
 function JoinCard() {
   return (
-    <aside aria-label="Join attunr" className="mt-6 flex flex-col items-start gap-3 rounded-xl border border-sky-500/30 bg-sky-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <aside aria-label="Join attunr" className="metal-panel mt-6 flex flex-col items-start gap-3 rounded-2xl border border-sky-500/30 bg-sky-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
       <p className="font-medium text-slate-100">Join attunr for more interactive exercises and a curated practice plan for every day.</p>
       <Link href="/plan" className="shrink-0 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-sky-400">Start your plan</Link>
     </aside>
