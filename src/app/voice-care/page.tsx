@@ -47,7 +47,7 @@ const SECTIONS: LegalSection[] = [
 export default function VoiceCarePage() {
   return (
     <PageShell active="/voice-care" column title="Look after your voice" intro="Singing doesn't need much force. A few habits keep your voice healthy while you practice.">
-      <LegalSections sections={SECTIONS} about="your voice and the app" />
+      <LegalSections sections={SECTIONS} about="your voice and the app" source="voice-care" />
       <p className="mt-6 max-w-3xl text-sm text-slate-400">The <A href="/terms#your-voice-and-your-body">terms of use</A> say the same.</p>
     </PageShell>
   );
