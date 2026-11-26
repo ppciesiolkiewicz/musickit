@@ -67,7 +67,7 @@
     "@vercel/blob": "^2.8.1",
     "drizzle-orm": "^0.45.4",
     "js-aruco2": "^2.0.0",
-    "next": "^16.4.0",
+    "next": "^16.4.6",
     "postgres": "^4.1.0",
     "posthog-js": "^1.440.0",
     "react": "^19.3.0",
@@ -87,9 +87,14 @@
     "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.5",
-    "eslint-config-next": "^16.4.0",
+    "eslint-config-next": "^16.4.6",
     "node-web-audio-api": "^2.2.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@vercel/cli-config": {
+      "zod": "^4.6.6"
+    }
   }
 }
