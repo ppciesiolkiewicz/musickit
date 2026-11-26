@@ -8,6 +8,7 @@ export const vocalWarmUps: Article = {
   intro: "Five minutes, six warm-ups, sung right here with your mic. Breath first, then buzz, then sound.",
   updated: "2026-11-26",
   sings: true,
+  topics: ["singing"],
   blocks: [
     { type: "p", text: "A warm-up wakes your voice up gently before you ask anything hard of it. Each one below asks a little more than the last." },
     { type: "list", items: [

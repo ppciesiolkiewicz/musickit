@@ -15,7 +15,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 ## Where things are
 
 - `VOICE.md`: how the articles sound, on top of `teaching-voice`, with its `version` (`ARTICLE_VOICE_VERSION`).
-- `model.ts`: `Article` (title, search title and description, intro, `updated`, `sings`, `blocks`) and `ArticleBlock`: `p`,
+- `model.ts`: `Article` (title, search title and description, intro, `updated`, `sings`, `topics` (Singing, Guitar, Theory: `TOPICS`), `blocks`) and `ArticleBlock`: `p`,
   `h2`, `list`, `care` (the plan's care line, `CareLine`), `figure` (a photo in `public/images/learn` with its caption and the credit its licence asks for) and `exercise` (a heading, its lines, the tool, lines after it). Text
   takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`), and explained words: `marks.ts`
   (`markArticle`) runs the plan's glossary (`explain()`, `GLOSSARY` in `features/course/glossary.ts`) over the article's
@@ -29,6 +29,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   blocks it reuses, the calculator runs, the sources read, and what is still open. Rewrite the article from it when the rules change.
 - `ui/PlayerControls.tsx`: the `player` block: the sing-along player's controls (Staff or Piano roll, Tune, Chords and Click, the loop, Full screen, Accuracy under the settings button), each drawn inline as it looks on the screen. Written once here, placed by a singing article before its first run.
 - `author.ts`: `AUTHOR`, Pio's name, photo and note, shown in the join card and on `/about` (`src/app/about/page.tsx`, a ProfilePage), and `authorJsonLd`, the Person every article's structured data names as its author (`jsonLd.ts`).
+- `ui/LearnList.tsx`: /learn's cards with the topic buttons over them (All, Singing, Guitar, Theory); each card (`ui/ArticleCard.tsx`) shows its topic tags.
 - `ui/TempoTool.tsx`: a sung tune or run (melody-singer, run-singer) with a Tempo selector over it, 40, 60, 80 or 90 bpm (`ARTICLE_TEMPOS`), starting on the tempo the article wrote (40).
 - `ui/ArticleCard.tsx`: an article as a card: title, intro, how many exercises it has (or how many minutes it takes to read, from
   `stats.ts`, `articleStats`), **Uses your mic** when it `sings`, and **Read**. On `/learn` and under each article's **More guides**.

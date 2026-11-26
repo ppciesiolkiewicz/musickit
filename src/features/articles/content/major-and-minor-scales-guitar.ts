@@ -8,6 +8,7 @@ export const majorAndMinorScalesGuitar: Article = {
   intro: "A visual, interactive look at A major and A minor on the whole neck, with a few small islands of notes to play and hear. Part 1 of a series on knowing one key all over the neck.",
   updated: "2026-11-26",
   sings: false,
+  topics: ["guitar", "theory"],
   blocks: [
     { type: "p", text: "Most of us learn a scale as one position: a block of frets to run up and down. But the neck doesn't stop there. The same notes come back all the way up, and small groups of them come back together." },
     { type: "p", text: "I call those groups **islands**: three notes around a root, under one hand. Below, A major and A minor sit one above the other, with islands of the same scale notes framed on both. Play one island, then another one up the neck: same notes, same tune, just higher or lower." },

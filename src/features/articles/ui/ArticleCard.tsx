@@ -1,11 +1,11 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
-import type { Article } from "../model";
+import { TOPICS, type Article } from "../model";
 import { articleStats } from "../stats";
 
 /**
  * One article as a card linking to /learn/<slug>: its title, its intro, and what is on the page (how many exercises, or how
- * long it takes to read, and whether it listens to the mic). On /learn and under each article's "More guides".
+ * long it takes to read, and whether it listens to the mic), with its topic tags first. On /learn and under each article's "More guides".
  */
 export default function ArticleCard({ article, heading: H = "h2" }: { article: Article; heading?: "h2" | "h3" }) {
   const { exercises, minutes } = articleStats(article);
@@ -17,6 +17,9 @@ export default function ArticleCard({ article, heading: H = "h2" }: { article: A
       <H className="text-lg leading-snug font-semibold text-slate-50 group-hover:text-sky-100">{article.title}</H>
       <p className="text-sm leading-relaxed text-slate-400">{article.intro}</p>
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">
+        {article.topics.map((t) => (
+          <span key={t} className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 font-medium text-sky-200">{TOPICS[t]}</span>
+        ))}
         <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-950/40 px-2.5 py-1">
           <Icon name={exercises ? "target" : "book-open"} size={13} className="text-sky-300" />
           {exercises ? `${exercises} exercises` : `${minutes}-minute read`}

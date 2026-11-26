@@ -42,6 +42,13 @@ describe("articles", () => {
     for (const a of ARTICLES) assert.ok(articleStats(a).minutes >= 1, a.slug);
   });
 
+  it("tag every article with at least one topic, each once", () => {
+    for (const a of ARTICLES) {
+      assert.ok(a.topics.length > 0, a.slug);
+      assert.equal(new Set(a.topics).size, a.topics.length, a.slug);
+    }
+  });
+
   it("VOICE.md's version is ARTICLE_VOICE_VERSION", () => {
     assert.equal(Number(/^version: (\d+)$/m.exec(readFileSync(new URL("./VOICE.md", import.meta.url), "utf8"))?.[1]), ARTICLE_VOICE_VERSION);
   });

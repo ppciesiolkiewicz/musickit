@@ -17,6 +17,10 @@ export type ArticleBlock =
   /** something to sing on the page: a heading, its lines (one paragraph each) and the tool, written as a seed exercise writes it (`parseTool` reads it) */
   | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; after?: string[] };
 
+/** The topics an article is tagged with, in the order /learn's filter shows them, with the word on the screen. */
+export const TOPICS = { singing: "Singing", guitar: "Guitar", theory: "Theory" } as const;
+export type Topic = keyof typeof TOPICS;
+
 /** A public article at /learn/<slug>, written for one search (NEW21). */
 export interface Article {
   slug: string;
@@ -32,6 +36,8 @@ export interface Article {
   updated: string;
   /** the page listens to the mic: shows the mic and headphones note and the Your voice picker */
   sings: boolean;
+  /** what it is about, shown as tags on its /learn card and used by the topic filter there; one or more */
+  topics: Topic[];
   blocks: ArticleBlock[];
 }
 

@@ -8,6 +8,7 @@ export const scaleDegreeFeelings: Article = {
   intro: "Every note of a scale has its own feeling, and it's the same in any key. Theory gives that feeling a name. Four interactive exercises to hear it and sing it on this page.",
   updated: "2026-11-26",
   sings: true,
+  topics: ["singing", "theory"],
   blocks: [
     { type: "p", text: "Music theory can feel like a pile of names to learn. I like to see it another way: the names are for things you can already feel." },
     { type: "p", text: "Music is relative. A song is the same song in any key, because your ear hears each note against home, Do, not by its letter. That's called relative pitch." },

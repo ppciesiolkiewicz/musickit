@@ -8,6 +8,7 @@ export const scaleDegreesGuitarAnyKey: Article = {
   intro: "A visual, interactive drill: one small island of notes, Do Re Do, found all over the neck in A minor and then in E minor. Part 2 of a series on knowing one key all over the neck.",
   updated: "2026-11-26",
   sings: false,
+  topics: ["guitar", "theory"],
   blocks: [
     { type: "p", text: "In [part 1](/learn/major-and-minor-scales-guitar) I framed small **islands** of notes on A major and A minor: three notes around a root, under one hand. This time it's the smallest island there is, two notes: Do and Re, the root and the note a step above it." },
     { type: "p", text: "Play Do Re Do anywhere on the neck and it sounds the same, just higher or lower. Move it to another key and it still sounds the same. That's what a scale degree is: a note named by its place from Do, not by its letter. More on that in [Learning music theory as a way of naming feelings](/learn/scale-degree-feelings)." },

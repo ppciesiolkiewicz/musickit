@@ -8,6 +8,7 @@ export const microphoneAndAudioInterface: Article = {
   intro: "You don't need any of this to start. But if you're wondering what to buy, here's a simple setup that's hard to go wrong with.",
   updated: "2026-11-26",
   sings: false,
+  topics: ["singing"],
   blocks: [
     { type: "p", text: "Your laptop's or phone's mic is enough to practice pitch on attunr. A real mic and an interface give you a cleaner sound and let you hear yourself in headphones." },
     { type: "p", text: "This is for anyone overwhelmed by all the options. I'm not a gear specialist and I don't know your budget. This is a simple, budget-friendly setup that will get you through a lot. Nobody paid me to name it." },
