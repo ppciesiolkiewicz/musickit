@@ -29,7 +29,7 @@ test("seven days from the start, from the student's blocks of their areas", asyn
   assert.deepEqual(library.calls, [{ player: S, areas: ["guitar"] }]);
   // no choice twice on two days running
   for (let i = 1; i < 7; i++) {
-    const before = new Set(r.days[i - 1].exercises.map((e) => e.choiceId));
+    const before: Set<unknown> = new Set(r.days[i - 1].exercises.map((e) => e.choiceId));
     for (const e of r.days[i].exercises) assert.ok(e.choiceId && !before.has(e.choiceId), `day ${i}`);
   }
 });
