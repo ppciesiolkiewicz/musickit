@@ -6,6 +6,7 @@ import { parseTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
 import { CareLine } from "@/features/plan/ui/reader/NoteText";
 import { ARTICLES } from "../index";
+import { AUTHOR } from "../author";
 import type { Article, ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
 import PlayerControls from "./PlayerControls";
@@ -67,24 +68,22 @@ function Block({ block }: { block: ArticleBlock }) {
   }
 }
 
-/** Pio's note, from Pio's own words (2026-11-26): who writes the articles and why attunr exists. */
-const AUTHOR_NOTE = [
-  "I'm Pio. I sing, play guitar and love music. I didn't finish music school, but I've always loved learning. It runs through my work as a software engineer, my yoga teaching, and circus, dance and flow arts on stage.",
-  "I see singing and music practice as part of looking after myself. Making your body vibrate with a note brings me back into my body, the way yoga does.",
-  "I know how hard it can be to sit down and practice when there's too much to choose from. That's why I made attunr. It gives you new guitar and singing exercises every day, so you don't get stuck on what you already know.",
-];
-
-/** The ending of every article (and of /learn): Pio's note, then one line and the home page's main button. The words are here, not in the articles. */
-export function JoinCard() {
+/** The ending of every article (and of /learn): Pio's note (`AUTHOR`) and a link to /about, then one line and the home page's main button. The words are here, not in the articles. */
+export function JoinCard({ about = true }: { about?: boolean }) {
   return (
-    <aside aria-label="About the author and joining attunr" className="metal-panel mt-6 flex flex-col gap-4 rounded-2xl border border-sky-500/30 bg-sky-500/5 p-5">
-      <div className="flex items-center gap-4">
-        {/* eslint-disable-next-line @next/next/no-img-element -- a small square photo, already sized (as in landing/Founder) */}
-        <img src="/images/founder.jpg" alt="Pio, founder of attunr, playing bass on stage" width={160} height={160} loading="lazy" className="size-16 shrink-0 rounded-full border border-white/15 object-cover ring-4 ring-sky-400/15" />
-        <p className="text-sm text-slate-400"><b className="text-base text-slate-100">Written by Pio</b><br />founder of attunr</p>
-      </div>
-      {AUTHOR_NOTE.map((t) => <p key={t} className="text-slate-300">{t}</p>)}
-      <div className="flex flex-col items-start gap-3 border-t border-slate-800 pt-4 sm:flex-row sm:items-center sm:justify-between">
+    <aside aria-label={about ? "About the author and joining attunr" : "Join attunr"} className="metal-panel mt-6 flex flex-col gap-4 rounded-2xl border border-sky-500/30 bg-sky-500/5 p-5">
+      {about && (
+        <>
+          <div className="flex items-center gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element -- a small square photo, already sized (as in landing/Founder) */}
+            <img src={AUTHOR.photo} alt={AUTHOR.alt} width={160} height={160} loading="lazy" className="size-16 shrink-0 rounded-full border border-white/15 object-cover ring-4 ring-sky-400/15" />
+            <p className="text-sm text-slate-400"><b className="text-base text-slate-100">Written by {AUTHOR.name}</b><br />{AUTHOR.role}</p>
+          </div>
+          {AUTHOR.note.map((t) => <p key={t} className="text-slate-300">{t}</p>)}
+          <p><Link href={AUTHOR.path} className="text-sky-300 underline-offset-2 hover:underline">More about me</Link></p>
+        </>
+      )}
+      <div className={`flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between ${about ? "border-t border-slate-800 pt-4" : ""}`}>
         <p className="font-medium text-slate-100">Join attunr for more interactive exercises and a curated practice plan for every day.</p>
         <Link href="/plan" className="shrink-0 rounded-lg bg-sky-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-sky-400">Start your plan</Link>
       </div>

@@ -5,10 +5,10 @@
  */
 
 /**
- * The pages a visitor reads: the two home pages, the FAQ, the terms, the privacy policy, the voice-care notes, the articles (`/learn`), the demo plans, logging in (and a teacher's student's
+ * The pages a visitor reads: the two home pages, the FAQ, the terms, the privacy policy, the voice-care notes, the articles (`/learn`) and their author's page (`/about`), the demo plans, logging in (and a teacher's student's
  * claim link, `/claim`, opened before their first log-in), and pages left as they were.
  */
-const MARKETING = ["/", "/schools", "/faq", "/terms", "/privacy", "/voice-care", "/learn", "/demo", "/login", "/claim", "/kickstarter", "/landing-1", "/intro", "/reminders/off"];
+const MARKETING = ["/", "/schools", "/faq", "/terms", "/privacy", "/voice-care", "/learn", "/about", "/demo", "/login", "/claim", "/kickstarter", "/landing-1", "/intro", "/reminders/off"];
 
 /**
  * The app's pages anyone may open by their link: a shared note (`/notes/shared/<id>`), and a teacher invite (`/join/<token>`),

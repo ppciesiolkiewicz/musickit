@@ -14,6 +14,7 @@ const CHANGED = {
   "/terms": "2026-11-26",
   "/privacy": "2026-11-26",
   "/voice-care": "2026-11-26",
+  "/about": "2026-11-26",
 } as const;
 
 const day = (d: string) => new Date(`${d}T00:00:00Z`);
@@ -29,6 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/privacy`, lastModified: day(CHANGED["/privacy"]), changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/voice-care`, lastModified: day(CHANGED["/voice-care"]), changeFrequency: "yearly", priority: 0.3 },
     { url: `${SITE_URL}/learn`, lastModified: day(learn), changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE_URL}/about`, lastModified: day(CHANGED["/about"]), changeFrequency: "yearly", priority: 0.4 },
     ...ARTICLES.map((a) => ({ url: `${SITE_URL}/learn/${a.slug}`, lastModified: day(a.updated), changeFrequency: "monthly" as const, priority: 0.7 })),
   ];
 }

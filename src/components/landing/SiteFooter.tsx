@@ -4,11 +4,11 @@ import Wordmark from "@/components/Wordmark";
 
 type Column = { title: string; links: { href: string; label: string }[] };
 
-/** The two home pages, the app's three places (they need a login), the demo plans and the /learn guides, and help (FAQ, terms, privacy). */
+/** The two home pages, the app's three places (they need a login), the demo plans, the /learn guides and /about, and help (FAQ, terms, privacy). */
 const COLUMNS: Column[] = [
   { title: "attunr for", links: [{ href: "/", label: "Solo musicians" }, { href: "/schools", label: "Music schools" }] },
   { title: "The app", links: [{ href: "/plan", label: "Practice plan" }, { href: "/practice", label: "Practice" }] },
-  { title: "See it first", links: [{ href: "/demo", label: "Demos" }, { href: "/learn", label: "Learn" }] },
+  { title: "See it first", links: [{ href: "/demo", label: "Demos" }, { href: "/learn", label: "Learn" }, { href: "/about", label: "About" }] },
   { title: "Help", links: [{ href: "/faq", label: "FAQ" }, { href: "/terms", label: "Terms of use" }, { href: "/privacy", label: "Privacy policy" }] },
 ];
 
