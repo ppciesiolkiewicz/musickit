@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
-import Icon from "@/components/Icon";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { ToolHeadphonesHint, useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
+import { FullScreenButton, FullScreenFrame } from "@/components/practice/fullScreen";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import { ToolSettings } from "@/features/settings";
 import InputChip from "@/components/InputChip";
@@ -46,8 +45,6 @@ const useTouch = () => useSyncExternalStore(
   () => window.matchMedia(TOUCH).matches,
   () => false,
 );
-
-const noSubscribe = () => () => {};
 
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 
@@ -108,24 +105,9 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   const pc = ask !== null || keys.includes(lastPc) ? lastPc : keys[0];
   const toggleKey = (k: number) => setPicked((ks) => toggleOne(ks, k));
 
-  // full screen: drawn over the page from the body (out of any card's stacking), the page behind kept still, Esc closes it
+  // full screen: a page modal (FullScreenFrame), Esc closes it
   const [full, setFull] = useState(false);
-  const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
-  useEffect(() => {
-    if (!full) return;
-    const onEsc = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      e.preventDefault();
-      setFull(false);
-    };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onEsc);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onEsc);
-    };
-  }, [full]);
+  const closeFull = useCallback(() => setFull(false), []);
 
   const placed = useMemo(() => placeIn(pc, range, intervals, dir), [pc, range, intervals, dir]);
 
@@ -307,19 +289,11 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   const doPlays = both ? "Do and the note play" : "Do plays";
   // one width for Start, Restart and Next, so the buttons after it stay put
   const big = "inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
-  const fullButton = (
-    <Hint title="Full screen" description="Enlarges the piano roll or the staff. Esc closes it.">
-      <button type="button" onClick={() => setFull(!full)} title={full ? "Close full screen (Esc)" : "Full screen"} aria-label={full ? "Close full screen (Esc)" : "Full screen"} aria-pressed={full}
-        className={`flex h-8 min-w-8 items-center justify-center rounded-lg border px-1.5 transition ${full ? "border-sky-400/70 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
-        <Icon name={full ? "minimize" : "maximize"} size={15} />
-      </button>
-    </Hint>
-  );
+  const fullButton = <FullScreenButton full={full} onClick={() => setFull(!full)} description="Enlarges the piano roll or the staff. Esc closes it." />;
   const settings = standard && !hostSettings && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
-  const view = (
-    <div ref={keysRef} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing an interval" : undefined}
-      className={full ? "fixed inset-0 z-[70] flex flex-col gap-3 overflow-hidden bg-slate-950 p-4 sm:p-6" : "flex flex-col gap-3"}>
+  return (
+    <FullScreenFrame full={full} onClose={closeFull} label="Sing an interval" frameRef={keysRef}>
       <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
       <div className="flex flex-wrap items-center gap-2">
         <span data-tour="interval-singer-start" className="inline-flex">
@@ -389,7 +363,6 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
           onNote={(i) => (i === staff.targetAt ? hearTarget() : void tap(doMidi, -1))} />
       )}
       </div>
-    </div>
+    </FullScreenFrame>
   );
-  return full && mounted ? createPortal(view, document.body) : view;
 }
