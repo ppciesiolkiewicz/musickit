@@ -2,7 +2,8 @@
 
 Public articles at `/learn/<slug>`, each written for one search a persona makes (task NEW21 in `tasks.txt`; who ranks for
 what is on `/admin/dev/search`). Anyone can read them without logging in (`/learn` is in `MARKETING`, `src/lib/publicPaths.ts`),
-and they are in the sitemap (`src/app/sitemap.ts`). `/learn` lists them.
+and they are in the sitemap (`src/app/sitemap.ts`) and linked as **Learn** in the site footer. `/learn` lists them as cards, then the
+join card.
 
 An article does what the app's pages do: it ends in something to sing or play. Its exercises are the plan's own tools (`Tool`
 from `features/plan/ui/Tool`), set up in the article the way a seed exercise sets them up, drawn on the page with the mic and
@@ -21,8 +22,10 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   it was written to (the teaching documents', `DOC_VERSIONS`, and the voice's, `VOICE.md`), the author's own notes verbatim, the library
   blocks it reuses, the calculator runs, the sources read, and what is still open. Rewrite the article from it when the rules change.
 - `ui/TempoTool.tsx`: a sung tune or run (melody-singer, run-singer) with a Tempo selector over it, 40, 60, 80 or 90 bpm (`ARTICLE_TEMPOS`), starting on the tempo the article wrote (40).
-- `ui/ArticleView.tsx`: the body, ending on `JoinCard` (the line asking a reader to join, and **Start your plan** to `/plan`, the home page's main button). Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`. Both draw the home and demo pages' glass shapes and side glows behind the column (`GlassShapes` as the shell's `decor`), and each exercise and the join card are `metal-panel` cards.
-- `articles.test.ts`: unique slugs, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search
+- `ui/ArticleCard.tsx`: an article as a card: title, intro, how many exercises it has (or how many minutes it takes to read, from
+  `stats.ts`, `articleStats`), **Uses your mic** when it `sings`, and **Read**. On `/learn` and under each article's **More guides**.
+- `ui/ArticleView.tsx`: the body, ending on the updated date, `JoinCard` (the line asking a reader to join, and **Start your plan** to `/plan`, the home page's main button; `/learn` shows it too) and **More guides** (two other articles' cards and **All guides** back to `/learn`). Pages: `src/app/learn/page.tsx`, `src/app/learn/[slug]/page.tsx`. Both draw the home and demo pages' glass shapes and side glows behind the column (`GlassShapes` as the shell's `decor`), and each exercise and the join card are `metal-panel` cards.
+- `articles.test.ts`: unique slugs, the cards' exercise counts, a seed file per article, every tool accepted by the plan's parser (`parseTool`), a search
   description of 160 characters or less, `/learn/` links to articles that exist, and "practice", never "practise".
 
 ## The articles

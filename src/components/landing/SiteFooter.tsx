@@ -4,11 +4,11 @@ import Wordmark from "@/components/Wordmark";
 
 type Column = { title: string; links: { href: string; label: string }[] };
 
-/** The two home pages, the app's three places (they need a login), the demo plans, and help (FAQ, terms, privacy). */
+/** The two home pages, the app's three places (they need a login), the demo plans and the /learn guides, and help (FAQ, terms, privacy). */
 const COLUMNS: Column[] = [
   { title: "attunr for", links: [{ href: "/", label: "Solo musicians" }, { href: "/schools", label: "Music schools" }] },
   { title: "The app", links: [{ href: "/plan", label: "Practice plan" }, { href: "/practice", label: "Practice" }] },
-  { title: "See it first", links: [{ href: "/demo", label: "Demos" }] },
+  { title: "See it first", links: [{ href: "/demo", label: "Demos" }, { href: "/learn", label: "Learn" }] },
   { title: "Help", links: [{ href: "/faq", label: "FAQ" }, { href: "/terms", label: "Terms of use" }, { href: "/privacy", label: "Privacy policy" }] },
 ];
 
@@ -22,7 +22,7 @@ const GRID: Record<number, { grid: string; brand: string }> = {
   5: { grid: "sm:grid-cols-5 lg:grid-cols-[minmax(0,1.6fr)_repeat(5,minmax(0,1fr))]", brand: "sm:col-span-5" },
 };
 
-/** The site footer, on every page: brand, then the two home pages, the app (Practice plan, Interactive notes, Practice), Demos and Help. */
+/** The site footer, on every page: brand, then the two home pages, the app (Practice plan, Interactive notes, Practice), Demos and Learn, and Help. */
 export default function SiteFooter() {
   const columns = COLUMNS;
   const layout = GRID[columns.length];

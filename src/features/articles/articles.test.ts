@@ -5,6 +5,7 @@ import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "./index";
 import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
+import { articleStats } from "./stats";
 
 const seedOf = (slug: string): ArticleSeed => JSON.parse(readFileSync(new URL(`./seeds/${slug}.json`, import.meta.url), "utf8"));
 const texts = (a: (typeof ARTICLES)[number]) =>
@@ -31,6 +32,13 @@ describe("articles", () => {
       assert.ok(a.description.length <= 160, a.slug);
       for (const t of texts(a)) for (const [, href] of t.matchAll(/\]\((.+?)\)/g)) if (href.startsWith("/learn/")) assert.ok(slugs.has(href.slice(7)), href);
     }
+  });
+
+  it("count each article's exercises and reading minutes for its /learn card", () => {
+    const stats = (slug: string) => articleStats(ARTICLES.find((a) => a.slug === slug)!);
+    assert.equal(stats("pitch-matching-exercises").exercises, 6);
+    assert.equal(stats("microphone-and-audio-interface-for-singing").exercises, 0);
+    for (const a of ARTICLES) assert.ok(articleStats(a).minutes >= 1, a.slug);
   });
 
   it("VOICE.md's version is ARTICLE_VOICE_VERSION", () => {
