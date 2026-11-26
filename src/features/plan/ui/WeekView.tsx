@@ -164,6 +164,8 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
   // the exercises with no stars yet (none without `onRate`): Next and Finish day ask for them first (`RateFirst`)
   const unrated = onRate ? d.exercises.flatMap((_, i) => (plan.rated?.[doneKey(day, i)]?.stars == null ? [i] : [])) : [];
   const [asking, setAsking] = useState<{ missing: number[]; next: number | null } | null>(null);
+  // Finish day (asks for the missing stars) takes Next's place on the last page, while any exercise has none
+  const finish = !editing && !readOnly && !!onTime && unrated.length > 0;
   // the card whose stars to bring into view, once its page is drawn
   const rateAt = useRef<number | null>(null);
   const showStars = useCallback((i: number) => {
@@ -270,16 +272,21 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
             );
           })}
         </ol>
-        {pages.length > 1 && (
+        {(pages.length > 1 || finish) && (
           <div className="mt-6 flex items-center justify-between gap-3">
             {page > 0 ? (
               <button type="button" onClick={() => turn(page - 1)} className="rounded-md border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-slate-500">
                 Back: {pages[page - 1].label}
               </button>
             ) : <span />}
-            {page < pages.length - 1 && (
+            {page < pages.length - 1 ? (
               <button type="button" onClick={next} className="rounded-md border border-slate-500 bg-slate-800 px-3 py-1.5 text-sm text-slate-100 hover:border-slate-300">
                 Next: {pages[page + 1].label}
+              </button>
+            ) : finish && (
+              // the last page's Next: Finish day, in the same place
+              <button type="button" onClick={() => setAsking({ missing: unrated, next: null })} className="inline-flex items-center gap-1.5 rounded-md border border-slate-500 bg-slate-800 px-3 py-1.5 text-sm text-slate-100 hover:border-slate-300">
+                <Icon name="check" size={14} />Finish day
               </button>
             )}
           </div>
@@ -292,7 +299,6 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
           left={Math.max(0, total * 60 - (live?.ids === ids ? live.spent.reduce((n, x) => n + x, 0) : elapsedOn(times, day)))}
           unrated={unrated}
           onRateMissing={rateMissing}
-          onFinish={() => setAsking({ missing: unrated, next: null })}
         />
       )}
 
@@ -350,10 +356,10 @@ function RateFirst({ missing, where, goLabel, onRate, onGo, onClose }: {
 
 /**
  * The foot of a day: what is left of it (time on the day's timer, exercises with no rating, with a button that brings the
- * first one's stars into view, and Finish day, which asks for them) or, when neither is left, a line that the day is done;
- * and Back to top.
+ * first one's stars into view) or, when neither is left, a line that the day is done; and Back to top. Finish day is in
+ * the Back/Next row above, in Next's place on the last page.
  */
-function DayEnd({ left, unrated, onRateMissing, onFinish }: { left: number; unrated: number[]; onRateMissing: (i: number) => void; onFinish: () => void }) {
+function DayEnd({ left, unrated, onRateMissing }: { left: number; unrated: number[]; onRateMissing: (i: number) => void }) {
   const min = Math.ceil(left / 60);
   const done = left === 0 && unrated.length === 0;
   return (
@@ -370,11 +376,6 @@ function DayEnd({ left, unrated, onRateMissing, onFinish }: { left: number; unra
                 Add missing ratings
               </button>
             </div>
-          )}
-          {unrated.length > 0 && (
-            <Button onClick={onFinish} className="!border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 hover:!bg-sky-400">
-              <Icon name="check" size={14} />Finish day
-            </Button>
           )}
         </>
       )}
