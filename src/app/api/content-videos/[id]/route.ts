@@ -34,6 +34,7 @@ export async function DELETE(req: Request, { params }: Ctx) {
   const out = await deleteContentVideo(store.repo, id);
   if (!out) return json({ error: "Not found." }, 404);
   if (!out.ok) return json({ error: out.error, pointers: out.pointers }, out.status);
+  if (!out.row.blobPath) return json({ ok: true }); // a script stand-in has no file
   const token = blobToken(process.env);
   try {
     if (!token) throw new Error("no Blob token");

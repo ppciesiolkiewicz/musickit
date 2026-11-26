@@ -21,7 +21,7 @@ export async function GET(req: Request, { params }: Ctx) {
   if (!isVideoId(id) || !store || !token) return streamAnswer(null);
   try {
     const video = await store.repo.get(id);
-    if (!video) return streamAnswer(null);
+    if (!video?.blobPath) return streamAnswer(null); // a script stand-in has no file
     const read = await get(video.blobPath, { access: "private", token, headers: blobRangeHeaders(req.headers.get("range")) });
     return streamAnswer(read, CONTENT_VIDEO_CACHE);
   } catch (e) {

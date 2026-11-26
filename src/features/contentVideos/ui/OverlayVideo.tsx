@@ -76,7 +76,8 @@ export function ToolOverVideo({ video, overlay, draw, hidden = false }: { video:
  * gives a way to draw it (`OverlayDrawProvider`), with `ToolOverVideo`. **Tool over the video** hides it.
  */
 export default function OverlayVideo({ video, autoPlay = false, className = "", style, onError }: {
-  video: Pick<PlayInfo, "id" | "title" | "overlay"> & Partial<Pick<PlayInfo, "seconds" | "cues">>;
+  /** with `cues`, a script stand-in: it plays as `ScriptVideo`, with no file */
+  video: Pick<PlayInfo, "id" | "title" | "overlay"> & { seconds?: number; cues?: PlayInfo["cues"] | null };
   autoPlay?: boolean;
   className?: string;
   style?: CSSProperties;

@@ -28,7 +28,7 @@ export function memoryContentVideoRepo(blocks: MemoryBlock[]): ContentVideoRepo 
 
   return {
     async create(row, target) {
-      if (find(row.id) || rows.some((r) => r.blobPath === row.blobPath)) return { ok: false, reason: "taken" };
+      if (find(row.id) || (row.blobPath !== null && rows.some((r) => r.blobPath === row.blobPath))) return { ok: false, reason: "taken" };
       if (target.kind === "cell") {
         const block = blocks.find((b) => b.id === target.blockId && b.kind === "curated");
         if (!block) return { ok: false, reason: "no-block" };

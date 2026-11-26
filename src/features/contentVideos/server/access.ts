@@ -6,7 +6,7 @@ import { checkUpload, isPrivateBlobUrl, isVideoId } from "@/features/videos/serv
 import { blockVideos, type CellVideo } from "../model/lookup";
 import { readOverlay } from "../model/overlay";
 import { toolKeyOf } from "../model/slot";
-import type { Cue } from "../model/standIn";
+import { readCues, type Cue } from "../model/standIn";
 import type { CellAsk } from "../model/slot";
 import type { ContentVideoRepo, ContentVideoRow, Lost, Pointers } from "./repo";
 import { cleanNote, contentVideoPath, isMadeFor, readTarget } from "./rules";
@@ -20,6 +20,8 @@ import { cleanNote, contentVideoPath, isMadeFor, readTarget } from "./rules";
 export interface ContentVideoInfo {
   id: string; title: string; note: string; madeFor: string; tool: string | null; steps: string[] | null;
   type: string; seconds: number; width: number; height: number; size: number; savedAt: number; overlay: unknown | null;
+  /** a script stand-in's captions; null for a recorded video */
+  cues: Cue[] | null;
 }
 
 const refuse = (status: number, error: string): Refused => ({ ok: false, status, error });
@@ -32,7 +34,7 @@ export const STILL_SHOWN = "A tool or an exercise still shows this video. Take i
 
 export const contentVideoInfo = (v: ContentVideoRow): ContentVideoInfo => ({
   id: v.id, title: v.title, note: v.note, madeFor: v.madeFor, tool: v.tool, steps: v.steps ? [...v.steps] : null,
-  type: v.type, seconds: v.seconds, width: v.width, height: v.height, size: v.size, savedAt: v.createdAt.getTime(), overlay: v.overlay ?? null,
+  type: v.type, seconds: v.seconds, width: v.width, height: v.height, size: v.size, savedAt: v.createdAt.getTime(), overlay: v.overlay ?? null, cues: readCues(v.cues),
 });
 
 const allowedTypes = (type: string): string[] => [...new Set([type, type.split(";")[0]])];
@@ -98,7 +100,7 @@ export async function completeContentUpload(repo: ContentVideoRepo, userId: stri
   if (!sized.ok) return refuse(400, sized.error);
   const row: ContentVideoRow = {
     id, title: cleanTitle(b.title), note: cleanNote(b.note), recordedBy: userId, madeFor,
-    tool: null, steps: null, type, seconds, width, height, size, blobPath: b.path, overlay, createdAt: now,
+    tool: null, steps: null, type, seconds, width, height, size, blobPath: b.path, overlay, cues: null, createdAt: now,
   };
   const made = await repo.create(row, target);
   if (!made.ok) return refuse(409, made.reason === "taken" ? TAKEN : made.reason === "no-block" ? NO_BLOCK : NO_CELL);
@@ -156,7 +158,7 @@ export async function deleteContentVideo(repo: ContentVideoRepo, id: string): Pr
   return out.ok ? out : { ok: false, status: 409, error: STILL_SHOWN, pointers: out.pointers };
 }
 
-/** What a page may know of a video to play it: no store path, recorder or size. A script stand-in (no file; not served yet, see `model/standIn.ts`) would carry its `cues` instead. */
+/** What a page may know of a video to play it: no store path, recorder or size. A script stand-in (no file, `model/standIn.ts`) carries its `cues`. */
 export interface PlayInfo { id: string; title: string; note: string; seconds: number; width: number; height: number; overlay: unknown | null; cues?: Cue[] }
 
 /** An id's file never changes; a deleted video may still play from a cache for up to an hour. */
@@ -207,7 +209,8 @@ export async function lookUp(repo: ContentVideoRepo, asks: LookupAsk[]): Promise
     blocks.push([a.key, found]);
     for (const v of found) {
       const r = byId.get(v.id)!;
-      videos.set(v.id, { id: r.id, title: r.title, note: r.note, seconds: r.seconds, width: r.width, height: r.height, overlay: r.overlay ?? null });
+      const cues = readCues(r.cues);
+      videos.set(v.id, { id: r.id, title: r.title, note: r.note, seconds: r.seconds, width: r.width, height: r.height, overlay: r.overlay ?? null, ...(cues ? { cues } : {}) });
     }
   }
   return { blocks: Object.fromEntries(blocks), videos: Object.fromEntries(videos) };

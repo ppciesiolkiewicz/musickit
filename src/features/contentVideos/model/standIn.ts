@@ -66,6 +66,19 @@ export function scriptCues(script: Beat[]): { cues: Cue[]; seconds: number } {
   return { cues, seconds: Math.ceil(t) };
 }
 
+/** Stored cues as `Cue[]`, or null when they aren't a non-empty list of well-formed cues. */
+export function readCues(raw: unknown): Cue[] | null {
+  if (!Array.isArray(raw) || !raw.length) return null;
+  const out: Cue[] = [];
+  for (const c of raw) {
+    if (!c || typeof c !== "object") return null;
+    const { start, end, show, say } = c as Record<string, unknown>;
+    if (typeof start !== "number" || typeof end !== "number" || !(end >= start) || typeof show !== "string" || typeof say !== "string") return null;
+    out.push({ start, end, show, say });
+  }
+  return out;
+}
+
 /** The cue at `t` seconds; in a gap, the one just before it; before the first, the first. */
 export function cueAt(cues: Cue[], t: number): Cue | null {
   let found: Cue | null = cues[0] ?? null;

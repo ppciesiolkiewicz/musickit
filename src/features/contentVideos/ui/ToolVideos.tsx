@@ -66,9 +66,11 @@ export default function ToolVideos({ tools, use, initial, initialError }: { tool
     return q ? tools.filter((t) => t.includes(q)) : tools;
   }, [tools, filter]);
   const groups = coverage(tool, videos, use);
+  // a script stand-in shows players something, but the tool still needs its video
+  const recorded = useMemo(() => videos.filter((v) => !v.cues), [videos]);
   const own = videos.filter((v) => v.madeFor === `tool:${tool}`);
   const byId = new Map(videos.map((v) => [v.id, v]));
-  const count = coveredCount(tool, videos);
+  const count = coveredCount(tool, recorded);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[17rem_1fr]">
@@ -80,7 +82,7 @@ export default function ToolVideos({ tools, use, initial, initialError }: { tool
         </button>
         <ul className="flex flex-col gap-0.5">
           {shown.map((t) => {
-            const c = coveredCount(t, videos);
+            const c = coveredCount(t, recorded);
             return (
               <li key={t}>
                 <button type="button" onClick={() => choose(t)} aria-current={t === tool}
@@ -129,7 +131,7 @@ export default function ToolVideos({ tools, use, initial, initialError }: { tool
                     </div>
                     <div className="flex min-w-56 flex-1 flex-wrap items-center gap-2">
                       {v ? (
-                        <span className="text-slate-200">“{v.title}”{v.steps && v.steps.length > 1 && <span className="text-xs text-slate-500"> · also {levelsLine(tool, v.steps.filter((x) => x !== s.step))}</span>}</span>
+                        <span className="text-slate-200">{v.cues && <span className="mr-1.5 rounded bg-sky-500/15 px-1.5 text-xs text-sky-200">Script only</span>}“{v.title}”{v.steps && v.steps.length > 1 && <span className="text-xs text-slate-500"> · also {levelsLine(tool, v.steps.filter((x) => x !== s.step))}</span>}</span>
                       ) : <span className="rounded bg-amber-500/15 px-1.5 text-xs text-amber-200">Missing</span>}
                       <Link href={recordHref(tool, [s.step])} className={`${btn} ml-auto`}>Record</Link>
                     </div>
@@ -163,7 +165,7 @@ const allLevelsHref = (tool: string): string => recordHref(tool, stepGroups(tool
 
 /** The Recording plan: the first videos in the order to record them, stage by stage, each with its script; then the later ones with their notes, and the tools with no video planned. */
 function PlanView({ tools, videos, use, error, onRetry, onPick }: { tools: string[]; videos: ContentVideoInfo[]; use: SeedUse; error: string; onRetry: () => void; onPick: (tool: string) => void }) {
-  const plan = useMemo(() => recordPlan(tools, videos, use), [tools, videos, use]);
+  const plan = useMemo(() => recordPlan(tools, videos.filter((v) => !v.cues), use), [tools, videos, use]);
   const first = plan.stages.flatMap((s) => s.rows);
   const done = first.filter((r) => r.covered === r.of).length;
   const left = minutesLeft(first);

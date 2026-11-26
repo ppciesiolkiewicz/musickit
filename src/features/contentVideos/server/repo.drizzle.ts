@@ -15,7 +15,7 @@ type Stored = typeof contentVideos.$inferSelect;
 
 const rowOf = (r: Stored): ContentVideoRow => ({
   id: r.id, title: r.title, note: r.note, recordedBy: r.recordedBy, madeFor: r.madeFor, tool: r.tool, steps: r.steps,
-  type: r.type, seconds: r.seconds, width: r.width, height: r.height, size: r.size, blobPath: r.blobPath, overlay: r.overlay ?? null, createdAt: r.createdAt,
+  type: r.type, seconds: r.seconds, width: r.width, height: r.height, size: r.size, blobPath: r.blobPath, overlay: r.overlay ?? null, cues: r.cues ?? null, createdAt: r.createdAt,
 });
 
 const idIs = (id: string): SQL => sql`${contentVideos.id}::text = ${id}`;
@@ -47,7 +47,7 @@ export function drizzleContentVideoRepo(db: Db): ContentVideoRepo {
   const insert = async (tx: Tx, row: ContentVideoRow, tool: string | null, steps: string[] | null): Promise<boolean> => {
     const written = await tx
       .insert(contentVideos)
-      .values({ ...row, tool, steps, overlay: row.overlay ?? null })
+      .values({ ...row, tool, steps, overlay: row.overlay ?? null, cues: row.cues ?? null })
       .onConflictDoNothing()
       .returning({ id: contentVideos.id });
     return written.length === 1;

@@ -6,7 +6,7 @@ This is not `src/features/videos` (a player's or teacher's own takes, per accoun
 
 ## What a content video is
 
-- A row of `content_videos` (migration `drizzle/0046_content_videos.sql`) and a file in the private Blob store at `content/videos/<made_for>/<id>.<webm|mp4>`. `made_for` is `tool:<tool key>` or a curated block's id (a riff take: the plain block id). The browser picks the id (`crypto.randomUUID()`).
+- A row of `content_videos` (migration `drizzle/0046_content_videos.sql`) and, but for a script stand-in (below), a file in the private Blob store at `content/videos/<made_for>/<id>.<webm|mp4>`. `made_for` is `tool:<tool key>` or a curated block's id (a riff take: the plain block id). The browser picks the id (`crypto.randomUUID()`).
 - A **tool key** is the tool's type; a `guitar-play-along` is one tool per shape, `guitar-play-along:<shape>`.
 - A **step** is `<ladder id>:<key>` (`picking-drill:beginner`, `chord-changes:1`), from `LADDERS` in `@/features/plan/model/ladders`. `none` is **No level**: a laddered tool's cell that reads no step. A tool with no ladder has no steps (`steps` null).
 - **One video per tool and step.** A tool video is saved for the steps ticked; saving takes those steps off the tool's other videos in the same transaction (for a tool with no ladder, the tool itself). A video left with no steps keeps its row and file, with `tool` and `steps` both null. There is no any-step video and no borrowing from a nearby step.
@@ -16,11 +16,13 @@ This is not `src/features/videos` (a player's or teacher's own takes, per accoun
 
 `model/lookup.ts`: the block's own video for that cell (`from: "block"`), else the tool's video whose steps hold the cell's step (`from: "tool"`; a cell with no step matches a video with `steps` null), else none. A video met again at a later cell of the same block is `repeat: true`. A cell whose video's row is gone is left out.
 
-## Stand-ins: the script before the video (seeded, not enabled)
+## Stand-ins: the script before the video
 
-A stand-in is a scripted tool's video before it is recorded: the script's words as captions on black, timed at reading pace. Each of the 20 tools in `VIDEO_PLANS` has one as a seed file, `src/features/library/seed/videos/<tool key, ":" as "--">.json` (`StandInSeed` in `model/standIn.ts`): a `content_videos` row for every level of the tool (`kind: "script"`, a fixed id, `madeFor`, `tool`, `steps` from `stepsOfTool`, `title`, `seconds`, 1920×1080) with `cues` in place of a file: each said line of the script, brackets taken off, about 2.5 words a second, at least 3 seconds a line, a second between parts. `scripts/gen-stand-in-seeds.ts` writes them from the scripts and keeps each file's id; `server/standInSeeds.test.ts` fails when a file is out of step.
+A stand-in is a scripted tool's video before it is recorded: the script's words as captions on black, timed at reading pace. Each of the 20 tools in `VIDEO_PLANS` has one as a seed file, `src/features/library/seed/videos/<tool key, ":" as "--">.json` (`StandInSeed` in `model/standIn.ts`): a fixed id, `madeFor`, `tool`, every level of the tool (`stepsOfTool`), `title`, `seconds`, 1920×1080, and `cues`: each said line of the script, brackets taken off, about 2.5 words a second, at least 3 seconds a line, a second between parts. `scripts/gen-stand-in-seeds.ts` writes the files from the scripts and keeps each id; `server/standInSeeds.test.ts` fails when a file is out of step.
 
-**Not enabled.** No seed command puts them in the database, `db:seed-blocks` never reads the folder, and the lookup serves none. The player is ready for them: a `PlayInfo` with `cues` plays as `ui/ScriptVideo.tsx` (the part's **show** line small above, the said line as a caption, **Play**/**Pause**, a time bar, "Not filmed yet: the words of the video, in time."), and the library strip says "Not filmed yet: the script for <tool>". Enabling them needs a seed step that writes the rows (with no file, so the file route, delete and the Tools videos page must know a row with `cues`), and the lookup handing `cues` on.
+`npm run -s db:seed-videos` (`server/standIns.ts` `seedStandIns`) writes each as a `content_videos` row with `type` "script", `cues` and no file (`blob_path` null; migration `0051`), through `create`, at the levels of its tool that no other video holds: it never takes a level off a recorded video. One already stored is kept as it is (a changed script reaches the database only by deleting the row and seeding again); a tool with every level recorded gets none. `db:seed-blocks` doesn't run it.
+
+From there a stand-in is a tool video like any other: the lookup finds it, hands its `cues` on in `PlayInfo`, and **Watch video** plays it as `ui/ScriptVideo.tsx` (the part's **show** line small above, the said line as a caption, **Play**/**Pause**, a time bar, "Not filmed yet: the words of the video, in time."); the library strip says "Not filmed yet: the script for <tool>". Recording a video for some levels takes them off the stand-in (the one-video-per-level rule); when it has none left it shows nowhere and can be deleted (no file to delete). The file route answers 404 for it. On Tools videos it is tagged **Script only**, and the counts and the recording plan count only recorded videos, so its levels still read **Missing**.
 
 ## In a plan's day
 
@@ -87,6 +89,7 @@ An exercise opened on `/admin/content/library` (its row, `LibraryItem` → `Exam
 | `model/coverage.ts` | Pure. What the Tools videos page lists: `videoTools`, `stepGroups`, `seedUse`, `coverage`, `coveredCount`, `levelsText`; and `wouldLose` (what a save would take off other videos). |
 | `model/scripts.ts` | Pure data. The first videos: `STAGES` (the order), `VIDEO_PLANS` (title, minutes, script), `Beat`, `VideoPlan`, `Stage`. |
 | `model/standIn.ts` | Pure. Stand-ins: `StandInSeed`, `standInSeed`, `standInFile`, `Cue`, `scriptCues`, `cueAt`, `plainSay`. |
+| `server/standIns.ts` | `seedStandIns`: the stand-in seeds into the repo (`db:seed-videos`). |
 | `server/standInSeeds.test.ts` | The seed files in `library/seed/videos` match the scripts. |
 | `model/recordPlan.ts` | Pure. `LATER_PLANS`, `NO_VIDEO`, `recordPlan` (the stages with their numbered rows, the later rows, the tools with none), `blocksUsing`, `minutesLeft`. Re-exports scripts.ts. |
 | `model/clock.ts` | Pure. The overlay's clock: `Sample`, `Piece`, `squeeze`, `beatAt`, `readPieces`. |

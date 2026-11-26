@@ -447,8 +447,11 @@ export const contentVideos = pgTable(
     width: integer("width").notNull(),
     height: integer("height").notNull(),
     size: bigint("size", { mode: "number" }).notNull(),
-    blobPath: text("blob_path").notNull().unique(),
+    /** null for a script stand-in, which has no file */
+    blobPath: text("blob_path").unique(),
     overlay: jsonb("overlay"),
+    /** a script stand-in's captions (`Cue[]`, contentVideos `model/standIn.ts`) in place of a file; null for a recorded video */
+    cues: jsonb("cues"),
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("content_videos_tool_idx").on(t.tool)],

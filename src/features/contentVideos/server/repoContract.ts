@@ -45,7 +45,7 @@ let clock = 0;
 const video = (id: string, title: string, over: Partial<ContentVideoRow> = {}): ContentVideoRow => ({
   id, title, note: "", recordedBy: null, madeFor: "tool:picking-drill", tool: null, steps: null,
   type: "video/webm", seconds: 30, width: 1280, height: 720, size: 1_000_000,
-  blobPath: `content/videos/${over.madeFor ?? "tool:picking-drill"}/${id}.webm`, overlay: null,
+  blobPath: `content/videos/${over.madeFor ?? "tool:picking-drill"}/${id}.webm`, overlay: null, cues: null,
   createdAt: new Date(Date.UTC(2026, 10, 25, 12, 0, clock++)), ...over,
 });
 const tool = (steps: string[] | null, name = "picking-drill"): Target => ({ kind: "tool", tool: name, steps });

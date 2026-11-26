@@ -10,8 +10,8 @@ blocks/<id>.json   one exercise each, with its choices (SeedBlockFile)
 videos/<tool>.json a stand-in video per scripted tool: its script as timed captions (StandInSeed, contentVideos)
 ```
 
-`videos/` is written by `scripts/gen-stand-in-seeds.ts`, never by hand, and nothing reads it yet: no `index.gen.ts`, no
-seed command, `db:seed-blocks` skips it (contentVideos README, "Stand-ins").
+`videos/` is written by `scripts/gen-stand-in-seeds.ts`, never by hand. `npm run -s db:seed-videos` puts them in the
+database; `db:seed-blocks` doesn't, and the app never reads the files (contentVideos README, "Stand-ins").
 
 A block file is the exercise (`title`, `cells`, tags) and a `choices` list: each choice is one way to do it, with its
 `name`, `level`, `steps`, `moves` and `minutes` (`SeedChoice`). A choice's id is `<block id>/<name>`. `choices.ts` makes

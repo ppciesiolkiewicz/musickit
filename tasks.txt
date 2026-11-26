@@ -1557,12 +1557,12 @@ Tools videos shows a topic (its own group, listing the tools it spans) and what 
 tools (pick one tool to show over the camera). Brainstorm and write a design before building. Topics a player reads are
 teaching text (teaching-voice).
 
-[2026-11-26 done, stand-ins seeded, not enabled] Each of the 20 scripted tools has a stand-in seed file
-(src/features/library/seed/videos, written by scripts/gen-stand-in-seeds.ts): its script's words as timed captions on
-black, a row for every level of the tool. The player plays one (ui/ScriptVideo.tsx). Not enabled (user): no seed
-command, db:seed-blocks ignores them, the lookup serves none. Enabling: a seed step writing the rows (no file), and the
-file route, delete and Tools videos knowing a row with cues. Still open here: video topics (above), and "tracks" (user,
-2026-11-26): a player on an exercise can watch the earlier videos that match it; what "match" means is not decided yet.
+[2026-11-26 done, stand-ins] Each of the 20 scripted tools has a stand-in seed file (src/features/library/seed/videos,
+written by scripts/gen-stand-in-seeds.ts): its script's words as timed captions on black. `npm run -s db:seed-videos`
+writes them as content_videos rows with no file (migration 0051) at the levels no recorded video holds; plan cards play
+them with Watch video. Seeded on the local Docker DB only: production needs db:migrate, then db:seed-videos. Still open
+here: video topics (above), and "tracks" (user, 2026-11-26): a player on an exercise can watch the earlier videos that
+match it; what "match" means is not decided yet.
 
 TaskSeries Upkeep: keeping the stack up to date (2026-11-18)
 Upkeep1: [NEW 2026-11-18] Next.js security upgrade. `next dev` stops on its first start with a security advisory and

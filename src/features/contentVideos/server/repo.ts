@@ -5,7 +5,8 @@ export interface ContentVideoRow {
   id: string; title: string; note: string; recordedBy: string | null; madeFor: string;
   tool: string | null; steps: string[] | null;
   type: string; seconds: number; width: number; height: number; size: number;
-  blobPath: string; overlay: unknown | null; createdAt: Date;
+  /** null for a script stand-in (no file; its `cues` play instead) */
+  blobPath: string | null; overlay: unknown | null; cues: unknown | null; createdAt: Date;
 }
 
 /** A video that lost steps to a new one: the steps taken off it, and whether it is left with none (its tool is then null). */

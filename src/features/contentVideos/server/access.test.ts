@@ -193,7 +193,7 @@ describe("the lookup", () => {
     await repo.create({ ...rowOf(V.riff), title: "Riff" }, { kind: "cell", blockId: "riff-x", cell: 0, tool: "picking-drill" });
     return repo;
   };
-  const rowOf = (id: string) => ({ id, title: "t", note: "n", recordedBy: "user-1", madeFor: MADE, tool: null, steps: null, type: "video/webm", seconds: 30, width: 1280, height: 720, size: 99, blobPath: `content/videos/${MADE}/${id}.webm`, overlay: null, createdAt: NOW });
+  const rowOf = (id: string) => ({ id, title: "t", note: "n", recordedBy: "user-1", madeFor: MADE, tool: null, steps: null, type: "video/webm", seconds: 30, width: 1280, height: 720, size: 99, blobPath: `content/videos/${MADE}/${id}.webm`, overlay: null, cues: null, createdAt: NOW });
   const cells = [{ cell: 0, tool: "picking-drill", step: "picking-drill:beginner" }];
 
   test("lookUp answers per block key, each video once", async () => {
