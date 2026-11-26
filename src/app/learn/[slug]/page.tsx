@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ArticleHero from "@/features/articles/ui/ArticleHero";
-import PageShell from "@/components/PageShell";
+import PageShell, { MicNotice } from "@/components/PageShell";
 import GlassShapes from "@/components/landing/GlassShapes";
 import { ARTICLES, articleOf } from "@/features/articles";
 import { articleJsonLd } from "@/features/articles/jsonLd";
@@ -36,9 +36,11 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const a = articleOf((await params).slug);
   if (!a) notFound();
   return (
-    <PageShell active="/learn" back={{ href: "/learn", label: "All guides" }} column devices={a.sings} mic={a.sings} title={a.title} intro={a.intro} decor={<GlassShapes />}>
+    <PageShell active="/learn" back={{ href: "/learn", label: "All guides" }} column devices={a.sings} title={a.title} intro={a.intro} decor={<GlassShapes />}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(a, SITE_URL)).replace(/</g, "\\u003c") }} />
       <ArticleHero slug={a.slug} />
+      {/* the mic note under the picture, not over it: the picture runs up behind the intro, the note sits by the Your voice picker */}
+      {a.sings && <div className="mb-5"><MicNotice /></div>}
       <ArticleView article={a} />
     </PageShell>
   );

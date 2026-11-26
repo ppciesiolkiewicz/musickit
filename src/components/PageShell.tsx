@@ -102,9 +102,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
                     </Notice>
                   )}
                   {mic && (
-                    <Notice tone="warn" icon={<Icon name="headphones" size={16} />}>
-                      <strong className="font-semibold text-slate-100">This page listens through your microphone.</strong> Wear headphones, so the mic hears only you and not the sound the app plays.
-                    </Notice>
+                    <MicNotice />
                   )}
                 </div>
               )}
@@ -116,5 +114,14 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
         <SiteFooter />
       </div>
     </div>
+  );
+}
+
+/** The mic and headphones note. PageShell puts it under the intro (`mic`); an article puts it under its picture. */
+export function MicNotice() {
+  return (
+    <Notice tone="warn" icon={<Icon name="headphones" size={16} />}>
+      <strong className="font-semibold text-slate-100">This page listens through your microphone.</strong> Wear headphones, so the mic hears only you and not the sound the app plays.
+    </Notice>
   );
 }
