@@ -9,7 +9,8 @@ export const microphoneAndAudioInterface: Article = {
   updated: "2026-11-26",
   sings: false,
   blocks: [
-    { type: "p", text: "Your laptop's or phone's mic is enough to practice pitch on attunr. A real mic and an interface give you a cleaner sound and let you hear yourself in headphones. There are plenty of good options; these two are a safe start. Nobody paid us to name them." },
+    { type: "p", text: "Your laptop's or phone's mic is enough to practice pitch on attunr. A real mic and an interface give you a cleaner sound and let you hear yourself in headphones." },
+    { type: "p", text: "This is for anyone overwhelmed by all the options. I'm not a gear specialist and I don't know your budget. This is a simple, budget-friendly setup that will get you through a lot. Nobody paid me to name it." },
 
     { type: "h2", text: "The microphone: Shure SM58" },
     { type: "figure", src: "/images/learn/shure-sm58.jpg", width: 1200, height: 900, alt: "A black Shure SM58 microphone with a round silver mesh grille",
@@ -26,13 +27,13 @@ export const microphoneAndAudioInterface: Article = {
     { type: "h2", text: "The audio interface: Focusrite Scarlett Solo or 2i2" },
     { type: "p", text: "The box between the mic and your computer: mic and headphones in, USB to the computer." },
     { type: "figure", src: "/images/learn/focusrite-scarlett-2i2.jpg", width: 1200, height: 675, alt: "A red Focusrite Scarlett 2i2 audio interface on a desk, with two microphone cables plugged into its front",
-      caption: "A 3rd generation Scarlett 2i2 with two mics plugged in, Direct Monitor on the right. We'd get the newer 4th generation. The Solo is the smaller one, with one mic input.",
+      caption: "A 3rd generation Scarlett 2i2 with two mics plugged in, Direct Monitor on the right. I'd get the newer 4th generation. The Solo is the smaller one, with one mic input.",
       credit: { by: "Peter Placzek", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", source: "https://commons.wikimedia.org/wiki/File:Focusrite_Scarlett_Solo_3rd_Gen.jpg" } },
     { type: "list", items: [
       "**Scarlett Solo** if it's just you and the mic.",
       "**Scarlett 2i2** if you want to plug in more than one thing at once, like a mic and a guitar.",
     ] },
-    { type: "p", text: "The 4th generation was the newest we could find when we wrote this. An older one works fine too." },
+    { type: "p", text: "The 4th generation was the newest I could find when I wrote this. An older one works fine too." },
 
     { type: "h2", text: "Why direct monitoring matters" },
     { type: "p", text: "Press **Direct Monitor** and you hear your voice in your headphones with no delay. Without it, your voice comes back from the computer a moment late, and singing against that tiny echo makes your pitch wobble. With it, you hear exactly where your note lands." },
