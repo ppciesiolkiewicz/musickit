@@ -269,7 +269,7 @@ export default function RollCanvas({ full, live, samples, held, cents, keyContex
   };
 
   return (
-    <div ref={box} className={`overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 ${full ? "min-h-0 flex-1" : "h-[min(75vh,640px)]"}`}>
+    <div ref={box} className={`overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 ${full ? "min-h-0 flex-1" : "h-[min(55vh,460px)]"}`}>
       <canvas
         ref={canvas}
         onClick={hear}
