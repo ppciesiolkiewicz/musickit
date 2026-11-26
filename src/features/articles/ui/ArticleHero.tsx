@@ -7,7 +7,7 @@ import { articleArt } from "../art";
  */
 export default function ArticleHero({ slug }: { slug: string }) {
   return (
-    <div aria-hidden className="article-hero pointer-events-none relative -z-10 -mx-3 -mt-8 -mb-2 sm:-mx-24 sm:-mt-16 sm:-mb-4">
+    <div aria-hidden className="article-hero pointer-events-none relative -z-10 -mx-3 -mt-14 -mb-8 sm:-mx-24 sm:-mt-28 sm:-mb-16">
       <Image src={articleArt(slug)} width={1200} height={480} alt="" unoptimized priority className="aspect-2/1 w-full object-cover sm:aspect-5/2" />
     </div>
   );
