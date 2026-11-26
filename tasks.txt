@@ -1871,3 +1871,19 @@ The IndieAppCircle listing (filled in 2026-11-25) names three personas, each wit
 A listing page alone won't rank for these against Yousician and JustinGuitar; public articles on attunr can, and the
 listing then points at them. Open: where they live (/learn? /guides?), how many to start with, whether they reuse
 course sections, and the writing skill (teaching-voice for music text). Brainstorm before building.
+
+NEW22: [NEW 2026-11-26] Two public /learn articles on CAGED in one key (guitarist persona, NEW21)
+The author's words (verbatim where quoted):
+- "another article about CAGED in a single scale. These are like 2 articles -> one focuses on learning CAGED position by
+  position with interactive diagrams and second one answers \"How to find chords for a song\" with both minor and major
+  caged and relations between open chords."
+- "This can also start with fitting single root notes, then go to fit double-stops and learn the repeating pattern on the
+  fretboard (show highlighted 2 different 1 4 5 1 2 b7 for minor and same for major) - just 2 or three not overlapping and
+  then other roots just circled in red or something". Open: what "1 4 5 / 1 2 b7" groups mean exactly; ask before building.
+- "use design skill"; "add words like visual and interactive" (in titles, intros and search descriptions).
+What exists: the articles feature (src/features/articles: model, VOICE.md v3, seeds/, JoinCard, TempoTool, GlassShapes decor,
+`npm run theory` facts recorded in the seed). Tools: caged-neck (key, scale, shapes), scale-neck (enable/highlight degrees,
+positions), position-neck, double-stops-neck (3rds/6ths on a string pair), chord-shapes, triads, key-chords. Calculator:
+`theory boxes|box|neighbours|dyads|fit`. Missing: a neck that rings a few root groups and circles every other root in
+another colour (a small scale-neck option). Research: /admin/dev/search (CAGED and "chords in a key" are the gap: rivals show
+static diagrams). Load course-article/teaching-voice, exercise-example for any seed block, review-teaching-text before done.
