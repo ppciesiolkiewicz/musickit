@@ -1,6 +1,6 @@
 import { and, count, desc, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { authTokens, identities, payments, planRequests, plans, sessions, teacherInvites, teacherStudents, users } from "@/lib/db/schema";
+import { authTokens, blockOwners, identities, messages, messageThreads, payments, planClaims, planDayTimes, planRequests, plans, progressEntries, reminders, sessions, shares, teacherInvites, teacherStudents, userDocuments, users, userVoices, videos } from "@/lib/db/schema";
 import type { Plan } from "../plans";
 import type { AuthRepo, InviteRow, TokenRow } from "./repo";
 
@@ -190,6 +190,65 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async deleteUser(id) {
       await db.delete(users).where(eq(users.id, id));
+    },
+    async userFootprint(id) {
+      const [user] = await db.select(userCols).from(users).where(eq(users.id, id)).limit(1);
+      if (!user) return null;
+      const n = db.$count.bind(db);
+      const [sessionsN, identitiesN, tokensN, invitesN, studentsN, teacherN, planRequestN, docs, progressN, dayTimesN, videosN, sharesN, planClaimsN, threadsN, messagesN, voiceN, reminderN, blocksN, paymentsN] = await Promise.all([
+        n(sessions, eq(sessions.userId, id)),
+        n(identities, eq(identities.userId, id)),
+        n(authTokens, eq(authTokens.email, user.email)),
+        n(teacherInvites, eq(teacherInvites.claimedBy, id)),
+        n(teacherStudents, eq(teacherStudents.teacherId, id)),
+        n(teacherStudents, eq(teacherStudents.studentId, id)),
+        n(planRequests, eq(planRequests.userId, id)),
+        db.select({ kind: userDocuments.kind }).from(userDocuments).where(eq(userDocuments.userId, id)).orderBy(userDocuments.kind),
+        n(progressEntries, eq(progressEntries.userId, id)),
+        n(planDayTimes, eq(planDayTimes.userId, id)),
+        n(videos, eq(videos.userId, id)),
+        n(shares, eq(shares.userId, id)),
+        n(planClaims, eq(planClaims.userId, id)),
+        n(messageThreads, eq(messageThreads.userId, id)),
+        db.select({ n: count() }).from(messages).innerJoin(messageThreads, eq(messageThreads.id, messages.threadId)).where(eq(messageThreads.userId, id)).then(([r]) => r?.n ?? 0),
+        n(userVoices, eq(userVoices.userId, id)),
+        n(reminders, eq(reminders.userId, id)),
+        n(blockOwners, eq(blockOwners.userId, id)),
+        n(payments, eq(payments.userId, id)),
+      ]);
+      return {
+        user,
+        sessions: sessionsN,
+        identities: identitiesN,
+        tokens: tokensN,
+        invites: invitesN,
+        students: studentsN,
+        teacher: teacherN,
+        planRequest: planRequestN,
+        documents: docs.map((d) => d.kind),
+        progress: progressN,
+        dayTimes: dayTimesN,
+        videos: videosN,
+        shares: sharesN,
+        planClaims: planClaimsN,
+        threads: threadsN,
+        messages: messagesN,
+        voice: voiceN,
+        reminder: reminderN,
+        blocks: blocksN,
+        payments: paymentsN,
+      };
+    },
+    async purgeUser(id) {
+      return db.transaction(async (tx) => {
+        const [user] = await tx.select({ email: users.email }).from(users).where(eq(users.id, id)).limit(1);
+        if (!user) return false;
+        await tx.delete(teacherInvites).where(eq(teacherInvites.claimedBy, id));
+        await tx.delete(authTokens).where(eq(authTokens.email, user.email));
+        // the database cascades the rest: sessions, identities, documents, progress, videos, shares, threads, links; payments keep their row
+        await tx.delete(users).where(eq(users.id, id));
+        return true;
+      });
     },
     async userByIdentity(provider, providerAccountId) {
       const [row] = await db

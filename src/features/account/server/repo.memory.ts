@@ -1,5 +1,5 @@
 import type { Plan } from "../plans";
-import type { AuthRepo, InviteRow, PaymentRow, PlanRequest, TokenRow, UserRow } from "./repo";
+import type { AuthRepo, InviteRow, PaymentRow, PlanRequest, TokenRow, UserFootprint, UserRow } from "./repo";
 
 /** The repo in memory, for tests. Same rules as the Postgres one: one user per email, a token is taken once. */
 export function memoryRepo(plans: Plan[] = []) {
@@ -163,6 +163,43 @@ export function memoryRepo(plans: Plan[] = []) {
       for (const list of [identities, sessions, planRequests]) for (let i = list.length - 1; i >= 0; i--) if (list[i].userId === id) list.splice(i, 1);
       const i = users.findIndex((u) => u.id === id);
       if (i >= 0) users.splice(i, 1);
+    },
+    async userFootprint(id) {
+      const user = users.find((u) => u.id === id);
+      if (!user) return null;
+      const n = (list: { userId: string | null }[]) => list.filter((x) => x.userId === id).length;
+      const footprint: UserFootprint = {
+        user,
+        sessions: n(sessions),
+        identities: n(identities),
+        tokens: tokens.filter((t) => t.email === user.email).length,
+        invites: invites.filter((x) => x.claimedBy === id).length,
+        students: links.filter((l) => l.teacherId === id).length,
+        teacher: links.filter((l) => l.studentId === id).length,
+        planRequest: n(planRequests),
+        documents: [],
+        progress: 0,
+        dayTimes: 0,
+        videos: 0,
+        shares: 0,
+        planClaims: 0,
+        threads: 0,
+        messages: 0,
+        voice: 0,
+        reminder: 0,
+        blocks: 0,
+        payments: n(payments),
+      };
+      return footprint;
+    },
+    async purgeUser(id) {
+      const user = users.find((u) => u.id === id);
+      if (!user) return false;
+      for (let i = invites.length - 1; i >= 0; i--) if (invites[i].claimedBy === id) invites.splice(i, 1);
+      for (let i = tokens.length - 1; i >= 0; i--) if (tokens[i].email === user.email) tokens.splice(i, 1);
+      for (const p of payments) if (p.userId === id) p.userId = null;
+      await repo.deleteUser(id);
+      return true;
     },
     async userByIdentity(provider, providerAccountId) {
       const link = identities.find((x) => x.provider === provider && x.providerAccountId === providerAccountId);

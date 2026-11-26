@@ -89,6 +89,40 @@ export interface InviteRow {
   claimedAt: Date | null;
 }
 
+/**
+ * Everything of one account, counted, for the admin's question before deleting it (/admin/admin/users). The memory repo
+ * counts only what it holds (sessions, identities, tokens, invites, teacher links, the plan request, payments).
+ */
+export interface UserFootprint {
+  user: UserRow;
+  sessions: number;
+  identities: number;
+  /** Unused or used email links and codes for their email (`auth_tokens`). */
+  tokens: number;
+  /** Invites they joined with. */
+  invites: number;
+  /** Their students, as a teacher: the links go, the students' accounts stay. */
+  students: number;
+  /** 1 when they are a teacher's student. */
+  teacher: number;
+  planRequest: number;
+  /** Their data documents (`user_documents`), by kind. */
+  documents: string[];
+  progress: number;
+  dayTimes: number;
+  videos: number;
+  shares: number;
+  planClaims: number;
+  threads: number;
+  messages: number;
+  voice: number;
+  reminder: number;
+  /** Blocks they own (`block_owners`): the ownership goes, the shared block stays. */
+  blocks: number;
+  /** Paid invoices: kept, with the account taken off them. */
+  payments: number;
+}
+
 export interface SessionRow {
   user: UserRow;
   expiresAt: Date;
@@ -158,6 +192,13 @@ export interface AuthRepo {
   deleteInvite(id: string): Promise<void>;
   /** Deletes the user with their sessions and identities. */
   deleteUser(id: string): Promise<void>;
+  /** What deleting the user takes with them, counted; null when there is no such user. */
+  userFootprint(id: string): Promise<UserFootprint | null>;
+  /**
+   * Deletes the user and everything of theirs, in one step: the invites they joined with and the email links for their
+   * email too, which `deleteUser` leaves. False when there is no such user.
+   */
+  purgeUser(id: string): Promise<boolean>;
 
   userByIdentity(provider: string, providerAccountId: string): Promise<UserRow | null>;
   /** Does nothing when the identity is already linked. */

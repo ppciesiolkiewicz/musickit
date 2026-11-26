@@ -17,7 +17,8 @@ read by `next.config.ts`. Rules: `CLAUDE.md`.
 - `src/app/admin/admin/users/page.tsx`: the users list, a server page over `listUsers` and `listSessionTimes` on `AuthRepo`
   and `listPlanSummaries` on `UserDataRepo`, drawn by `users/UsersTable.tsx`.
 - `users/PermissionTicks.tsx`: one person's Dev, Content and Admin boxes on the users list; `users/messages.ts` holds what it says when a save fails.
-- Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`, `src/app/api/admin/users` (PATCH a person's permissions).
+- `users/DeleteUser.tsx`: Delete on a users row and its question; `users/deleteLines.ts` turns the count of what goes into its lines.
+- Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`, `src/app/api/admin/users` (PATCH a person's permissions), `src/app/api/admin/users/[id]` (GET what deleting the account takes, DELETE it).
 
 ## Users (`/admin/admin/users`)
 
@@ -33,7 +34,14 @@ shows a dash.
 Permissions (`dev`, `content`, `admin`, see `features/account/model.ts`) are ticked in place and saved at once with
 `PATCH /api/admin/users` (`changePermissions` in `features/account/server/permissions.ts`). A failed save puts the boxes
 back and says so under them. An admin can't untick their own Admin, so the last admin can't lock everyone out; in
-development a signed-in person without Admin may change their own row, and with no login there is no "own" row. Plan counts and answers are summed up in the database from the `plan` document, which is never loaded
+development a signed-in person without Admin may change their own row, and with no login there is no "own" row.
+
+Delete, on every row but your own, asks first: it lists what goes with the account, counted (`GET /api/admin/users/<id>`,
+`userFootprint` on `AuthRepo`), what stays (their students' accounts, which lose their teacher; payment records, with no
+account on them), and warns when their Stripe subscription is still live, since deleting doesn't cancel it. Delete
+account deletes it all in one step (`adminDeleteUser` in `features/account/server/adminDelete.ts`, `purgeUser`): the
+account and everything the database cascades, plus the invites they joined with and the email links for their email,
+which the player's own Delete account leaves. Then their video files. Plan counts and answers are summed up in the database from the `plan` document, which is never loaded
 whole.
 
 ## Messages (`/admin/admin/messages`)

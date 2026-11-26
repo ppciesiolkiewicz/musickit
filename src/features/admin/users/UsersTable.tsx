@@ -1,4 +1,5 @@
 import { ROLE_LABEL } from "@/features/account/model";
+import DeleteUser from "./DeleteUser";
 import PermissionTicks from "./PermissionTicks";
 import type { SessionTimes, UserRow } from "@/features/account/server/repo";
 import { migrateAnswers, type PlanAnswers } from "@/features/plan/intake/answers";
@@ -68,7 +69,7 @@ function Answers({ a }: { a: PlanAnswers }) {
 /**
  * Every account with when it last logged in and was last seen (over all its browsers; nothing once it has logged out
  * everywhere), how many plans it holds, its permissions (ticked in place) and its latest questionnaire answers, folded
- * under each row. `viewerId` is the signed-in admin, whose own Admin box stays ticked; null when the viewer is not an admin (development without a login, or a signed-in person with no admin permission).
+ * under each row, and Delete on every row but the viewer's own. `viewerId` is the signed-in admin, whose own Admin box stays ticked; null when the viewer is not an admin (development without a login, or a signed-in person with no admin permission).
  */
 export default function UsersTable({ rows, viewerId }: { rows: UserListRow[]; viewerId: string | null }) {
   return (
@@ -83,7 +84,8 @@ export default function UsersTable({ rows, viewerId }: { rows: UserListRow[]; vi
             <th className="py-2 pr-4 font-medium">Joined</th>
             <th className="py-2 pr-4 font-medium" title="The newest log-in over all their browsers, in UTC">Last log-in</th>
             <th className="py-2 pr-4 font-medium" title="Updated at most once a day">Last seen</th>
-            <th className="py-2 font-medium" title="Their own plans, the running one and earlier ones, and plans a teacher gave">Plans</th>
+            <th className="py-2 pr-4 font-medium" title="Their own plans, the running one and earlier ones, and plans a teacher gave">Plans</th>
+            <th className="py-2 font-medium"><span className="sr-only">Delete</span></th>
           </tr>
         </thead>
         {rows.map(({ user: u, times: t, plan }) => {
@@ -100,13 +102,14 @@ export default function UsersTable({ rows, viewerId }: { rows: UserListRow[]; vi
                 <td className="pt-2 pr-4 tabular-nums text-slate-400">{day(u.createdAt)}</td>
                 <td className="pt-2 pr-4 tabular-nums text-slate-400" title={t ? undefined : "No session: logged out everywhere, or never logged in"}>{t ? dayTime(t.lastLogin) : "–"}</td>
                 <td className="pt-2 pr-4 tabular-nums text-slate-400">{t ? day(t.lastSeen) : "–"}</td>
-                <td className="pt-2 tabular-nums text-slate-300">
+                <td className="pt-2 pr-4 tabular-nums text-slate-300">
                   {plan ? plan.own : 0}
                   {plan && plan.given > 0 && <span className="text-slate-400"> + {plan.given} from a teacher</span>}
                 </td>
+                <td className="pt-2 text-right">{u.id !== viewerId && <DeleteUser userId={u.id} name={u.name} />}</td>
               </tr>
               <tr>
-                <td colSpan={8} className="pb-2 pt-1">
+                <td colSpan={9} className="pb-2 pt-1">
                   {answers ? (
                     <details>
                       <summary className="cursor-pointer text-xs text-slate-400">{summary(answers, Math.max(1, plan?.answered ?? 0))}</summary>
