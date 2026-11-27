@@ -80,10 +80,10 @@ describe("articles", () => {
     for (const t of GLOSSARY) if (t.article) assert.ok(ARTICLES.some((a) => `/learn/${a.slug}` === t.article), t.id);
   });
 
-  it("mark each glossary word once per article, never inside a link, keeping every line's text", () => {
+  it("mark each glossary word once per article (a string's name at every use), never inside a link, keeping every line's text", () => {
     for (const a of ARTICLES) {
       const marked = markArticle(a);
-      const ids = marked.flat(3).flatMap((r) => (r.kind === "link" ? [] : r.pieces.flatMap((p) => (typeof p === "string" ? [] : [p.term.each ? `${p.term.id}:${p.text.toLowerCase()}` : p.term.id]))));
+      const ids = marked.flat(3).flatMap((r) => (r.kind === "link" ? [] : r.pieces.flatMap((p) => (typeof p === "string" || p.term.every ? [] : [p.term.each ? `${p.term.id}:${p.text.toLowerCase()}` : p.term.id]))));
       assert.equal(new Set(ids).size, ids.length, a.slug);
       a.blocks.forEach((b, i) => {
         const lines = b.type === "p" || b.type === "care" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.between ?? []), ...(b.after ?? []), ...(b.parts ?? []).flatMap((p) => p.lines)] : [];
@@ -92,6 +92,7 @@ describe("articles", () => {
     }
     const words = (slug: string) => markArticle(ARTICLES.find((a) => a.slug === slug)!).flat(3).flatMap((r) => (r.kind === "link" ? [] : r.pieces.flatMap((p) => (typeof p === "string" ? [] : [p.term.id]))));
     for (const id of ["relative-pitch", "do", "degree", "interval", "drone", "solfege"]) assert.ok(words("scale-degree-feelings").includes(id), id);
+    assert.equal(words("barre-chord-alternatives").filter((id) => id === "high-e-string").length, 5);
   });
 
   it("write practice, not practise", () => {

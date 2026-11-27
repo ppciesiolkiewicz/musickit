@@ -53,6 +53,11 @@ describe("glossary", () => {
     assert.deepEqual(terms(explain(["Low E first, then the high e."])[0]), ["high-e-string:high e"]);
   });
 
+  it("marks a string's name at every use, other words once", () => {
+    assert.deepEqual(explain(["Leave out the high e string and the chord.", "Stop before the high e and the chord."]).map((t) => terms(t)),
+      [["high-e-string:high e string", "chord:chord"], ["high-e-string:high e"]]);
+  });
+
   it("finds a movable shape", () => {
     assert.deepEqual(terms(explain(["Plain F is a movable shape, and so are the movable chord shapes after it."])[0]),
       ["movable-shape:movable shape"]);
