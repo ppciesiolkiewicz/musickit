@@ -38,6 +38,12 @@ export function markArticle(article: Article): Mark[][][] {
   return lines.map((block) => block.map((runs) => runs.map((r): Mark => (r.kind === "link" ? r : { kind: r.kind, pieces: pieces[n++] }))));
 }
 
+/**
+ * A title (an exercise's or a part's) as glossary pieces. Each title is read on its own, so a word is explained in every
+ * title it names ("Movable shapes" above each part), apart from the article's text, where it is marked once.
+ */
+export const markTitle = (title: string): Piece[] => explain([title])[0];
+
 const keyOf = (b: ArticleBlock): number | null => {
   const tool = b.type === "exercise" ? b.tool : b.type === "row" ? b.tools[0] : null;
   return tool?.key != null ? parseKeySlug(String(tool.key)) : null;

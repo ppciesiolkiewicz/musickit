@@ -21,7 +21,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
   takes `**bold**`, `[label](href)` and `_care line_` (`Inline` in `ui/ArticleView.tsx`), and explained words: `marks.ts`
   (`markArticle`) runs the plan's glossary (`explain()`, `GLOSSARY` in `features/course/glossary.ts`) over the article's
   paragraphs, lists, care lines and exercise lines, each word marked once per article and never inside a link or a heading;
-  its note shows the meaning with no link, since the course needs a login. A word the glossary marks wrongly (a verb such as
+  its note links the term's public article (`article` in `GLOSSARY`) when it has one, never the course, which needs a login. Titles (an exercise's and a part's) are read on their own (`markTitle`), so a word is explained in every title that names it. A word the glossary marks wrongly (a verb such as
   "beat" or "skip") is reworded in the article, not dropped from the glossary. Chord names in the text (`chordNames.ts`, `splitChords`) open their chord box when pointed at (`ChordName`); a bare letter before "string", before a key word ("C minor pentatonic"), before ", the" (a note being named) or after "low"/"high" is left alone, and so is "A" the word. In titles, chord names and a quality written alone ("A 9 chord") are chips (`titleChords`). `ArticleSeed`: what an article was
   written from.
 - A `guide` block puts another guide's /learn card in the text, after a line that says why, where the reader may need it first (the intervals guide where intervals first come up). Only what the article leans on, not every guide it mentions.

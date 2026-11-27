@@ -3,16 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { getSharedPiano, noteToMidi, onSilence, playSequence, type Step } from "@/features/sound";
 import { strum } from "@/lib/chordKit/playback";
-import { TERM_FIGURES, type BeatsFigure, type KeysFigure, type StringFigure, type TuneFigure } from "./termFigures";
+import { TERM_FIGURES, type BeatsFigure, type KeysFigure, type MoveFigure, type StringFigure, type TuneFigure } from "./termFigures";
 
 /** An explained word's picture (`TERM_FIGURES`), drawn small enough for its note, with a Play button for each part. */
 export default function TermFigure({ id }: { id: string }) {
   const figure = TERM_FIGURES[id];
-  useEffect(() => void (figure?.kind !== "string" && getSharedPiano()), [figure]); // start loading the piano while the note is read
+  useEffect(() => void (figure?.kind !== "string" && figure?.kind !== "move" && getSharedPiano()), [figure]); // start loading the piano while the note is read
   if (!figure) return null;
   return (
     <span className="flex flex-col gap-1.5">
-      {figure.kind === "tune" ? <Tune figure={figure} /> : figure.kind === "keys" ? <Keys figure={figure} /> : figure.kind === "string" ? <Strings figure={figure} /> : <Beats figure={figure} />}
+      {figure.kind === "tune" ? <Tune figure={figure} /> : figure.kind === "keys" ? <Keys figure={figure} /> : figure.kind === "string" ? <Strings figure={figure} /> : figure.kind === "move" ? <Move figure={figure} /> : <Beats figure={figure} />}
       <span className="text-slate-400">{figure.caption}</span>
     </span>
   );
@@ -237,6 +237,49 @@ function Strings({ figure }: { figure: StringFigure }) {
       </svg>
       <span className="flex flex-wrap gap-1">
         <PlayButton label={`Open ${STRING_NAMES[lit]}`} onPlay={play} />
+      </span>
+    </>
+  );
+}
+
+/** frets of a "x x 3 2 1 x" string, low E first: null for a string left out */
+const fretsOf = (frets: string) => frets.trim().split(/\s+/).map((t) => (/^x$/i.test(t) ? null : Number(t)));
+
+/** One shape at each of its frets: small chord boxes (strings upright, low E on the left) with an arrow between, each with Play. */
+function Move({ figure }: { figure: MoveFigure }) {
+  const [ringing, setRinging] = useState<number | null>(null);
+  const n = figure.chords.length;
+  const arrow = 22, bw = (W - arrow * (n - 1)) / n, gap = Math.min(13, (bw - 22) / 5), rows = 4, rowH = 13, top = 16;
+  const play = (k: number) => {
+    const midi = fretsOf(figure.chords[k].frets).flatMap((f, i) => (f === null ? [] : [OPEN_STRING_MIDI[i] + f]));
+    strum(midi, { holdMs: RING_MS });
+    setRinging(k);
+    setTimeout(() => setRinging((r) => (r === k ? null : r)), RING_MS);
+  };
+  return (
+    <>
+      <svg viewBox={`0 0 ${W} ${top + rows * rowH + 8}`} className="w-full" aria-hidden>
+        {figure.chords.map((c, k) => {
+          const frets = fretsOf(c.frets);
+          const played = frets.filter((f): f is number => f !== null && f > 0);
+          const lo = Math.min(...played);
+          const x0 = k * (bw + arrow) + (bw - gap * 5) / 2 + 6;
+          return (
+            <g key={k}>
+              <text x={x0 + gap * 2.5} y={10} textAnchor="middle" fontSize={10} fontWeight={600} className={ringing === k ? "fill-sky-300" : "fill-slate-100"}>{c.name}</text>
+              <text x={x0 - 4} y={top + rowH / 2 + 3} textAnchor="end" fontSize={7.5} className="fill-slate-400">{lo}fr</text>
+              {Array.from({ length: rows + 1 }, (_, r) => <line key={`f${r}`} x1={x0} x2={x0 + gap * 5} y1={top + r * rowH} y2={top + r * rowH} strokeWidth={1} className="stroke-slate-600" />)}
+              {Array.from({ length: 6 }, (_, i) => <line key={`s${i}`} x1={x0 + i * gap} x2={x0 + i * gap} y1={top} y2={top + rows * rowH} strokeWidth={1} className="stroke-slate-500" />)}
+              {frets.map((f, i) => (f === null
+                ? <text key={i} x={x0 + i * gap} y={top - 3} textAnchor="middle" fontSize={7} className="fill-slate-500">×</text>
+                : <circle key={i} cx={x0 + i * gap} cy={top + (f - lo + 0.5) * rowH} r={4.5} className={ringing === k ? "fill-sky-300" : "fill-sky-500"} />))}
+              {k < n - 1 && <text x={(k + 1) * (bw + arrow) - arrow / 2} y={top + rows * rowH / 2 + 4} textAnchor="middle" fontSize={13} className="fill-slate-400">→</text>}
+            </g>
+          );
+        })}
+      </svg>
+      <span className="flex flex-wrap gap-1">
+        {figure.chords.map((c, k) => <PlayButton key={k} label={c.name} onPlay={() => play(k)} />)}
       </span>
     </>
   );

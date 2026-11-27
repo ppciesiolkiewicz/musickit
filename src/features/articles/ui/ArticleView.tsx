@@ -8,11 +8,12 @@ import type { NoteRoot } from "@/features/plan/model/noteText";
 import { CareLine, NoteText } from "@/features/plan/ui/reader/NoteText";
 import { NeckFrets } from "@/components/chordKit/ScaleNeck";
 import ChordName from "@/components/chordKit/ChordName";
+import Explained from "@/components/course/Explained";
 import type { Piece } from "@/features/course/glossary";
 import { splitChords, titleChords } from "../chordNames";
 import { ARTICLES } from "../index";
 import { AUTHOR } from "../author";
-import { blockRoots, markArticle, type Mark } from "../marks";
+import { blockRoots, markArticle, markTitle, type Mark } from "../marks";
 import { articleLabels, type Article, type ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
 import ChordFinder from "./ChordFinder";
@@ -41,13 +42,17 @@ function ChordText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null })
   ));
 }
 
-/** A title with its chord names and chord qualities as chips, so "A 9 chord" reads as a 9 chord, not A9. */
+/**
+ * A title with its explained words (`markTitle`), and its chord names and chord qualities as chips, so "A 9 chord" reads as
+ * a 9 chord, not A9.
+ */
 function ChordTitle({ text }: { text: string }) {
-  return titleChords(text).map((p, i) => (typeof p === "string" ? <Fragment key={i}>{p}</Fragment> : (
-    <span key={i} className="mx-0.5 inline-flex rounded-md border border-slate-600 bg-slate-800 px-1.5 align-baseline leading-snug">
-      <ChordName name={p.chord} />
-    </span>
-  )));
+  return markTitle(text).flatMap((piece, i) => typeof piece !== "string" ? [<Explained key={i} pieces={[piece]} link={false} />]
+    : titleChords(piece).map((p, j) => (typeof p === "string" ? <Fragment key={`${i}-${j}`}>{p}</Fragment> : (
+      <span key={`${i}-${j}`} className="mx-0.5 inline-flex rounded-md border border-slate-600 bg-slate-800 px-1.5 align-baseline leading-snug">
+        <ChordName name={p.chord} />
+      </span>
+    ))));
 }
 
 /**

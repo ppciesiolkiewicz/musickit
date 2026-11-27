@@ -46,10 +46,15 @@ export const barreChordAlternatives: Article = {
     ], tool: { type: "chord-shapes", chords: ["B", "B7"], frets: ["x 2 4 4 4 2", null] }, between: [
       "Press Play below and listen for the pull from B7 back to Em.",
     ], beside: { type: "strum-along", chords: ["Em", "Am", "B7", "Em"], bpm: 60 }, parts: [
-      { title: "Movable shapes", lines: [
-        "Slide B7 up one fret and it's C7, with one catch: the open B string was doing work, and it doesn't move with your hand. One fret up, that note has to be pressed, so your fingers go on differently and the high e is left out.",
-        "Press Play under each chord box below to hear B7, then C7.",
+      { title: "B7 up to C7", lines: [
+        "Slide B7 up one fret and it's C7, with one catch: the open B string was doing work, and it doesn't move with your hand. On C7 that note has to be pressed, so your fingers change places.",
+        "C7 leaves out the high e string, so stop your strum before it.",
+        "Press Play under each chord box below to hear B7, then C7, and compare where the fingers sit.",
       ], tool: { type: "chord-shapes", chords: ["B7", "C7"], frets: [null, "x 3 2 3 1 x"] } },
+      { title: "Movable shapes", lines: [
+        "This C7 has no open strings, so from here it moves as it is: two frets up for D7, and two more for E7.",
+        "Press Play under each chord box below to hear them.",
+      ], tool: { type: "chord-shapes", chords: ["C7", "D7", "E7"], frets: ["x 3 2 3 1 x", "x 5 4 5 3 x", "x 7 6 7 5 x"] } },
     ] },
 
     { type: "exercise", title: "3. Minor barres on four strings", lines: [
@@ -78,7 +83,7 @@ export const barreChordAlternatives: Article = {
       { title: "Add the bass", lines: [
         "Now give each chord a bass note first: pick the low C on the A string, then strum Cm on the next beat.",
         "Press Play below to hear the bass, the strum and the fill together.",
-        "Practice until the fill lands you back on the next bass note without a gap.",
+        "If the fill makes the next bass note late, play fewer notes: two are enough.",
       ], tool: { type: "guitar-play-along", view: "neck", bpm: 60, under: "none", shape: { shape: "riff", key: "c", scale: "Aeolian", notes: [
         { string: 5, fret: 3, beats: 1 }, { frets: [{ string: 4, fret: 5, beats: 1 }, { string: 3, fret: 5, beats: 1 }, { string: 2, fret: 4, beats: 1 }, { string: 1, fret: 3, beats: 1 }], beats: 1 },
         { string: 2, fret: 6, beats: 0.5 }, { string: 2, fret: 4, beats: 0.5 }, { string: 3, fret: 5, beats: 1 },

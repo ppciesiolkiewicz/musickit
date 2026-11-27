@@ -5,7 +5,8 @@ import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "./index";
 import { articleJsonLd } from "./jsonLd";
-import { markArticle, runsOf } from "./marks";
+import { markArticle, markTitle, runsOf } from "./marks";
+import { GLOSSARY } from "@/features/course/glossary";
 import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
 import { articleStats, articleTexts } from "./stats";
 
@@ -67,6 +68,16 @@ describe("articles", () => {
       assert.deepEqual(article.publisher, { "@id": "https://x.test/#organization" });
       assert.deepEqual(crumbs.itemListElement?.map((c) => c.item), ["https://x.test/", "https://x.test/learn", `https://x.test/learn/${a.slug}`]);
     }
+  });
+
+  it("explain a word in every title that names it", () => {
+    const ids = (t: string) => markTitle(t).flatMap((p) => (typeof p === "string" ? [] : [p.term.id]));
+    assert.deepEqual(ids("Movable shapes"), ["movable-shape"]);
+    assert.deepEqual(ids("Movable chord shapes on guitar"), ["movable-shape"]);
+  });
+
+  it("link a glossary word's public article only to an article that exists", () => {
+    for (const t of GLOSSARY) if (t.article) assert.ok(ARTICLES.some((a) => `/learn/${a.slug}` === t.article), t.id);
   });
 
   it("mark each glossary word once per article, never inside a link, keeping every line's text", () => {

@@ -38,7 +38,15 @@ export interface StringFigure {
   caption: string;
 }
 
-export type Figure = TuneFigure | KeysFigure | BeatsFigure | StringFigure;
+/** Small chord boxes of one shape at different frets, an arrow between them; each has its own Play button. */
+export interface MoveFigure {
+  kind: "move";
+  /** frets low E first, "x" for a string left out ("x x 3 2 1 x"), as `chord-shapes` writes them */
+  chords: { name: string; frets: string }[];
+  caption: string;
+}
+
+export type Figure = TuneFigure | KeysFigure | BeatsFigure | StringFigure | MoveFigure;
 
 const C_MAJOR = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"];
 const SOLFEGE = ["Do", "Re", "Mi", "Fa", "Sol", "La", "Ti", "Do"];
@@ -58,6 +66,14 @@ export const TERM_FIGURES: Record<string, Figure> = {
   "g-string": { kind: "string", string: 3, caption: "On a chord box it's the third line from the right." },
   "b-string": { kind: "string", string: 2, caption: "On a chord box it's the second line from the right." },
   "high-e-string": { kind: "string", string: 1, caption: "On a chord box it's the line on the right." },
+  "movable-shape": {
+    kind: "move",
+    chords: [
+      { name: "F", frets: "x x 3 2 1 x" },
+      { name: "G", frets: "x x 5 4 3 x" },
+    ],
+    caption: "The same shape two frets up: F becomes G.",
+  },
   "relative-pitch": {
     kind: "tune",
     groups: [

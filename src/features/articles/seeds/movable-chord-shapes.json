@@ -1,0 +1,39 @@
+{
+  "slug": "movable-chord-shapes",
+  "query": "movable chord shapes guitar",
+  "persona": "guitarist",
+  "written": "2026-11-27",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "Soo, movable shapes should be expalined word - work in titles too on articles and have a link to movable shapes article that will be based on the article for barre chords alternatives",
+    "Also add C7 (C like shape), D7 etc to both articles",
+    "Make section about C7 and B7 different -> note that C7 doesnt structk the high e strig and finger position changes"
+  ],
+  "blocks": [
+    "guitar-advanced-barre-shapes-anywhere"
+  ],
+  "calculator": [
+    "npm run -s theory -- boxes F / F# / G / A / B / C / C# / D / E (rootFret of the E shape on the low E string: F 1, F♯ 2, G 3, A 5, B 7, C 8; of the A shape on the A string: B 2, C 3, C♯ (D♭) 4, D 5, E 7, G 10)",
+    "npm run -s theory -- boxes A minor (the open Am shape x-0-2-2-1-0, moved up for the four-string minor: Bm x x 4 4 3 2 = F♯ B D F♯, as in barre-chord-alternatives)",
+    "npm run -s theory -- scale C major (C, F and G are the I, IV and V chords of C, the blues in C; Fmaj7 = F A C E)",
+    "npm run -s theory -- scale F major (V7 = C7: C E G B♭; C7 x 3 2 3 1 x = C E B♭ C, the open C7 with the high e left out)",
+    "npm run -s theory -- scale G major (V7 = D7: D F♯ A C; D7 x 5 4 5 3 x = D F♯ C D)",
+    "npm run -s theory -- scale A major (V7 = E7: E G♯ B D; E7 x 7 6 7 5 x = E G♯ D E)",
+    "Chord boxes copied from barre-chord-alternatives and checked by chord-shapes' shapeFromFrets (articles.test.ts): plain F, G, A x x 3 2 1 x / 5 4 3 / 7 6 5; Bm, Cm, C♯m four-string; B7 open (library) and C7 x 3 2 3 1 x; D, E, F♯ and Dm, Em, F♯m from the open D shapes; C9, D9, E9; Fmaj7, Gmaj7, Amaj7 on the low E with fingering 1 x 3 4 2 x",
+    "One fret = a half step, two frets = a whole step: boxes F and G (low E 1 and 3), boxes B and C (A string 2 and 3)"
+  ],
+  "sources": [
+    "src/features/articles/content/barre-chord-alternatives.ts (its six Movable shapes parts and its summary line on moving a shape)"
+  ],
+  "open": [
+    "No \"Practice until\" lines, following the barre article (the author finds them wrong in an article); exercise 1 names the goal instead.",
+    "The root-fret lists under \"Find the fret for your chord\" are text, not a picture: the guitar names neck (names on: guitar) labels intervals from C, not letter names.",
+    "No picture yet: public/images/learn/art/movable-chord-shapes.svg needs a function in scripts/learn-art.mjs (art.test.ts checks).",
+    "Search volume for the query not checked yet."
+  ]
+}

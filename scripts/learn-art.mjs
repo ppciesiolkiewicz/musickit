@@ -159,6 +159,17 @@ ${chordBox(760, 125, Fmaj7, true)}`,
     grad("chord", ["amber", "rose"], 1, 1));
 }
 
+// 9. Movable chord shapes: plain F on four strings, then the same shape two frets lower on the box, G.
+function movable() {
+  const F = { dots: [[2, 3], [3, 2], [4, 1]], mute: [0, 1, 5] };
+  const G = { dots: [[2, 5], [3, 4], [4, 3]], mute: [0, 1, 5] };
+  return base([[260, 260, 200, "slate", 0.14], [880, 220, 220, "sky", 0.26], [1080, 420, 180, "violet", 0.2]],
+    `${chordBox(250, 125, F, false)}
+<path d="M540 250h120m-26-26 26 26-26 26" fill="none" stroke="#e2e8f0" stroke-opacity=".7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+${chordBox(760, 125, G, true)}`,
+    grad("chord", ["sky", "violet"], 1, 1));
+}
+
 // 8. Microphone and audio interface: a mic, its cable and a two-knob box, sound coming in.
 function mic() {
   const mesh = [];
@@ -194,6 +205,7 @@ const ART = {
   "scale-degrees-guitar-any-key": anyKey,
   "barre-chord-alternatives": barre,
   "microphone-and-audio-interface-for-singing": mic,
+  "movable-chord-shapes": movable,
 };
 for (const [slug, draw] of Object.entries(ART)) writeFileSync(`${OUT}/${slug}.svg`, draw());
 console.log(Object.keys(ART).length, "written");

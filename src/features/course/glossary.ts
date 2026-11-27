@@ -10,6 +10,8 @@ export interface Term {
   forms: string[];
   short: string;
   href: string;
+  /** a public guide at /learn that explains it, linked from the note where the course link is left out (an article's page) */
+  article?: string;
   /** a line for each form, keyed by the form in lower case, shown under `short` where that form is found; a term with these is marked once per form */
   each?: Record<string, string>;
   /**
@@ -89,7 +91,7 @@ export const GLOSSARY: Term[] = [
   { id: "crossing", label: "Crossing", forms: ["crossing"], short: "The way from one position to the next: a slide along one string that carries your hand into the next position.", href: "/course/6/joining" },
   { id: "barre-chord", label: "Barre chord", forms: ["barre chord", "bar chord", "barre"], short: "A chord with one finger pressing several strings across a fret, so the shape can move to any key.", href: "/course/6/bm-barre" },
   { id: "drop-3", label: "Drop 3", forms: ["drop 3", "drop-3 voicing"], short: "A four-note chord with the second-highest note dropped an octave: spread out and easy to move.", href: "/course/6/drop-3" },
-  { id: "movable-shape", label: "Movable shape", forms: ["movable shape", "movable chord shape", "moveable shape", "moveable chord shape"], short: "A chord shape with no open strings, so it slides along the neck as it is: the same fingers play a new chord at every fret. Two frets up is a whole step higher.", href: "/course/6/bm-barre" },
+  { id: "movable-shape", label: "Movable shape", forms: ["movable shape", "movable chord shape", "moveable shape", "moveable chord shape"], short: "A chord shape with no open strings, so it slides along the neck as it is: the same fingers play a new chord at every fret. Two frets up is a whole step higher.", href: "/course/6/bm-barre", article: "/learn/movable-chord-shapes" },
   { id: "caged", label: "CAGED", forms: ["CAGED"], short: "A map of the neck from the five open chord shapes C, A, G, E and D, moved up so each one starts where the last ends.", href: "/course/8/d-c-a-shapes" },
   { id: "twelve-bar", label: "12-bar blues", forms: ["12-bar blues", "twelve-bar blues", "12-bar"], short: "The chord pattern most blues uses: twelve bars on the 1, 4 and 5 chords.", href: "/course/7/twelve-bar" },
   { id: "sus", label: "Sus chord", forms: ["sus chord", "sus2", "sus4"], short: "A chord with its 3rd swapped for the 2nd or 4th: open, unresolved.", href: "/course/7/sus-add9" },

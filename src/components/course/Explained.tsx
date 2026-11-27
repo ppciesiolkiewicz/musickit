@@ -12,7 +12,8 @@ const TermFigure = dynamic(() => import("./TermFigure"), { ssr: false });
 
 /**
  * Text from `explain()`: each glossary term keeps its wording, is underlined, and shows its meaning and a link to the article
- * on hover or focus. `link` false leaves the link out: on a public page (/learn) the course needs a login.
+ * on hover or focus. `link` false leaves the course link out (on a public page, /learn, the course needs a login) and links
+ * the term's public article instead, when it has one.
  */
 export default function Explained({ pieces, link = true }: { pieces: Piece[]; link?: boolean }) {
   return pieces.map((p, i) => (typeof p === "string" ? keepTogether(p) : <Term key={i} piece={p} link={link} />));
@@ -106,7 +107,8 @@ function Term({ piece, link }: { piece: Exclude<Piece, string>; link: boolean })
               <span>{piece.term.short}</span>
               {line && <span className="text-slate-200">{line}</span>}
               {TERM_FIGURES[piece.term.id] && <TermFigure id={piece.term.id} />}
-              {link && <Link href={piece.term.href} target="_blank" rel="noopener" className="text-sky-300 hover:underline">Read the article →</Link>}
+              {link ? <Link href={piece.term.href} target="_blank" rel="noopener" className="text-sky-300 hover:underline">Read the article →</Link>
+                : piece.term.article && <Link href={piece.term.article} className="text-sky-300 hover:underline">Read the article →</Link>}
             </span>
           </span>,
           document.body,
