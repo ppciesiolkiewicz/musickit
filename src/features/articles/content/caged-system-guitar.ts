@@ -11,57 +11,48 @@ export const cagedSystemGuitar: Article = {
   topics: ["guitar", "theory"],
   blocks: [
     { type: "p", text: "You probably know the open chords C, A, G, E and D. Here's the surprise: those five shapes are all you need to play any chord anywhere on the neck." },
-    { type: "p", text: "Take the shape of an open chord, slide it up and press the open strings with a finger, and you get the same chord higher up. Do it with all five and they join end to end along the neck, always in the same order: C, A, G, E, D. That order is where the name CAGED comes from." },
-    { type: "p", text: "Each shape you slide up this way is a movable shape: with no open strings left, your hand carries the whole chord to any fret. CAGED is five movable shapes for one chord, joined end to end." },
+    { type: "p", text: "Here's the trick: take an open chord and play only the strings your fingers press. Slide those fingers up the neck together and you get the same chord higher up. Do it with all five shapes and they join end to end along the neck, always in the same order: C, A, G, E, D. That order is where the name CAGED comes from." },
+    { type: "p", text: "With no open strings, the notes under your fingers are a movable shape: your hand carries the whole chord to any fret. CAGED is five movable shapes for one chord, joined end to end." },
     { type: "guide", slug: "movable-chord-shapes", text: "Never slid a chord shape up the neck? This guide starts with one shape and two chords." },
     { type: "p", text: "In this guide you'll play the C chord in all five shapes, then find the Am chord hiding in the same frets." },
-
-    { type: "h2", text: "How to read the diagrams" },
-    { type: "list", items: [
-      "Each shape is a chord box: the neck stands upright, the low E string on the left, and the number beside it is the fret the box starts at.",
-      "The neck map lies flat, with the low E string at the bottom, as you see it looking down at your guitar.",
-      "Each dot is labelled by how far it is from C, the root of the C chord. R is the root, 3 the 3rd and p5 the 5th (p is for perfect): the three notes of a major chord.",
-      "Press Play under a chord box to hear it. On the neck map, tap any dot to hear it.",
-    ] },
-    { type: "p", text: "Use the Labels selector at the bottom of this page to switch every dot between intervals and solfège." },
-    { type: "guide", slug: "intervals-and-solfege", text: "New to intervals? This guide names every note from Do, on a piano and on the guitar neck." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
       "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
-      "Some shapes up the neck are barre chords. If a full shape won't ring yet, play only the top three or four strings.",
+      "Pluck only the strings your fingers press, one at a time or together. No barre needed.",
     ] },
     { type: "care", text: "_Rest your hand when your thumb or wrist starts to ache._" },
 
     { type: "exercise", title: "1. The five open chords", lines: [
       "These are the five shapes CAGED is named after. Press each chord box below to hear it, then play it on your guitar.",
+    ], tool: { type: "chord-shapes", chords: ["C", "A", "G", "E", "D"] }, after: [
+      "Now play each one again, plucking only the strings your fingers press. Those notes are the shape you'll move up the neck.",
       "Practice until you can play each one without looking up the fingering.",
-    ], tool: { type: "chord-shapes", chords: ["C", "A", "G", "E", "D"] } },
+    ] },
 
-    { type: "exercise", title: "2. The C chord in the C and A shapes", key: "c", lines: [
-      "Here is the C chord in the C shape: the open C chord you just played. Press the chord box below to hear it.",
-    ], tool: { type: "chord-shapes", chords: ["C"], frets: ["x 3 2 0 1 0 | x 3 2 0 1 0"] },
+    { type: "exercise", title: "2. The C chord in the C and A shapes", lines: [
+      "Here is the C chord in the C shape: the three notes your fingers press in the open C chord. Press the chord box below to hear it, then play it.",
+    ], tool: { type: "chord-shapes", chords: ["C"], frets: ["x 3 2 x 1 x | x 3 2 x 1 x"] },
     between: [
-      "And here is the C chord again, in the A shape: the open A chord moved up three frets, with finger 1 pressing across fret 3 where the open strings were. Press the chord box below to hear it.",
+      "And here is the C chord again, in the A shape: the three fingers of the open A chord, moved up three frets. Press the chord box below to hear it, then play it.",
     ],
-    beside: { type: "chord-shapes", chords: ["C"], frets: ["x 3 5 5 5 3 | x 1 2 3 4 1"] }, after: [
-      "Look at the {{1}} on the A string in both: it's the same note, at fret 3. That shared root is where one shape hands over to the next.",
+    beside: { type: "chord-shapes", chords: ["C"], frets: ["x x 5 5 5 x | x x 1 2 3 x"] }, after: [
+      "Both are the C chord: every R is a C, on new strings.",
       "Practice until you can move from one shape to the other without stopping.",
     ] },
 
-    { type: "exercise", title: "3. The C chord in the G and E shapes", key: "c", lines: [
-      "Next up the neck is the G shape. The full shape is a big stretch, so here are its top three strings: still the C chord. Press the chord box below to hear it.",
-    ], tool: { type: "chord-shapes", chords: ["C"], frets: ["x x x 5 5 8 | x x x 1 1 4"] },
+    { type: "exercise", title: "3. The C chord in the G and E shapes", lines: [
+      "Next up the neck is the G shape: the three fingers of the open G chord, on the two lowest strings and the high e string, moved up five frets. Press the chord box below to hear it, then play it.",
+    ], tool: { type: "chord-shapes", chords: ["C"], frets: ["8 7 x x x 8 | 2 1 x x x 3"] },
     between: [
-      "Then comes the E shape: the barre chord most of us learn first, here at fret 8. Press the chord box below to hear it.",
+      "Then comes the E shape: the three fingers of the open E chord, moved up eight frets. Press the chord box below to hear it, then play it.",
     ],
-    beside: { type: "chord-shapes", chords: ["C"], frets: ["8 10 10 9 8 8 | 1 3 4 2 1 1"] }, after: [
-      "Play one, then the other, on your guitar.",
-      "Practice until each shape rings clearly, string by string.",
+    beside: { type: "chord-shapes", chords: ["C"], frets: ["x 10 10 9 x x | x 2 3 1 x x"] }, after: [
+      "Practice until each note rings clearly, string by string.",
     ] },
 
-    { type: "exercise", title: "4. The C chord in the D shape", key: "c", lines: [
-      "The last shape is the D shape, with its root on the D string at fret 10: the same {{1}} the E shape has on that string. Press the chord box below to hear it, then play it.",
+    { type: "exercise", title: "4. The C chord in the D shape", lines: [
+      "The last shape is the D shape: the three fingers of the open D chord, moved up ten frets. In the open D chord the root is the open D string, so here finger 1 presses it at fret 10. Press the chord box below to hear it, then play it.",
     ], tool: { type: "chord-shapes", chords: ["C"], frets: ["x x 10 12 13 12 | x x 1 2 4 3"] }, after: [
       "After the D shape the C shape comes round again, twelve frets above the open one.",
     ] },
@@ -91,9 +82,9 @@ export const cagedSystemGuitar: Article = {
         "From the C chord to the Am chord two fingers stay where they are, and only finger 3 moves.",
       ], tool: { type: "chord-shapes", chords: ["C", "Am"] } },
       { title: "The C and Am chords at fret 8", lines: [
-        "Up the neck it works the same way. Here is the C chord in the E shape and the Am chord in the D shape, in almost the same frets.",
-        "Press each chord box below to hear it, then play C, Am, C on your guitar.",
-      ], tool: { type: "chord-shapes", chords: ["C", "Am"], frets: ["8 10 10 9 8 8 | 1 3 4 2 1 1", "x x 7 9 10 8 | x x 1 2 4 3"] } },
+        "Up the neck it works the same way. Here is the C chord in the E shape and the Am chord in the D shape, in almost the same frets. Pluck only the strings your fingers press.",
+        "Press each chord box below to hear it, then play the C chord, the Am chord and the C chord again on your guitar.",
+      ], tool: { type: "chord-shapes", chords: ["C", "Am"], frets: ["x 10 10 9 x x | x 2 3 1 x x", "x x 7 9 10 8 | x x 1 3 4 2"] } },
     ] },
 
     { type: "h2", text: "Make it your own" },
@@ -103,6 +94,6 @@ export const cagedSystemGuitar: Article = {
       "Strum a slow C, Am, C, Am in one place on the neck, then move the same change to the next shape up.",
     ] },
     { type: "p", text: "Before long, any chord you know will have five places on the neck, and its relative minor right beside each one." },
-    { type: "p", text: "To see the scale around these shapes, try [Major and minor scales side by side on the guitar neck](/learn/major-and-minor-scales-guitar). For easier versions of the barre shapes, see [Barre chord alternatives](/learn/barre-chord-alternatives)." },
+    { type: "p", text: "To see the scale around these shapes, try [Major and minor scales side by side on the guitar neck](/learn/major-and-minor-scales-guitar). For more chords without a barre, see [Barre chord alternatives](/learn/barre-chord-alternatives)." },
   ],
 };

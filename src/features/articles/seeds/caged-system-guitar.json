@@ -15,7 +15,9 @@
     "So let's just give me basic CAGED learning article. (2026-11-27)",
     "I also want to have an idea of relative chord and another in this chord series about CAGED would be \"How to find chords for the scale using CAGED\" (2026-11-27)",
     "Use less mental shortcuts throughout article 'C chord' more common than just C (2026-11-27)",
-    "There're are too many diagrams below. Normalize text in between diagrams. Add to style (2026-11-27)"
+    "There're are too many diagrams below. Normalize text in between diagrams. Add to style (2026-11-27)",
+    "Let's focus on just plucking the strings that are pressed with fingers. In this sense G is just top 2 strings and high e string and A just 3 notes as well (2026-11-27)",
+    "How to read the diagrams list and the Labels selector line: not needed (2026-11-27)"
   ],
   "blocks": [
     "guitar-intermediate-caged-a-shape",
@@ -27,13 +29,15 @@
     "npm run -s theory -- boxes G major (order G, E, D, C, A)",
     "npm run -s theory -- boxes A minor (A x-0-2-2-1-0 frets 0-3; G 5-3-2-2-5-5 frets 1-6; E 5-7-7-5-5-5 frets 4-8; D x-x-7-9-10-8 frets 6-11; C x-12-10-9-10-x frets 8-13: each Am shape is the next CAGED letter in a C major shape's frets)",
     "npm run -s theory -- scale C major; npm run -s theory -- scale A minor (C D E F G A B; A B C D E F G)",
-    "npm run -s theory -- neighbours C C; npm run -s theory -- neighbours C E (vi: Am in the A shape, open; Am in the D shape, x-x-7-9-10-8)"
+    "npm run -s theory -- neighbours C C; npm run -s theory -- neighbours C E (vi: Am in the A shape, open; Am in the D shape, x-x-7-9-10-8)",
+    "Fretted notes only (open chord fingers moved up, pitch classes from standard tuning): C shape x-3-2-x-1-x C E C; A shape x-x-5-5-5-x G C E; G shape 8-7-x-x-x-8 C E C; E shape x-10-10-9-x-x G C E; D shape x-x-10-12-13-12 C G C E (the open D string is the D shape's root, so finger 1 frets it); Am in the D shape x-x-7-9-10-8 A E A C"
   ],
   "sources": [
     "/admin/dev/search"
   ],
   "open": [
     "Next in the series: \"How to find chords for the scale using CAGED\" (the chords of the key inside each shape: npm run -s theory -- neighbours, and the CAGED explorer's \"Chords inside this box\"). Link it from the end of this article once it exists.",
-    "Search volume for the query not checked yet."
+    "Search volume for the query not checked yet.",
+    "shapeFromFrets (exercises/cues/voicing.ts) never roots a chord box on the B string, so the D shape's three fretted notes alone (x-x-x-12-13-12) don't draw; the D shapes here keep the root on the D string."
   ]
 }
