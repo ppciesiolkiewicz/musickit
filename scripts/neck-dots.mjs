@@ -193,11 +193,11 @@ function line(hexes, len) {
 
 // Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
 // across the board, each zone a band running along the neck under one string (low E on the left). Two sets, every cover in
-// a set the same: cyan at both edges like the edge dots, magenta at both edges, and green at both edges (for a place without green behind), the inner bands kept off a colour near their own. No white or
+// a set the same: magenta at both edges and no green (for a green background), magenta at both edges, and green at both edges (for a place without green behind), the inner bands kept off a colour near their own. No white or
 // black: the guitar is white and light brown, and the background green and bright.
 const COVERS = [1, 3, 5, 7, 12];
 const COVER_SETS = [
-  ["cyan", ["Cyan", "Magenta", "Blue", "Magenta", "Violet", "Cyan"]], // no green at all: for a green background
+  ["magenta, no green", ["Magenta", "Cyan", "Violet", "Cyan", "Blue", "Magenta"]], // for a green background
   ["magenta", ["Magenta", "Cyan", "Violet", "Green", "Blue", "Magenta"]],
   ["green", ["Green", "Magenta", "Blue", "Cyan", "Violet", "Green"]], // for a background that isn't green
 ];
@@ -286,7 +286,7 @@ ${spares}` : `<h1>Neck dots · Strat kit (25.5″) · A3</h1>
 ${lineSet(GREEN)}
 <h2>Bridge <span>level with the saddles, ${SCALE_MM} mm from the nut</span></h2>
 <div class="line"><span class="g"><b>${BRIDGE_DOT} mm</b>${strip(BRIDGE_DOT, across(BRIDGE_DOT), byName.Blue.hex)}</span></div>
-<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge, one colour band per string; a set each with cyan, magenta and green at both edges; low E side on the left, nut end at the top</span></h2>
+<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge, one colour band per string; a set with magenta at both edges and no green, one with magenta, one with green; low E side on the left, nut end at the top</span></h2>
 ${COVER_SETS.map(([, colours]) => `<div class="covers">${COVERS.map((n) => { const c = cover(n, colours); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>`).join("")}
 ${spares ? `<h2>Spares</h2>${spares}` : ""}
 `}</body></html>`;
