@@ -112,7 +112,7 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "backing-band", title: "The backing track", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },
   ],
   "song-chart": [
-    { target: "song-chart-play", title: "Play", text: "Press Play. A bar of clicks counts you in, then the backing track plays the song from the top." },
+    { target: "song-chart-play", title: "Play", text: "Press Play. A bar of clicks counts you in, then the backing track plays the chart from the top." },
     { target: "song-chart-chart", title: "The chart", text: "Each box is one bar, and a chord changes where a new box begins. The lit box is the bar playing now, under the name of its section." },
     { target: "song-chart-tempo", title: "Tempo", text: "Make it slower with − until every change lands on beat 1." },
     { target: "backing-band", title: "The backing track", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },

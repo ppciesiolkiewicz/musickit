@@ -69,7 +69,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "tools", sub: "Tuning & theory", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge", wide: true },
   { group: "tools", sub: "Play along", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
   { group: "tools", sub: "Play along", href: "/theory/backing", tone: "pink", label: "Backing tracks", desc: "Drums, bass and chords from a progression, any key and style", icon: "drum" },
-  { group: "tools", sub: "Play along", href: "/theory/song-chart", tone: "sky", label: "Song charts", desc: "A song's chords and form with the backing track", icon: "file-text", isNew: true },
+  { group: "tools", sub: "Play along", href: "/theory/song-chart", tone: "sky", label: "Chord charts", desc: "Chords through a verse and chorus with the backing track", icon: "file-text", isNew: true },
   { group: "tools", sub: "Play along", href: "/theory/play-along", tone: "amber", label: "Guitar play-along", desc: "Intervals, tunes and arpeggios in time", icon: "guitar", isNew: true },
   { group: "tools", sub: "Tuning & theory", href: "/theory/piano", tone: "red", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
   { group: "tools", sub: "Tuning & theory", href: "/theory/pitch-roll", tone: "teal", label: "Pitch roll", desc: "See the pitch you sing or play on a piano roll", icon: "activity", isNew: true, alsoIn: [{ group: "singing", sub: "Voice" }] },

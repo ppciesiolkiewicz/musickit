@@ -3,14 +3,14 @@ import PageShell from "@/components/PageShell";
 import ToolPresets from "@/features/practice/ToolPresets";
 
 export const metadata: Metadata = {
-  title: "Song Chart Play-Along: Chords and Song Form · attunr",
-  description: "Play a song's chords through its verse and chorus while the backing track plays drums, bass and keys.",
+  title: "Chord Charts: Play Chords Through a Verse and Chorus · attunr",
+  description: "Play a chord chart through its verse and chorus while the backing track plays drums, bass and keys.",
   alternates: { canonical: "/theory/song-chart" },
 };
 
 export default function SongChartPage() {
   return (
-    <PageShell active="/theory/song-chart" title="Song charts" intro="A song's chords, bar by bar, in the order the song plays them. Play the chords along with the backing track, and keep your strumming hand going when a change comes late. Once a chart feels easy, try one with the chords hidden and find them by ear.">
+    <PageShell active="/theory/song-chart" title="Chord charts" intro="Chords bar by bar, in sections like a verse and a chorus, in the order they come round. Play the chords along with the backing track, and keep your strumming hand going when a change comes late. Once a chart feels easy, try one with the chords hidden and find them by ear.">
       <ToolPresets
         type="song-chart"
         presets={[
