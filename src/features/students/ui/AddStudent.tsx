@@ -67,6 +67,8 @@ export function WhoStep({ draft, onName, onEmail, error }: { draft: AddDraft; on
         <input className={`${input} mt-1`} type="email" value={draft.email} onChange={(e) => onEmail(e.target.value)} onBlur={() => setLeft(true)} autoComplete="off" aria-invalid={!!emailLine || undefined} />
         {emailLine && <p className={errorLine}>{emailLine}</p>}
       </label>
+      {/* the terms put the consent on the teacher (/terms, "Who we are"); attunr doesn't ask a student's age */}
+      <p className="text-xs leading-relaxed text-slate-400">For a student under 16, you need their parent&apos;s or guardian&apos;s consent first.</p>
     </div>
   );
 }
