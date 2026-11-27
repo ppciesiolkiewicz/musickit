@@ -69,7 +69,7 @@ export const FACTS: string[] = [
   `I need at least ${FOUNDING_PARTNERS_NEEDED} founding partners to start the project.`,
   `A founding partner chooses any teacher plan, of any size, and pays the early price: ${FOUNDING_OFFER}. It is locked in: it doesn't go up later.`,
   `A founding partner gets a long trial, ${FOUNDING_TRIAL_DAYS} days, before any paid period starts. They are free to change their mind at any time in those ${FOUNDING_TRIAL_DAYS} days, and then they pay nothing. If they have already paid, it is a 100% money-back guarantee: they get all of it back.`,
-  "attunr is an Australian company (ABN 48 737 987 261). Prices are in US dollars.",
+  "attunr is an Australian business (ABN 48 737 987 261). Prices are in US dollars.",
   `The offer is on one page: ${SITE_URL}/kickstarter`,
   "A founding partner is involved in the creation: they say what the school needs, and that is built first.",
   `I offer a video call with me, ${FROM}, the founder: about ${CALL_MINUTES} minutes, free, and it commits them to nothing. On the call I show attunr working with what they teach, they tell me what their school needs, and we talk through what being a founding partner means and whether it fits them.`,

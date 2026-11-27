@@ -80,7 +80,7 @@ const QUESTIONS: { q: string; a: string }[] = [
   },
   {
     q: "Who is behind it?",
-    a: "I'm Pio. I build attunr, and it is an Australian company. When you write, you write to me.",
+    a: "I'm Pio. I build attunr, and it is an Australian business. When you write, you write to me.",
   },
 ];
 
@@ -189,7 +189,7 @@ export default function FoundingHome({ joined }: { joined: number }) {
           </p>
           <p className="mt-4 inline-flex flex-wrap items-center justify-center gap-2 text-sm text-slate-400">
             {early && <DiscountBadge percent={EARLY_OFFER.percentOff} />}
-            <span>{early ? "any teacher plan, locked in · " : ""}An Australian company</span>
+            <span>{early ? "any teacher plan, locked in · " : ""}An Australian business</span>
           </p>
         </div>
       </section>
