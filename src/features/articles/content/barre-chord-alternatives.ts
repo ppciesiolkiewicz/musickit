@@ -10,7 +10,7 @@ export const barreChordAlternatives: Article = {
   sings: false,
   topics: ["guitar"],
   blocks: [
-    { type: "p", text: "Barre chords are hard. Most of us take weeks before every string rings, and F is the chord that makes people put the guitar down. For me it took years: I broke my thumb a long time ago, and it never got all its strength back." },
+    { type: "p", text: "Barre chords are hard. Most of us take weeks before every string rings, and F is the chord that makes people put the guitar down. For me it took years before I learnt them: I broke my thumb a long time ago, and it never got all its strength back." },
     { type: "p", text: "What helped was finding shapes that leave the barre out. They were easier on my hand, and some sounded better than the barre." },
     { type: "p", text: "You don't have to wait for the barre to play the song: every barre has an easier stand-in. Some add a note, which changes the feel, so they won't suit every song. Others are the barre with strings left out, and fit anywhere. Here are the ones I'd reach for, easiest first." },
 
