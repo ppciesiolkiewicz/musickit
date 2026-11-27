@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ChordDiagram from "@/components/chordKit/ChordDiagram";
 import { Chip, ChipRow } from "@/components/ui";
 import { shapeFromFrets } from "@/features/exercises/cues/voicing";
@@ -18,8 +18,8 @@ export function cagedLinks(chord: string, barre = false): ChainLink[] {
 }
 
 /**
- * One chord moving up the neck through its shapes: chord boxes in a row with an arrow between each, every box with its exact
- * frets (checked by `shapeFromFrets`, as `chord-shapes` does) the chord's name above it and a caption under it. Wider than the column on a wide screen.
+ * One chord through its shapes: chord boxes in a grid, every box with its exact frets (checked by `shapeFromFrets`, as
+ * `chord-shapes` does) and a label above it, the chord's name then its caption ("C – A shape"). Wider than the column on a wide screen.
  */
 export default function ChordChain({ chords }: { chords: ChainLink[] }) {
   const boxes = useMemo(() => chords.flatMap((c) => {
@@ -27,16 +27,17 @@ export default function ChordChain({ chords }: { chords: ChainLink[] }) {
     return v ? [{ ...c, v }] : [];
   }), [chords]);
   return (
-    <div className="bleed my-2 flex flex-wrap items-center justify-center gap-x-1 gap-y-4">
-      {boxes.map((b, i) => (
-        <Fragment key={`${b.chord}-${b.frets}`}>
-          {i > 0 && <span aria-hidden className="text-2xl text-slate-500">→</span>}
-          <figure className="flex w-36 flex-col items-center gap-1">
+    <div className="bleed my-2 grid grid-cols-2 justify-items-center gap-x-4 gap-y-8 sm:grid-cols-3">
+      {boxes.map((b) => (
+        <figure key={`${b.chord}-${b.frets}`} className="flex w-full max-w-64 flex-col items-center gap-1">
+          <figcaption className="text-center">
             <span className="text-lg font-medium text-slate-100">{b.chord}</span>
+            <span className="text-sm text-slate-400"> – {b.caption}</span>
+          </figcaption>
+          <div className="w-full *:w-full">
             <ChordDiagram name={b.chord} shape={b.v.shape} rootFret={b.v.fret} rootName={b.chord.match(/^[A-G][♯♭#b]?/)?.[0]} onPlay={() => strumShape(b.v.shape, b.v.fret)} />
-            <figcaption className="text-sm text-slate-400">{b.caption}</figcaption>
-          </figure>
-        </Fragment>
+          </div>
+        </figure>
       ))}
     </div>
   );

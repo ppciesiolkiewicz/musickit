@@ -52,9 +52,16 @@ export function shapeFromFrets(name: string, frets: string): VoicedShape | null 
   const semiAt = (i: number) => (((OPEN_NOTE[i] + (abs[i] as number) - q.rootPc) % 12) + 12) % 12;
   const played = abs.flatMap((a, i) => (a === null ? [] : [i]));
   if (!played.every((i) => want.has(semiAt(i)))) return null;
-  const ri = played.find((i) => semiAt(i) === 0 && ROOT_STRING_AT[i] !== null);
-  if (ri === undefined) return null;
-  const rootFret = abs[ri] as number;
+  const rootOn = played.find((i) => semiAt(i) === 0 && ROOT_STRING_AT[i] !== null);
+  // a root only on the B string (the D shape's triad, x x 12 13 12 x … on G B e): the shape is anchored on the low E string,
+  // not played, at the fret under the lowest played note that gives the root
+  const rootOnB = rootOn === undefined && played.some((i) => semiAt(i) === 0);
+  if (rootOn === undefined && !rootOnB) return null;
+  const ri = rootOn ?? 0;
+  const lowest = Math.min(...played.map((i) => abs[i] as number));
+  let anchor = (((q.rootPc - OPEN_NOTE[0]) % 12) + 12) % 12;
+  while (anchor + 12 <= lowest) anchor += 12;
+  const rootFret = rootOn === undefined ? anchor : (abs[ri] as number);
   const f = abs.map((a) => (a === null ? null : (a as number) - rootFret));
   const semis = [...new Set(played.map(semiAt))].sort((a, b) => a - b);
   const third = semis.some((s) => s === 3 || s === 4);

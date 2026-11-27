@@ -55,7 +55,7 @@ describe("islandChord and barreChord: every shape draws as a chord box", () => {
   }
   it("C major: the article's island chord boxes", () => {
     assert.deepEqual(cagedBoxes(0, "major").map(islandChord), [
-      "x 3 2 x 1 x | x 3 2 x 1 x", "x x 5 5 5 x | x x 1 2 3 x", "8 7 x x 8 8 | 2 1 x x 3 4", "x 10 10 9 x x | x 2 3 1 x x", "x x 10 12 13 12 | x x 1 2 4 3",
+      "x 3 2 x 1 x | x 3 2 x 1 x", "x x 5 5 5 x | x x 1 2 3 x", "8 7 x x 8 8 | 2 1 x x 3 4", "x 10 10 9 x x | x 2 3 1 x x", "x x x 12 13 12 | x x x 1 3 2",
     ]);
   });
 });

@@ -18,9 +18,15 @@ describe("shapeFromFrets", () => {
     assert.equal(shapeFromFrets("B", "x x x 4 4 2")!.shape.rs, 3);
     assert.deepEqual(shapeFromFrets("C9", "x 3 2 3 3 x")!.shape.n, { 2: "9" });
   });
+  it("takes a root only on the B string, anchored on the low E string under the lowest note", () => {
+    const c = shapeFromFrets("C", "x x x 12 13 12 | x x x 1 3 2")!;
+    assert.equal(c.shape.rs, 6);
+    assert.equal(c.fret, 8);
+    assert.deepEqual(c.midi, [67, 72, 76]);
+  });
   it("refuses frets that play a note outside the chord, have no root, or don't parse", () => {
     assert.equal(shapeFromFrets("Am", "5 7 7 6 x x"), null);
-    assert.equal(shapeFromFrets("C", "x x x x 1 0"), null);
+    assert.equal(shapeFromFrets("C", "x x x x x 0"), null);
     assert.equal(shapeFromFrets("Am", "5 7 7 5 x"), null);
     assert.equal(shapeFromFrets("Am", "5 7 7 5 y x"), null);
   });

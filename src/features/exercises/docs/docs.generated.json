@@ -271,7 +271,7 @@
         "name": "islands",
         "type": "boolean | \"only\"",
         "required": false,
-        "description": "on the whole neck (no `shapes`): frame each shape's island, the notes the open chord's fingers press, moved up. Written by\na person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`). \"only\": the islands' notes alone,\nthe chord's other notes left off"
+        "description": "on the whole neck (no `shapes`): ring each shape's whole chord in the shape's colour, a note two shapes share ringed twice.\n\"only\": frame and ring each shape's island instead, the notes the open chord's fingers press, moved up, with the chord's\nother notes faded. Written by a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)"
       }
     ]
   },

@@ -81,20 +81,19 @@ export const islandNotes = (box: Pick<CagedBox, "frets" | "letter" | "quality">)
 
 /**
  * The fingers of each shape's island, low E first (null = not in the island), as the open chord presses those notes. The D
- * shapes add the root on the D string with finger 1, since a chord box is never rooted on the B string (`shapeFromFrets`).
+ * shapes are the triad on the G, B and high e strings, rooted on the B string, as the open D and Dm chords press it.
  */
 const ISLAND_FINGERS: Record<CagedQuality, Record<CagedLetter, (number | null)[]>> = {
-  major: { C: [N, 3, 2, N, 1, N], A: [N, N, 1, 2, 3, N], G: [2, 1, N, N, 3, 4], E: [N, 2, 3, 1, N, N], D: [N, N, 1, 2, 4, 3] },
-  minor: { C: [N, 3, 1, N, 2, N], A: [N, N, 2, 3, 1, N], G: [2, 1, N, N, 3, 4], E: [N, 2, 3, 1, N, N], D: [N, N, 1, 3, 4, 2] },
+  major: { C: [N, 3, 2, N, 1, N], A: [N, N, 1, 2, 3, N], G: [2, 1, N, N, 3, 4], E: [N, 2, 3, 1, N, N], D: [N, N, N, 1, 3, 2] },
+  minor: { C: [N, 3, 1, N, 2, N], A: [N, N, 2, 3, 1, N], G: [2, 1, N, N, 3, 4], E: [N, 2, 3, 1, N, N], D: [N, N, N, 2, 3, 1] },
 };
 
 const tab = (frets: (number | null)[]) => frets.map((f) => (f === null ? "x" : String(f))).join(" ");
 
-/** A shape's island as a chord box's `frets` ("x 3 2 x 1 x | x 3 2 x 1 x"): the island's notes and their fingers; the D shape with its root. */
+/** A shape's island as a chord box's `frets` ("x 3 2 x 1 x | x 3 2 x 1 x"): the island's notes and their fingers. */
 export function islandChord(box: Pick<CagedBox, "frets" | "letter" | "quality">): string {
   const frets: (number | null)[] = [N, N, N, N, N, N];
   islandNotes(box).forEach(([i, f]) => { frets[i] = f; });
-  if (box.letter === "D") frets[2] = box.frets[2];
   const fingers = ISLAND_FINGERS[box.quality][box.letter].map((g, i) => (frets[i] === null ? null : g));
   return `${tab(frets)} | ${fingers.map((g) => (g === null ? "x" : String(g))).join(" ")}`;
 }

@@ -26,13 +26,15 @@ export const cagedSystemGuitar: Article = {
 
     { type: "exercise", title: "1. The five open chords", lines: [
       "These are the five shapes CAGED is named after. Press each chord box below to hear it, then play it on your guitar.",
-    ], tool: { type: "chord-shapes", chords: ["C", "A", "G", "E", "D"] }, after: [
+    ], tool: { type: "chord-shapes", chords: ["C", "A", "G", "E", "D"], frets: [null, null, "3 2 0 0 3 3 | 2 1 0 0 3 4", null, null] }, after: [
       "Now play each one again, plucking only the strings your fingers press. Those notes are the shape you'll move up the neck.",
+      "In the C chord the open G string sits between the strings you press, so skip it when you pluck, or let the finger on the D string lean on it to mute it.",
+      "The G chord is the trickiest: its open strings are the middle ones, so your fingers press only the outer strings. Play it with finger 3 on the B string, as the chord box shows. That note is the 5th, and the G shape keeps it when it moves up.",
       "Practice until you can play each one without looking up the fingering.",
     ] },
 
     { type: "exercise", title: "2. The open chord shapes on the neck", lines: [
-      "Here are those five shapes on the whole neck, each moved up to play the C chord. Each frame holds the notes one open chord's fingers press, in that shape's colour. Tap any dot to hear it.",
+      "Here are those five shapes on the whole neck, each moved up to play the C chord. Each frame rings the notes one open chord's fingers press, in that shape's colour. The chord's other notes are faded. Tap any dot to hear it.",
     ], tool: { type: "caged-neck", key: "c", scale: "major-ionian", islands: "only" }, after: [
       "Read the frames from the nut up: the open C chord, then the A, G, E and D shapes. After the D shape the C shape comes round again at fret 12.",
       "Practice until you can point at any frame and name the open chord it comes from.",
@@ -48,13 +50,15 @@ export const cagedSystemGuitar: Article = {
     ] },
 
     { type: "exercise", title: "4. The whole chord: barre chords", lines: [
-      "Each frame is only part of the chord. The neck map below shows every note of the C chord, so you can see what sits around each frame.",
+      "Each frame in step 2 is only part of the chord. The neck map below rings every note of each shape's whole chord, in that shape's colour.",
+      "You can see how the shapes join: each one shares notes with the shape next to it, like the D and C shapes, or the C, A and G shapes. A note two shapes share is ringed twice.",
     ], tool: { type: "caged-neck", key: "c", scale: "major-ionian", islands: true },
     between: [
       "Fill in the rest of each shape and you get the whole open chord, moved up, with a barre where the nut was. Press each chord box below to hear it, then play it.",
+      "Some of these chords are really hard to play, which is why the steps above kept to the notes your fingers press.",
     ],
     chain: { chords: ["C", "E", "G", "A"], barre: true }, after: [
-      "The A and E shapes are the barre chords you'll use most. The G and D shapes are a long stretch, so play the part of them that's comfortable.",
+      "The A and E shapes are the barre chords you'll use most. The G and D shapes need a long stretch, so play the part of them that's comfortable.",
       "Practice until each string rings clearly, then use the Chord selector to move to another chord.",
     ] },
 
@@ -71,7 +75,7 @@ export const cagedSystemGuitar: Article = {
     ] },
 
     { type: "exercise", title: "6. The open minor shapes on the neck", lines: [
-      "Here are the minor shapes on the whole neck, each moved to play the Am chord. The order is the same, starting from the open Am chord: A, G, E, D, C. Tap any dot to hear it.",
+      "Here are the minor shapes on the whole neck, each moved to play the Am chord. The order is the same, starting from the open Am chord: A, G, E, D, C. The chord's other notes are faded. Tap any dot to hear it.",
     ], tool: { type: "caged-neck", key: "a", scale: "natural-minor-aeolian", islands: "only" }, after: [
       "Compare it with the C chord's neck map in step 2: each frame sits in the same frets, one letter on.",
       "Practice until you can point at any frame and name the open chord it comes from.",
@@ -87,7 +91,7 @@ export const cagedSystemGuitar: Article = {
     ] },
 
     { type: "exercise", title: "8. The whole minor chord: barre chords", lines: [
-      "The neck map below shows every note of the Am chord around its frames.",
+      "The neck map below rings every note of each minor shape's whole chord. A note two shapes share is ringed twice.",
     ], tool: { type: "caged-neck", key: "a", scale: "natural-minor-aeolian", islands: true },
     between: [
       "Fill in each shape and you get the minor barre chords. Press each chord box below to hear it, then play it.",
