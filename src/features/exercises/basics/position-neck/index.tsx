@@ -18,6 +18,7 @@ import { useLevelAtLeast } from "@/features/guide/Tier";
 import { SCALE_NECK_FRETS, positionsFor, scaleCells, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { scaleBoxes, shiftPosition } from "../scale-neck/boxes";
 import { CROSS_STRING, crossingPath, upAndDown, type Crossing } from "./crossing";
+import { octaves } from "./octaves";
 
 const FRAME = "rgb(56 189 248 / 0.75)";
 const CROSS = "var(--color-amber-300)";
@@ -81,9 +82,17 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
     const a = cross && positions.find((p) => p.number === cross.from), b = cross && positions.find((p) => p.number === cross.to);
     return cross && a && b ? crossingPath(a, b, cross.string) : null;
   }, [cross, positions]);
+  // each position where it sits lowest on the neck; "Higher up the neck" frames its copies an octave up too
+  const [higher, setHigher] = useState(false);
+  const places = useMemo(() => new Map(positions.map((p) => [p.number, octaves(p)])), [positions]);
+  const hasHigher = [...places.values()].some((all) => all.length > 1);
   const framed = useMemo((): ScalePosition[] => path
     ? [path.lower, path.upper]
-    : positions.filter((p) => selected.includes(p.number)).map((p) => (placed && p.number === placed.number ? shiftPosition(p, placed.shift) : p)), [path, positions, selected, placed]);
+    : positions.filter((p) => selected.includes(p.number)).flatMap((p) => {
+      if (placed && p.number === placed.number) return [shiftPosition(p, placed.shift)];
+      const all = places.get(p.number)!;
+      return higher ? all : [all[0]];
+    }), [path, positions, selected, placed, places, higher]);
   const playable = useMemo(() => new Set((path ? path.notes : framed.flatMap((p) => p.notes)).map(cellKey)), [path, framed]);
 
   const state = useCallback((c: ScaleCell) => (playable.has(cellKey(c)) ? noteState(vis, c.pc) : outside), [playable, vis, outside]);
@@ -111,7 +120,7 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
   };
   const caption = path
     ? `crossing from position ${cross!.from} to ${cross!.to} on the ${STRING_NAMES[cross!.string]} string`
-    : framed.length ? `position${framed.length > 1 ? "s" : ""} ${framed.map((p) => p.number).join(" & ")}` : "no position picked";
+    : framed.length ? `position${framed.length > 1 ? "s" : ""} ${[...new Set(framed.map((p) => p.number))].join(" & ")}` : "no position picked";
 
   return (
     <div className="flex flex-col gap-2">
@@ -125,9 +134,9 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
         <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: phone ? 480 : undefined }} role="img" aria-label={`${title}, ${caption}`}>
           <FretboardBase g={g} markerSize={phone ? 4 : 6} />
           {merged(framed).map((group) => (
-            <Frame key={`f${group.map((p) => p.number).join("-")}`} g={g} notes={group.flatMap((p) => p.notes)} r={r} stroke={FRAME} fill="rgb(56 189 248 / 0.06)" dashed={!!path} />
+            <Frame key={`f${group.map((p) => `${p.number}@${p.from}`).join("-")}`} g={g} notes={group.flatMap((p) => p.notes)} r={r} stroke={FRAME} fill="rgb(56 189 248 / 0.06)" dashed={!!path} />
           ))}
-          {framed.map((p) => <PositionLabel key={`l${p.number}`} g={g} p={p} r={r} />)}
+          {framed.map((p) => <PositionLabel key={`l${p.number}@${p.from}`} g={g} p={p} r={r} />)}
           {path && <Frame g={g} notes={path.notes} r={r - 2} stroke={CROSS} fill="rgb(252 211 77 / 0.08)" />}
           {shown.map((c) => {
             const s = state(c);
@@ -157,9 +166,9 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
                     type="button" onClick={() => toggle(p.number)} aria-pressed={selected.includes(p.number)}
                     className={`flex flex-col items-center rounded-lg border px-1.5 pb-1 pt-1.5 text-[11px] transition ${selected.includes(p.number) ? "border-sky-400/80 bg-sky-500/10 text-sky-100" : "border-slate-700 text-slate-400 hover:border-slate-500"}`}
                   >
-                    <Thumb p={p} />
+                    <Thumb p={places.get(p.number)![0]} />
                     <span>Position {p.number}</span>
-                    <span className="text-[10px] text-slate-500">frets {p.from}–{p.to}</span>
+                    <span className="text-[10px] text-slate-500">frets {(higher ? places.get(p.number)! : places.get(p.number)!.slice(0, 1)).map((q) => `${q.from}–${q.to}`).join(", ")}</span>
                   </button>
                   </Hint>
                   {next && canCross && (
@@ -176,6 +185,16 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
                 </div>
               );
             })}
+            {hasHigher && !path && (
+              <Hint title="Higher up the neck" description="Frames the picked positions again an octave up, where they fit on the neck.">
+              <button
+                type="button" data-tour="position-neck-higher" onClick={() => setHigher((h) => !h)} aria-pressed={higher}
+                className={`ml-1 rounded-lg border px-2 py-1 text-[11px] transition ${higher ? "border-sky-400/80 bg-sky-500/10 text-sky-100" : "border-slate-700 text-slate-400 hover:border-slate-500"}`}
+              >
+                Higher up the neck
+              </button>
+              </Hint>
+            )}
           </div>
           {cross && (
             <div className="flex items-center gap-1 text-[11px] text-slate-400" role="group" aria-label="Cross on string">
