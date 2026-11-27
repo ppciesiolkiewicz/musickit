@@ -1,4 +1,5 @@
 import { ALL_SECTIONS, sectionHref } from "@/features/course/course";
+import { isWritten } from "@/features/course/model";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { keyName, parseKeySlug, scaleHref } from "@/features/theory/keySlug";
 import { MODE_PAGES } from "@/features/theory/scales";
@@ -22,7 +23,7 @@ export function catalogue(): CatalogueEntry[] {
     href: sectionHref(stage.slug, section.slug),
     label: section.title,
     ...(section.short !== section.title ? { short: section.short } : {}),
-    desc: `Course ${stage.label} · ${stage.title}: ${section.about}${section.blocks.length ? "" : " (planned)"}`,
+    desc: `Course ${stage.label} · ${stage.title}: ${section.about}${isWritten(section) ? "" : " (planned)"}`,
   }));
   const scales = [...MODE_PAGES.map((m) => ({ slug: m.slug, name: m.name })), ...PENTATONICS.map((p) => ({ slug: p.slug, name: p.name }))]
     .map((s) => ({ href: scaleHref(s.slug, DEFAULT_KEY_PC), label: s.name, desc: "Scale page (the key is in the last part of the path, e.g. /a, /f-sharp)" }));

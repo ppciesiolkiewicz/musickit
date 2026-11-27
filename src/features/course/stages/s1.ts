@@ -1,6 +1,7 @@
 import { degreeColour } from "../../theory/scales";
 import type { Dot } from "../visuals";
 import { section, type CourseStage } from "../model";
+import { chordsFromScale } from "../lessons/chords-from-scale";
 import { A, C, D, E, G, MINOR_SEMIS, PATH, chords, links, neck, path, task, text, toneDot, toneDots, visual } from "../build";
 
 const MAJOR_TRIAD = [0, 4, 7], MINOR_TRIAD = [0, 3, 7], PENT = [0, 3, 5, 7, 10];
@@ -80,7 +81,7 @@ export const STAGE_1: CourseStage = {
       task("Hold the Em chord and pick it one string at a time, low to high and back. Do the same with Am and G. Then play the arpeggios without holding the chord shape."),
       links([{ href: "/theory/arpeggios", label: "Arpeggios explorer", note: "every chord's arpeggio, anywhere on the neck" }]),
     ]),
-    section("chords-from-scale", "Chords from the scale", "paths", "Stacking every other note of the scale makes its chords: Do–Mi–Sol is the 1 chord, Fa–La–Do the 4 and Sol–Ti–Re the 5."),
+    section("chords-from-scale", "Chords from the scale", "paths", "Stacking every other note of G major makes its seven chords: Do–Mi–Sol is the G chord, Fa–La–Do the C chord and Sol–Ti–Re the D chord.", chordsFromScale),
     section("one-four-five", ["1 → 4 → 5 → 1 & the circle of fifths", "1 → 4 → 5 → 1"], "paths", "The 1, 4 and 5 chords most songs use, and how the circle of fifths shows them.", [
       text(
         "Most songs are built on three chords: the one on the home note (1, Do), the one a 4th up (4, Fa), and the one a 5th up (5, Sol). In G major that's G → C → D → G. Here are their roots in position 1, and they're all under your hand.",

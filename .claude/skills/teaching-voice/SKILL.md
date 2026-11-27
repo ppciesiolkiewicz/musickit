@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 12
+version: 13
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 

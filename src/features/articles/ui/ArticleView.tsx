@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
 import { parseTool } from "@/features/plan/model/tools";
 import { Tool } from "@/features/plan/ui/Tool";
@@ -34,8 +34,8 @@ const BIG_CHORDS =
 /** Tools as long as the neck: on a wide screen they reach out past the column into the spare room (`bleed`), none on a phone. */
 const WIDE = new Set<string>(["caged-neck"]);
 
-/** A link to another guide opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
-const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("#"));
+/** A link to another guide or course section opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
+const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("/course/") || href.startsWith("#"));
 
 /** Article text with its chord names drawn as names to point at, each opening its chord box. */
 function ChordText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) {
@@ -191,25 +191,40 @@ function MoreGuides({ current }: { current: string }) {
 }
 
 /** The page has dots for the Labels selector to switch: a tool, the names chart, or notes in its text. */
-const hasDots = (a: Article) => a.blocks.some((b) => b.type === "exercise" || b.type === "row" || b.type === "names" || JSON.stringify(b).includes("{{"));
+const hasDots = (blocks: ArticleBlock[]) => blocks.some((b) => b.type === "exercise" || b.type === "row" || b.type === "names" || JSON.stringify(b).includes("{{"));
 
-/** An article's body: its blocks in order, the singing tools under one Your voice picker. Glossary words are marked once each across the whole article. */
-export default function ArticleView({ article }: { article: Article }) {
+/** What `ArticleBody` draws: an article's blocks and the settings they are drawn with (a /learn article, or a course section written in its style). */
+export type ArticleBodyProps = Pick<Article, "blocks" | "labels" | "frets"> & { sings?: boolean; topics?: Article["topics"] };
+
+/**
+ * An article's blocks in order, the singing tools under one Your voice picker, the Labels selector after them when the page
+ * has dots, then `children` (the updated line, the ending). Glossary words are marked once each across the whole body. Used by
+ * /learn and by the course's sections written in the same style (`CourseSection.article`).
+ */
+export function ArticleBody({ article, children }: { article: ArticleBodyProps; children?: ReactNode }) {
   const marked = markArticle(article);
-  const dots = hasDots(article);
   const roots = blockRoots(article);
   const body = (
     // the plan reader's text is 18px from sm up, its inline note dots 1.9em of that: the same 34px here on 16px text
     <div className="flex flex-col gap-4 leading-relaxed sm:[--note-dot:2.15em]">
       {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} root={roots[i]} /></Fragment>)}
-      {dots && <div className="mt-8"><LabelSwitch /></div>}
-      <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
-      <JoinCard />
-      <MoreGuides current={article.slug} />
+      {hasDots(article.blocks) && <div className="mt-8"><LabelSwitch /></div>}
+      {children}
     </div>
   );
   const page = article.sings ? <VoicePicker data={article.blocks}>{body}</VoicePicker> : body;
   const framed = article.frets ? <NeckFrets to={article.frets}>{page}</NeckFrets> : page;
   // every dot starts as the article's labels (Solfège for singing, Intervals for guitar), whatever the reader's setting; the selector at the bottom switches them
-  return <ArticleLabels initial={articleLabels(article)}>{framed}</ArticleLabels>;
+  return <ArticleLabels initial={articleLabels({ labels: article.labels, topics: article.topics ?? (article.sings ? ["singing"] : ["guitar"]) })}>{framed}</ArticleLabels>;
+}
+
+/** A /learn article's body, ending on the updated date, the join card and two more guides. */
+export default function ArticleView({ article }: { article: Article }) {
+  return (
+    <ArticleBody article={article}>
+      <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
+      <JoinCard />
+      <MoreGuides current={article.slug} />
+    </ArticleBody>
+  );
 }

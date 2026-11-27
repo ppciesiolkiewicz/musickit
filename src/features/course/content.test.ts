@@ -6,6 +6,9 @@ import { tabFor } from "@/lib/chordKit/tab";
 import { ALL_SECTIONS, findSection } from "./course";
 import { pcAt, type CourseSection } from "./model";
 import { STRUMS } from "./strum";
+import { parseTool } from "@/features/plan/model/tools";
+import { ARTICLES } from "@/features/articles";
+import type { ArticleBlock } from "@/features/articles/model";
 
 /** Stages whose content is written; each content task adds its stages here. Sections with no blocks yet are planned. */
 const DONE = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"];
@@ -61,6 +64,45 @@ describe("course content: every stage", () => {
       assert.ok(section.blocks.some((b) => b.kind === "text"), `${stage.slug}/${section.slug} text`);
       assert.ok(section.blocks.some((b) => b.kind !== "text" && b.kind !== "links"), `${stage.slug}/${section.slug} non-text`);
     });
+  });
+});
+
+/** Every tool of an article-style section's block. */
+const toolsOf = (b: ArticleBlock): Record<string, unknown>[] =>
+  b.type === "exercise" ? [...(b.tool ? [b.tool] : []), ...(b.beside ? [b.beside] : []), ...(b.parts ?? []).flatMap((p) => (p.tool ? [p.tool] : []))] : b.type === "row" ? b.tools : [];
+/** Every line of text in an article-style section's block. */
+const textsOf = (b: ArticleBlock): string[] =>
+  b.type === "p" || b.type === "care" || b.type === "guide" || b.type === "h2" ? [b.text] : b.type === "list" ? b.items
+  : b.type === "exercise" ? [b.title, ...b.lines, ...(b.between ?? []), ...(b.after ?? []), ...(b.parts ?? []).flatMap((p) => [p.title, ...p.lines])] : [];
+const articleSections = () => ALL_SECTIONS.flatMap((r) => (r.section.article ? [{ ...r, article: r.section.article }] : []));
+
+describe("course content: sections written as /learn articles", () => {
+  it("say when they were written, to the minute, and have no course blocks beside the article", () => {
+    articleSections().forEach(({ stage, section, article }) => {
+      assert.match(article.updated, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, `${stage.slug}/${section.slug}`);
+      assert.equal(section.blocks.length, 0, `${stage.slug}/${section.slug}`);
+    });
+  });
+  it("have text and at least one exercise, every tool accepted by the plan's parser", () => {
+    articleSections().forEach(({ stage, section, article }) => {
+      assert.ok(article.blocks.some((b) => b.type === "p"), `${stage.slug}/${section.slug} text`);
+      assert.ok(article.blocks.some((b) => b.type === "exercise"), `${stage.slug}/${section.slug} exercise`);
+      article.blocks.forEach((b) => toolsOf(b).forEach((t) => assert.ok(parseTool(t), `${stage.slug}/${section.slug}: ${JSON.stringify(t)}`)));
+    });
+  });
+  it("link only pages that exist, and write practice, not practise", () => {
+    const guides = new Set(ARTICLES.map((a) => a.slug));
+    articleSections().forEach(({ stage, section, article }) => article.blocks.forEach((b) => {
+      const texts = textsOf(b);
+      if (b.type === "guide") assert.ok(guides.has(b.slug), b.slug);
+      texts.forEach((t) => {
+        assert.doesNotMatch(t, /practis/i, `${stage.slug}/${section.slug}: ${t}`);
+        for (const [, href] of t.matchAll(/\]\((.+?)\)/g)) {
+          if (href.startsWith("/learn/")) assert.ok(guides.has(href.slice(7)), href);
+          else if (href.startsWith("/course/") || href.startsWith("/theory/")) assert.ok(linkOk(href), href);
+        }
+      });
+    }));
   });
 });
 

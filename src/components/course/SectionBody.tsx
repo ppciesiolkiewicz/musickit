@@ -9,6 +9,29 @@ import type { CourseLink } from "@/features/course/model";
 import { STRUMS } from "@/features/course/strum";
 import type { Block, CourseSection } from "@/features/course/model";
 import StrumGrid from "./StrumGrid";
+import { MicNotice } from "@/components/PageShell";
+import { ArticleBody } from "@/features/articles/ui/ArticleView";
+import type { CourseArticle } from "@/features/course/model";
+
+/** "27 November 2026, 2:30 pm" from a section's `updated`, "2026-11-27T14:30" (Sydney time, as written). */
+export const updatedLabel = (updated: string): string => {
+  const [day, time = "00:00"] = updated.split("T");
+  const date = new Date(`${day}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+  const [h, m] = time.split(":").map(Number);
+  return `${date}, ${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`;
+};
+
+/** A section written in the /learn style: the mic note when it sings, the article's blocks with their live tools, and when it was last written. */
+function ArticleSection({ article }: { article: CourseArticle }) {
+  return (
+    <div className="flex min-w-0 max-w-3xl flex-col gap-5">
+      {article.sings && <MicNotice />}
+      <ArticleBody article={article}>
+        <p className="mt-2 text-xs text-slate-500">Updated {updatedLabel(article.updated)}.</p>
+      </ArticleBody>
+    </div>
+  );
+}
 
 const chordHref = (c: string) => `/theory/chords?q=${encodeURIComponent(c)}`;
 
@@ -97,6 +120,7 @@ function BlockView({ block }: { block: Block }) {
 
 /** A section's content, block by block, in the order the course data lists them. A planned section says what it will teach. */
 export default function SectionBody({ section }: { section: CourseSection }) {
+  if (section.article) return <ArticleSection article={section.article} />;
   if (!section.blocks.length) {
     return (
       <div className="flex max-w-3xl flex-col gap-3 leading-relaxed text-slate-300">

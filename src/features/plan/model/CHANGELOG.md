@@ -159,6 +159,10 @@ Everything before the prompt had a version.
 
 ## Teaching
 
+### 13 (2026-11-27)
+
+- `course-article`: a planned section is written in the /learn articles' style, not with the course blocks: one file per section in `src/features/course/lessons/<slug>.ts`, a `CourseArticle` of `ArticleBlock`s with live tools, in the voice of `src/features/articles/VOICE.md`, its glossary words marked as on /learn. Its `updated` is the day and the time (Sydney), so a section written to an older /learn style can be found and rewritten.
+
 ### 12 (2026-11-25)
 
 From the user's page comments on /demo and /dev/library (tasks.txt SeedWording3 to 8).

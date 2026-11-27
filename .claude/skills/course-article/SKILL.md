@@ -1,12 +1,23 @@
 ---
 name: course-article
-version: 12
+version: 13
 description: Write or rewrite a section (article) of the position course in src/features/course/stages - text, neck and chord visuals, tasks, links - and fill in planned stub sections. Use when asked to write a course article, lesson or section, fill a planned section, or point a glossary word at a new article.
 ---
 
 # Course article
 
 A course section is one page at `/course/<stage>/<section>`. It is pure data in `src/features/course/stages/s*.ts`, built with the helpers in `src/features/course/build.ts`. Write the text as the **teaching-voice** skill says. Read that skill first.
+
+## New sections are written as /learn articles
+
+A planned section is filled in the style of the public `/learn` articles, not with the course blocks below: live tools and exercises on the page. The course blocks (the rest of this skill) are for editing the sections already written with them.
+
+- One file per section, `src/features/course/lessons/<slug>.ts`, exporting a `CourseArticle` (`model.ts`): `updated`, `blocks` (the articles' `ArticleBlock`s: `p`, `h2`, `list`, `care`, `exercise` with its tool, `row`, `guide`, …), `sings` when a tool uses the mic, optional `labels` and `frets`. The stage file passes it as `section(...)`'s last argument. The page draws it with the articles' `ArticleBody` (`src/features/articles/ui/ArticleView.tsx`), so the README in `src/features/articles` says what each block draws.
+- The voice is the articles' voice: `src/features/articles/VOICE.md` on top of teaching-voice ("I", friendly, short, "Make it your own" at the end). Model a section on the articles in `src/features/articles/content/`, read with the course neighbours (step 1 below).
+- `updated` is the day and the time, Sydney: `TZ=Australia/Sydney date "+%Y-%m-%dT%H:%M"`, set when the section is written or rewritten. The /learn style is still changing: a section older than a style change is found by its `updated` and rewritten to it.
+- Tools are set up as a seed exercise sets them up (the plan's parser reads them; `content.test.ts` checks), controls named by their label on the screen. Glossary words are marked on these pages as on /learn, so the text uses the word and doesn't define it.
+- Links in the text: `[label](/course/<stage>/<section>)`, `/learn/<slug>` or a `/theory` page, all real (the test checks). A `guide` block puts a /learn article's card where the reader may need it first.
+- Steps 1, 2, 7, 8 and 9 below hold as they are; steps 3 to 6 are the course blocks' and are replaced by the voice's "What every article has".
 
 ## Where things are
 

@@ -1,4 +1,5 @@
 import { ALL_SECTIONS, sectionHref } from "@/features/course/course";
+import { isWritten } from "@/features/course/model";
 import { SEED_BLOCKS, SEED_PLANS, seedExercises, seedPlan } from "@/features/library/seed";
 import { CONCEPTS, conceptIds, type Area, type Concept } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
@@ -32,7 +33,7 @@ export const pathSource = (): PathSource => ({
   exercises: SEED_BLOCKS.map((f) => ({ id: f.id, concepts: conceptsOf(seedExercises(f)) })),
   plans: SEED_PLANS.map((f) => ({ id: f.id, concepts: conceptsOf(((seedPlan(f) as RawPlan).days ?? []).flatMap((d) => d.exercises ?? [])) })),
   steps: conceptSteps(),
-  written: new Set(ALL_SECTIONS.filter((r) => r.section.blocks.length > 0).map((r) => sectionHref(r.stage.slug, r.section.slug))),
+  written: new Set(ALL_SECTIONS.filter((r) => isWritten(r.section)).map((r) => sectionHref(r.stage.slug, r.section.slug))),
 });
 
 export interface PathNode {

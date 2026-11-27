@@ -30,7 +30,7 @@ const linesOf = (b: ArticleBlock): string[] =>
  * Every line of an article as marked runs, per block (`[block][line]`, an exercise's `lines`, its `between`, its `after`, then its `parts`' lines). The glossary
  * reads the whole article as plan text reads a block: each word marked once, at its first use. Links are left alone.
  */
-export function markArticle(article: Article): Mark[][][] {
+export function markArticle(article: Pick<Article, "blocks">): Mark[][][] {
   const lines = article.blocks.map((b) => linesOf(b).map(runsOf));
   const texts = lines.flat(2).flatMap((r) => (r.kind === "link" ? [] : [r.text]));
   const pieces = explain(texts);
@@ -53,7 +53,7 @@ const keyOf = (b: ArticleBlock): number | null => {
  * The root each block's `{{1}}` notes count from: its own tool's key, else its own `key`, else the next exercise's tool's,
  * else the last one before it (as plan text reads the tool after it). Null when no exercise has a key.
  */
-export function blockRoots(article: Article): (NoteRoot | null)[] {
+export function blockRoots(article: Pick<Article, "blocks">): (NoteRoot | null)[] {
   const keys = article.blocks.map(keyOf);
   return keys.map((tool, i) => {
     const b = article.blocks[i];

@@ -5,6 +5,7 @@ import { useState } from "react";
 import Icon from "@/components/Icon";
 import { DISPLAY } from "@/components/landing/Display";
 import { ALL_SECTIONS, COURSE, byTopic, sectionHref, stageColour, type SectionRef } from "@/features/course/course";
+import { isWritten } from "@/features/course/model";
 import { noteKey } from "@/features/course/notes";
 import { useAllNotes, useCourseLayout } from "./useCourseNotes";
 import Marks from "./Marks";
@@ -12,7 +13,7 @@ import Marks from "./Marks";
 type Filter = "work" | "solid" | null;
 
 /** A section with no blocks yet is planned: marked "soon", with what it will teach under its title. */
-const planned = (r: SectionRef) => r.section.blocks.length === 0;
+const planned = (r: SectionRef) => !isWritten(r.section);
 
 function Row({ r, n, showStage }: { r: SectionRef; n: number; showStage: boolean }) {
   const colour = stageColour(r.stage.slug);
@@ -108,7 +109,7 @@ export default function CourseIndex() {
           <span aria-hidden className="absolute bottom-8 left-[1.2rem] top-8 w-0.5 bg-linear-to-b from-teal-400/50 via-violet-400/40 to-rose-400/50 sm:left-[1.45rem]" />
           {stages.map(({ stage, items }) => {
             const colour = stageColour(stage.slug);
-            const first = stage.sections.find((x) => x.blocks.length);
+            const first = stage.sections.find(isWritten);
             return (
               <li key={stage.slug} id={`stage-${stage.slug}`} data-tour={stage === stages[0].stage ? "course-stage" : undefined} className="relative flex scroll-mt-20 gap-3 sm:gap-5">
                 <span className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold text-slate-950 ring-8 ring-slate-950/70 sm:size-12" style={{ background: colour }}>{stage.label}</span>

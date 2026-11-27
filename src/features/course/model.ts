@@ -1,4 +1,6 @@
 import type { MelodyNote } from "@/lib/chordKit/tab";
+import type { ArticleBlock } from "@/features/articles/model";
+import type { LabelSystem } from "@/features/theory/labels";
 import { OPEN_PCS, type Visual } from "./visuals";
 
 /**
@@ -56,7 +58,28 @@ export interface CourseSection {
   /** what the section teaches, or will teach, in a sentence or two: shown on planned sections, and to the AI plan's link list */
   about: string;
   blocks: Block[];
+  /** the section written in the /learn articles' style (live tools, exercises), drawn in place of `blocks`, which stay empty */
+  article?: CourseArticle;
 }
+
+/**
+ * A course section written as a /learn article is: `ArticleBlock`s drawn by the articles' `ArticleBody`, with the plan's live
+ * tools. `updated` carries the time as well as the day, "2026-11-27T14:30" (Sydney time), so a section written to an
+ * older /learn style can be found and rewritten.
+ */
+export interface CourseArticle {
+  updated: string;
+  blocks: ArticleBlock[];
+  /** the page listens to the mic: the mic note and the Your voice picker */
+  sings?: boolean;
+  /** what the dots start as; absent: Solfège when it `sings`, else Intervals */
+  labels?: LabelSystem;
+  /** every guitar neck on the page ends by this fret */
+  frets?: number;
+}
+
+/** A section with something written in it, as course blocks or as an article; any other is planned. */
+export const isWritten = (s: CourseSection): boolean => s.blocks.length > 0 || !!s.article;
 export interface CourseStage {
   slug: string;
   /** how the stage is numbered on the page: "0.2", "1" */
@@ -70,10 +93,10 @@ export interface CourseStage {
 export const pcAt = (string: number, fret: number): number => (OPEN_PCS[string] + fret) % 12;
 
 /**
- * A section with no blocks is planned: its `about` says what it will teach until the content files fill `blocks` in. A long
- * title comes with its short form, `[title, short]`.
+ * A section with no blocks and no article is planned: its `about` says what it will teach until the content files fill it in.
+ * The content is course `blocks`, or a `CourseArticle` in the /learn style. A long title comes with its short form, `[title, short]`.
  */
-export const section = (slug: string, title: string | [string, string], topic: TopicId, about: string, blocks: Block[] = []): CourseSection => {
+export const section = (slug: string, title: string | [string, string], topic: TopicId, about: string, content: Block[] | CourseArticle = []): CourseSection => {
   const [full, short] = typeof title === "string" ? [title, title] : title;
-  return { slug, title: full, short, topic, about, blocks };
+  return Array.isArray(content) ? { slug, title: full, short, topic, about, blocks: content } : { slug, title: full, short, topic, about, blocks: [], article: content };
 };

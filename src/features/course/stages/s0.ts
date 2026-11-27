@@ -1,6 +1,15 @@
 import { naturalDots } from "../visuals";
 import { DEGREE_COLOURS } from "../../theory/scales";
 import { section, type CourseStage } from "../model";
+import { steadyBeat } from "../lessons/steady-beat";
+import { whatIsAChord } from "../lessons/what-is-a-chord";
+import { homeNote } from "../lessons/home-note";
+import { doMiSol } from "../lessons/do-mi-sol";
+import { laMinorHome } from "../lessons/la-minor-home";
+import { majorAndMinorScales } from "../lessons/major-and-minor-scales";
+import { matchingAPitch } from "../lessons/matching-a-pitch";
+import { breathAndHoldingANote } from "../lessons/breath-and-holding-a-note";
+import { doMiSolNeck } from "../lessons/do-mi-sol-neck";
 import { G, MAJOR_SEMIS, PATH, chords, links, melody, neck, path, pianoKeys, songs, strum, task, text, toneDots, tune, visual } from "../build";
 
 const LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
@@ -45,7 +54,7 @@ export const STAGES_0: CourseStage[] = [
         }),
         links([], [{ href: "/theory/notes?strings=E,A&naturals=1", label: "Find the notes on E and A", note: "a quiz: a note name comes up, tap it on the neck" }]),
       ]),
-      section("steady-beat", "Keeping a steady beat", "basics", "Counting beats and bars with a click, then tapping and strumming in time without speeding up or slowing down."),
+      section("steady-beat", "Keeping a steady beat", "basics", "Counting beats and bars with a click, then tapping and strumming in time without speeding up or slowing down.", steadyBeat),
       section("spider", ["The spider: fingers 1-2-3-4", "The spider"], "technique", "One finger per fret across all six strings with alternate picking, then other finger orders like 1-3-2-4, for strength and control."),
     ],
   },
@@ -116,7 +125,7 @@ export const STAGES_0: CourseStage[] = [
           { title: "Zombie", artist: "The Cranberries", chords: ["Em", "C", "G", "D"], progression: "Em C G D", note: "the record has D/F♯; plain D is fine to start" },
         ),
       ]),
-      section("what-is-a-chord", "What a chord is", "open-chords", "What makes a chord: a root with a 3rd and a 5th stacked on it, and why open chords double some of them."),
+      section("what-is-a-chord", "What a chord is", "open-chords", "What makes a chord: a root with a 3rd and a 5th stacked on it, and why open chords double some of them.", whatIsAChord),
     ],
   },
   {
@@ -140,7 +149,7 @@ export const STAGES_0: CourseStage[] = [
         visual({ kind: "piano", caption: "G major named in solfège: G is Do.", keys: pianoKeys(G, [55, 57, 59, 60, 62, 64, 66, 67], { solfege: true }) }),
         task("Sing do re mi fa sol la ti do along with the piano, then without it. Then sing it down."),
       ]),
-      section("home-note", "Do: the home note", "three-views", "Hearing Do, the home note of a key, over a drone, singing it, and feeling every other note lean back to it."),
+      section("home-note", "Do: the home note", "three-views", "Hearing Do, the home note of a key, over a drone, singing it, and feeling every other note lean back to it.", homeNote),
       section("do-re-mi", ["The major scale as do-re-mi", "Major scale in solfège"], "three-views", "G major in the open position, played and sung as Do Re Mi.", [
         text(
           "Here is G major in the open position, each note with its number and its solfège name. Play the arrow path from the open G string up to the G on the high e, singing along: Do Re Mi Fa Sol La Ti Do.",
@@ -164,7 +173,7 @@ export const STAGES_0: CourseStage[] = [
         links([], [{ href: "/theory/singing", label: "Singing", note: "sing the scale and watch your pitch on the staff" }]),
       ]),
       section("step-melodies", ["Step melodies: Do–Re–Mi", "Step melodies"], "melody", "Short tunes that move one note at a time up and down the scale, sung first and then played."),
-      section("do-mi-sol", "Do–Mi–Sol", "melody", "The three notes of the major chord as a tune: leaping between Do, Mi and Sol by ear and with your voice."),
+      section("do-mi-sol", "Do–Mi–Sol", "melody", "The three notes of the major chord as a tune: leaping between Do, Mi and Sol by ear and with your voice.", doMiSol),
       section("intervals", "Intervals", "three-views", "The distance between two notes: half steps, whole steps and the octave, and how they add up to the scale.", [
         text(
           "An interval is the distance between two notes. The smallest is a half step: one fret, or one piano key to the very next one. Two half steps make a whole step, two frets.",
@@ -192,7 +201,7 @@ export const STAGES_0: CourseStage[] = [
         task("Play G, then C, then D, then G on the guitar (low E 3rd fret, A 3rd fret, open D, open G). Sing Do Fa Sol Do with them."),
         links([], [{ href: "/theory/ears?set=5,7,12", label: "Ear: 4th, 5th and octave", note: "name the interval you hear" }]),
       ]),
-      section("la-minor-home", "La: the minor home", "three-views", "The same notes heard from La instead of Do: the relative minor, and how the home note changes the mood."),
+      section("la-minor-home", "La: the minor home", "three-views", "The same notes heard from La instead of Do: the relative minor, and how the home note changes the mood.", laMinorHome),
       section("major-or-minor", "Major or minor?", "three-views", "Telling major from minor by ear: one note, the 3rd, makes the difference.", [
         text(
           "Major sounds bright and settled, minor sounds dark or sad. The difference is one note: the 3rd. G major has B; G minor lowers it to B♭. That's all it takes to change the mood.",
@@ -201,9 +210,9 @@ export const STAGES_0: CourseStage[] = [
         task("Play E then Em, A then Am, D then Dm. Say \"bright\" or \"dark\" before each chord rings out, then check."),
         links([], [{ href: "/theory/ears?kind=chord", label: "Major or minor?", note: "listen for the 3rd: bright is major, dark is minor; the 7th chords can wait" }]),
       ]),
-      section("major-and-minor-scales", "Major and minor scales from one root", "three-views", "The major and minor scales from the same home note: minor lowers the 3rd, 6th and 7th by a half step, and that turns bright into dark."),
-      section("matching-a-pitch", "Matching a pitch", "three-views", "Hearing a note and singing it back on pitch, with the tuner or a guitar string to check against."),
-      section("breath-and-holding-a-note", "Breath & holding a note", "three-views", "Breathing low and steady, and holding one note without wobble or running out of air."),
+      section("major-and-minor-scales", "Major and minor scales from one root", "three-views", "The major and minor scales from the same home note: minor lowers the 3rd, 6th and 7th by a half step, and that turns bright into dark.", majorAndMinorScales),
+      section("matching-a-pitch", "Matching a pitch", "three-views", "Hearing a note and singing it back on pitch, with the tuner or a guitar string to check against.", matchingAPitch),
+      section("breath-and-holding-a-note", "Breath & holding a note", "three-views", "Breathing low and steady, and holding one note without wobble or running out of air.", breathAndHoldingANote),
     ],
   },
   {
@@ -220,7 +229,7 @@ export const STAGES_0: CourseStage[] = [
         task("Play Ode to Joy slowly from the tab until you don't need to look for each note. Then try to find the start of another tune you know by ear."),
       ]),
       section("sing-then-find", "Sing it, then find it", "melody", "Sing a short phrase, then find it on the neck starting from Do, so your ear leads your fingers."),
-      section("do-mi-sol-neck", "Do–Mi–Sol on the neck", "melody", "The major chord's three notes played as a melody in position 1, in G and in C."),
+      section("do-mi-sol-neck", "Do–Mi–Sol on the neck", "melody", "The major chord's three notes played as a melody in position 1, in G and in C.", doMiSolNeck),
       section("legato", ["Hammer-ons, pull-offs & trills", "Hammer-ons & pull-offs"], "technique", "Sounding notes with the fretting hand alone: hammer-ons, pull-offs and trills for smooth, connected lines."),
     ],
   },
