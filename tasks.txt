@@ -6,7 +6,7 @@ A TaskSeries is a named group of tasks that belong together: one feature or one 
 - First line of a task: what it is, with `[NEW <date>]` when an agent added it. Under it: what was decided, what is
   open, where the design doc and plan are.
 - Progress goes under the task as dated notes, newest last: `[<date> done] what was built, where`, then what is left.
-  A task finished for good gets `[DONE <date>]` on its first line and moves below the DONE line at the bottom.
+  A task finished for good gets `[DONE <date>]` on its first line and moves to tasks-done.txt (top).
 - Order inside a series is the order to work in unless a task says it waits for another ("after NEW8").
 - A series can point into another: a task that needs a missing tool names the MissingTools task instead of repeating it.
 
@@ -1373,6 +1373,91 @@ Smaller issues:
 - Dev hydration warnings seen (NoControlFocus tabindex, SpotlightButton): check whether they are new.
 - Test accounts from the browser checks (task3@example.com, t13@example.com and others) are in the local database.
 
+NEW18: Riff maker: read the neck and the fretting hand from the take video
+Today Transcribe hears pitch from the take's audio only (RiffTake.tsx, transcribe.ts hearNotes); the video is not
+looked at, so string and position are guessed. Add:
+1. Markers on the neck: 2-4 printed ArUco tags (2-3 cm) on a flat side of the neck, e.g. near the nut and the 12th fret.
+   Measure once where they sit against the nut and strings. Each frame: tags -> homography -> fret/string grid,
+   drawn on a canvas over the <video>. Hold the last good grid a few frames when a tag is covered or blurred.
+   Print markers (dictionary ARUCO_MIP_36h12, ids 0-3, the one js-aruco2 reads):
+   https://damianofalcioni.github.io/js-aruco2/samples/marker-creator/marker-creator.html?dictionary=ARUCO_MIP_36h12
+   Detector in the browser (MIT): https://github.com/damianofalcioni/js-aruco2
+   Started: "Read the neck" checkbox in the Take panel (riff/NeckView.tsx) draws the markers seen and the fingertips
+   over the take. Not done: the fret grid from the markers, and joining it with the audio.
+2. Fretting hand: MediaPipe Hand Landmarker (Apache 2.0, @mediapipe/tasks-vision), fingertips onto the grid.
+   https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
+3. Join with audio: the pitch from hearNotes picks the (string, fret) under a fingertip.
+Start on a saved take, not live. Later, maybe: neck found without markers (YOLO on a Roboflow fretboard set, SAM 2).
+
+NEW19: [NEW 2026-11-24] Metronome: real time signatures, not only beats per bar (user, after comparing with MoChord and count-in)
+Today the click counts plain beats: the looper's MetronomeBar has a "Beats per bar" select (2-7, MetronomeBar.tsx:52,
+engine beatsPerBar), the click instrument has bpm + beatsPerBar (features/instruments/click), the band's step grids use a
+fixed BEATS_PER_BAR. There is no beat unit, so 3/4 and 6/8 can't be told apart, and no accent groups.
+Wanted: pick a time signature (at least 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8, 12/8) on the metronome & drone page and in
+the looper. Compound and odd meters accent by groups (6/8 = 3+3, 7/8 = 2+2+3 or 3+2+2), and the beat dots show the groups.
+Open: is BPM counted in the beat unit or the dotted beat for 6/8; do the band's drum and bass patterns follow the meter or
+stay in 4/4; can a seed block / plan prop set the meter.
+
+NEW20: [NEW 2026-11-25] Finish the quick tours' narration (Charlie's voice) once ElevenLabs has credits again
+The tours on /intro, the home pages, /demo, /join/<token> and /claim were rewritten on 2026-11-25 (commit f0a08144):
+students = the daily plan, teachers = the week, the learning path and progress; voice now Charlie (Australian).
+The account ran out of credits after 11 of 14 scenes. teach-progress, teach-next and teach-end play silent with
+subtitles, and the intro test "the committed voice matches the script" fails until they are recorded.
+Run: `node scripts/intro/voice.mjs --estimated` (about 2,500 credits: the 3 missing scenes, plus the 11 done ones again so
+their cue times come from the voice instead of the estimate). Only the 3 missing: `node scripts/intro/voice.mjs` (~500).
+Then listen to both tours on /intro, run `npx tsx --test src/features/intro/timeline.test.ts`, and commit
+public/intro/charlie/*.mp3 with src/features/intro/voices/charlie.json.
+
+NEW21: [NEW 2026-11-25] Public SEO articles for three personas, linked from the IndieAppCircle listing
+The IndieAppCircle listing (filled in 2026-11-25) names three personas, each with the problems they search for:
+- Guitarist practising alone: "what should I practise on guitar each day", "stuck, not getting better", "how to learn
+  scales / CAGED on the fretboard", "which chords go together in a key".
+- Singer: "how to sing in tune", "pitch trainer that doesn't record me".
+- Guitar or voice teacher: "how to get students to practise between lessons", "how to send lesson notes".
+A listing page alone won't rank for these against Yousician and JustinGuitar; public articles on attunr can, and the
+listing then points at them. Open: where they live (/learn? /guides?), how many to start with, whether they reuse
+course sections, and the writing skill (teaching-voice for music text). Brainstorm before building.
+
+NEW22: [NEW 2026-11-26] Two public /learn articles on CAGED in one key (guitarist persona, NEW21)
+The author's words (verbatim where quoted):
+- "another article about CAGED in a single scale. These are like 2 articles -> one focuses on learning CAGED position by
+  position with interactive diagrams and second one answers \"How to find chords for a song\" with both minor and major
+  caged and relations between open chords."
+- "This can also start with fitting single root notes, then go to fit double-stops and learn the repeating pattern on the
+  fretboard (show highlighted 2 different 1 4 5 1 2 b7 for minor and same for major) - just 2 or three not overlapping and
+  then other roots just circled in red or something". Open: what "1 4 5 / 1 2 b7" groups mean exactly; ask before building.
+- "use design skill"; "add words like visual and interactive" (in titles, intros and search descriptions).
+What exists: the articles feature (src/features/articles: model, VOICE.md v3, seeds/, JoinCard, TempoTool, GlassShapes decor,
+`npm run theory` facts recorded in the seed). Tools: caged-neck (key, scale, shapes), scale-neck (enable/highlight degrees,
+positions), position-neck, double-stops-neck (3rds/6ths on a string pair), chord-shapes, triads, key-chords. Calculator:
+`theory boxes|box|neighbours|dyads|fit`. Missing: a neck that rings a few root groups and circles every other root in
+another colour (a small scale-neck option). Research: /admin/dev/search (CAGED and "chords in a key" are the gap: rivals show
+static diagrams). Load course-article/teaching-voice, exercise-example for any seed block, review-teaching-text before done.
+Answer 2026-11-26 on "1 4 5 / 1 2 b7" (verbatim): "These are intervals of the scale so try to show that these shapes repeat
+and then Do Re Do will have the same feeling And then we go to another key soo technicaly But first i want to show major and
+minor side by side with few islands of notes highlighted (same scale degrees) (or possibly have 2 articles in depth as well
+as one side by side".
+
+NEW23: [NEW 2026-11-26] Article "Learning music theory as a way of naming feelings" (/learn), and highlighted words
+The author's words (verbatim where quoted): "Also article \"Learning music theory as a way of naming feelings\". Article
+goes like \"Music is relative, we get same sensations in relative keys and sensations can be mapped to intervals or scale
+degrees (these articles should use highlighted word functionality - could be its own feature)".
+- The article: music is relative; the same feeling comes back in any key; a feeling maps to an interval or a scale degree.
+  Something to hear on the page (a drone and a degree, interval-singer or interval-ears), as every article has.
+- Highlighted words, maybe a feature of its own: a word in an article (interval, scale degree, Do, relative…) marked and
+  explained where it stands. The app already has explained words: `GLOSSARY` in src/features/course/glossary.ts, which
+  plan text marks with an (i). Brainstorm whether the articles reuse it (an `Inline` mark in features/articles/ui) or it
+  becomes its own shared feature. Words written with teaching-voice; facts from `npm run theory`.
+Decided 2026-11-26: reuse GLOSSARY and `explain()` in the articles; add the missing terms (scale degree, relative, Do).
+GLOSSARY links go to /course, which needs a login: on a public article hide the link or send it to sign-up.
+
+NEW24: [NEW 2026-11-26] Go through the roastmy.dev review of the landing page and act on its fixes
+https://roastmy.dev/r/8ffcc2ac-f27b-4d31-bfcd-1b8d92e7efb7
+- AI review of the public landing page: PageSpeed, accessibility, links, and a score out of 100 with ranked fixes and a
+  rewritten headline and CTA. Their numbers and copy are suggestions to weigh, not rules; any copy change goes through
+  design:ux-copy and teaching-voice as usual.
+- A free roast is public (listed in their Roastery, indexable). A re-test after fixes costs a credit.
+
 TaskSeries Notes: the note creator and reader, outside the NEW series (moved out 2026-11-16)
 Notes1: (was NEW2) Melodies should be bigger by default in notes (also when notes are being edited).
 Today a melody's staff is drawn at scale 1 in a note and only grows in full screen (SingAlong: `size = full ? scale : 1`).
@@ -1530,361 +1615,3 @@ Then sets of notes can be bundled in courses and sold
 90. I also want to be able to upload record videos
 directly into the page content (dev CMS) of the page and be able to upload it to blob.
 This probably could use some sort of injection mechanism or predefined slots.
-
-oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
-
-TeacherStudentFlow6: [DONE 2026-11-18] Show the student's star ratings on the teacher's read-only week on /students/<id>.
-Needs src/features/plan/ui/ExerciseCard.tsx and WeekView.tsx, which held another session's open edits on 2026-11-18.
-[2026-11-18 done] A rated exercise on the teacher's view shows "How it went for Ben" and the stars, read-only (`ratedBy`
-through GivenPlanView, WeekView, DayPanel to ExerciseCard; StarRating without onChange). Render-tested, not walked.
-ContentVideos1: [DONE 2026-11-25] Permissions: role is student/teacher from the plan; users.permissions {dev, content, admin};
-migration moves today's admin accounts; ticks per person on /admin/admin/users.
-ContentVideos2: [DONE 2026-11-25] /admin split: /admin/admin (today's /admin), /admin/content (the Content group of /dev
-without the Sampler); library always lists everything with Seed / Database only / Off tags.
-ContentVideos3: [DONE 2026-11-25] content_videos table (a video belongs to a tool and covers the steps of its ladder
-ticked when it is saved, stored `<ladder id>:<key>`, plus `none` for No level; null steps for a tool with no ladder; one
-video per tool and step: saving takes the ticked steps off the tool's other videos; guitar-play-along is one tool per
-shape), private Blob at content/videos/<made_for>/<id>.<ext>, upload, save, edit, delete, file and lookup routes,
-blocks.videos cells for a block's own video, kept by the seed (dropped and printed when the cell moves); the lookup
-(block's own, then the tool's video holding the cell's step, `none` when no step is read; no borrowing from the nearest
-step; each video once per block); /dev/riff's Take panel saves there.
-Plan: docs/superpowers/plans/2026-11-25-content-videos-3-storage.md
-Not checked yet (no Blob token locally): an upload end to end, Save for players on screen, a ranged read answering 206,
-and a path with a colon (content/videos/tool:picking-drill/...) in the real store. Migration 0046 is applied only to
-the local Docker database. Left for ContentVideos5: PATCH without `note` clears the note.
-ContentVideos4: [DONE 2026-11-25] Watch video right above each tool with a video on a plan card, opened in place above the
-tool; one lookup per day by the tools as drawn (a level chip moves the video); each video once per day; a failed lookup
-has a line with Try again. Not checked: a real file playing (no Blob token locally), a chip moving the video on screen
-(unit-tested only).
-ContentVideos5: [DONE 2026-11-25] Tools videos page (/admin/content/videos, its own nav item, laid out like Component
-stories: every tool, its steps and No level, each with its video or Missing and how many seed blocks use it; Record,
-Change steps, Edit, Delete). Record page (/admin/content/videos/record, the only page with the camera and the tool: tick
-the steps, All levels, No level, or This block only; says which video loses a step). Library strip under each tool cell
-(the video it shows and where from, play, a Record link; nothing records there). The tool over the camera, its
-start/stop saved, replayed in step; VideoOverlay for the riff and the melody singer.
-Done (9a10853d, 5494b3a5, 9fbd811b): the Tools videos page (Change levels, Edit, Delete; PATCH keeps a note left
-out), the record page (camera, the tool over it in a seed exercise's settings, levels or This block only, which video
-loses a level), the library line under each tool. Checked on a scratch server against the local Docker DB, a take with
-Playwright's fake camera; not checked: a real upload (no Blob token) and phone width.
-Overlay (0d4bec49, option 1 as recommended, the user said continue: draw only, no sound, no mic): the play-along and the melody singer report their
-beat while a take records; it is saved as straight pieces with a copy of the tool's settings and drawn over the video
-at the video's own time (exact on a seek), with Tool over the video to hide it. Checked with Playwright: a riff take
-and a melody take each sent the right clock (60 and 90 bpm), and a mocked video in the library drew the tab and the
-staff at the seeked beats and moved while playing. Not checked: a real saved video (no Blob token), phone width.
-
-ContentVideos6: [DONE 2026-11-26, dropped] Notes in the database for content people (author, deployed commit). Not
-needed (user): notes stay in local storage and are shared by copying them into a chat.
-
-TaskSeries SeedStandalone: seed exercises that only make sense next to another day of their week (from NEW7, 2026-11-18)
-The composer (NEW7) hands out one block at a time, for a player's day and for a teacher's seven days, so a block
-can't lean on "day 2". The beginner singer got "Day 2's run, twice as fast" on day one. User, 2026-11-18: rewrite them
-to stand alone (Claude's recommendation); keeping them out of composed days is the stopgap, only if the rewrite waits.
-Standalone wording is also true inside the whole 7-day plan, so the seed plans lose nothing.
-SeedStandalone1: [DONE 2026-11-18] Rewrite the 13 exercises titled after another day (exercise-example skill, then
-review-teaching-text). Title and text say what to play, not when it was first played ("The Do to Sol run, twice as
-fast"). A rewritten file takes the current versions; block ids change, so reseed after (db:seed-plans, db:seed-blocks).
-In src/features/library/seed/plans:
-- guitar-beginner: "Position 1: day 1 again, then your own drill"
-- guitar-intermediate: "Hammer and pull, day 1 again"
-- guitar-advanced: "Skip a string, day 1 again"
-- guitar-new-first-week: "Em to Am: day 2 again, then down and up"; "The notes game, day 2 again"; "Day 3's tune,
-  then your own"
-- voice-intermediate: "Day 4's breath again"; "Day 2's run, twice as fast"
-- voice-advanced: "Day 4's breath, one count more"; "Day 1's run again"; "Day 1's changes, your way"
-- voice-guitar-advanced-first-week: "Five notes, day 1 again"; "Comp the ii–V–I, day 1 again"
-SeedStandalone2: [DONE 2026-11-18] The text lines that name another day ("yesterday", "day 3", "this week"): about 77
-counted in NEW7, in all ten seed plans (most in voice-guitar-advanced-first-week, guitar-new-first-week,
-guitar-beginner, voice-advanced). Sort them first: a line in an exercise's own text goes (the block travels alone); a
-line in a day's or the plan's intro can stay, since the composer doesn't carry those. Then rewrite per file.
-SeedStandalone3: [DONE 2026-11-18] Keep new ones out: `seed check` fails an exercise whose title or text names another
-day, and the rule goes into exercise-example (a rule that changes what gets written: raise the teaching version and
-DOC_VERSIONS, changelog entry). After 1 and 2, so the check passes on what is there.
-[2026-11-18 done, da42eb80] 66 exercises in the ten seed plans rewritten line by line by five agents (exercise-example, then
-review-teaching-text): 13 retitled, ids, steps, tools, minutes and versions kept (not a full rewrite, so versions stay old).
-Plan summaries, progress and day themes keep their day words. `seed check` fails a day word (seed/dayRefs.ts); the rule is
-in exercise-example and review-teaching-text, teaching version 6. Local DB reseeded and the composer checked on it.
-Left: reseed Supabase (db:seed-plans, db:seed-blocks; block ids of the changed exercises change). Not read on /dev/library.
-
-NEW7: [DONE 2026-11-19] Autoplans on the server: reuse first, then the right model
-[2026-11-17, user, brainstorm in progress; replaces the reuse/assess/model flow below] Every plan is composed from library
-blocks by our own code. No AI anywhere, and no whole library plan used as is (tricky to get right; later, maybe).
-- Self-serve players: one day's plan, made only when they open the plan page that day; the reminder email points to it
-  (a day never opened gets no plan: Claude's guess). Each day mixes things up a bit from the day before. Past days stay
-  visible, at least the last N; no auto-cleanup for now. Missed days are not made up: only today's fresh plan.
-- No allowance: daily plans are unlimited on any subscription (texts: PricingFaq1).
-- Teachers' students: the same composer makes seven days, from answers and slider values
-  (docs/superpowers/specs/2026-11-17-teacher-students-design.md, built after this).
-- Needs NEW17 part 2 first (steps on the seed exercises), so the composer can pick by step (user, 2026-11-17).
-Still to brainstorm: how the composer picks (next unsolid steps, solid ones mixed back, minutes, least-used first),
-how "a bit of mixing" is measured, then the design doc.
-[2026-11-18] Design: docs/superpowers/specs/2026-11-18-plan-composer-design.md (waiting for approval). User: not rating
-is different from a low rating (an unrated exercise doesn't come back); a player can ask for another plan the same day;
-the timer is motivational, a longer day never shortens the next; an assigned plan is at another URL than the player's
-own. The picking rule is Claude's ("you decide"): mostly within-reach steps, one or two review blocks, one step per
-topic first. Needs first: a block's default minutes, why and lessons in the library; a one-day plan; own and assigned
-plans apart in the stored state. Approved 2026-11-18. Build plan: docs/superpowers/plans/2026-11-18-plan-composer.md
-(9 tasks).
-[2026-11-18] Built (1227521f..2b6b7f09 on main, not pushed; 2959 tests pass). /plan shows today's plan, composed by
-`composeDay` (plan/model/compose.ts) through POST /api/me/plan/compose; Get another plan; Change my answers; past days
-(last 14 shown, 60 kept); a plan shared with a player opens at /plan/given/<id>. The page is called "Practice plan"
-(user). Ratings raise the level that paces new steps, one level at a time (user). Supabase: 0025 migrated (user),
-plan data wiped, library reseeded (411 blocks, all with minutes). New: npm run db:reset-library, npm run db:wipe-plans.
-Checked: tests, types, the Drizzle queries on the local test database, the composer on the real library for the eight
-personas (read-only), the pages in a browser with the API mocked. Not checked: /plan signed in on the real server.
-Left:
-- 13 seed exercises are titled after another day of their week ("Day 2's run, twice as fast") and about 77 text lines
-  in seed plans refer to other days; the composer can hand one out alone. Rewrite them or keep them out of composed days.
-- /intro still says "AI practice plan" and tells players to send a prompt to their own AI (recorded narration).
-- FAQ "Where is my practice saved? In this browser" is false for signed-in players; /plan's meta title and the footer
-  tagline still say "AI" (PricingFaq1).
-- theory-modes has no beginner concept, so its level can't be raised from new by ratings.
-- Who shared a plan is not shown (not stored). `reviewPlan` has no caller. No removing a shared plan from the list.
-- Teacher screens (NEW12/NEW18), the six steps with no block (NEW10).
-[2026-11-18 done] Signed-in check on a scratch server against the local database (API, not the browser: Chrome would not
-open 127.0.0.1): no answers → 409 no-answers; answers saved → today's plan (6 exercises, 33 min); stored with startDay,
-survives a reload; Get another plan → attempt 1, five new exercises, same plan id, the first six declined. Shared plans
-can be removed from "Plans shared with you" and put back (b4e656e4, `hidden`: ratings still count). Left: who shared a
-plan (needs a decision: note links never show the owner's name); `reviewPlan` has no caller (kept: plan_reviews reads
-stored reviews); theory-modes has no beginner concept.
-[2026-11-18 done] Supabase library reset and reseeded with the standalone exercises (user's go): 10 plans, 411 blocks,
-268 plan block rows. Who shared a plan: "shared by Ann" on the list and the page (d0cbcc2d, `sharedBy`, user: yes).
-theory-modes: `modes` starts at beginner, "Major and minor from one root" (32b1b6c2, PROMPT_VERSION 7), with a seed
-block (theory-beginner-major-minor-one-root) and a planned course section (stage 3, major-and-minor-scales). Left:
-reseed Supabase again for it (the new block, and modes:N refs moved up one); read the block on /dev/library;
-`reviewPlan`: whole-plan reviews removed (user, 31c00ec0): plan_reviews dropped by migration 0031, not yet run on
-Supabase or the local DB (Docker was stuck).
-[2026-11-16, user] The autoplan route composes a plan from library blocks by the player's steps (the next steps
-not yet solid, a few solid ones mixed back in), with no AI. Claude writes a new plan only by a small chance
-(new_plan_percent), and more likely when the player adds their own words to the request. Brainstorm the composer and
-that chance with NEW13's `steps` field, which it needs. Goal for the NEW series: all done, then release.
-[2026-11-16, user] Plan length: players get a daily plan (one day, composed from their steps each day); teachers
-get weekly plans (seven days) for their students (NEW12). Today every plan is seven days, so the composer, the
-prompt, the plan view and the allowance (does a daily plan spend a credit?) need a one-day plan.
-[2026-11-16, user] Skip the spontaneous AI plan for now: the autoplan route only composes from the library, and
-new_plan_percent stays unused. A request with the player's own words is composed the same way for now (user,
-2026-11-16); their words can steer which steps are picked later.
-Steps inside a concept (NEW13, see /dev/path) change what a new plan is written from:
-- The writer gets one line per concept: the step the player is on, its state and newest rating, and the next step.
-  This takes the place of part of the list of rated blocks.
-- The shortlist (step 0, no AI) can ask the library for "the next step this player hasn't made solid", once blocks
-  can be found by step. A whole plan fits when its exercises are at the player's steps or one above.
-- A plan written by the AI sets a tool's `level` or stage for every concept that has a ladder, so its step can be read.
-- A teacher's note (NEW12) skips the reuse step: that plan is always written by the AI.
-From NEW8, before the server calls the library per player: the use totals are whole-table sums on every call (narrow
-them to the candidate blocks); coverage with a player in scope also counts that player's private blocks; nothing writes
-plan_reviews.library_plan_id yet, so library plans show no reviews; a plan's rows must name only blocks the app owns.
-Builds on NEW8 (the query and the tools). Decided there: a fitting whole plan the player hasn't had is used whole;
-otherwise the AI writes one, searching blocks through tools (unused blocks for new things, the blocks they had for the
-same again); the examples leave the writer's prompt and the player's progress and used blocks go in; least-used blocks
-first.
-Use brainstorming first (the brainstorming skill), before any spec or code.
-The flow:
-0. Match the request against the seed library in our own code (no AI): a shortlist of library plans that fit the
-   player's answers.
-1. Assess with a cheap model: it can query only that shortlist, through a tool (MCP), and says whether one plan fits.
-   The server sets what "matches" means; the model can't widen the search.
-2. Decide, in the same call: if nothing fits, which writer a new plan needs (cheap writer, or a dearer one for hard plans).
-3. Dispatch to that model to write the plan; store it in the library for the next player.
-To settle in brainstorming:
-- MCP server or plain tool definitions in the API request (MCP pays off if the dev tools and the browser's AI use the
-  same query). Or no tool at all: shortlist summaries in the prompt, plus get_plan(id) only when a summary isn't enough.
-- Each tool call is a round trip that sends the conversation again: cap the calls, and use prompt caching.
-- Which models: the Assess / Write / Hard plans picks on /dev/costs (Other models on OpenRouter) are from price only.
-  Check which support tool calling on OpenRouter, then run the shortlist on our prompts (npm run compare-models).
-- The writer prompt is about 108k tokens, over Haiku 5.5's 100k line, so every plan costs 5x. Getting it under 100k
-  (the library no longer in the prompt) cuts that without changing model.
-- Keep new_plan_percent as the share written new, and record per autoplan what happened (reused, which model wrote it,
-  tokens) so /dev/costs can use real numbers instead of PICK_TOKENS and the chance.
-- Allowances, Batch (half price, results within the hour, up to 24 hours) and what the player sees while a plan is written.
-Then: /dev/costs models assess as one request; add tool calls per assess once the design is set.
-[2026-11-19 done, user] Reseeded and migrated on Supabase (theory-modes block, 0031). Left with the user: walk /plan
-signed in on production.
-
-NEW15: [DONE 2026-11-18] Rework /dev/examples
-[2026-11-16, user, replaces "examples from DB on /dev page"] NEW15 is about the prompt and the data it reads from the DB
-over MCP, and the tooling:
-- The DB is the source for the prompt, so there are no /examples any more (the prompt is mainly used in Claude Code now).
-- Call them "Seed AI Autoplans", and keep only whole 7-day plans (no exercise examples).
-Two goals:
-1. Agents get context about exercises from the DB (MCP) to write new exercises (Claude Code, now).
-2. The autoplan API finds blocks and plans in the DB (later, with NEW7).
-Needs brainstorming first: what replaces the examples inside the writer prompt, the exercise-example skill and
-DOC_VERSIONS, the six demos that are plan examples, and the tests that read src/features/plan/examples.
-[2026-11-17, user] Players lose both outside-AI routes: the AI extension (the page's tools for the browser's AI) and
-copy-the-prompt-into-any-AI. So the prompt carries no examples; agents look plans and blocks up with the library tools.
-Knock-on: /terms and Selling1 promise the paste-your-own-AI way stays free; both need changing.
-[2026-11-17, user] Both routes go now, not with NEW7. The seed files are the one source: the DB holds them for agents,
-pages (/demo, dev pages) import them. The library tables on the .env.local DB may be reset and reseeded. Moved files that
-fail `seed check` go in as they are (NEW17). Choice as its own table: ChoiceSplit. Design:
-docs/superpowers/specs/2026-11-17-seed-autoplans-design.md.
-[2026-11-17 done] Tasks 1-8: the 7 plans and 22 exercises are seed files (library/seed), the prompt pastes no examples and
-tells agents to use the library tools, /dev/library replaces /dev/examples, players lose both outside-AI routes, and the
-skills, AGENTS.md and READMEs point at the seed (exercise-example skill keeps its name). Left: Task 9 (final checks), NEW17.
-
-[2026-11-17, Claude] NEW15 data step done on Supabase (aws-1-eu-west-1 pooler, release DB): library tables reset (practice_plans 8, practice_plan_blocks 231, blocks 253, block_owners 253 app-owned; no player rows) and reseeded: 10 practice_plans, 411 blocks, 268 plan block rows; migration 0023_block_steps applied by the user first; db:seed-blocks run again adds nothing (411/268). MCP find_plans, get_plan guitar-beginner, find_blocks, get_block on 3 showcase ids checked. Left: NEW17.
-[2026-11-18] Task 9 (reset and reseed) was the Supabase data step above, so nothing is left.
-
-NEW17: [DONE 2026-11-18] Make the files moved from plan/examples pass `seed check` (after NEW15). None of the 22 exercises
-or the ~196 exercises inside the 7 plans names a path step; 26 plan exercises use a tool whose concept has steps without
-setting its level or stage (picking-drill, legato-trill, finger-pattern, note-finder, breathwork, interval-singer); none
-carries the current versions. Add steps and levels (calculator, `stepOf`), rewrite to current rules where needed with the
-writing skill, then their versions are current.
-[2026-11-17, user] Keep their old versions: no full rewrite. Two parts:
-1. /dev/library tables show a "Seed" tag (source) and mark versions behind the current ones, so older files are easy to
-   spot (the opened item already colours its version pills).
-2. Add `steps` to every exercise and set `level` or stage on each stepped tool, so the library and NEW7 find them by
-   step. Small clear text improvements are fine without raising the version; a real rewrite is not part of this.
-Counted 2026-11-17: 218 exercises in the 29 files; 15 have a tool that already says the step (`stepOf`, can be filled by
-script), 203 only match their track by level and need a step chosen by reading the exercise (agent work, per file).
-[2026-11-17, user] Order: part 2 (steps and levels, data only) goes last in NEW17; finish everything else first.
-[2026-11-17, user] Part 2 now comes before NEW7: the composer picks blocks by step.
-[2026-11-17 done] Part 2: 40 steps read from tools by script (58617e1f), 235 chosen by six agents, levels set on stepped
-tools (b850003e). Versions left old (user: a later round aligns them). Left:
-- [2026-11-18 done, 44b1d03a] The 19 voice exercises with no step now name one (user: path and exercises both; ear
-  games retagged). Path: breath has 8 steps (new: breath:3 a long held note, :5 hiss then buzz, :6 a long breath out,
-  :8 longer breaths out; the counts 4-10 and 4-20 moved to breath:4 and :7), intervals:8 "Wider than an octave";
-  PROMPT_VERSION 6. Beginner and intermediate farinelli drills use their level (3-8, 4-10); the advanced ones keep
-  their counts beside level "advanced" (4-20 runs ten minutes in a 3-minute slot). voice-advanced's 7 interval-ears
-  games are `intervals` (theory-ear, area theory, in a voice-only plan), a level beside each set; its 4 interval-singer
-  drills set a level and name singing-intervals:4. Every seed file now fails `seed check` on versions only (plus
-  voice-guitar-advanced's notes below); the seed blocks say prompt 5, one behind.
-- [2026-11-18 done] Library reset and reseeded on Supabase (user's go): 10 plans, 411 blocks, 268 plan block rows, a
-  second db:seed-blocks adds nothing; find_blocks by the new steps answers.
-- Six steps have no block now that level-only matches are gone: seventh-shapes:4, sus-add9:4, notes-on-neck:3 and 4,
-  range:4, runs:8 (KNOWN_GAPS in devtools/model/stepBlocks.test.ts; new blocks are NEW10 work).
-- Some steps sit at another level than their exercise, so the parser moves those blocks' level (agents' reports).
-- voice-guitar-advanced-first-week: 5 run picks match no tune (parser falls back to runs 116/117, steps read from
-  those); one exercise sings and plays at once.
-  [2026-11-18 done] Fixed in the seed file: the five picks named runs the book doesn't have (five is Medium only, nine
-  and octave-run stop at Hard), so the tool played an arpeggio under text about Do to Sol. Picks now name real runs
-  (113, 115, 127, 126, 115), three texts say what those runs do, and the steps follow them (runs:1, runs:7, runs:1).
-  The sing-and-play note was "use Play to check", now "press Play to check". `seed check` shows versions only.
-  Left: reseed (db:seed-plans, db:seed-blocks; block ids change), then read it on /dev/library, which shows the DB copy.
-[2026-11-17 done] Part 1: /dev/library tables tag seed plans and blocks "Seed" and colour versions behind the current ones
-amber (1da93760). Not yet seen in the browser (Chrome tab hung on a slow network); checked by a render test.
-[2026-11-18] The voice-guitar-advanced fix is in the database (MCP get_block: "Five notes, faster in stages" plays run 113). Versions stay old (user). The six steps with no block are LibraryGrowth2 work. Not read on /dev/library.
-
-NEW16: [DONE 2026-11-16] Questionnaire "Concepts" in/out by step, not by whole concept (after NEW9 placement)
-/dev/questionnaire → "Concepts" marks each concept "in" or "out" for the area's level (conceptsFor in
-QuestionnaireLab.tsx). A concept is a track now (NEW13) and spans several levels, so in/out could be per step: which
-steps of each track a player's answers put in reach, which are taken as known, which are ahead. Settle whether this
-just reads off placement() ("Starting steps") or replaces conceptsFor. Separate from NEW9; another session owns NEW9.
-[2026-11-16 done] Reach replaces in/out (user): conceptsFor and the "In prompt" column are gone; /dev/questionnaire →
-Concepts shows each track's steps with its reach mark only. Left: reach marks for the example students on /dev/path.
-[2026-11-16 done] Reach marks for the example students on /dev/path → Slope: each example has its own questionnaire
-answers (`topics`); studentReach in devtools/model/stepProgress.ts; "next"/"start" dashed blue, "known", ahead faded.
-reach() fix: a starting step rated solid is known, not a start (the rating is newer than the questionnaire).
-
-NEW1: [DONE 2026-11-16, dropped] Disclaimer to share a note should show now: log in to share your note / plan.
-Not needed (user): every app page is behind the login wall (src/lib/publicPaths.ts), so only a logged-in user sees
-Share, and the demos already send people to make an account to share.
-
-NEW8: [DONE 2026-11-16] Querying the library through tools
-Spec: docs/superpowers/specs/2026-11-15-library-query-design.md. Plan: docs/superpowers/plans/2026-11-15-library-query.md.
-Built: src/features/library (README there), POST /api/dev/mcp (.mcp.json), /dev/library, npm run test:library-db.
-Live on 2026-11-16: 0019 and 0020 are applied on the dev server's database (Supabase). The library was cleared and
-reseeded: 8 plans (the 7 plan examples under their example ids, which the demos name, and the one published Fable plan,
-voice-guitar-advanced), 231 library blocks, 231 plan block rows; the exercise examples' blocks stay "example", not
-enabled. The tools and /dev/library agree. Sonnet/Opus/Haiku compare-models runs are not seeded. More plans: NEW10.
-The plan examples guitar-beginner and guitar-theory-intermediate tag no concepts on their exercises, so they count for
-no concept (or step, NEW13) in coverage; /dev/examples rework and NEW10 should fix that.
-`claude mcp list` shows musickit-library "Pending approval" until a plain `claude` session in the repo approves it.
-1. Model and version on every block and library plan; a table of which blocks a library plan has.
-2. A server query module: find/get blocks, find/get plans, library coverage, a player's progress. The server sets the
-   scope; other players only as totals; stars never rank a block as good or bad.
-3. Local MCP tools over it for the seeding agents and devtools (.mcp.json), and a bare /dev page.
-
-[DONE] 49.
-Use marketing and design ux copy skills.
-I want to generate animation intro that will explain:
-
-- what's in the apps pages - brief of menu (no need to go over all)
-- that each page has a help and exercises also have help
-- that there's "Open any page" hotkey and other hotkeys in apps
-- could this be rendered animation using components?
-- use elevenlabs to generate audio for this
-
-NEW18: Riff maker: read the neck and the fretting hand from the take video
-Today Transcribe hears pitch from the take's audio only (RiffTake.tsx, transcribe.ts hearNotes); the video is not
-looked at, so string and position are guessed. Add:
-1. Markers on the neck: 2-4 printed ArUco tags (2-3 cm) on a flat side of the neck, e.g. near the nut and the 12th fret.
-   Measure once where they sit against the nut and strings. Each frame: tags -> homography -> fret/string grid,
-   drawn on a canvas over the <video>. Hold the last good grid a few frames when a tag is covered or blurred.
-   Print markers (dictionary ARUCO_MIP_36h12, ids 0-3, the one js-aruco2 reads):
-   https://damianofalcioni.github.io/js-aruco2/samples/marker-creator/marker-creator.html?dictionary=ARUCO_MIP_36h12
-   Detector in the browser (MIT): https://github.com/damianofalcioni/js-aruco2
-   Started: "Read the neck" checkbox in the Take panel (riff/NeckView.tsx) draws the markers seen and the fingertips
-   over the take. Not done: the fret grid from the markers, and joining it with the audio.
-2. Fretting hand: MediaPipe Hand Landmarker (Apache 2.0, @mediapipe/tasks-vision), fingertips onto the grid.
-   https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
-3. Join with audio: the pitch from hearNotes picks the (string, fret) under a fingertip.
-Start on a saved take, not live. Later, maybe: neck found without markers (YOLO on a Roboflow fretboard set, SAM 2).
-
-NEW19: [NEW 2026-11-24] Metronome: real time signatures, not only beats per bar (user, after comparing with MoChord and count-in)
-Today the click counts plain beats: the looper's MetronomeBar has a "Beats per bar" select (2-7, MetronomeBar.tsx:52,
-engine beatsPerBar), the click instrument has bpm + beatsPerBar (features/instruments/click), the band's step grids use a
-fixed BEATS_PER_BAR. There is no beat unit, so 3/4 and 6/8 can't be told apart, and no accent groups.
-Wanted: pick a time signature (at least 2/4, 3/4, 4/4, 5/4, 6/8, 7/8, 9/8, 12/8) on the metronome & drone page and in
-the looper. Compound and odd meters accent by groups (6/8 = 3+3, 7/8 = 2+2+3 or 3+2+2), and the beat dots show the groups.
-Open: is BPM counted in the beat unit or the dotted beat for 6/8; do the band's drum and bass patterns follow the meter or
-stay in 4/4; can a seed block / plan prop set the meter.
-
-NEW20: [NEW 2026-11-25] Finish the quick tours' narration (Charlie's voice) once ElevenLabs has credits again
-The tours on /intro, the home pages, /demo, /join/<token> and /claim were rewritten on 2026-11-25 (commit f0a08144):
-students = the daily plan, teachers = the week, the learning path and progress; voice now Charlie (Australian).
-The account ran out of credits after 11 of 14 scenes. teach-progress, teach-next and teach-end play silent with
-subtitles, and the intro test "the committed voice matches the script" fails until they are recorded.
-Run: `node scripts/intro/voice.mjs --estimated` (about 2,500 credits: the 3 missing scenes, plus the 11 done ones again so
-their cue times come from the voice instead of the estimate). Only the 3 missing: `node scripts/intro/voice.mjs` (~500).
-Then listen to both tours on /intro, run `npx tsx --test src/features/intro/timeline.test.ts`, and commit
-public/intro/charlie/*.mp3 with src/features/intro/voices/charlie.json.
-
-NEW21: [NEW 2026-11-25] Public SEO articles for three personas, linked from the IndieAppCircle listing
-The IndieAppCircle listing (filled in 2026-11-25) names three personas, each with the problems they search for:
-- Guitarist practising alone: "what should I practise on guitar each day", "stuck, not getting better", "how to learn
-  scales / CAGED on the fretboard", "which chords go together in a key".
-- Singer: "how to sing in tune", "pitch trainer that doesn't record me".
-- Guitar or voice teacher: "how to get students to practise between lessons", "how to send lesson notes".
-A listing page alone won't rank for these against Yousician and JustinGuitar; public articles on attunr can, and the
-listing then points at them. Open: where they live (/learn? /guides?), how many to start with, whether they reuse
-course sections, and the writing skill (teaching-voice for music text). Brainstorm before building.
-
-NEW22: [NEW 2026-11-26] Two public /learn articles on CAGED in one key (guitarist persona, NEW21)
-The author's words (verbatim where quoted):
-- "another article about CAGED in a single scale. These are like 2 articles -> one focuses on learning CAGED position by
-  position with interactive diagrams and second one answers \"How to find chords for a song\" with both minor and major
-  caged and relations between open chords."
-- "This can also start with fitting single root notes, then go to fit double-stops and learn the repeating pattern on the
-  fretboard (show highlighted 2 different 1 4 5 1 2 b7 for minor and same for major) - just 2 or three not overlapping and
-  then other roots just circled in red or something". Open: what "1 4 5 / 1 2 b7" groups mean exactly; ask before building.
-- "use design skill"; "add words like visual and interactive" (in titles, intros and search descriptions).
-What exists: the articles feature (src/features/articles: model, VOICE.md v3, seeds/, JoinCard, TempoTool, GlassShapes decor,
-`npm run theory` facts recorded in the seed). Tools: caged-neck (key, scale, shapes), scale-neck (enable/highlight degrees,
-positions), position-neck, double-stops-neck (3rds/6ths on a string pair), chord-shapes, triads, key-chords. Calculator:
-`theory boxes|box|neighbours|dyads|fit`. Missing: a neck that rings a few root groups and circles every other root in
-another colour (a small scale-neck option). Research: /admin/dev/search (CAGED and "chords in a key" are the gap: rivals show
-static diagrams). Load course-article/teaching-voice, exercise-example for any seed block, review-teaching-text before done.
-Answer 2026-11-26 on "1 4 5 / 1 2 b7" (verbatim): "These are intervals of the scale so try to show that these shapes repeat
-and then Do Re Do will have the same feeling And then we go to another key soo technicaly But first i want to show major and
-minor side by side with few islands of notes highlighted (same scale degrees) (or possibly have 2 articles in depth as well
-as one side by side".
-
-NEW23: [NEW 2026-11-26] Article "Learning music theory as a way of naming feelings" (/learn), and highlighted words
-The author's words (verbatim where quoted): "Also article \"Learning music theory as a way of naming feelings\". Article
-goes like \"Music is relative, we get same sensations in relative keys and sensations can be mapped to intervals or scale
-degrees (these articles should use highlighted word functionality - could be its own feature)".
-- The article: music is relative; the same feeling comes back in any key; a feeling maps to an interval or a scale degree.
-  Something to hear on the page (a drone and a degree, interval-singer or interval-ears), as every article has.
-- Highlighted words, maybe a feature of its own: a word in an article (interval, scale degree, Do, relative…) marked and
-  explained where it stands. The app already has explained words: `GLOSSARY` in src/features/course/glossary.ts, which
-  plan text marks with an (i). Brainstorm whether the articles reuse it (an `Inline` mark in features/articles/ui) or it
-  becomes its own shared feature. Words written with teaching-voice; facts from `npm run theory`.
-Decided 2026-11-26: reuse GLOSSARY and `explain()` in the articles; add the missing terms (scale degree, relative, Do).
-GLOSSARY links go to /course, which needs a login: on a public article hide the link or send it to sign-up.
-
-NEW24: [NEW 2026-11-26] Go through the roastmy.dev review of the landing page and act on its fixes
-https://roastmy.dev/r/8ffcc2ac-f27b-4d31-bfcd-1b8d92e7efb7
-- AI review of the public landing page: PageSpeed, accessibility, links, and a score out of 100 with ranked fixes and a
-  rewritten headline and CTA. Their numbers and copy are suggestions to weigh, not rules; any copy change goes through
-  design:ux-copy and teaching-voice as usual.
-- A free roast is public (listed in their Roastery, indexable). A re-test after fixes costs a credit.
