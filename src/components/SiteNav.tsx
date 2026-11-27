@@ -21,7 +21,7 @@ function NavLink({ href, label, current, icon, foldIcon }: { href: string; label
       href={href}
       aria-current={current ? "page" : undefined}
       aria-label={icon || foldIcon ? label : undefined}
-      className={`whitespace-nowrap rounded-lg px-2.5 py-2 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+      className={`flex flex-1 items-center justify-center whitespace-nowrap rounded-lg px-2.5 py-2 text-sm sm:block sm:flex-none transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
     >
       {icon ? <><Icon name={icon} size={16} className="sm:hidden" /><span className="hidden sm:inline">{label}</span></>
         : foldIcon ? <><Icon name={foldIcon} size={16} className="nav-fold-icon" /><span className="nav-fold-label">{label}</span></>
@@ -68,11 +68,12 @@ export default function SiteNav({ active, devices = false, themeIntro = false }:
       <Link href={visitor ? "/" : "/plan"} aria-label={visitor ? "attunr home" : "attunr: your plan"} className="mr-5 inline rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
         <Wordmark className="text-[1.7rem]" />
       </Link>
-      {/* the app's three links share a second row on a phone, under the wordmark and the buttons; on a phone too
-          narrow for the labels (under 380 px with a teacher's fourth, under 340 px without), Interactive notes shows as
-          its icon (nav-fold), so the row fits at 320 px. Narrower still, the row scrolls sideways (no scrollbar) instead of wrapping a label or widening the page; the
-          -my-1 py-1 pair leaves room for the focus ring inside the scroll box without moving anything */}
-      <div className="nav-fold order-last -my-1 -ml-2.5 flex w-[calc(100%+0.625rem)] justify-between overflow-x-auto py-1 [scrollbar-width:none] sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
+      {/* on a phone the app's links take a second row under the wordmark and the buttons: a full-width segmented bar
+          whose links share the width equally, so two, three or four sit evenly. On a phone too narrow for the labels
+          (under 380 px with a teacher's fourth, under 340 px without), Interactive notes shows as its icon (nav-fold), so
+          the row fits at 320 px. Narrower still, the row scrolls sideways (no scrollbar) instead of wrapping a label or
+          widening the page; the bar's p-1 leaves room for the focus ring inside the scroll box */}
+      <div className="nav-fold order-last mt-2 flex w-full gap-1 overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40 p-1 [scrollbar-width:none] sm:order-none sm:mt-0 sm:w-auto sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0">
         {NAV_PLACES.map((l) => (
           <NavLink key={l.href} href={l.href} label={l.label} current={isUnder(active, l.under)} foldIcon={l.href === NOTES_HREF ? "file-text" : undefined} />
         ))}
