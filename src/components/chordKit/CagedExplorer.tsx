@@ -8,7 +8,7 @@ import ChordDiagram from "./ChordDiagram";
 import { fretWidthFactor } from "./Fretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import {
-  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, boxScaleChords, cagedBoxes, cagedContext, islandNotes, ladderMidi, laneAt, laneStarts, layerNotes,
+  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, boxScaleChords, cagedBoxes, cagedContext, islandNotes, ladderMidi, laneAt, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
 } from "@/lib/chordKit/caged";
 import { STRING_PLAIN, STRING_SHORT } from "@/lib/chordKit/shapeTools";
@@ -25,7 +25,8 @@ import { SettingsPanel, SettingsRow, SettingsSection, UNDER_PANEL } from "@/comp
 import { KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
-const LANE_COLOURS = ["#f43f5e", "#c084fc", "#facc15", "#4ade80", "#60a5fa"];
+// by box order up the neck: the first box (from the nut) blue, then red, purple, yellow, green
+const LANE_COLOURS = ["#60a5fa", "#f43f5e", "#c084fc", "#facc15", "#4ade80"];
 const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /** CAGED system: five chord forms, the neck box each one marks out, and the arpeggio, scale and pentatonic inside it. */
@@ -216,29 +217,40 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
   const sorted = [...boxes].sort((p, q) => p.from - q.from);
   const frets = Array.from({ length: NECK_END + 1 }, (_, f) => f);
   const cellAt = (s: number, f: number) => cells.find((c) => c.string === s && c.fret === f);
-  // Every string is cut into lanes by its own notes: lane k starts at the string's k-th note and runs until the next one (laneAt).
-  const laneBox = (k: number) => ((k % LANE_COLOURS.length) + LANE_COLOURS.length) % LANE_COLOURS.length;
-  const colour = (k: number) => LANE_COLOURS[laneBox(k)];
-  // a selected box stands out on the map; the others fade back
-  const selLane = selected === null ? -1 : sorted.indexOf(boxes[selected]);
-  const alpha = (k: number) => (selLane < 0 ? "var(--lane-alpha, 26%)" : laneBox(k) === selLane ? "55%" : "8%");
+  const colour = (k: number) => LANE_COLOURS[k % LANE_COLOURS.length];
   const rowFrets = useMemo(() => [0, 1, 2, 3, 4, 5].map((s) => cells.filter((c) => c.string === s).map((c) => c.fret).sort((p, q) => p - q)), [cells]);
-  const SECTIONS = sorted.length;
-  // with islands, notes are ringed in their shape's colour (their fill stays the degree's): "only" rings each island, else each
-  // shape's whole chord, so a note two shapes share gets both rings, one round the other. Each shape also comes round 12 frets up.
-  const rings = new Map<string, string[]>();
-  if (islands) sorted.forEach((b, k) => [0, 12].forEach((up) => {
-    const notes = only ? islandNotes(b) : b.frets.flatMap((f, i): [number, number][] => (f === null ? [] : [[i, f]]));
-    if (up && Math.max(...notes.map(([, f]) => f + up)) > NECK_END) return;
-    notes.forEach(([i, f]) => {
-      const key = `${i}-${f + up}`, c = colour(k);
-      if (!(rings.get(key) ?? []).includes(c)) rings.set(key, [...(rings.get(key) ?? []), c]);
-    });
+  // each box's frets, open strings included
+  const spans = sorted.map((b) => { const played = b.frets.filter((v): v is number => v !== null); return [Math.min(...played), Math.max(...played)] as const; });
+  // Every string is cut into lanes by its own notes: lane j runs from the string's j-th note to the next (laneAt; -1 before the first).
+  // A lane takes the colour of the box whose frets it overlaps most, the box also counted 12 frets down and up, so a box that
+  // wraps round below the nut colours the start of the neck too.
+  const laneOwner = rowFrets.map((nf) => Array.from({ length: nf.length + 1 }, (_, i) => {
+    const a = i === 0 ? 0 : nf[i - 1], b = i === nf.length ? NECK_END : nf[i];
+    let best = 0, score = -Infinity;
+    spans.forEach(([lo, hi], k) => [-12, 0, 12].forEach((up) => {
+      const sc = Math.min(b, hi + up) - Math.max(a, lo + up);
+      if (sc > score) { score = sc; best = k; }
+    }));
+    return best;
   }));
-  const starts = laneStarts(rowFrets, SECTIONS);
-  const labelSpans = starts.map((st, k) => {
-    const from = Math.min(NECK_END, st);
-    const to = k === SECTIONS - 1 ? NECK_END + 1 : Math.max(from + 1, starts[k + 1]);
+  const ownerAt = (s: number, lane: number) => laneOwner[s][lane + 1] ?? 0;
+  // a selected box stands out on the map; the others fade back
+  const selBox = selected === null ? -1 : sorted.indexOf(boxes[selected]);
+  const alpha = (k: number) => (selBox < 0 ? "var(--lane-alpha, 26%)" : k === selBox ? "55%" : "8%");
+  // frames: "only" one round each island (the notes the open chord's fingers press), else one round each shape's whole chord;
+  // each shape also comes round 12 frets up. A note two shapes share sits inside both frames.
+  const frames = !islands ? [] : sorted.flatMap((b, k) => [0, 12].flatMap((up) => {
+    const notes = only ? islandNotes(b) : b.frets.flatMap((f, i): [number, number][] => (f === null ? [] : [[i, f]]));
+    const ss = notes.map(([i]) => i), fs = notes.map(([, f]) => f + up);
+    return !ss.length || Math.max(...fs) > NECK_END ? [] : [{ k, up, notes: notes.map(([i, f]) => `${i}-${f + up}`), ss, fs }];
+  }));
+  const inFrame = new Set(frames.flatMap((fr) => fr.notes));
+  // the letters above the neck: each centred on its box, the boundaries halfway between neighbouring boxes
+  const mids = spans.map(([lo, hi]) => (lo + hi) / 2);
+  const cuts = mids.map((m, k) => (k === 0 ? 0 : Math.round((mids[k - 1] + m) / 2)));
+  const labelSpans = sorted.map((_, k) => {
+    const from = Math.min(NECK_END, cuts[k]);
+    const to = Math.max(from + 1, Math.min(NECK_END + 1, k === sorted.length - 1 ? spans[k][1] + 1 : cuts[k + 1]));
     return { k, from, to };
   });
   const COL0 = 2; // grid column 1 holds the string names
@@ -247,18 +259,19 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
-          <Info label="Reading the map">Every note of the chord on the whole neck. Each colour is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. On every string a colour starts halfway under a chord note and runs to halfway under the next one, so the first note on a string starts the first colour, the second note the second colour, and so on. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
+          <Info label="Reading the map">Every note of the chord on the whole neck. Each colour is one CAGED box, named after the open chord shape it is built around and numbered by position up the neck. On every string the colour changes halfway under a chord note, so each note sits on the edge between two boxes. The pattern repeats after the 12th fret. Tap a note to hear it.</Info>
         </span>
         {!embedded && <LabelSelect className="ml-auto" />}
       </h2>
-      <div className="[--row:1.6rem] sm:[--row:2.6rem]">
+      {/* on a phone the neck keeps a playable size and scrolls sideways */}
+      <div className="overflow-x-auto overscroll-x-contain pb-1 [--row:2.4rem] sm:overflow-visible sm:[--row:2.6rem]">
         <div
-          className="grid gap-y-0 text-[9px] sm:text-xs"
+          className="grid min-w-[46rem] gap-y-0 text-[11px] sm:min-w-0 sm:text-xs"
           style={{ gridTemplateColumns: `1rem ${frets.map((f) => `minmax(0,${fretWidthFactor(f).toFixed(3)}fr)`).join(" ")}`, gridTemplateRows: "auto repeat(6, var(--row)) auto" }}
           role="group" aria-label="Chord tones on the whole neck with the five CAGED boxes marked"
         >
           {labelSpans.map(({ k, from, to }) => (
-            <div key={k} className={`flex whitespace-nowrap px-1 pb-1.5 text-[10px] font-semibold sm:text-xs ${k === SECTIONS - 1 ? "justify-end" : "justify-center"}`} style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
+            <div key={k} className="flex justify-center whitespace-nowrap px-1 pb-1.5 text-xs font-semibold" style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
               {sorted[k].letter}<span className="hidden @6xl:inline">&nbsp;shape · Position {k + 1}</span>
             </div>
           ))}
@@ -269,12 +282,13 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
             frets.map((f) => {
               // before a string's first note sits the box that wraps round from below the nut (lane -1)
               const lane = f < (rowFrets[s][0] ?? 0) ? -1 : laneAt(rowFrets[s], f), c = cellAt(s, f);
+              const owner = ownerAt(s, lane), before = ownerAt(s, lane - 1);
               const line = "var(--color-slate-400)";
               const tint = (k: number) => `color-mix(in srgb, ${colour(k)} ${alpha(k)}, transparent)`;
               // a lane starts under its note: the colour changes halfway across the note's fret, not at its left edge
               const fill = c && rowFrets[s][lane] === f
-                ? `linear-gradient(to right, ${tint(lane - 1)} 50%, ${tint(lane)} 50%)`
-                : `linear-gradient(${tint(lane)}, ${tint(lane)})`;
+                ? `linear-gradient(to right, ${tint(before)} 50%, ${tint(owner)} 50%)`
+                : `linear-gradient(${tint(owner)}, ${tint(owner)})`;
               return (
                 <div
                   key={`${s}-${f}`}
@@ -295,14 +309,12 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
-                      className={`group relative cursor-pointer grid size-4 before:absolute before:-inset-1 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
+                      className={`group relative cursor-pointer grid size-6 before:absolute before:-inset-1 place-items-center rounded-full text-[10px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
                       style={{
                         backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK,
-                        ...(only && !rings.has(`${s}-${f}`) ? { opacity: 0.25 } : {}),
-                        ...(rings.has(`${s}-${f}`) ? { outline: `3px solid ${rings.get(`${s}-${f}`)![0]}`, outlineOffset: 2 } : {}),
+                        ...(only && !inFrame.has(`${s}-${f}`) ? { opacity: 0.25 } : {}),
                       }}
                     >
-                      {rings.get(`${s}-${f}`)?.[1] && <span aria-hidden className="pointer-events-none absolute -inset-[9px] rounded-full border-[3px]" style={{ borderColor: rings.get(`${s}-${f}`)![1] }} />}
                       <span className="group-hover:hidden">{lab(c)}</span>
                       <span className="hidden group-hover:inline">{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</span>
                     </button>
@@ -311,19 +323,14 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
               );
             }),
           )}
-          {islands && only && sorted.flatMap((b, k) => [0, 12].map((up) => {
-            // one island per shape (and its copy 12 frets up): a frame round every note the open chord's fingers press, moved up
-            const isl = islandNotes(b), ss = isl.map(([i]) => i), fs = isl.map(([, f]) => f + up);
-            if (!ss.length || Math.max(...fs) > NECK_END) return null;
-            return (
-              <div key={`isl${k}-${up}`} aria-hidden className="pointer-events-none rounded-xl border-2" style={{
-                gridRow: `${5 - Math.max(...ss) + 2} / ${5 - Math.min(...ss) + 3}`, gridColumn: `${Math.min(...fs) + COL0} / ${Math.max(...fs) + COL0 + 1}`,
-                borderColor: colour(k), boxShadow: `0 0 10px color-mix(in srgb, ${colour(k)} 60%, transparent)`,
-              }} />
-            );
-          }))}
+          {frames.map(({ k, up, ss, fs }) => (
+            <div key={`fr${k}-${up}`} aria-hidden className="pointer-events-none rounded-xl border-2" style={{
+              gridRow: `${5 - Math.max(...ss) + 2} / ${5 - Math.min(...ss) + 3}`, gridColumn: `${Math.min(...fs) + COL0} / ${Math.max(...fs) + COL0 + 1}`,
+              borderColor: colour(k), boxShadow: `0 0 10px color-mix(in srgb, ${colour(k)} 60%, transparent)`,
+            }} />
+          ))}
           {frets.map((f) => (
-            <div key={`fn${f}`} className="pt-1.5 text-center text-slate-500" style={{ gridRow: 8, gridColumn: f + COL0 }}>{f === 0 ? <><span className="sm:hidden">0</span><span className="hidden sm:inline">open</span></> : f}</div>
+            <div key={`fn${f}`} className="pt-1.5 text-center text-slate-500" style={{ gridRow: 8, gridColumn: f + COL0 }}>{f === 0 ? "open" : f}</div>
           ))}
         </div>
       </div>
