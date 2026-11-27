@@ -10,9 +10,9 @@ export interface CagedNeckProps {
   /** the shapes to show, from "C", "A", "G", "E", "D"; absent: all five on the whole neck */
   shapes?: string[];
   /**
-   * on the whole neck (no `shapes`): frame each shape's whole chord in the shape's colour; a note two shapes share sits inside
-   * both frames. "only": frame each shape's island instead, the notes the open chord's fingers press, moved up, with the chord's
-   * other notes faded. Written by a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)
+   * on the whole neck (no `shapes`): frame each shape's whole chord in the shape's colour, all six strings high like a barre,
+   * a note two shapes share inside both frames. "only": frame each shape's island instead, the notes the open chord's fingers press, moved up, with the chord's
+   * other notes faded. Either way the island's notes are ringed in the shape's colour. Written by a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)
    */
   islands?: boolean | "only";
 }

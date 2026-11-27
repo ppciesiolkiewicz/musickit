@@ -271,7 +271,7 @@
         "name": "islands",
         "type": "boolean | \"only\"",
         "required": false,
-        "description": "on the whole neck (no `shapes`): frame each shape's whole chord in the shape's colour; a note two shapes share sits inside\nboth frames. \"only\": frame each shape's island instead, the notes the open chord's fingers press, moved up, with the chord's\nother notes faded. Written by a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)"
+        "description": "on the whole neck (no `shapes`): frame each shape's whole chord in the shape's colour, all six strings high like a barre,\na note two shapes share inside both frames. \"only\": frame each shape's island instead, the notes the open chord's fingers press, moved up, with the chord's\nother notes faded. Either way the island's notes are ringed in the shape's colour. Written by a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)"
       }
     ]
   },

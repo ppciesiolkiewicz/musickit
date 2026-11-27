@@ -115,7 +115,7 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 
 /* CAGED neck map lanes: light pages need a stronger tint for each lane to read as its colour. */
 :root[data-theme="surf"] {
-  --lane-alpha: 42%;
+  --lane-alpha: 58%;
 }
 
 /* Landing page motion: blocks rise in once, the hero neck's dots pop in fret by fret when the mode changes. */

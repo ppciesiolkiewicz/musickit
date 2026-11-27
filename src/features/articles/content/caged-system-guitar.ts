@@ -34,7 +34,7 @@ export const cagedSystemGuitar: Article = {
     ] },
 
     { type: "exercise", title: "2. The open chord shapes on the neck", lines: [
-      "Here are those five shapes on the whole neck, each moved up to play the C chord. Each frame goes round the notes one open chord's fingers press, in that shape's colour. The chord's other notes are faded. Tap any dot to hear it.",
+      "Here are those five shapes on the whole neck, each moved up to play the C chord. Each frame goes round the notes one open chord's fingers press, and those notes are ringed in that shape's colour. The chord's other notes are faded. Tap any dot to hear it.",
     ], tool: { type: "caged-neck", key: "c", scale: "major-ionian", islands: "only" }, after: [
       "Read the frames from the nut up: the open C chord, then the A, G, E and D shapes. After the D shape the C shape comes round again at fret 12.",
       "Practice until you can point at any frame and name the open chord it comes from.",
@@ -50,7 +50,7 @@ export const cagedSystemGuitar: Article = {
     ] },
 
     { type: "exercise", title: "4. The whole chord: barre chords", lines: [
-      "Each frame in step 2 is only part of the chord. The neck map below frames each shape's whole chord, in that shape's colour.",
+      "Each frame in step 2 is only part of the chord. The neck map below frames each shape's whole chord in that shape's colour, across all six strings like a barre. The notes the open chord's fingers press stay ringed.",
       "You can see how the shapes join: each one shares notes with the shape next to it, like the D and C shapes, or the C, A and G shapes. Where two frames overlap, the notes inside belong to both shapes.",
     ], tool: { type: "caged-neck", key: "c", scale: "major-ionian", islands: true },
     between: [
@@ -91,7 +91,7 @@ export const cagedSystemGuitar: Article = {
     ] },
 
     { type: "exercise", title: "8. The whole minor chord: barre chords", lines: [
-      "The neck map below frames each minor shape's whole chord. Where two frames overlap, the notes inside belong to both shapes.",
+      "The neck map below frames each minor shape's whole chord across all six strings. The notes the open chord's fingers press stay ringed. Where two frames overlap, the notes inside belong to both shapes.",
     ], tool: { type: "caged-neck", key: "a", scale: "natural-minor-aeolian", islands: true },
     between: [
       "Fill in each shape and you get the minor barre chords. Press each chord box below to hear it, then play it.",

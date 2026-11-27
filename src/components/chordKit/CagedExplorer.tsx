@@ -26,7 +26,7 @@ import { KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocke
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
 // by box order up the neck: the first box (from the nut) blue, then red, purple, yellow, green
-const LANE_COLOURS = ["#60a5fa", "#f43f5e", "#c084fc", "#facc15", "#4ade80"];
+const LANE_COLOURS = ["#3b82f6", "#ff2d55", "#b44dff", "#ffd400", "#22e36b"];
 const play = "rounded-full border border-emerald-500/70 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25";
 
 /** CAGED system: five chord forms, the neck box each one marks out, and the arpeggio, scale and pentatonic inside it. */
@@ -175,7 +175,7 @@ const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q ==
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 
 /** The neck map on its own, for the teacher studio: the five boxes of a key up the whole neck. */
-export function CagedNeckMap({ rootPc, quality, islands = false }: { rootPc: number; quality: CagedQuality; /** ring each shape's whole chord, twice where two shapes share a note; "only": frame and ring each island (`islandNotes`), the other chord tones faded */ islands?: boolean | "only" }) {
+export function CagedNeckMap({ rootPc, quality, islands = false }: { rootPc: number; quality: CagedQuality; /** frame each shape's whole chord (all six strings), ring each island's notes; "only": frame and ring each island (`islandNotes`), the other chord tones faded */ islands?: boolean | "only" }) {
   const [labelSystem] = useLabelSystem();
   const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
   const keyName = useMemo(() => cagedContext(rootPc, quality).names[0], [rootPc, quality]);
@@ -236,15 +236,24 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
   const ownerAt = (s: number, lane: number) => laneOwner[s][lane + 1] ?? 0;
   // a selected box stands out on the map; the others fade back
   const selBox = selected === null ? -1 : sorted.indexOf(boxes[selected]);
-  const alpha = (k: number) => (selBox < 0 ? "var(--lane-alpha, 26%)" : k === selBox ? "55%" : "8%");
-  // frames: "only" one round each island (the notes the open chord's fingers press), else one round each shape's whole chord;
-  // each shape also comes round 12 frets up. A note two shapes share sits inside both frames.
+  const alpha = (k: number) => (selBox < 0 ? "var(--lane-alpha, 40%)" : k === selBox ? "70%" : "10%");
+  // frames: "only" one round each island (the notes the open chord's fingers press), else one round each shape's whole chord,
+  // as tall as the neck, the way a barre covers every string; each shape also comes round 12 frets up. A note two shapes share
+  // sits inside both frames.
   const frames = !islands ? [] : sorted.flatMap((b, k) => [0, 12].flatMap((up) => {
     const notes = only ? islandNotes(b) : b.frets.flatMap((f, i): [number, number][] => (f === null ? [] : [[i, f]]));
-    const ss = notes.map(([i]) => i), fs = notes.map(([, f]) => f + up);
-    return !ss.length || Math.max(...fs) > NECK_END ? [] : [{ k, up, notes: notes.map(([i, f]) => `${i}-${f + up}`), ss, fs }];
+    const ss = only ? notes.map(([i]) => i) : [0, 5], fs = notes.map(([, f]) => f + up);
+    return !notes.length || Math.max(...fs) > NECK_END ? [] : [{ k, up, notes: notes.map(([i, f]) => `${i}-${f + up}`), ss, fs }];
   }));
   const inFrame = new Set(frames.flatMap((fr) => fr.notes));
+  // the notes the open chord's fingers press (the island) are ringed in their shape's colour, with the barre frames too;
+  // one ring per note, the first shape's where two islands share one
+  const rings = new Map<string, string>();
+  if (islands) sorted.forEach((b, k) => [0, 12].forEach((up) => {
+    const isl = islandNotes(b);
+    if (!isl.length || Math.max(...isl.map(([, f]) => f + up)) > NECK_END) return;
+    isl.forEach(([i, f]) => { if (!rings.has(`${i}-${f + up}`)) rings.set(`${i}-${f + up}`, colour(k)); });
+  }));
   // the letters above the neck: each centred on its box, the boundaries halfway between neighbouring boxes
   const mids = spans.map(([lo, hi]) => (lo + hi) / 2);
   const cuts = mids.map((m, k) => (k === 0 ? 0 : Math.round((mids[k - 1] + m) / 2)));
@@ -313,6 +322,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
                       style={{
                         backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK,
                         ...(only && !inFrame.has(`${s}-${f}`) ? { opacity: 0.25 } : {}),
+                        ...(rings.has(`${s}-${f}`) ? { outline: `3px solid ${rings.get(`${s}-${f}`)}`, outlineOffset: 2 } : {}),
                       }}
                     >
                       <span className="group-hover:hidden">{lab(c)}</span>
@@ -324,9 +334,9 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
             }),
           )}
           {frames.map(({ k, up, ss, fs }) => (
-            <div key={`fr${k}-${up}`} aria-hidden className="pointer-events-none rounded-xl border-2" style={{
+            <div key={`fr${k}-${up}`} aria-hidden className="pointer-events-none rounded-xl border-[3px]" style={{
               gridRow: `${5 - Math.max(...ss) + 2} / ${5 - Math.min(...ss) + 3}`, gridColumn: `${Math.min(...fs) + COL0} / ${Math.max(...fs) + COL0 + 1}`,
-              borderColor: colour(k), boxShadow: `0 0 10px color-mix(in srgb, ${colour(k)} 60%, transparent)`,
+              borderColor: colour(k), boxShadow: `0 0 12px color-mix(in srgb, ${colour(k)} 80%, transparent)`,
             }} />
           ))}
           {frets.map((f) => (
