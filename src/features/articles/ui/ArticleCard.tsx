@@ -15,12 +15,12 @@ export default function ArticleCard({ article, heading: H = "h2" }: { article: A
   return (
     <Link
       href={`/learn/${article.slug}`}
-      className="metal-panel group flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 transition hover:border-sky-500/50 hover:bg-slate-900/80 focus-visible:border-sky-400 focus-visible:outline-none"
+      className="metal-panel group flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5 transition hover:border-sky-500/50 hover:bg-slate-900/80 focus-visible:border-sky-400 focus-visible:outline-none"
     >
-      <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 sm:gap-x-6">
+      <div className="grid grid-cols-1 items-start sm:grid-cols-[1fr_auto] gap-x-4 gap-y-3 sm:gap-x-6">
         <H className="min-w-0 text-lg leading-snug font-semibold text-slate-50 group-hover:text-sky-100">{article.title}</H>
-        <Image src={articleArt(article.slug)} width={1200} height={480} alt="" unoptimized className="aspect-5/2 w-28 rounded-lg border border-slate-800 object-cover transition group-hover:border-sky-500/40 sm:row-span-2 sm:w-44" />
-        <p className="col-span-2 text-sm leading-relaxed text-slate-400 sm:col-span-1">{article.intro}</p>
+        <Image src={articleArt(article.slug)} width={1200} height={480} alt="" unoptimized className="order-first aspect-5/2 w-full rounded-lg border border-slate-800 object-cover transition group-hover:border-sky-500/40 sm:order-none sm:row-span-2 sm:w-44" />
+        <p className="text-sm leading-relaxed text-slate-400">{article.intro}</p>
       </div>
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">
         {article.topics.map((t) => (
