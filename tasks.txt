@@ -1,9 +1,3 @@
-Ticket content
-
-
-
-
-
 ======================== How TaskSeries work ========================
 A TaskSeries is a named group of tasks that belong together: one feature or one kind of work, picked up one at a time.
 - Header line: `TaskSeries <Name>:`. Every task under it is `<Name><n>:`, numbered from 1 in the order they were added
@@ -15,8 +9,6 @@ A TaskSeries is a named group of tasks that belong together: one feature or one 
   A task finished for good gets `[DONE <date>]` on its first line and moves below the DONE line at the bottom.
 - Order inside a series is the order to work in unless a task says it waits for another ("after NEW8").
 - A series can point into another: a task that needs a missing tool names the MissingTools task instead of repeating it.
-
-
 
 TaskSeries RoastMe.dev:
 https://roastmy.dev/r/8ffcc2ac-f27b-4d31-bfcd-1b8d92e7efb7
@@ -329,7 +321,6 @@ Count:   1 e + a 2 e + a 3 e + a 4 e + a
 Hi-hat:  x . x . x . x . x . x . x . x .
 Snare:   . . . . x . . . . . . . x . . .
 Kick:    x . . . . . . x . . x . . . . .
-
 
 TaskSeries ChoiceSplit: take the choice (stages, variants, pick-a-step) out of blocks (from NEW15, 2026-11-17)
 ChoiceSplit1: [NEW 2026-11-17] Brainstorm a choice that lives apart from its block, so new alternatives of a block (other
@@ -773,7 +764,6 @@ learning path with one student's concepts and steps filled in, and the weeks on 
   tools (`stepOf`). With the proposed path (NEW13), a student's progress is a row per track across the levels, not a
   box per concept; the student overlay on /dev/path is drawn only on "Today" so far.
 
-
 Also factor in how many reusable videos they have in the plan.
 These videos can be included in notes and plans.
 How are they included in plans? This comes later.
@@ -820,11 +810,6 @@ teacher's weeks and comments). Ties to "deleted keeping the record" in TeacherSt
 is refused ("taught": "This person has already been invited by a teacher. Send us a message on the Send feedback page
 and we'll help you out."), the teacher's own is "listed". A player's existing account was already refused ("exists").
 Several schools for one student waits for a decision here.
-
-TeacherStudentFlow6: [DONE 2026-11-18] Show the student's star ratings on the teacher's read-only week on /students/<id>.
-Needs src/features/plan/ui/ExerciseCard.tsx and WeekView.tsx, which held another session's open edits on 2026-11-18.
-[2026-11-18 done] A rated exercise on the teacher's view shows "How it went for Ben" and the stars, read-only (`ratedBy`
-through GivenPlanView, WeekView, DayPanel to ExerciseCard; StarRating without onChange). Render-tested, not walked.
 
 TeacherStudentFlow7: [NEW 2026-11-18] Look at the flow where it wasn't seen: phone width (the top bar's four links scroll
 sideways), the light theme, and the "next plan is waiting" line on the teacher's page. A student sees an upcoming week as
@@ -1388,12 +1373,6 @@ Smaller issues:
 - Dev hydration warnings seen (NoControlFocus tabindex, SpotlightButton): check whether they are new.
 - Test accounts from the browser checks (task3@example.com, t13@example.com and others) are in the local database.
 
-
-
-
-
-
-
 TaskSeries Notes: the note creator and reader, outside the NEW series (moved out 2026-11-16)
 Notes1: (was NEW2) Melodies should be bigger by default in notes (also when notes are being edited).
 Today a melody's staff is drawn at scale 1 in a note and only grows in full screen (SingAlong: `size = full ? scale : 1`).
@@ -1442,7 +1421,6 @@ and add to these pages. Rank pages and provide me your understanding which pages
 - I want to allow composing notes and plans into sharable bundles
 -
 
-
 TaskSeries AmpModels: NAM amp models the app may ship, for riffs by genre (user, 2026-11-24)
 Where things stand (2026-11-24): 257 GPL-3 models from github.com/pelennor2170/NAM_models are in nam/gpl3 (gitignored,
 with the repo's COPYING and README; the two Axe-FX captures left out). /api/dev/nam tags them "(GPL-3)". Every riff
@@ -1471,11 +1449,6 @@ AmpModels2: [NEW 2026-11-24] Before a model reaches players: a credits page (cre
 a cab IR after the amp (most GPL files are the amp alone and sound fizzy without one), and a short list per genre
 picked by ear from the 257.
 
-
-
-
-
-
 ======================== Small ========================
 
 39. [NEW 2026-11-09 09:46] Allow reconfiguring widgets in notes creator / video studio
@@ -1491,51 +1464,14 @@ picked by ear from the 257.
 
 20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
 
-
 ======================== Large ========================
 
 21. Double stop / Triad exercises as well as double stop triad exercises intertwined with solos.
 Like - seeing chords within a scale!
 
-
-
 ------ DEFER -----
 TaskSeries ContentVideos: videos of exercises recorded by content people, /admin/content, permissions (user, 2026-11-25)
 Design: docs/superpowers/specs/2026-11-25-content-videos-design.md (approved 2026-11-25). Build in this order; each lands alone.
-ContentVideos1: [DONE 2026-11-25] Permissions: role is student/teacher from the plan; users.permissions {dev, content, admin};
-migration moves today's admin accounts; ticks per person on /admin/admin/users.
-ContentVideos2: [DONE 2026-11-25] /admin split: /admin/admin (today's /admin), /admin/content (the Content group of /dev
-without the Sampler); library always lists everything with Seed / Database only / Off tags.
-ContentVideos3: [DONE 2026-11-25] content_videos table (a video belongs to a tool and covers the steps of its ladder
-ticked when it is saved, stored `<ladder id>:<key>`, plus `none` for No level; null steps for a tool with no ladder; one
-video per tool and step: saving takes the ticked steps off the tool's other videos; guitar-play-along is one tool per
-shape), private Blob at content/videos/<made_for>/<id>.<ext>, upload, save, edit, delete, file and lookup routes,
-blocks.videos cells for a block's own video, kept by the seed (dropped and printed when the cell moves); the lookup
-(block's own, then the tool's video holding the cell's step, `none` when no step is read; no borrowing from the nearest
-step; each video once per block); /dev/riff's Take panel saves there.
-Plan: docs/superpowers/plans/2026-11-25-content-videos-3-storage.md
-Not checked yet (no Blob token locally): an upload end to end, Save for players on screen, a ranged read answering 206,
-and a path with a colon (content/videos/tool:picking-drill/...) in the real store. Migration 0046 is applied only to
-the local Docker database. Left for ContentVideos5: PATCH without `note` clears the note.
-ContentVideos4: [DONE 2026-11-25] Watch video right above each tool with a video on a plan card, opened in place above the
-tool; one lookup per day by the tools as drawn (a level chip moves the video); each video once per day; a failed lookup
-has a line with Try again. Not checked: a real file playing (no Blob token locally), a chip moving the video on screen
-(unit-tested only).
-ContentVideos5: [DONE 2026-11-25] Tools videos page (/admin/content/videos, its own nav item, laid out like Component
-stories: every tool, its steps and No level, each with its video or Missing and how many seed blocks use it; Record,
-Change steps, Edit, Delete). Record page (/admin/content/videos/record, the only page with the camera and the tool: tick
-the steps, All levels, No level, or This block only; says which video loses a step). Library strip under each tool cell
-(the video it shows and where from, play, a Record link; nothing records there). The tool over the camera, its
-start/stop saved, replayed in step; VideoOverlay for the riff and the melody singer.
-Done (9a10853d, 5494b3a5, 9fbd811b): the Tools videos page (Change levels, Edit, Delete; PATCH keeps a note left
-out), the record page (camera, the tool over it in a seed exercise's settings, levels or This block only, which video
-loses a level), the library line under each tool. Checked on a scratch server against the local Docker DB, a take with
-Playwright's fake camera; not checked: a real upload (no Blob token) and phone width.
-Overlay (0d4bec49, option 1 as recommended, the user said continue: draw only, no sound, no mic): the play-along and the melody singer report their
-beat while a take records; it is saved as straight pieces with a copy of the tool's settings and drawn over the video
-at the video's own time (exact on a seek), with Tool over the video to hide it. Checked with Playwright: a riff take
-and a melody take each sent the right clock (60 and 90 bpm), and a mocked video in the library drew the tab and the
-staff at the seeked beats and moved while playing. Not checked: a real saved video (no Blob token), phone width.
 ContentVideos7: [NEW 2026-11-25] Later: course sections with empty video spots a content person records into (a video field
 on a section).
 ContentVideos8: [NEW 2026-11-25] Later: pick an existing video for an exercise or course section from the content view (reuse).
@@ -1595,9 +1531,46 @@ Then sets of notes can be bundled in courses and sold
 directly into the page content (dev CMS) of the page and be able to upload it to blob.
 This probably could use some sort of injection mechanism or predefined slots.
 
-
-
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+
+TeacherStudentFlow6: [DONE 2026-11-18] Show the student's star ratings on the teacher's read-only week on /students/<id>.
+Needs src/features/plan/ui/ExerciseCard.tsx and WeekView.tsx, which held another session's open edits on 2026-11-18.
+[2026-11-18 done] A rated exercise on the teacher's view shows "How it went for Ben" and the stars, read-only (`ratedBy`
+through GivenPlanView, WeekView, DayPanel to ExerciseCard; StarRating without onChange). Render-tested, not walked.
+ContentVideos1: [DONE 2026-11-25] Permissions: role is student/teacher from the plan; users.permissions {dev, content, admin};
+migration moves today's admin accounts; ticks per person on /admin/admin/users.
+ContentVideos2: [DONE 2026-11-25] /admin split: /admin/admin (today's /admin), /admin/content (the Content group of /dev
+without the Sampler); library always lists everything with Seed / Database only / Off tags.
+ContentVideos3: [DONE 2026-11-25] content_videos table (a video belongs to a tool and covers the steps of its ladder
+ticked when it is saved, stored `<ladder id>:<key>`, plus `none` for No level; null steps for a tool with no ladder; one
+video per tool and step: saving takes the ticked steps off the tool's other videos; guitar-play-along is one tool per
+shape), private Blob at content/videos/<made_for>/<id>.<ext>, upload, save, edit, delete, file and lookup routes,
+blocks.videos cells for a block's own video, kept by the seed (dropped and printed when the cell moves); the lookup
+(block's own, then the tool's video holding the cell's step, `none` when no step is read; no borrowing from the nearest
+step; each video once per block); /dev/riff's Take panel saves there.
+Plan: docs/superpowers/plans/2026-11-25-content-videos-3-storage.md
+Not checked yet (no Blob token locally): an upload end to end, Save for players on screen, a ranged read answering 206,
+and a path with a colon (content/videos/tool:picking-drill/...) in the real store. Migration 0046 is applied only to
+the local Docker database. Left for ContentVideos5: PATCH without `note` clears the note.
+ContentVideos4: [DONE 2026-11-25] Watch video right above each tool with a video on a plan card, opened in place above the
+tool; one lookup per day by the tools as drawn (a level chip moves the video); each video once per day; a failed lookup
+has a line with Try again. Not checked: a real file playing (no Blob token locally), a chip moving the video on screen
+(unit-tested only).
+ContentVideos5: [DONE 2026-11-25] Tools videos page (/admin/content/videos, its own nav item, laid out like Component
+stories: every tool, its steps and No level, each with its video or Missing and how many seed blocks use it; Record,
+Change steps, Edit, Delete). Record page (/admin/content/videos/record, the only page with the camera and the tool: tick
+the steps, All levels, No level, or This block only; says which video loses a step). Library strip under each tool cell
+(the video it shows and where from, play, a Record link; nothing records there). The tool over the camera, its
+start/stop saved, replayed in step; VideoOverlay for the riff and the melody singer.
+Done (9a10853d, 5494b3a5, 9fbd811b): the Tools videos page (Change levels, Edit, Delete; PATCH keeps a note left
+out), the record page (camera, the tool over it in a seed exercise's settings, levels or This block only, which video
+loses a level), the library line under each tool. Checked on a scratch server against the local Docker DB, a take with
+Playwright's fake camera; not checked: a real upload (no Blob token) and phone width.
+Overlay (0d4bec49, option 1 as recommended, the user said continue: draw only, no sound, no mic): the play-along and the melody singer report their
+beat while a take records; it is saved as straight pieces with a copy of the tool's settings and drawn over the video
+at the video's own time (exact on a seek), with Tool over the video to hide it. Checked with Playwright: a riff take
+and a melody take each sent the right clock (60 and 90 bpm), and a mocked video in the library drew the tab and the
+staff at the seeked beats and moved while playing. Not checked: a real saved video (no Blob token), phone width.
 
 ContentVideos6: [DONE 2026-11-26, dropped] Notes in the database for content people (author, deployed commit). Not
 needed (user): notes stay in local storage and are shared by copying them into a chat.
