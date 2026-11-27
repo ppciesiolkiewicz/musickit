@@ -349,7 +349,7 @@ chord's fret). Not yet: `placement` on the shapes' per-chord `place`, and `mute`
 
 Notes in an exercise's text are written `{{3}}` (a degree) or `{{c-sharp}}` (a note name) and drawn as the fretboard's
 dot inline (`ui/InlineNote.tsx`, the same `NoteDot` the necks use): coloured by degree, labelled by the global label
-setting (`useLabelSystem`), the other name on hover, played on tap. `model/noteText.ts` splits the tokens out and reads
+setting (`useLabelSystem`, or the page's `FixedLabelSystem`), played on tap. On hover a note in a key shows its note name; a degree with no key (no note name to show) swaps interval and solfège (`hoverLabel`, `InlineNoteInfo.keyed`). `model/noteText.ts` splits the tokens out and reads
 them against the root of the tool after the text (else the one before); a token it can't read stays as text. A line
 written between underscores (`_Don't reach for high notes._`) is a care line: `markRuns` (same file) pairs the
 underscores across notes and explained words, and `ui/reader/NoteText.tsx` draws the line over a low band of amber. The words

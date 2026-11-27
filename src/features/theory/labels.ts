@@ -68,8 +68,13 @@ export function noteLabel(system: LabelSystem, c: LabelInput): string {
   }
 }
 
-/** What a note shows on hover: the other way of naming it. Solfège over a note name, the note name over anything else. */
-export function hoverLabel(system: LabelSystem, c: LabelInput): string {
+/**
+ * What a note shows on hover: the other way of naming it. Solfège over a note name, the note name over anything else.
+ * A note with no key (`keyed` false: a degree in a text with no key) has no name to show, so it swaps interval and solfège:
+ * solfège over an interval (or a degree, or a note name, which is its interval there), the interval over solfège.
+ */
+export function hoverLabel(system: LabelSystem, c: LabelInput, keyed = true): string {
+  if (!keyed) return system === "solfege" ? noteLabel("interval", c) : noteLabel("solfege", c);
   return system === "note" ? noteLabel("solfege", c) : c.name;
 }
 

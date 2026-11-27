@@ -25,7 +25,7 @@ describe("note text", () => {
   });
 
   it("reads a token as a degree, else a note name, against the root", () => {
-    assert.deepEqual(inlineNote("3", { root: 9 }), { semi: 4, name: "C♯", degreeText: "3", degree: 2, midi: 61 });
+    assert.deepEqual(inlineNote("3", { root: 9 }), { semi: 4, name: "C♯", degreeText: "3", degree: 2, midi: 61, keyed: true });
     const b7 = inlineNote("b7", { root: 9 })!;
     assert.deepEqual([b7.semi, b7.name, b7.degree], [10, "G", 6]);
     assert.equal(inlineNote("c-sharp", { root: 9 })!.semi, 4);
@@ -35,6 +35,7 @@ describe("note text", () => {
     assert.equal(inlineNote("g", { root: 9 })!.degree, 6);
     assert.equal(inlineNote("c-sharp", null), null);
     assert.equal(inlineNote("3", null)!.name, "3");
+    assert.equal(inlineNote("3", null)!.keyed, false);
     assert.equal(inlineNote("zz", { root: 0 }), null);
   });
 

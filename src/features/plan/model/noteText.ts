@@ -96,8 +96,11 @@ export function noteRootFor(sections: PlainCell[], index: number): NoteRoot | nu
   return null;
 }
 
-/** One inline note: semitones above the root, its name, degree text, 0-based degree (for the colour) and a midi to play. */
-export interface InlineNoteInfo { semi: number; name: string; degreeText: string; degree: number; midi: number }
+/**
+ * One inline note: semitones above the root, its name, degree text, 0-based degree (for the colour), a midi to play, and
+ * whether it is tied to a key (false: a degree in a text with no key, named by its degree, with no note name to show)
+ */
+export interface InlineNoteInfo { semi: number; name: string; degreeText: string; degree: number; midi: number; keyed: boolean }
 
 /** A token read against the root: a degree works without one (named by its degree), a note name needs it. */
 export function inlineNote(token: string, ctx: NoteRoot | null): InlineNoteInfo | null {
@@ -120,7 +123,7 @@ export function inlineNote(token: string, ctx: NoteRoot | null): InlineNoteInfo 
     spelled = writtenName(token);
   }
   const name = ctx ? spelled ?? SHARP[(root + semi) % 12] : SEMI_TEXT[semi];
-  return { semi, name, degreeText: SEMI_TEXT[semi], degree, midi: 48 + root + semi };
+  return { semi, name, degreeText: SEMI_TEXT[semi], degree, midi: 48 + root + semi, keyed: ctx !== null };
 }
 
 const ORDINAL = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];

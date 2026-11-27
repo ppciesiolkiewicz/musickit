@@ -18,6 +18,10 @@ test("hoverLabel: solfège over note names, the note name over the rest", () => 
   const c = { name: "Eb", semi: 3, degreeText: "♭3" };
   assert.deepEqual((["note", "interval", "degree", "solfege"] as const).map((s) => hoverLabel(s, c)), ["Me", "Eb", "Eb", "Eb"]);
 });
+test("hoverLabel with no key: interval and solfège swap, never a note name", () => {
+  const c = { name: "♭3", semi: 3, degreeText: "♭3" };
+  assert.deepEqual((["note", "interval", "degree", "solfege"] as const).map((s) => hoverLabel(s, c, false)), ["Me", "Me", "Me", intervalName(3)]);
+});
 test("noteLabel", () => {
   const c = { name: "Eb", semi: 3, degreeText: "♭3", role: "3" };
   assert.deepEqual((["note", "interval", "degree", "solfege"] as const).map((s) => noteLabel(s, c)), ["Eb", "b3", "b3", "Me"]);
