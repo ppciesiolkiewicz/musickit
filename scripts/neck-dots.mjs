@@ -163,8 +163,8 @@ for (const sheet of SHEETS) {
 const SCALE_MM = 648, FRETS = 22;
 const wire = (n) => SCALE_MM * (1 - 2 ** (-n / 12)); // nut to fret wire n
 const byName = Object.fromEntries(COLOURS.map((c) => [c.name, c]));
-// spare colours and how many of each, by share of a line: mostly cyan and green, few white and black; lime left out, too near green
-const SPARES = [["Cyan", 4], ["Green", 3], ["Magenta", 1.5], ["Violet", 1], ["Blue", 1], ["White", 0.5], ["Black", 0.5]].map(([n, w]) => [byName[n].hex, w]);
+// spare colours and how many of each, by share of a line: mostly magenta and green, few white and black; lime left out, too near green
+const SPARES = [["Magenta", 4], ["Green", 3], ["Cyan", 2], ["Violet", 1], ["Blue", 1], ["White", 0.5], ["Black", 0.5]].map(([n, w]) => [byName[n].hex, w]);
 const EDGE = byName.Cyan.hex, GREEN = byName.Green.hex, MAGENTA = byName.Magenta.hex, BRIDGE_DOT = 16;
 const spaces = Array.from({ length: FRETS }, (_, i) => {
   const n = i + 1, space = wire(n) - wire(n - 1);
@@ -193,12 +193,13 @@ function line(hexes, len) {
 
 // Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
 // across the board, each zone a band running along the neck under one string (low E on the left). Two sets, every cover in
-// a set the same: cyan at both edges like the edge dots, and magenta at both edges, the inner bands kept off a colour near their own. No white or
+// a set the same: cyan at both edges like the edge dots, magenta at both edges, and green at both edges (for a place without green behind), the inner bands kept off a colour near their own. No white or
 // black: the guitar is white and light brown, and the background green and bright.
 const COVERS = [1, 3, 5, 7, 12];
 const COVER_SETS = [
   ["cyan", ["Cyan", "Magenta", "Blue", "Green", "Violet", "Cyan"]],
   ["magenta", ["Magenta", "Cyan", "Violet", "Green", "Blue", "Magenta"]],
+  ["green", ["Green", "Magenta", "Blue", "Cyan", "Violet", "Green"]], // for a background that isn't green
 ];
 const WIRE_W = 2.5; // mm of fret wire taken off the space's length
 /** Fret n's cover, lying as on the neck seen from the player (across the board left to right, nut at the top): the board's
@@ -212,24 +213,25 @@ function cover(n, colours) {
 function kitPage(spareLines, sparesOnly = false) {
   const W = 297, M = 10, usable = W - 2 * M;
   const cell = (svg, d, top, bottom) => `<div class="k" style="width:${Math.max(10.6, d + 1.2)}mm"><div class="kd" style="height:${Math.max(10.5, d + 0.5)}mm">${svg}</div><b>${top}</b><span>${bottom}</span></div>`;
-  // top edge: cyan at odd frets, magenta at even; bottom edge the other way round, so each fret has one of each
-  const dotCell = (p, size, top) => cell(strip(p[size], 1, (p.n % 2 === 1) === top ? EDGE : MAGENTA), p[size] + 2 * RIM, p.n === 0 ? "nut" : p.n, p.n === 0 ? "headstock" : `${p.mid.toFixed(0)} mm`);
+  // top edge: the edge colour (cyan, or green on the spares sheet) at odd frets, magenta at even; bottom edge the other way
+  // round, so each fret has one of each
+  const dotCell = (p, size, top, edge) => cell(strip(p[size], 1, (p.n % 2 === 1) === top ? edge : MAGENTA), p[size] + 2 * RIM, p.n === 0 ? "nut" : p.n, p.n === 0 ? "headstock" : `${p.mid.toFixed(0)} mm`);
   const cellW = (d) => Math.max(10.6, d + 2 * RIM + 1.2) + 0.4; // a cell and the gap after it
-  // what is left of a row filled with unlabelled spare dots, cyan and magenta in turn
-  const fillRest = (used, d = 8) => {
+  // what is left of a row filled with unlabelled spare dots, the edge colour and magenta in turn
+  const fillRest = (used, edge, d = 8) => {
     const n = Math.max(0, Math.floor((usable - used - 3) / step(d)));
-    return n ? `<div class="kfill">${Array.from({ length: n }, (_, i) => strip(d, 1, i % 2 ? MAGENTA : EDGE)).join("")}</div>` : "";
+    return n ? `<div class="kfill">${Array.from({ length: n }, (_, i) => strip(d, 1, i % 2 ? MAGENTA : edge)).join("")}</div>` : "";
   };
-  const row = (cells) => {
+  const row = (cells, edge) => {
     const used = cells.reduce((t, [p, size]) => t + cellW(p[size]), 0);
-    return `<div class="krow">${cells.map(([p, size, top]) => dotCell(p, size, top)).join("")}${fillRest(used)}</div>`;
+    return `<div class="krow">${cells.map(([p, size, top]) => dotCell(p, size, top, edge)).join("")}${fillRest(used, edge)}</div>`;
   };
   // fret 0: on the headstock, its edge on the nut
   const nut = { n: 0, small: 8, big: 16 };
   const along = (size, top, from, to) => [nut, ...spaces].filter((p) => p.n >= from && p.n <= to).map((p) => [p, size, top]);
   // small: one row per edge, nut to 22; big: nut to 12 a row per edge, then 13-22 of both edges on one row
-  const dotRows = [row(along("small", true, 0, 22)), row(along("small", false, 0, 22)), row(along("big", true, 0, 12)), row(along("big", false, 0, 12)),
-    row([...along("big", true, 13, 22), ...along("big", false, 13, 22)])].join("");
+  const dotRows = (edge) => [along("small", true, 0, 22), along("small", false, 0, 22), along("big", true, 0, 12), along("big", false, 0, 12),
+    [...along("big", true, 13, 22), ...along("big", false, 13, 22)]].map((cells) => row(cells, edge)).join("");
   const lineSet = (hex) => `<div class="lines">${LINES.map(([w, n, count]) => `<div class="ln"><b>${w === 0 ? "nut" : w}</b><span>${wire(w).toFixed(0)} mm</span>${line(Array(count).fill(hex ?? byName[n].hex), lineLen(w))}<span>${lineLen(w)} mm</span></div>`).join("")}</div>`;
   const swatch = (hex, label) => `<div class="sw"><div style="background:${hex}"></div><span>${label}</span></div>`;
   const card = `<div class="card">${[["#ffffff", "White"], ["#808080", "Grey"], ["#000000", "Black"], ...["Green", "Magenta", "Cyan", "Violet", "Blue"].map((n) => [byName[n].hex, n])].map(([hex, n]) => swatch(hex, n)).join("")}</div>`;
@@ -274,16 +276,17 @@ h2 i { display: inline-block; width: 2.2mm; height: 2.2mm; border-radius: 50%; m
 </style></head><body>
 ${sparesOnly ? `<div class="cal">${card}${card}</div>
 ${lineSet()}${lineSet(GREEN)}
+<h2>Green edge dots <span>instead of the kit's cyan, for a place without green behind; the same rows: small top, small bottom, big top, big bottom, big 13–22</span></h2>${dotRows(GREEN)}
 ${spares}` : `<h1>Neck dots · Strat kit (25.5″) · A3</h1>
 <p>Print at 100%, matte sticker paper. Dots: fret, and mm from the nut to the middle of the fret space. Lines: wire, mm from the nut to the wire, and length; the dashed frame is that length, cut outside it for a longer line. Strings off; stick each line across the board beside its wire, on the body side, touching the wire.</p>
 <h2>Calibration</h2>
 <div class="cal">${card}${card}</div>
-<h2>Dots <span>rows: top edge (low E side), bottom edge (high E side); big top, big bottom, then big 13–22 top and bottom; nut dots on the headstock, touching the nut; spares at the row ends</span></h2>${dotRows}
+<h2>Dots <span>rows: top edge (low E side), bottom edge (high E side); big top, big bottom, then big 13–22 top and bottom; nut dots on the headstock, touching the nut; spares at the row ends</span></h2>${dotRows(EDGE)}
 <h2>Lines across the board <span>${zones} · how many lines says which · a set and a green set</span></h2>${lineSet()}
 ${lineSet(GREEN)}
 <h2>Bridge <span>level with the saddles, ${SCALE_MM} mm from the nut</span></h2>
 <div class="line"><span class="g"><b>${BRIDGE_DOT} mm</b>${strip(BRIDGE_DOT, across(BRIDGE_DOT), byName.Blue.hex)}</span></div>
-<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge, one colour band per string; a set with cyan at both edges, a set with magenta; low E side on the left, nut end at the top</span></h2>
+<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge, one colour band per string; a set each with cyan, magenta and green at both edges; low E side on the left, nut end at the top</span></h2>
 ${COVER_SETS.map(([, colours]) => `<div class="covers">${COVERS.map((n) => { const c = cover(n, colours); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>`).join("")}
 ${spares ? `<h2>Spares</h2>${spares}` : ""}
 `}</body></html>`;
