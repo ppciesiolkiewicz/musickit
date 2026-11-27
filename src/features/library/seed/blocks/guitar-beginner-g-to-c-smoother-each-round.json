@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-g-to-c-smoother-each-round",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-beginner.json, day 3.",
+  "note": "One-minute changes on one pair of open chords, G and C, with the chord boxes to check each shape. The chords are the lesson, so nothing moves; the why says what makes short rounds work, and the text names muscle memory as the goal.",
   "exercise": {
     "title": "G to C, smoother each round",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "open-chords"
     ],
-    "why": "The change you repeat is the one your hand learns, so short rounds on one change grow faster than long ones on many.",
+    "why": "Short rounds of one change give your hand the same move again and again, so that one change goes into your muscle memory faster than it would among many chords.",
     "learnBefore": [
       "/course/2/c-d-g",
       "/course/2/one-minute-changes"
@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Tap a chord box to hear it. Change between G and C as smoothly as you can for about a minute, rest, and go again. Each round, try to have the next chord ready a little sooner after the strum."
+        "text": "Press a chord box below to hear the chord, then fret it as shown.\nStrum G once, change to C and strum once, then change back. Keep changing for about a minute, rest, and go again. Each round, have the next chord ready a little sooner after the strum.\nPractice until the change is in your muscle memory: your fingers land on the new chord together, without you looking."
       },
       {
         "type": "tool",

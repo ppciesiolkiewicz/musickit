@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-caged-c-shape",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track caged (guitar-caged), step 4: the C shape: open C moved up two frets to D with its arpeggio, pentatonic and scale, then joined to the A shape on the A string root, in three keys.",
+  "note": "The C shape of CAGED: open C fretted with fingers 2, 3 and 4 (its chord box pinned, so it stays the open shape), the same shape two frets up with its arpeggio, major pentatonic and major scale, then joined to the A shape on the A string root. The old Key selector is now moves (any key), so the text names the key only as {{=key}} and a {{?key}} line says what stays the same; each block has one feel to reach.",
   "exercise": {
     "title": "CAGED: the C shape",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press the chord box below to hear C. Fret it, but with fingers 2, 3 and 4, so finger 1 is free."
+            "text": "Press the chord box below to hear C. Fret it as shown, but with fingers 2, 3 and 4, so finger 1 is free."
           },
           {
             "type": "tool",
@@ -38,12 +38,15 @@
               "type": "chord-shapes",
               "chords": [
                 "C"
+              ],
+              "pinned": [
+                "key"
               ]
             }
           },
           {
             "type": "text",
-            "text": "Press Play on the chord panel below to hear D in the C shape: the same shape two frets up, with finger 1 lying across the top three strings. Then press Play on the other three panels: the arpeggio, the pentatonic and the scale sit in the same frets.\nPlay each one on your guitar, starting and ending on a root, until you can see the chord inside the scale."
+            "text": "Press Play on the chord panel below to hear {{=key}} in the C shape: the open C shape moved up the neck, with finger 1 lying across the top three strings in place of the nut. Then press Play on the other three panels: the arpeggio, the {{=key}} major pentatonic scale and the {{=key}} major scale sit in the same frets.\nPlay each one on your guitar, starting and ending on a root.\nPractice until you can see the chord inside the scale."
           },
           {
             "type": "tool",
@@ -62,23 +65,10 @@
         "type": "section",
         "heading": "Where C meets A",
         "minutes": 4,
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "e"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on the two chord panels below to hear D in the C shape, then in the A shape just above it. Play one, then the other, on your guitar: the root on the A string is the same note in both, and that is where the two shapes join.\nOnce your hand finds the root from either side, try another key. Use the Key selector below to change the key.\nWhen you change the key, both shapes move along the neck and still join on the A string."
+            "text": "Press Play on the two chord panels below to hear {{=key}} in the C shape, then in the A shape just above it. Play one, then the other, on your guitar: the root on the A string is the same note in both, and that is where the two shapes join.\nPractice until your hand finds that root from either shape.\n{{?key}}In another key both shapes move along the neck and still join on the A string."
           },
           {
             "type": "tool",
@@ -106,7 +96,10 @@
       "steps": [
         "caged:4"
       ],
-      "minutes": 9
+      "minutes": 9,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

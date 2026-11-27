@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-barre-changes-in-time",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track barre (guitar-barre-chords), step 4: F and Bm reached on beat 1: from Am with a strum on every beat, faster in stages, from G, then F inside a four-chord round with the island strum.",
+  "note": "Changes to a barre reached on beat 1: Am to the full F with a strum on every beat, G to Bm with the hand leaving early, then F inside a four-chord round with the island strum. The old tempo Stage selector is now moves (60 to 84 bpm in steps of 12, the later blocks kept 6 and 10 above), so the text names no selector; each block has one extra line, a feel or what to do when a change comes late.",
   "exercise": {
     "title": "Changes to a barre in time",
     "area": "guitar",
@@ -28,24 +28,10 @@
         "type": "section",
         "heading": "Am to the full F",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 84
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, a bar of Am and a bar of F.\nWhen F lands on beat 1 with no gap, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf F comes late at a new stage, leave out the last strum of the Am bar and use that beat to move."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, a bar of Am and a bar of F.\nIf F comes late, leave out the last strum of the Am bar and use that beat to move."
           },
           {
             "type": "tool",
@@ -118,6 +104,13 @@
       "steps": [
         "barre:4"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 84,
+          "step": 12
+        }
+      },
       "minutes": 10
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-bends-in-tune",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 2.",
+  "note": "Bends checked by ear: the target note played first, then the bend held against a drone, then a second bend on the B string that ends on the drone's own note, used in the learner's phrases. One minor pentatonic position on the screen, so no number; the key moves (any key) and is named only as {{=key}}, each block's tools sit inside it (its own drone), and a {{?key}} line says what stays the same.",
   "exercise": {
     "title": "Bends in tune",
     "area": "guitar",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "On the G string, play {{5}} in position 2 and keep its sound in your ear. Then bend {{4}}, the note under it on the same string, up until it sounds the same. Go back and forth between the two until the bend stops on the sound of {{5}} every time."
+            "text": "The neck below holds the notes of the {{=key}} minor pentatonic scale, a little up the neck. On the G string, play the ringed {{5}} and keep its sound in your ear. Then bend {{4}}, the note under it on the same string, up until it sounds the same.\nPractice until the bend stops on the sound of {{5}} without you checking."
           },
           {
             "type": "tool",
@@ -38,7 +38,6 @@
               "scale": "minor-pentatonic",
               "key": "a",
               "boxes": [
-                1,
                 2
               ],
               "highlight": [
@@ -56,7 +55,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone on A. Bend {{4}} up to {{5}} again and hold it at the top. When the bend arrives, the held note and the drone sound steady together; while the bend is short, they sound rough."
+            "text": "Press Play below to start the drone on {{=key}}. Bend {{4}} up to {{5}} again and hold it at the top.\nListen for the bend to arrive: the held note and the drone sound steady together, and while the bend is short they beat against each other."
           },
           {
             "type": "tool",
@@ -68,6 +67,21 @@
                 "drone": "always"
               }
             }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                2
+              ],
+              "highlight": [
+                "4",
+                "5"
+              ]
+            }
           }
         ]
       },
@@ -78,7 +92,18 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play above to start the drone again. Now the same on the B string: play the ringed {{1}} in position 2, then bend {{b7}} up to it. This bend ends on the drone's own note, so you will hear it settle. Then make up short phrases that end on one of the two bends."
+            "text": "Press Play below to start the drone. On the B string, play the ringed {{1}}, then bend {{b7}} up to it: this bend ends on the drone's own note, so you hear it settle.\nThen make up short phrases that end on one of the two bends.\n{{?key}}In another key the position sits on other frets, and both bends still go up two frets on the same strings."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
           },
           {
             "type": "tool",
@@ -87,7 +112,6 @@
               "scale": "minor-pentatonic",
               "key": "a",
               "boxes": [
-                1,
                 2
               ],
               "highlight": [
@@ -107,6 +131,9 @@
       "steps": [
         "bends-slides:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

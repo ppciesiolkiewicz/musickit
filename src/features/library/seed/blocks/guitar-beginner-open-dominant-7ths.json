@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-open-dominant-7ths",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track seventh-shapes (guitar-extended-chords), step 1: the five open dominant 7th shapes, two as a change to E and A, three new, then strummed in time and into the chords they lead to.",
+  "note": "The five open dominant 7th shapes: E7 and A7 as E and A with one finger let go, D7, G7 and B7 new, then strummed in time and into the chords they lead to. The open shapes are the lesson, so only the tempo moves (60 to 80 bpm); the why says what makes each shape easy, and the second block names its goal with \"Practice until\".",
   "exercise": {
     "title": "Open 7th chords: E7, A7, D7, G7, B7",
     "area": "guitar",
@@ -53,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret D7, G7 and B7 as shown. B7 takes four fingers, so build it slowly, one finger at a time.\nKeep going round the three until each shape lands with all its fingers at once."
+            "text": "Press a chord box below to hear it, then fret D7, G7 and B7 as shown. B7 takes four fingers, so build it slowly, one finger at a time.\nPractice until each shape lands with all its fingers at once."
           },
           {
             "type": "tool",
@@ -75,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -130,7 +130,14 @@
       "steps": [
         "seventh-shapes:1"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

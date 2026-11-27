@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-mix-three-kinds-of-7th",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track seventh-shapes (guitar-extended-chords), step 3: open dominant, minor and major 7ths together: a 7th and a minor 7th on the same root, a four-bar round in C with all three kinds, the round grown to eight bars with Em7 and A7, then over drums and bass.",
+  "note": "Open dominant, minor and major 7th chords mixed: a 7th and a minor 7th on one root, a four-bar round in C with all three kinds, the round grown to eight bars, then the chords once a bar over drums and bass. The open shapes are the lesson, so only the tempo moves (60 to 80 bpm, the backing track kept 6 above); each block has one extra line, a feel to reach or what to do when a change comes late.",
   "exercise": {
     "title": "Three kinds of 7th in one round",
     "area": "guitar",
@@ -53,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nThe four bars hold a major 7th chord, two minor 7th chords and a 7th chord. Say the kind of each chord as you land on it."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nThe four bars hold a major 7th chord, two minor 7th chords and a 7th chord. Say the kind of each chord as you land on it."
           },
           {
             "type": "tool",
@@ -137,7 +137,14 @@
       "steps": [
         "seventh-shapes:3"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

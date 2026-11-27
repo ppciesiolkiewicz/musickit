@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-open-minor-major-7ths",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track seventh-shapes (guitar-extended-chords), step 2: the five open minor 7th and major 7th shapes, two as one finger off Am and C, three new, then strummed in time.",
+  "note": "The five open minor 7th and major 7th shapes: Am7 and Cmaj7 as Am and C with one finger lifted, Em7, Dm7 and Fmaj7 new, then strummed in time. The open shapes are the lesson, so only the tempo moves (60 to 80 bpm); the chord boxes carry the fingerings, so the text names none, and the first block names its goal with \"Practice until\".",
   "exercise": {
     "title": "Open m7 and maj7 chords",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am to Am7 and back, then from C to Cmaj7 and back, until only the one finger moves."
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am to Am7 and back, then from C to Cmaj7 and back.\nPractice until only the one finger moves."
           },
           {
             "type": "tool",
@@ -53,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret Em7, Dm7 and Fmaj7 as shown. In Dm7, finger 1 lies flat across the two thinnest strings.\nPick the strings of each chord one at a time, and fix only the one that buzzes."
+            "text": "Press a chord box below to hear it, then fret Em7, Dm7 and Fmaj7 as shown.\nPick the strings of each chord one at a time, and fix only the one that buzzes."
           },
           {
             "type": "tool",
@@ -75,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nFingers 2 and 3 keep their shape from Cmaj7 to Fmaj7 and move over one string each."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nFingers 2 and 3 keep their shape from Cmaj7 to Fmaj7 and move over one string each."
           },
           {
             "type": "tool",
@@ -128,7 +128,14 @@
       "steps": [
         "seventh-shapes:2"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

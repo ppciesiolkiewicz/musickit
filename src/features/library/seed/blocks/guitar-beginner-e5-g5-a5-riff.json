@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-e5-g5-a5-riff",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-beginner.json, day 5.",
+  "note": "Three power chords as one shape moved to three roots on the low E string: the chord boxes first, then a strum-along with a down on every beat. The chords are the riff, so only the tempo moves (60 to 90 bpm); the why says what makes a riff of one shape work, and the block ends on a feel to reach.",
   "exercise": {
     "title": "E5, G5, A5 riff",
     "area": "guitar",
@@ -17,14 +17,14 @@
     "concepts": [
       "power-chords"
     ],
-    "why": "The power chord shape works on any root, so a riff in E is the same hand you used in A.",
+    "why": "A power chord is the same shape on any root, so a riff of power chords is one hand shape slid along the low strings to each new root.",
     "learnBefore": [
       "/course/5/power-chords"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press a chord box below to see where each chord sits. All three are one power chord shape, moved to three roots."
+        "text": "Press a chord box below to hear it and see where it sits. All three are one power chord shape, moved to three roots on the low E string."
       },
       {
         "type": "tool",
@@ -34,12 +34,17 @@
             "E5",
             "G5",
             "A5"
+          ],
+          "frets": [
+            "0 2 2 x x x | 0 3 4 x x x",
+            "3 5 5 x x x | 1 3 4 x x x",
+            "5 7 7 x x x | 1 3 4 x x x"
           ]
         }
       },
       {
         "type": "text",
-        "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, until the slide from one to the next is smooth."
+        "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, one bar for each chord.\nPractice until the slide from one root to the next lands on beat 1 with the shape still held."
       },
       {
         "type": "tool",
@@ -51,7 +56,7 @@
             "A5",
             "E5"
           ],
-          "bpm": 80,
+          "bpm": 60,
           "pattern": "D D D D"
         }
       }
@@ -64,6 +69,13 @@
       "steps": [
         "power-chords:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 4
     }
   ]

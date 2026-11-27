@@ -1,14 +1,14 @@
 {
   "id": "guitar-beginner-slides",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track bends-slides (guitar-techniques), step 1: slides, inside pentatonic position 1.",
+  "note": "Slides inside one minor pentatonic position: one slide from the minor 7th to the root on the D string, the same slide on the beat, a slide on every string, then slides in the learner's own phrases over drums and bass. The old Key selector is now moves (any key, 60 to 80 bpm, the backing track kept 20 above the metronome), so the title and text name the key only as {{=key}} and a {{?key}} line says what stays the same; the position is described the first time and named by no number.",
   "exercise": {
-    "title": "Slides inside position 1",
+    "title": "Slides in the {{=key}} minor pentatonic scale",
     "area": "guitar",
     "tags": [
       "technique",
@@ -18,7 +18,7 @@
     "concepts": [
       "bends-slides"
     ],
-    "why": "A slide is one finger moving along one string, and position 1 has two notes on every string, so every string of the position holds a slide you can use.",
+    "why": "A slide is one finger moving along one string, and this position has two notes on every string, so every string of the position holds a slide you can use.",
     "learnBefore": [
       "/course/5/bends-and-slides",
       "/course/5/pentatonic"
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "On the neck below only {{b7}} and {{1}} are in play. On the D string, pick {{b7}}, then slide the same finger up to the ringed {{1}} without picking again.\nPractice until the note you slide to rings as clearly as the note you picked."
+            "text": "The neck below holds the notes of the {{=key}} minor pentatonic scale, with only {{b7}} and {{1}} in play. On the D string, pick {{b7}}, then slide the same finger up to the ringed {{1}} without picking again.\nPractice until the note you slide to rings as clearly as the note you picked."
           },
           {
             "type": "tool",
@@ -60,7 +60,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Pick {{b7}} on one beat and land the slide on {{1}} on the next beat.\nThen slide back down from {{1}} to {{b7}} the same way.\nIf the slide lands early, wait longer on the first note and move just before the beat."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Pick {{b7}} on one beat and land the slide on {{1}} on the next beat, then slide back down from {{1}} to {{b7}} the same way.\nIf the slide lands early, wait longer on the first note and move just before the beat."
           },
           {
             "type": "tool",
@@ -97,23 +97,10 @@
         "type": "section",
         "heading": "A slide on every string",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "c"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Now the whole of position 1 is in play. On each string, pick the lower note and slide up to the higher one, then move to the next string.\nOnce the slide rings on every string, try it in another key. Use the Key selector below to change the key.\nWhen you change the key, the position moves along the neck, and the slide on the D string still ends on {{1}}."
+            "text": "Now every note of the position is in play. Start on the low E string: pick the lower note and slide up to the higher one, then do the same on the next string, up to the high e string.\nPractice until the slide rings on every string, the thick ones and the thin ones alike.\n{{?key}}In another key the position sits on other frets, and the slide on the D string still ends on {{1}}."
           },
           {
             "type": "tool",
@@ -138,7 +125,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass in A. Make up short phrases from position 1, with one slide in each.\nThen end a phrase with a slide into a ringed {{1}}, where it sounds finished."
+            "text": "Press Play below to start the backing track: drums and bass in {{=key}}. Make up short phrases from the position, with one slide in each.\nThen end a phrase with a slide into a ringed {{1}}, and listen for how it settles with the bass."
           },
           {
             "type": "tool",
@@ -180,6 +167,14 @@
       "steps": [
         "bends-slides:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

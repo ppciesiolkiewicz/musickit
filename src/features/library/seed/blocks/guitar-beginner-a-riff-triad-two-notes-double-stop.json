@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-a-riff-triad-two-notes-double-stop",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-beginner.json, day 6.",
+  "note": "A riff that mixes a triad, two of its notes picked alone and a double stop, all from one hand shape on the top three strings: two chords first, then four with double stops at the ends. Shows chords counted the long way once as chord tokens, a key and tempo that move (any key, 60 to 80 bpm) with the later block kept 10 bpm faster, and a variation that makes the riff the learner's own.",
   "exercise": {
     "title": "A riff: triad, two notes, double stop",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "triads"
     ],
-    "why": "A triad and its single notes are one hand shape, so a riff that mixes them sounds full and never makes your hand jump.",
+    "why": "A triad's single notes and its double stops are already under the fingers that hold the triad, so a riff that mixes them sounds full and never makes your hand jump.",
     "learnBefore": [
       "/course/5/triads",
       "/course/5/fifths"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "G and C at 60",
+        "heading": "Two chords",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the play-along. Each bar is the chord's triad, two of its notes picked on their own, then the triad again. Follow the tab, and keep the shape held down so the single notes are already under your fingers."
+            "text": "The riff starts on two chords of {{=key}}. {{chord:I}} is the 1st chord of the key, built on {{1}}. {{chord:IV}} is the 4th chord, built on {{4}}.\nPress Play below to start the backing track, and follow the tab. Each bar is the chord's triad on the G, B and high e strings, two of its notes picked on their own, then the triad again. Keep the triad held down, so the single notes are already under your fingers.\nPractice until the single notes come from the held shape without you lifting your hand."
           },
           {
             "type": "tool",
@@ -38,6 +38,7 @@
               "type": "guitar-play-along",
               "shape": {
                 "shape": "chord-steps",
+                "key": "g",
                 "chords": [
                   {
                     "chord": "G",
@@ -95,12 +96,12 @@
       },
       {
         "type": "section",
-        "heading": "G, C, D, G at 70",
+        "heading": "Four chords, two double stops",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Now D joins, and the last two bars end on a double stop instead of the triad. Once it flows, make it yours: pick two other notes of the chord in the middle of each bar."
+            "text": "Press Play below to start the backing track. Now {{chord:V}}, the 5th chord, built on {{5}}, joins the riff, and the last two bars end on a double stop, two notes of the chord on the B and high e strings, instead of the triad.\nWhen the four bars run without a gap, make the riff your own: pick two other notes of the chord in the middle of each bar.\n{{?key}}In another key the shapes sit on other frets, and each bar is still a triad, two of its notes, then a triad or a double stop."
           },
           {
             "type": "tool",
@@ -108,6 +109,7 @@
               "type": "guitar-play-along",
               "shape": {
                 "shape": "chord-steps",
+                "key": "g",
                 "chords": [
                   {
                     "chord": "G",
@@ -216,6 +218,14 @@
       "steps": [
         "triads:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]

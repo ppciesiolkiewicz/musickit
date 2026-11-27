@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-am7-dsus2-dm7",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 6.",
+  "note": "Am7, Dsus2 and Dm7 as open shapes, then strummed in time with the island strum. The open shapes are the lesson, so only the tempo moves (80 to 100 bpm); the why names the two notes the sus2 and the m7 share, and the listening line says what to listen for, not how it sounds.",
   "exercise": {
     "title": "Am7, Dsus2, Dm7",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Dsus2 to Dm7 and back until the fingers on the top two strings move together, then add Am7 in front."
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Dsus2 to Dm7 and back, then add Am7 in front.\nPractice until the fingers on the top two strings move together, as one."
           },
           {
             "type": "tool",
@@ -52,7 +52,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Am7 lasts two bars, then Dsus2 and Dm7 get a bar each. Strum the pattern in the boxes and listen for how Dsus2 opens the way to Dm7."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: Am7 for two bars, then Dsus2 and Dm7 for a bar each. Strum the pattern shown in the boxes.\nListen for the top note that moves when Dsus2 changes to Dm7."
           },
           {
             "type": "tool",
@@ -79,6 +79,13 @@
       "steps": [
         "sus-add9:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]

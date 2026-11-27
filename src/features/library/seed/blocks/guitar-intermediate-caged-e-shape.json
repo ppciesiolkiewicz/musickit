@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-caged-e-shape",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track caged (guitar-caged), step 1: the E shape: open E moved up as a barre, then the chord, arpeggio, pentatonic and scale that sit in the same frets, in three keys.",
+  "note": "The E shape of CAGED: open E moved up as a barre (its chord boxes pinned, so they stay the lesson's shapes), then the chord, arpeggio, major pentatonic and major scale in the same frets, the arpeggio alone, and the shape strummed then picked on two chords. The old Key selector is now moves (any key), so the text names the key only as {{=key}}, the chords in time are chord tokens, and a {{?key}} line says what stays the same.",
   "exercise": {
     "title": "CAGED: the E shape",
     "area": "guitar",
@@ -38,6 +38,9 @@
               "type": "chord-shapes",
               "chords": [
                 "E"
+              ],
+              "pinned": [
+                "key"
               ]
             }
           },
@@ -50,7 +53,10 @@
                 "G",
                 "A"
               ],
-              "voicing": "barre"
+              "voicing": "barre",
+              "pinned": [
+                "key"
+              ]
             }
           }
         ]
@@ -59,23 +65,10 @@
         "type": "section",
         "heading": "What sits around it",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            },
-            {
-              "key": "c"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on each of the four panels below to hear it: the chord, its arpeggio, the pentatonic and the scale, all in the same frets.\nPlay each one on your guitar, starting and ending on a root, until you can see the chord inside the scale.\nThen try another key. Use the Key selector below to change the key.\nWhen you change the key, the shape moves along the neck and every note keeps its place inside it."
+            "text": "Press Play on each of the four panels below to hear it: the {{=key}} chord in the E shape, its arpeggio, the {{=key}} major pentatonic scale and the {{=key}} major scale, all in the same frets.\nPlay each one on your guitar, starting and ending on a root.\nPractice until you can see the chord inside the scale.\n{{?key}}In another key the shape moves along the neck, and every note keeps its place inside it."
           },
           {
             "type": "tool",
@@ -97,7 +90,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the arpeggio run up and back down. Then play it yourself, from the lowest {{1}} to the highest note and back.\nPractice until your fingers find the next note without you looking."
+            "text": "Press Play below to hear the {{=key}} arpeggio run up and back down. Then play it yourself, from the lowest ringed {{1}} to the highest note and back.\nPractice until your fingers find the next note without you looking."
           },
           {
             "type": "tool",
@@ -121,7 +114,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. On each chord, strum the shape on beat 1, then pick three of its notes, one per beat.\nWhen you change the chord, the whole shape moves and the notes keep their places inside it."
+            "text": "The tab below holds two chords in the E shape: {{chord:I}}, the 1st chord of the key, built on {{1}}, and {{chord:II}}, the same shape two frets up.\nPress Play below to start the backing track. On each chord, strum the shape on beat 1, then pick three of its notes, one per beat.\nWhen you change the chord, the whole shape moves and the notes keep their places inside it."
           },
           {
             "type": "tool",
@@ -149,7 +142,8 @@
                       "5"
                     ]
                   }
-                ]
+                ],
+                "key": "g"
               },
               "bpm": 60,
               "view": "tab"
@@ -169,7 +163,10 @@
       "steps": [
         "caged:1"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

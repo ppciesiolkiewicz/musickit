@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-small-f-to-bm",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track barre (guitar-barre-chords), steps 1 and 2: the small F on four strings, then the Bm barre with the root on string 5.",
+  "note": "The first barres: the small F on four strings, drawn in a chord box with its fingers, strummed in time and reached from C, then Bm as the Am shape moved up with a barre, reached from Em. The chord shapes are the lesson, so only the tempo moves (60 to 80 bpm); the fingering is in the chord boxes, not the text, and the one underlined line is a care line for the hand.",
   "exercise": {
     "title": "Small F, then Bm: your first barres",
     "area": "guitar",
@@ -18,7 +18,7 @@
     "concepts": [
       "barre"
     ],
-    "why": "In the small F finger 1 holds down two strings and in Bm it holds five, so the small F trains the press of a barre on a shape your hand can hold today.",
+    "why": "In the small F finger 1 holds down two strings and in Bm it holds five, so the small F trains the press of a barre on a shape your hand can already hold.",
     "learnBefore": [
       "/course/6/bm-barre"
     ],
@@ -30,7 +30,23 @@
         "cells": [
           {
             "type": "text",
-            "text": "The tab below shows the small F: four strings, with finger 1 lying flat across the two thinnest ones. Fret it, then pick the four strings one at a time to check that each one rings.\nPress Play below to start the backing track, and strum the small F with it on every beat.\nIf a string buzzes, roll finger 1 a little onto its side and press closer to the fret."
+            "text": "Press the chord box below to hear the small F: four strings, with finger 1 holding down the two thinnest. Fret it as shown, then pick the four strings one at a time to check that each one rings.\nIf a string buzzes, roll finger 1 a little onto its side and press closer to the fret."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "F"
+              ],
+              "frets": [
+                "x x 3 2 1 1 | x x 3 2 1 1"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track at {{=bpm}}, and strum the small F with it on every beat, following the tab."
           },
           {
             "type": "tool",
@@ -168,6 +184,13 @@
         "barre:1",
         "barre:2"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

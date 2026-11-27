@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-chord-tones-over-am-f-c-g",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 3.",
+  "note": "Chord tones over Am, F, C and G on the neck: each chord's root, 3rd and 5th followed one per beat, then the 3rds alone with the 3rd ringed, then the learner's own line landing on a 3rd at each change. The chords are written as names and the tempo moves (60 to 80 bpm); a chord's 3rd is said in words, since a note dot would count from the key, and each block has one feel to reach.",
   "exercise": {
-    "title": "Chord tones over Am-F-C-G",
+    "title": "Chord tones over Am, F, C and G",
     "area": "guitar",
     "tags": [
       "theory"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track and play the lit note on the neck, one per beat: each chord's root, 3rd, 5th and 3rd again. Am has a minor 3rd, {{b3}}; F, C and G have a major 3rd, {{3}}. Practice until you can look away for a bar."
+            "text": "Press Play below to start the backing track at {{=bpm}}, and play the lit note on the neck, one per beat: each chord's root, 3rd, 5th, then the 3rd again. Am has a minor 3rd; F, C and G each have a major 3rd.\nPractice until you can look away from the screen for a whole bar."
           },
           {
             "type": "tool",
@@ -78,7 +78,10 @@
                 ]
               },
               "bpm": 60,
-              "view": "neck"
+              "view": "neck",
+              "highlight": [
+                "1"
+              ]
             }
           }
         ]
@@ -90,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Now each bar starts on the chord's 3rd and comes back to it. Listen for how that one note changes the colour of every bar. Then stop following the lit note and make up a line that lands on a 3rd at each change."
+            "text": "Press Play below to start the backing track. Now each bar starts on the chord's 3rd, ringed on the neck, and comes back to it. Listen for the bar where the 3rd turns from minor to major.\nThen stop following the lit note and make up your own line that lands on a 3rd each time the chord changes."
           },
           {
             "type": "tool",
@@ -138,7 +141,11 @@
                 ]
               },
               "bpm": 60,
-              "view": "neck"
+              "view": "neck",
+              "highlight": [
+                "3",
+                "b3"
+              ]
             }
           }
         ]
@@ -152,6 +159,13 @@
       "steps": [
         "arpeggios:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

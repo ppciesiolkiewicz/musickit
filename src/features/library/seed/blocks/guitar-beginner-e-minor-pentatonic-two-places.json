@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-e-minor-pentatonic-two-places",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-beginner.json, day 5.",
+  "note": "E minor pentatonic in its two places on the neck: the open position, then the same shape at the 12th fret, an octave up, shown on the whole neck so the learner sees where it sits. The key is the lesson (the open strings), so only the tempo moves (60 to 80 bpm). The way through the scale is spelled out once, and each block has one feel to reach.",
   "exercise": {
     "title": "E minor pentatonic, two places",
     "area": "guitar",
@@ -17,25 +17,25 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "A position's shape doesn't change with the key, it only moves, so the shape you know in A is already E minor pentatonic at the 12th fret.",
+    "why": "The open strings are frets 0, and the 12th fret is the same notes an octave up, so the position you play with open strings comes back whole at the 12th fret.",
     "learnBefore": [
       "/course/5/pentatonic"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "The open position",
+        "heading": "With the open strings",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Play E minor pentatonic in the open position, up and down, one note per beat, starting and ending on {{1}}."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Under it is the neck with the notes of the E minor pentatonic scale next to the open strings: each dot is a note to play, and the ringed dots are {{1}}.\nStart on the open low E string and play both notes on each string up to the high e string, then come back down the same way, one note per beat.\nPractice until the run ends back on {{1}} without you looking at the neck."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-band",
-              "bpm": 70,
+              "bpm": 60,
               "key": "e",
               "parts": {
                 "click": "on"
@@ -65,7 +65,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The same notes an octave up, in the shape you know from A. With the metronome above still going, play it up and down, then hop between the two positions, landing on a {{1}} each time."
+            "text": "The neck below shows the same shape at the 12th fret: the same notes, an octave up. With the metronome above still going, play it the same way, from the low E string to the high e string and back.\nThen hop between the two places, landing on a ringed {{1}} each time.\nNotice that at the 12th fret your first finger plays the notes the open strings played."
           },
           {
             "type": "tool",
@@ -79,7 +79,11 @@
               },
               "highlight": [
                 "1"
-              ]
+              ],
+              "parts": {
+                "positions": "always",
+                "neck": "on"
+              }
             }
           }
         ]
@@ -93,6 +97,13 @@
       "steps": [
         "pentatonic-positions:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

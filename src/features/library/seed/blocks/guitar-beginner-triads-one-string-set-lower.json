@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-triads-one-string-set-lower",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-beginner.json, day 6.",
+  "note": "The 1st, 4th and 5th chords as triads moved from the top three strings to the D, G and B strings: new shapes for chords the learner knows. The key and tempo move (any key, 60 to 80 bpm), the chords are chord tokens counted the long way once, and a {{?key}} line says what stays the same in another key.",
   "exercise": {
     "title": "Triads, one string set lower",
     "area": "guitar",
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the play-along. These are the G, C and D triads, moved from the top three strings to the D, G and B strings: the shapes change, the chords don't. Strike the three strings on every beat, until each new shape lands on beat 1."
+        "text": "The tab below holds three chords of {{=key}}. {{chord:I}} is the 1st chord of the key, built on {{1}}. {{chord:IV}} is the 4th chord, built on {{4}}, and {{chord:V}} is the 5th chord, built on {{5}}.\nPress Play below to start the backing track, and follow the tab. Each chord is a triad on the D, G and B strings: strike the three strings together on every beat.\nPractice until each new shape lands on beat 1.\n{{?key}}In another key the shapes sit on other frets, and each chord keeps its shape on the D, G and B strings."
       },
       {
         "type": "tool",
@@ -32,6 +32,7 @@
           "type": "guitar-play-along",
           "shape": {
             "shape": "chord-steps",
+            "key": "g",
             "chords": [
               {
                 "chord": "G",
@@ -100,6 +101,14 @@
       "steps": [
         "triads:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 4
     }
   ]

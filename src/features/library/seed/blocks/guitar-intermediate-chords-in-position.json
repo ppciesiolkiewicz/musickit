@@ -2,11 +2,11 @@
   "id": "guitar-intermediate-chords-in-position",
   "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Seeing the key's chords inside one scale position, then using them in a solo: a scale-neck with `chords` rings each triad in position 1, a chord-steps riff strikes each triad and picks its notes, both with a Variant selector for a second key (the grips' frets move with the key), a solo-over lights each chord's triad as a `stab` to strike on beat 1 and leaves the rest of the bar free, and a last chord-steps cuts each triad to a double stop on the top two strings. The why says what makes it work (the chords already sit under the hand), so the learner can find the same in another position.",
+  "note": "Seeing the key's chords inside one natural minor scale position, then using them in a solo: a scale-neck with `chords` rings each triad in the position, a chord-steps riff strikes each triad and picks its notes, a solo-over lights each chord's triad as a `stab` to strike on beat 1 and leaves the rest of the bar free, and a last chord-steps cuts each triad to a double stop on the top two strings. The old Variant selectors (one per key) are now moves (any key, 70 to 90 bpm), so the text names the key only as {{=key}}, the chords are counted the long way once as chord tokens, and a {{?key}} line says what stays the same.",
   "exercise": {
     "title": "Chords inside the position",
     "area": "guitar",
@@ -27,25 +27,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The chords in position 1",
+        "heading": "The chords in the position",
         "minutes": 3,
-        "choice": {
-          "label": "variant",
-          "options": [
-            {
-              "key": "a",
-              "position": 1
-            },
-            {
-              "key": "d",
-              "position": 1
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord in the Chords row below to ring its notes in the position and hear it. Play that chord as a triad on the G, B and high e strings, then play the scale notes around it.\nGo through each chord until your hand finds it without looking at the neck.\nThen try the other variant. Use the Variant selector below to change the key.\nWhen you change the variant, the position moves up the neck, but each chord sits in the same place inside it."
+            "text": "Below is the neck with the notes of the {{=key}} natural minor scale in one position, and a row of four of its chords. {{chord:i}} is the 1st chord of the key, built on {{1}}. {{chord:iv}} is the 4th chord, built on {{4}}, {{chord:bVI}} the 6th, built on {{b6}}, and {{chord:bVII}} the 7th, built on {{b7}}.\nPress a chord in the Chords row below to ring its notes in the position and hear it. Play that chord as a triad on the G, B and high e strings, then play the scale notes around it.\nPractice until your hand finds each chord without looking at the neck.\n{{?key}}In another key the position sits on other frets, and each chord keeps its place inside it."
           },
           {
             "type": "tool",
@@ -73,21 +60,10 @@
         "type": "section",
         "heading": "Chord, then its notes",
         "minutes": 3,
-        "choice": {
-          "label": "variant",
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. On each chord, strike the triad on beat 1, then pick three of its notes, one per beat, until the chord and its notes run on without a gap.\nThen try the other variant. Use the Variant selector below to change the key, then press Play to start the backing track again.\nWhen you change the variant, the chords are new, but each triad sits in the same place inside the position."
+            "text": "Press Play below to start the backing track at {{=bpm}}, and follow the tab. On each chord, strike the triad on beat 1, then pick three of its notes, one per beat.\nPractice until the chord and its notes run on without a gap."
           },
           {
             "type": "tool",
@@ -273,7 +249,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Now play only the top two notes of each triad, on the B and high e strings: both together, the top one alone, both again, then the lower one. Practice until your hand moves from pair to pair without looking.\nThen use these double stops between the lines of your next solo over these chords."
+            "text": "Press Play below to start the backing track. Now play only the top two notes of each triad, on the B and high e strings: both together, the top one alone, both again, then the lower one.\nPractice until your hand moves from pair to pair without looking."
           },
           {
             "type": "tool",
@@ -396,7 +372,15 @@
         "triads:3",
         "arpeggios:1"
       ],
-      "minutes": 12
+      "minutes": 12,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      }
     }
   ]
 }

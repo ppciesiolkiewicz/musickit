@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-a-tune-to-the-high-do",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 4.",
+  "note": "A tune that climbs to the high Do, learned from the tab and then from the neck. The old tempo Stage selector and Key selector are now moves (any key, 60 to 84 bpm in steps of 12, the neck block kept 12 above), so the text names no selector, the tempo is {{=bpm}}, and {{?key}} and {{?bpm}} lines say what stays the same. Each block has one feel to reach.",
   "exercise": {
     "title": "A tune to the high Do",
     "area": "guitar",
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Learn it in stages",
+        "heading": "From the tab",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune, then play along from the tab. The third bar opens with four quick notes, two per beat.\nWhen you can hum the quick notes before you play them, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf the quick notes smear at a new stage, go back one stage."
+            "text": "Press Play below to hear the tune at {{=bpm}}, then play along from the tab. The third bar opens with four quick notes, two per beat.\nPractice until you can hum the quick notes before you play them.\n{{?bpm}}At a faster tempo the quick notes come sooner: if they smear, go back to the slower one."
           },
           {
             "type": "tool",
@@ -45,30 +45,16 @@
               "view": "tab"
             }
           }
-        ],
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 84
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
-        "heading": "On the neck, then in G",
+        "heading": "On the neck",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the tune, now shown on the neck. Play it there until your eyes are on your hand and not on the screen.\nThen learn it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape."
+            "text": "Press Play below to start the tune again, now shown on the neck, a little faster. Play it from the neck alone.\nPractice until your eyes stay on your hand and not on the screen.\n{{?key}}In another key the tune sits on other frets, and it keeps its shape: the same steps up to the high Do."
           },
           {
             "type": "tool",
@@ -83,17 +69,7 @@
               "view": "neck"
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "g"
-            }
-          ]
-        }
+        ]
       }
     ]
   },
@@ -104,6 +80,14 @@
       "steps": [
         "guitar-melodies:3"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 84,
+          "step": 12
+        }
+      },
       "minutes": 10
     }
   ]
