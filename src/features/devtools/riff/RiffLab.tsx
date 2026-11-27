@@ -811,7 +811,7 @@ function HowTakesWork({ bpm }: { bpm: number }) {
           Print the <a href="/riff/neck-dots-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 dots</a> or the{" "}
           <a href="/riff/neck-dots-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 dots</a> on matte sticker paper at 100%, in colour.
           For a 25.5&quot; Strat or Tele, print the A3{" "}
-          <a href="/riff/neck-dots-strat-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">Strat kit</a> instead: a dot in each fret space on both edges, green and magenta taking turns so each fret has one of each, and lines across the fretboard at the nut and frets 3, 5, 7, 9, 12, 15, 17 and 19, each told apart by its colour and how many lines it has.
+          <a href="/riff/neck-dots-strat-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">Strat kit</a> instead: a dot in each fret space on both edges, cyan and magenta taking turns so each fret has one of each, and lines across the fretboard at the nut and frets 3, 5, 7, 9, 12, 15, 17 and 19, each told apart by its colour and how many lines it has.
           For more, print the{" "}
           <a href="/riff/neck-dots-strat-spares-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">Strat spares</a>: two calibration cards, the lines again, and dots from 6 to 20 mm in seven colours. Each is labelled with where it goes.
           Green goes on the near edge and cyan on the far edge. Magenta marks the nut and fret 12, lime frets 5 and 17, and violet frets 7 and 19. Blue marks the bridge. White is for a dark fretboard and black for a maple one.

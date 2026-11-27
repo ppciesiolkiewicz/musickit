@@ -157,15 +157,15 @@ for (const sheet of SHEETS) {
   }
   await page.close();
 }
-// The Strat kit (A3): a dot in each fret space on both edges, green and magenta taking turns so each fret has one of each
-// (the top edge, low E side, green at odd frets; the bottom green at even), a small and a big set; and a line right across the board beside each wire (under the strings, on the body side, touching the wire),
+// The Strat kit (A3): a dot in each fret space on both edges, cyan and magenta taking turns so each fret has one of each
+// (the top edge, low E side, cyan at odd frets; the bottom cyan at even; no green on the board, so a green screen behind can't pass for it), a small and a big set; and a line right across the board beside each wire (under the strings, on the body side, touching the wire),
 // on the wires at the inlay frets only, for the fret's angle and the strings a hand covers; each is labelled with where it goes.
 const SCALE_MM = 648, FRETS = 22;
 const wire = (n) => SCALE_MM * (1 - 2 ** (-n / 12)); // nut to fret wire n
 const byName = Object.fromEntries(COLOURS.map((c) => [c.name, c]));
-// spare colours: lime left out, too near green
-const SPARE_COLOURS = ["Green", "Magenta", "Cyan", "Violet", "Blue", "White", "Black"].map((n) => byName[n].hex);
-const GREEN = byName.Green.hex, MAGENTA = byName.Magenta.hex, BRIDGE_DOT = 16;
+// spare colours and how many of each, by share of a line: mostly cyan and green, few white and black; lime left out, too near green
+const SPARES = [["Cyan", 4], ["Green", 3], ["Magenta", 1.5], ["Violet", 1], ["Blue", 1], ["White", 0.5], ["Black", 0.5]].map(([n, w]) => [byName[n].hex, w]);
+const EDGE = byName.Cyan.hex, MAGENTA = byName.Magenta.hex, BRIDGE_DOT = 16;
 const spaces = Array.from({ length: FRETS }, (_, i) => {
   const n = i + 1, space = wire(n) - wire(n - 1);
   return { n, mid: (wire(n - 1) + wire(n)) / 2, small: Math.min(8, Math.max(5, Math.floor(space * 0.4))), big: Math.min(20, Math.floor(space * 0.7)) };
@@ -175,6 +175,7 @@ const spaces = Array.from({ length: FRETS }, (_, i) => {
 const LINES = [[0, "Blue", 1], [3, "Magenta", 1], [5, "Magenta", 2], [7, "Cyan", 1], [9, "Cyan", 2], [12, "Cyan", 3], [15, "Violet", 1], [17, "Violet", 2], [19, "Violet", 3]];
 const ZONES = [["Blue", "nut (fretboard side)"], ["Magenta", "wires 3 and 5"], ["Cyan", "7, 9 and 12"], ["Violet", "15, 17 and 19"]];
 const LINE_W = 2, LINE_GAP = 1.5; // mm
+const CAL_SWATCH = 15; // mm, each square on a Strat sheet calibration card; two cards side by side fill most of the width
 // board width at a place along it: a straight taper, about 42 mm at the nut to 56 mm at fret 22 (Squier Strat and Tele)
 const NUT_W = 42, WIDTH_AT_22 = 56.4;
 const boardAt = (mm) => NUT_W + ((WIDTH_AT_22 - NUT_W) * mm) / wire(22);
@@ -191,10 +192,10 @@ function line(hexes, len) {
 }
 
 // Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
-// across the board, each zone a band running along the neck under one string (low E on the left), green at both edges
+// across the board, each zone a band running along the neck under one string (low E on the left), cyan at both edges
 // like the edge dots; every cover the same
 const COVERS = [1, 3, 5, 7, 12];
-const COVER_COLOURS = ["Green", "Violet", "Cyan", "Magenta", "Blue", "Green"];
+const COVER_COLOURS = ["Cyan", "Magenta", "Blue", "White", "Violet", "Cyan"];
 const WIRE_W = 2.5; // mm of fret wire taken off the space's length
 /** Fret n's cover, lying as on the neck seen from the player (across the board left to right, nut at the top): the board's
  * width at the space's body end by the space less a wire, the zones side by side, a dashed cut line round it. */
@@ -207,13 +208,13 @@ function cover(n, zones = COVER_COLOURS.length) {
 function kitPage(spareLines, sparesOnly = false) {
   const W = 297, M = 10, usable = W - 2 * M;
   const cell = (svg, d, top, bottom) => `<div class="k" style="width:${Math.max(10.6, d + 1.2)}mm"><div class="kd" style="height:${Math.max(10.5, d + 0.5)}mm">${svg}</div><b>${top}</b><span>${bottom}</span></div>`;
-  // top edge: green at odd frets, magenta at even; bottom edge the other way round, so each fret has one of each
-  const dotCell = (p, size, top) => cell(strip(p[size], 1, (p.n % 2 === 1) === top ? GREEN : MAGENTA), p[size] + 2 * RIM, p.n === 0 ? "nut" : p.n, p.n === 0 ? "headstock" : `${p.mid.toFixed(0)} mm`);
+  // top edge: cyan at odd frets, magenta at even; bottom edge the other way round, so each fret has one of each
+  const dotCell = (p, size, top) => cell(strip(p[size], 1, (p.n % 2 === 1) === top ? EDGE : MAGENTA), p[size] + 2 * RIM, p.n === 0 ? "nut" : p.n, p.n === 0 ? "headstock" : `${p.mid.toFixed(0)} mm`);
   const cellW = (d) => Math.max(10.6, d + 2 * RIM + 1.2) + 0.4; // a cell and the gap after it
-  // what is left of a row filled with unlabelled spare dots, green and magenta in turn
+  // what is left of a row filled with unlabelled spare dots, cyan and magenta in turn
   const fillRest = (used, d = 8) => {
     const n = Math.max(0, Math.floor((usable - used - 3) / step(d)));
-    return n ? `<div class="kfill">${Array.from({ length: n }, (_, i) => strip(d, 1, i % 2 ? MAGENTA : GREEN)).join("")}</div>` : "";
+    return n ? `<div class="kfill">${Array.from({ length: n }, (_, i) => strip(d, 1, i % 2 ? MAGENTA : EDGE)).join("")}</div>` : "";
   };
   const row = (cells) => {
     const used = cells.reduce((t, [p, size]) => t + cellW(p[size]), 0);
@@ -228,12 +229,15 @@ function kitPage(spareLines, sparesOnly = false) {
   const lineSet = (hex) => `<div class="lines">${LINES.map(([w, n, count]) => `<div class="ln"><b>${w === 0 ? "nut" : w}</b><span>${wire(w).toFixed(0)} mm</span>${line(Array(count).fill(hex ?? byName[n].hex), lineLen(w))}<span>${lineLen(w)} mm</span></div>`).join("")}</div>`;
   const swatch = (hex, label) => `<div class="sw"><div style="background:${hex}"></div><span>${label}</span></div>`;
   const card = `<div class="card">${[["#ffffff", "White"], ["#808080", "Grey"], ["#000000", "Black"], ...["Green", "Magenta", "Cyan", "Violet", "Blue"].map((n) => [byName[n].hex, n])].map(([hex, n]) => swatch(hex, n)).join("")}</div>`;
-  // a spare line is one size across the whole width, the dots shared out between the spare colours
+  // a spare line is one size across the whole width, the dots shared out between the spare colours by their share
   const across = (d) => Math.floor((usable - LABEL - LABEL_GAP + GAP - 1) / step(d));
-  const spares = spareLines.map(([d]) => {
-    const n = across(d), k = SPARE_COLOURS.length;
-    return `<div class="line sp"><b>${d} mm</b>${SPARE_COLOURS.map((hex, i) => (n / k | 0) + (i < n % k ? 1 : 0)).map((m, i) => (m ? strip(d, m, SPARE_COLOURS[i]) : "")).join("")}</div>`;
-  }).join("");
+  const share = (n) => {
+    const total = SPARES.reduce((t, [, w]) => t + w, 0), exact = SPARES.map(([, w]) => (n * w) / total), counts = exact.map(Math.floor);
+    // what rounding down left over goes to the biggest remainders
+    exact.map((x, i) => [x - counts[i], i]).sort((a, b) => b[0] - a[0]).slice(0, n - counts.reduce((t, c) => t + c, 0)).forEach(([, i]) => counts[i]++);
+    return counts;
+  };
+  const spares = spareLines.map(([d]) => `<div class="line sp"><b>${d} mm</b>${share(across(d)).map((m, i) => (m ? strip(d, m, SPARES[i][0]) : "")).join("")}</div>`).join("");
   const zones = ZONES.map(([n, where]) => `<i style="background:${byName[n].hex}"></i>${where}`).join(" &nbsp; ");
   return `<!doctype html><html><head><meta charset="utf-8"><title>Neck dots Strat kit</title><style>
 @page { size: A3; margin: ${M}mm; }
@@ -256,7 +260,7 @@ h2 i { display: inline-block; width: 2.2mm; height: 2.2mm; border-radius: 50%; m
 .cal { display: flex; gap: 6mm; padding: 1mm; }
 .card { display: flex; outline: 0.15mm dashed #999; outline-offset: 0.8mm; }
 .sw { display: flex; flex-direction: column; align-items: center; gap: 0.6mm; font-size: 6.5pt; color: #444; }
-.sw div { width: 8mm; height: 8mm; }
+.sw div { width: ${CAL_SWATCH}mm; height: ${CAL_SWATCH}mm; }
 .lines { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 0.8mm 5mm; margin-bottom: 1.2mm; }
 .ln { display: grid; grid-template-columns: 5mm 9mm auto 1fr; align-items: center; gap: 1mm; }
 .sp { gap: ${GAP}mm; flex-wrap: nowrap; } .sp b { font-weight: normal; font-size: 7.5pt; color: #444; width: 9mm; }
@@ -265,17 +269,17 @@ h2 i { display: inline-block; width: 2.2mm; height: 2.2mm; border-radius: 50%; m
 .ln b { font-size: 6pt; } .ln span { font-size: 5pt; color: #444; } .ln svg { display: block; }
 </style></head><body>
 ${sparesOnly ? `<div class="cal">${card}${card}</div>
-${lineSet()}${lineSet(GREEN)}
+${lineSet()}${lineSet(EDGE)}
 ${spares}` : `<h1>Neck dots · Strat kit (25.5″) · A3</h1>
 <p>Print at 100%, matte sticker paper. Dots: fret, and mm from the nut to the middle of the fret space. Lines: wire, mm from the nut to the wire, and length; the dashed frame is that length, cut outside it for a longer line. Strings off; stick each line across the board beside its wire, on the body side, touching the wire.</p>
 <h2>Calibration</h2>
 <div class="cal">${card}${card}</div>
 <h2>Dots <span>rows: top edge (low E side), bottom edge (high E side); big top, big bottom, then big 13–22 top and bottom; nut dots on the headstock, touching the nut; spares at the row ends</span></h2>${dotRows}
-<h2>Lines across the board <span>${zones} · how many lines says which · a set, a spare set, a green set</span></h2>${lineSet()}
-${lineSet()}${lineSet(GREEN)}
+<h2>Lines across the board <span>${zones} · how many lines says which · a set, a spare set, a cyan set</span></h2>${lineSet()}
+${lineSet()}${lineSet(EDGE)}
 <h2>Bridge <span>level with the saddles, ${SCALE_MM} mm from the nut</span></h2>
 <div class="line"><span class="g"><b>${BRIDGE_DOT} mm</b>${strip(BRIDGE_DOT, across(BRIDGE_DOT), byName.Blue.hex)}</span></div>
-<h2>Fret covers <span>for testing · each fills one fret space, one colour band per string, green at both edges, the same on each, wire to wire and edge to edge; low E side on the left, nut end at the top</span></h2>
+<h2>Fret covers <span>for testing · each fills one fret space, one colour band per string, cyan at both edges, the same on each, wire to wire and edge to edge; low E side on the left, nut end at the top</span></h2>
 <div class="covers">${COVERS.map((n) => { const c = cover(n); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>
 ${spares ? `<h2>Spares</h2>${spares}` : ""}
 `}</body></html>`;
@@ -300,7 +304,7 @@ ${spares ? `<h2>Spares</h2>${spares}` : ""}
     await page.setViewportSize({ width: Math.round(297 * 96 / 25.4), height: 800 });
     await page.screenshot({ path: `${process.env.PREVIEW}/neck-dots-strat-a3.pdf.png`, fullPage: true });
   }
-  // the spares sheet: two calibration cards, a coloured and a green set of lines, and spare dots filling the page; little text
+  // the spares sheet: two calibration cards, a coloured and a cyan set of lines, and spare dots filling the page; little text
   // rounds of sizes, big first, until nothing more fits (a line too big is skipped for the smaller ones after it)
   const spareOrder = Array.from({ length: 5 }, () => [[20, 1], [16, 2], [12, 2], [10, 2], [8, 3], [6, 4]]).flat();
   const sp = [];
