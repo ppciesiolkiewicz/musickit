@@ -4,9 +4,9 @@
 //
 // Env (from .env.local):
 //   PROD_CRON_SECRET  production's CRON_SECRET (kept apart from the local CRON_SECRET so a run never hits the wrong one)
-//   CRON_URL          optional, default https://www.attunr.app/api/cron/reminders
+//   CRON_URL          optional, default https://attunr.app/api/cron/reminders
 
-const url = process.env.CRON_URL?.trim() || "https://www.attunr.app/api/cron/reminders";
+const url = process.env.CRON_URL?.trim() || "https://attunr.app/api/cron/reminders";
 const secret = process.env.PROD_CRON_SECRET?.trim();
 if (!secret) {
   console.error("PROD_CRON_SECRET is not set. Add production's CRON_SECRET to .env.local as PROD_CRON_SECRET.");

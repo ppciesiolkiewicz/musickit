@@ -137,23 +137,23 @@ Here are some ideas for Evia Music. You can try each of them without registering
 Interactive lesson notes
 After a lesson, the teacher sends the student one interactive page with that day’s material: scales, chords and exercises the student can play. AI helps draft the note. The student opens it as a link at home and practices with it.
 
-An interactive lesson note on A minor pentatonic, played and then sung: https://www.attunr.app/note/minor-pentatonic
+An interactive lesson note on A minor pentatonic, played and then sung: https://attunr.app/note/minor-pentatonic
 
 Interactive weekly practice plans
 Between lessons, the student gets a week of short interactive exercises, one set for each day. AI builds the plan automatically from the earlier plans and from how the student is progressing. The teacher can guide it whenever they want to. There are plans for guitar and for singing.
 
-A beginner’s week of daily guitar exercises: https://www.attunr.app/demo/guitar-beginner
-An intermediate player’s week: https://www.attunr.app/demo/guitar-intermediate
-A beginner singer’s week of daily exercises: https://www.attunr.app/demo/voice-beginner
+A beginner’s week of daily guitar exercises: https://attunr.app/demo/guitar-beginner
+An intermediate player’s week: https://attunr.app/demo/guitar-intermediate
+A beginner singer’s week of daily exercises: https://attunr.app/demo/voice-beginner
 
 Interactive resources
 There are also many interactive resources a teacher can use in a lesson or give a student for home practice, and all of them can be used with AI plan builders.
 
-Scales and modes: https://www.attunr.app/theory/scales
-Chords in any key: https://www.attunr.app/theory/chords
-CAGED shapes: https://www.attunr.app/theory/caged
+Scales and modes: https://attunr.app/theory/scales
+Chords in any key: https://attunr.app/theory/chords
+CAGED shapes: https://attunr.app/theory/caged
 
-The rest are on the main site: https://www.attunr.app
+The rest are on the main site: https://attunr.app
 
 Where it is today
 attunr is still in beta, and I’m improving it all the time. I practice with it myself, and my guitar playing has improved a lot since I started.
@@ -181,21 +181,21 @@ Thanks for the reply. I’m Piotr, the founder of attunr, and I’m taking over 
 Weekly practice plans
 The vision for attunr is that after each rehearsal the teacher generates each singer’s daily exercises for the next week, with AI helping to create them with embedded interactive components. The idea behind it: 20 minutes of focused practice can be better than an hour of scattered practice, so a singer should never lose time working out what to practice.
 
-A beginner singer’s week of daily exercises: https://www.attunr.app/demo/voice-beginner
-An intermediate singer’s week: https://www.attunr.app/demo/voice-intermediate
+A beginner singer’s week of daily exercises: https://attunr.app/demo/voice-beginner
+An intermediate singer’s week: https://attunr.app/demo/voice-intermediate
 
 Interactive notes
 Apart from AI generating the plans, teachers can also create interactive notes like this one, with the assistance of AI.
 
-An example note, guitar first, then singing: https://www.attunr.app/note/minor-pentatonic
+An example note, guitar first, then singing: https://attunr.app/note/minor-pentatonic
 
 You can try making notes yourself. attunr puts plans together from its own library of exercises, so you don’t need an AI of your own.
 See the demo plans and notes here:
-https://www.attunr.app/demo
+https://attunr.app/demo
 
 Be aware that at this stage everything is in demo mode, so you will not necessarily be able to share the plans you create with others.
 
-The website also has a lot of tools to use, such as breathwork and singing runs: https://www.attunr.app
+The website also has a lot of tools to use, such as breathwork and singing runs: https://attunr.app
 
 I’m looking for founding partners: schools that use attunr early and say what they need, and that is built first.
 
@@ -219,7 +219,7 @@ So what I want from you right now is exactly this kind of feedback.
 
 In my own practice, having the exact thing I want to work on in front of me makes a big difference. A specific scale in a specific key and position gets me much further than a book or video that shows it in one key and leaves me to transpose it in my head. It won’t make a student who doesn’t practice start practicing, but it can make the ten minutes they do manage count for more.
 
-All the demos are on one page now, including a Notes creator where you can build your own lesson page: https://www.attunr.app/demo
+All the demos are on one page now, including a Notes creator where you can build your own lesson page: https://attunr.app/demo
 
 Beyond theory, I see room for exercises for kids and other learners, help with running a studio, learning materials created automatically in your own teaching style, and new ways to earn from your expertise, like selling your interactive notes with your videos embedded as short courses.
 

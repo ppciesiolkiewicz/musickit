@@ -38,7 +38,7 @@ The scheduler's call:
 
 ```
 every 15 minutes (at :00, :15, :30, :45):
-curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://www.attunr.app/api/cron/reminders
+curl -fsS -X POST -H "Authorization: Bearer $CRON_SECRET" https://attunr.app/api/cron/reminders
 ```
 
 From this Mac: `npm run cron:prod` (`scripts/cron-reminders.mjs`) makes that call now and on every quarter hour until

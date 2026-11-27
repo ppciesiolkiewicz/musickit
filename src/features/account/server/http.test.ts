@@ -29,14 +29,14 @@ test("reading a cookie from a request", () => {
 test("a POST from another site is refused", () => {
   assert.equal(sameOrigin(req({ origin: "http://localhost:3000", host: "localhost:3000" })), true);
   assert.equal(sameOrigin(req({ origin: "https://evil.com", host: "localhost:3000" })), false);
-  assert.equal(sameOrigin(req({ origin: "https://www.attunr.app", host: "internal:3000", "x-forwarded-host": "www.attunr.app" })), true);
+  assert.equal(sameOrigin(req({ origin: "https://attunr.app", host: "internal:3000", "x-forwarded-host": "attunr.app" })), true);
   assert.equal(sameOrigin(req({ origin: "null", host: "localhost:3000" })), false);
   assert.equal(sameOrigin(req({ host: "localhost:3000" })), true, "no Origin: not sent by a page");
 });
 
 test("links never take their address from the request in production", () => {
   const r = req({ host: "evil.com" }, "https://evil.com/api/auth/email-link");
-  assert.equal(baseUrl(r, { NODE_ENV: "production" }), "https://www.attunr.app");
+  assert.equal(baseUrl(r, { NODE_ENV: "production" }), "https://attunr.app");
   assert.equal(baseUrl(r, { NODE_ENV: "production", AUTH_URL: "https://beta.attunr.app/" }), "https://beta.attunr.app");
   assert.equal(baseUrl(req({}), { NODE_ENV: "development" }), "http://localhost:3000");
   assert.equal(baseUrl(req({}), { NODE_ENV: "development", AUTH_URL: "?" }), "http://localhost:3000", "a placeholder AUTH_URL is ignored");
@@ -50,17 +50,17 @@ test("after signing in: the page asked for, or first the setup page for an accou
 });
 
 test("the mailed link and its email", () => {
-  const link = confirmUrl("https://www.attunr.app", "a/b+c");
-  assert.equal(link, "https://www.attunr.app/login/confirm?token=a%2Fb%2Bc");
+  const link = confirmUrl("https://attunr.app", "a/b+c");
+  assert.equal(link, "https://attunr.app/login/confirm?token=a%2Fb%2Bc");
   const mail = linkEmail("ann@school.com", link, "042917", {});
   assert.deepEqual(mail.to, ["ann@school.com"]);
   assert.equal(mail.from, "attunr <hello@attunr.app>");
-  assert.match(mail.text, /log in to attunr\. If you don't have an account yet, you'll set one up next:\n\nhttps:\/\/www\.attunr\.app\/login\/confirm\?token=/);
+  assert.match(mail.text, /log in to attunr\. If you don't have an account yet, you'll set one up next:\n\nhttps:\/\/attunr\.app\/login\/confirm\?token=/);
   assert.equal(mail.subject, "Your attunr log-in code: 042917");
   assert.match(mail.text, /Or type this code on the log-in page: 042917\n/);
   assert.match(mail.text, /work for 1 hour/);
-  assert.match(mail.html, /<a href="https:\/\/www\.attunr\.app\/login\/confirm\?token=a%2Fb%2Bc"[^>]*>Log in<\/a>/);
-  assert.match(mail.html, /src="https:\/\/www\.attunr\.app\/attunr-transparent\.png"/);
+  assert.match(mail.html, /<a href="https:\/\/attunr\.app\/login\/confirm\?token=a%2Fb%2Bc"[^>]*>Log in<\/a>/);
+  assert.match(mail.html, /src="https:\/\/attunr\.app\/attunr-transparent\.png"/);
   assert.match(mail.html, />042917</);
   assert.match(mail.html, /work for 1 hour/);
   assert.equal(linkEmail("a@b.co", link, "000000", { AUTH_FROM_EMAIL: "x <x@y.z>" }).from, "x <x@y.z>");

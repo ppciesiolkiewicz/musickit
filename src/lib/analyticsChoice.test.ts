@@ -33,12 +33,12 @@ test("only a visitor who is asked first, has not answered and sends no Global Pr
 });
 
 test("an invite, a shared note's id and a log-in token never reach the count", () => {
-  assert.equal(scrubUrl("https://www.attunr.app/join/abc123XYZ"), "https://www.attunr.app/join/[token]");
+  assert.equal(scrubUrl("https://attunr.app/join/abc123XYZ"), "https://attunr.app/join/[token]");
   assert.equal(scrubUrl("/join/abc123?x=1"), "/join/[token]?x=1");
   assert.equal(scrubUrl("/join/t6X2-_pQ9rLmZbV0aHk3sWcY8nJd1fGe4uIo7EyTqRw"), "/join/[token]");
-  assert.equal(scrubUrl("https://www.attunr.app/join/INDIEAPPCIRCLE?ref=x"), "https://www.attunr.app/join/INDIEAPPCIRCLE?ref=x", "a join code is public");
+  assert.equal(scrubUrl("https://attunr.app/join/INDIEAPPCIRCLE?ref=x"), "https://attunr.app/join/INDIEAPPCIRCLE?ref=x", "a join code is public");
   assert.equal(scrubUrl("/notes/shared/n_9f2#top"), "/notes/shared/[id]#top");
-  assert.equal(scrubUrl("https://www.attunr.app/claim?token=secret&next=%2Fplan"), "https://www.attunr.app/claim?token=[removed]&next=%2Fplan");
+  assert.equal(scrubUrl("https://attunr.app/claim?token=secret&next=%2Fplan"), "https://attunr.app/claim?token=[removed]&next=%2Fplan");
   assert.equal(scrubUrl("/login/confirm?token=secret"), "/login/confirm?token=[removed]");
   assert.equal(scrubUrl("/api/auth/google/callback?state=s&code=4/abc"), "/api/auth/google/callback?state=s&code=[removed]");
   assert.equal(scrubUrl("/plan?day=3"), "/plan?day=3");
