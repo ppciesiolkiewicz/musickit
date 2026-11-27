@@ -6,7 +6,7 @@ export const scaleDegreeFeelings: Article = {
   metaTitle: "Scale Degrees by Ear: Name How Each Note Feels, Interactive · attunr",
   description: "Each note of the scale has a feeling that comes back in any key. Sing it over a drone and name it by scale degree or interval, in interactive exercises.",
   intro: "Every note of a scale has its own feeling, and it's the same in any key. Theory gives that feeling a name. Four interactive exercises to hear it and sing it on this page.",
-  updated: "2026-11-26",
+  updated: "2026-11-27",
   sings: true,
   topics: ["singing", "theory"],
   blocks: [
@@ -79,5 +79,6 @@ export const scaleDegreeFeelings: Article = {
       "Write down your own word for each note.",
     ] },
     { type: "p", text: "First the notes that rest get easy to name, then the ones that move." },
+    { type: "p", text: "After a while I could hear the intervals in songs too. Now when I find a note on the guitar that fits a song, I can often tell the song's key, or even its chords." },
   ],
 };

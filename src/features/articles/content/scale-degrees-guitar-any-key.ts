@@ -6,7 +6,7 @@ export const scaleDegreesGuitarAnyKey: Article = {
   metaTitle: "Scale Degrees on Guitar: One Shape, Any Key, Interactive · attunr",
   description: "Play Do Re Do in A minor, then in E minor, on a visual, interactive guitar neck. The same small shape, the same feeling, all over the neck and in any key.",
   intro: "A visual, interactive drill: one small island of notes, Do Re Do, found all over the neck in A minor and then in E minor. Part 2 of a series on knowing one key all over the neck.",
-  updated: "2026-11-26",
+  updated: "2026-11-27",
   sings: false,
   topics: ["guitar", "theory"],
   frets: 12,
@@ -50,5 +50,6 @@ export const scaleDegreesGuitarAnyKey: Article = {
       "Add the next note of the scale, the ♭3, one fret above Re, and play Do Re ♭3 Re Do.",
     ] },
     { type: "p", text: "Before long you'll hear Do Re Do in songs and know where to find it on the neck." },
+    { type: "p", text: "That's how it went for me. Once I could sing short tunes like this, I heard them better in songs, and then I could play them on the guitar." },
   ],
 };
