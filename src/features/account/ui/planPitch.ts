@@ -35,7 +35,6 @@ export const PLAN_PITCH: Record<string, Pitch> = {
       "A practice plan made for your level and the minutes you have",
       "Each new plan builds on how the last one went",
       "Every tool, lesson and drill, as much as you like",
-      "Interactive notes where every diagram plays",
     ],
   },
   "teacher-basic": {

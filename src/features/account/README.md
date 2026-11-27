@@ -56,8 +56,8 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   paid plan without paying, or starting to pay, ends the exemption. A subscriber changes plan, card or cancels in
   Stripe's billing portal (Manage billing, `POST /api/account/portal`); `choosePlan` refuses them a paid plan.
   Each paid invoice is kept as an order in `payments` (webhook `invoice.paid`, `recordInvoice`): amount, currency, the plan and billing its price named, Stripe's reason, invoice number and link, when paid; one row per invoice, the trial's $0 first invoice included, kept when the account is deleted (`user_id` set null). Off, nothing here runs and the account has no payment fields. `earlyTaken()` still counts by hand, not from Stripe.
-- `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name (empty
-  while it is only the email's stand-in, `emailName`; Google's filled in) and a plan from the same list, none chosen for
+- `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name, labelled "First name or nickname" as on /account and /join (empty
+  while it is only the email's stand-in, `emailName`; Google's first name filled in, `given_name` or the first word of `name`, so the full name is never saved) and a plan from the same list, none chosen for
   them, paid Monthly or Yearly (the switch beside the Plan heading), saved together by `POST /api/account/setup` with
   `{ name, planId, billing }` (`setUpAccount` in `server/auth.ts`: the plan and billing are checked before anything
   changes), then on to the page it was going to. Under the plans, `PaymentBox`: the chosen plan, its price, its free
@@ -68,13 +68,13 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   them, and Continue needs it. Sent as `acceptTerms: true`; `setUpAccount` refuses anything else (`error: "terms"`) before
   it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`;
   a number since `0047_terms_version_number`): the version shown on `/terms` then (`TERMS_VERSIONS` in `terms.ts`,
-  numbered, never edited: 1 the beta terms, 2 the paid terms; `termsVersion` picks by `STRIPE_ENABLED`, and the
+  numbered, never edited: 1 the beta terms, 2 the paid terms, 3 and 4 the same with no early-price section (user, 2026-11-27: it is an offer, not a term); `termsVersion` picks by `STRIPE_ENABLED`, and the
   terms page shows the number and its date). An invite's setup (`joinWithInvite`) saves it the same way.
 - The early price (`EARLY_OFFER` in `pricing.ts`): 50% off the monthly price of every plan, locked in while the person
   stays subscribed, for the first 20 schools and the first 500 students to sign up. It is for paying monthly only (user,
   2026-11-18, `earlyApplies`): a yearly price is shown and paid as it is, which is what twelve early months come to, so
   while a side's early price is open its cards show no "Save …" on Yearly. A plan priced with the school is half the
-  monthly price agreed. /terms has it as its own section ("The early price"). The 20 are the founding partners (`src/lib/foundingOffer.ts` reads it): one picks any teacher
+  monthly price agreed. It is not in /terms (user, 2026-11-27: an offer, like a coupon). The 20 are the founding partners (`src/lib/foundingOffer.ts` reads it): one picks any teacher
   plan, of any size, at 50% off (`FOUNDING_OFFER`; the old $360 AUD a year is gone). `src/lib/studentOffer.ts` reads the 500. Every page that quotes a
   price shows the early price beside the full one struck through, with the red `DiscountBadge` (`@/components/ui`): the
   plan cards on setup and `/account`, the line over them (`EarlyOffer`, by the side shown), `PaymentBox`, the home

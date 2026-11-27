@@ -1,6 +1,6 @@
 /*
  * What attunr costs, in one place: the home pages, the FAQ and the terms read from here so they never disagree.
- * Prices in US dollars. The beta is free; these are the prices from launch. Changing a number here is a change to the
+ * Prices in Australian dollars (the same number in US dollars for a US buyer, `ALSO_IN` in server/stripe.ts). The beta is free; these are the prices from launch. Changing a number here is a change to the
  * terms (/terms says when they last changed).
  */
 

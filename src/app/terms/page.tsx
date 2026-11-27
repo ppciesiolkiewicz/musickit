@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { shareMeta } from "@/app/_og/share";
 import PageShell from "@/components/PageShell";
 import { A, LegalSections, Contact, type LegalSection } from "@/components/legal";
-import { EARLY_OFFER, PRICING } from "@/features/account/pricing";
-import { FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
+import { PRICING } from "@/features/account/pricing";
 import { TERMS_VERSIONS, termsVersion } from "@/features/account/terms";
 import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
 
@@ -14,7 +13,7 @@ import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
  * pages never disagree. What happens to a player's data is on /privacy; the Privacy section here is its short form.
  */
 
-const DESCRIPTION = "The terms for using attunr: your account, the subscriptions and the early price, how plans are made, the 30-day money-back guarantee, your notes and plans, and what happens if attunr closes.";
+const DESCRIPTION = "The terms for using attunr: your account, the subscriptions, how plans are made, the 30-day money-back guarantee, your plans and videos, and what happens if attunr closes.";
 
 export const metadata: Metadata = {
   title: "Terms of use · attunr",
@@ -25,8 +24,8 @@ export const metadata: Metadata = {
 
 const { player, school } = PRICING;
 /**
- * Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: the paid terms then (version 2), with
- * no beta section or beta lines; else the beta terms (version 1). The version's number is saved with each account that
+ * Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: the paid terms then (version 4), with
+ * no beta section or beta lines; else the beta terms (version 3). The version's number is saved with each account that
  * agrees (`TERMS_VERSIONS`), so a change to the words here is a new version there.
  */
 const PAYMENTS = paymentsEnabled();
@@ -46,7 +45,7 @@ const SECTIONS: LegalSection[] = [
     title: "What these terms cover",
     body: (
       <>
-        <p>These terms apply to everything at attunr.app: the Practice plan, Notes, Practice and every tool and lesson in it, and your account. By making an account or using the app you agree to them. If you don&apos;t agree, don&apos;t use attunr.</p>
+        <p>These terms apply to everything at attunr.app: the Practice plan, Practice and every tool and lesson in it, and your account. By making an account or using the app you agree to them. If you don&apos;t agree, don&apos;t use attunr.</p>
         <p>If you use attunr for a school, you agree for the school, and you confirm you may do so.</p>
       </>
     ),
@@ -75,7 +74,7 @@ const SECTIONS: LegalSection[] = [
         <p>A player subscription is for your own practice. It costs {player.monthPrice} a month, or {player.price} a year paid once up front. It gives you:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Practice plans with no limit: a new one each day you open the Practice plan page, and another the same day when you ask. Each is a plan of exercises that attunr puts together for you, as the section on how plans are made says.</li>
-          <li>Unlimited use of every tool and lesson: Notes, Practice, the course, the tuner, the metronome and drone, backing tracks, the looper, the singing and ear drills.</li>
+          <li>Unlimited use of every tool and lesson: Practice, the course, the tuner, the metronome and drone, backing tracks, the looper, the singing and ear drills.</li>
         </ul>
         <p>A new subscription can start with a free trial. Its length is shown when you choose your plan. Cancel during the trial and you pay nothing.</p>
         <p>A subscription renews by itself, each month or each year, at the price you are paying, until you cancel. You can cancel at any time on <A href="/account">Your profile</A>, and the subscription then runs to the end of the month or year you paid for. We email you before a yearly subscription renews.</p>
@@ -98,18 +97,6 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
-    title: "The early price",
-    body: (
-      <>
-        <p>The first {EARLY_OFFER.students} people who sign up for a player subscription, and the first {EARLY_OFFER.schools} teachers or schools who join as founding partners, get the early price: {EARLY_OFFER.percentOff}% off the price of their plan, paid monthly or yearly. For a player that is {FIRST_STUDENTS_LINE}. A founding partner can choose any teacher plan, of any size.</p>
-                <p>&ldquo;First&rdquo; goes by the order people sign up: by when you made your account, or for a founding partner by when we agreed that you join. While places are left, the pricing page shows the early price.{!PAYMENTS && " Nothing is charged during the beta, so the early price starts with your first payment after paid plans open."}</p>
-        <p>The early price is locked in: it does not go up for as long as you stay subscribed. If you cancel and subscribe again later, you pay the price shown at that time.</p>
-        <p>For the plan priced by agreement, a founding partner pays {EARLY_OFFER.percentOff}% off the price we agree with them.</p>
-        <p>A founding partner&apos;s agreement with us can give more than these terms do, such as a longer trial or a longer time to ask for all their money back. Where it does, the agreement applies.</p>
-      </>
-    ),
-  },
-  {
     title: "30-day money-back guarantee",
     body: (
       <>
@@ -123,7 +110,7 @@ const SECTIONS: LegalSection[] = [
     title: "Payment",
     body: (
       <>
-        <p>Prices are shown in US dollars unless the page says otherwise. Your bank may add a conversion fee. Payment is taken by a payment provider; we never see your full card number. Taxes are included in the price where we must collect them, and the receipt says so.</p>
+        <p>Prices are in Australian dollars and include any tax we must collect. In the United States you pay the same number in US dollars, with sales tax added at checkout. In other countries the checkout shows the price in your own currency. Your bank may add a conversion fee. Payment is taken by a payment provider; we never see your full card number. The receipt shows the tax.</p>
         <p>If a payment fails or is reversed, the subscription it paid for stops. You keep the plans and notes you already made.</p>
       </>
     ),
@@ -132,10 +119,9 @@ const SECTIONS: LegalSection[] = [
     title: "How plans are made",
     body: (
       <>
-        <p>attunr puts your plan together on its own servers, from its library of exercises. It reads what you told it in the questions and how you rated past exercises, and picks exercises for the steps you are on in each topic: the next steps you haven&apos;t made solid yet, with a few you have mixed back in. A teacher&apos;s student gets a week made the same way, from where the teacher says the student is. No AI writes your plan, and you don&apos;t need an AI of your own.</p>
+        <p>attunr puts your plan together on its own servers, from its library of exercises. It reads what you told it in the questions and how you rated past exercises, and picks exercises for the steps you are on in each topic: the next steps you haven&apos;t made solid yet, with a few you have mixed back in. A teacher&apos;s student gets a week made the same way, from where the teacher says the student is.</p>
         <p>A plan can be wrong: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. We check the exercises before they go into the library, but we can&apos;t catch everything.</p>
         <p>Practice within what feels easy. Stop at any pain in your hands, arms or voice. attunr is not medical advice, and a plan is not a reason to push through pain. If you have an injury or a voice condition, ask a doctor, a physiotherapist or a voice teacher first.</p>
-        <p>attunr does not send your plans, your notes or your practice to an AI. If that ever changes, for example to draft a lesson note when you ask for it, these terms will say so first.</p>
         <p>If you use an AI of your own on attunr&apos;s pages, such as an AI extension in your browser, it can read your plans and notes and change them. That AI&apos;s own terms apply to what it reads and what it does.</p>
       </>
     ),
@@ -151,11 +137,11 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
-    title: "Your notes, plans and videos",
+    title: "Your plans and videos",
     body: (
       <>
-        <p>What you make in attunr is yours: your notes, your plans, your ratings, the videos you record. We store it so the app works, and we show it to the people you share it with. You give us the licence we need to do that, and no more. We don&apos;t sell your work or use it to advertise.</p>
-        <p>A shared note or plan is public to anyone with its link. Don&apos;t share anything you must keep private. You can stop sharing at any time, but a copy a student has already made is theirs.</p>
+        <p>We store what you put in attunr, such as your plans, your ratings and the videos you record, so the app works, and we show it to the people you share it with. We don&apos;t sell it or use it to advertise.</p>
+        <p>A shared note or plan is public to anyone with its link. Don&apos;t share anything you must keep private. You can stop sharing at any time, but a copy a student has already made stays with them.</p>
         <p>Don&apos;t put anything in attunr that breaks the law, that you don&apos;t have the right to use (a published song&apos;s sheet music, a recording that isn&apos;t yours), or that would harm another person. We can remove such content and close the account that put it there.</p>
       </>
     ),

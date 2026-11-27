@@ -287,7 +287,7 @@ test("setup: the terms of use must be agreed to, before anything is saved, and a
   assert.equal(store.users[0].planId, null);
   assert.equal(store.users[0].termsAcceptedAt, null);
   assert.ok((await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: "year", acceptTerms: true }, false)).ok);
-  assert.equal(store.users[0].termsVersion, 1, "the beta terms, with payments off");
+  assert.equal(store.users[0].termsVersion, 3, "the beta terms, with payments off");
   assert.notEqual(store.users[0].termsAcceptedAt, null);
 });
 
@@ -296,7 +296,7 @@ test("setup with payments on saves the paid terms' version", async () => {
   const deps: AuthDeps = { ...setup().deps, repo: store.repo };
   const { account } = await signUp(deps, "ann@school.com", "Ann");
   assert.ok((await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: "year", acceptTerms: true }, true)).ok);
-  assert.equal(store.users[0].termsVersion, 2);
+  assert.equal(store.users[0].termsVersion, 4);
 });
 
 test("the page to open next is always on this site", () => {

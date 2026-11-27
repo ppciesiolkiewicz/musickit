@@ -9,12 +9,16 @@ export const TERMS_VERSIONS = {
   1: { updated: "24 November 2026" },
   /** paid plans: no beta section, no "nothing is charged during the beta" */
   2: { updated: "25 November 2026" },
+  /** the beta terms with no early-price section (an offer, not a term), no lines saying no AI writes plans or reads them, no Notes in what attunr is, no line saying what you make is yours, and prices in Australian dollars, not US */
+  3: { updated: "27 November 2026" },
+  /** the paid terms with the same cuts */
+  4: { updated: "27 November 2026" },
 } as const;
 
 export type TermsVersion = keyof typeof TERMS_VERSIONS;
 
 /** The version of the terms shown and agreed to now: the paid terms with payments on, else the beta terms. */
-export const termsVersion = (paymentsOn: boolean): TermsVersion => (paymentsOn ? 2 : 1);
+export const termsVersion = (paymentsOn: boolean): TermsVersion => (paymentsOn ? 4 : 3);
 
 /** The date the privacy policy (/privacy) last changed, shown on that page. Raise it when the policy changes: what we keep, why, or which company handles it. */
 export const PRIVACY_UPDATED = "23 November 2026";

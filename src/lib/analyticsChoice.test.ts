@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mayCount, mustAsk, parseChoice, parseRegion, regionOf, scrubUrl } from "./analyticsChoice";
+import { maskEmails, mayCount, mustAsk, parseChoice, parseRegion, regionOf, scrubUrl } from "./analyticsChoice";
 
 test("the EU, the EEA and Switzerland are asked first; the UK, Australia, the US and an unknown country are counted", () => {
   for (const c of ["DE", "fr", "PL", "NO", "IS", "LI", "CH", " ie "]) assert.equal(regionOf(c), "ask", c);
@@ -42,4 +42,12 @@ test("an invite, a shared note's id and a log-in token never reach the count", (
   assert.equal(scrubUrl("/login/confirm?token=secret"), "/login/confirm?token=[removed]");
   assert.equal(scrubUrl("/api/auth/google/callback?state=s&code=4/abc"), "/api/auth/google/callback?state=s&code=[removed]");
   assert.equal(scrubUrl("/plan?day=3"), "/plan?day=3");
+});
+
+test("a recording shows no email address, and every other word as it is", () => {
+  assert.equal(maskEmails("ann.lee+guitar@school.com.au"), "***");
+  assert.equal(maskEmails("We emailed ann@school.com a link."), "We emailed *** a link.");
+  assert.equal(maskEmails("Ann (ann@school.com), Ben <ben@x.io>"), "Ann (***), Ben <***>");
+  assert.equal(maskEmails("Play at 60 bpm @ home"), "Play at 60 bpm @ home");
+  assert.equal(maskEmails("Ann Lee"), "Ann Lee");
 });
