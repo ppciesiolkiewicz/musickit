@@ -193,11 +193,11 @@ function line(hexes, len) {
 
 // Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
 // across the board, each zone a band running along the neck under one string (low E on the left). Two sets, every cover in
-// a set the same: cyan at both edges like the edge dots, and green at both edges. No white: the guitar is white and light
-// brown, and the background green and bright.
+// a set the same: cyan at both edges like the edge dots, and green at both edges, the one the other's mirror. No white or
+// black: the guitar is white and light brown, and the background green and bright.
 const COVERS = [1, 3, 5, 7, 12];
 const COVER_SETS = [
-  ["cyan", ["Cyan", "Black", "Magenta", "Blue", "Violet", "Cyan"]],
+  ["cyan", ["Cyan", "Magenta", "Blue", "Green", "Violet", "Cyan"]],
   ["green", ["Green", "Magenta", "Blue", "Cyan", "Violet", "Green"]],
 ];
 const WIRE_W = 2.5; // mm of fret wire taken off the space's length
