@@ -26,6 +26,8 @@ interface Props {
   ctx?: KeyContext;
   /** how to spell the root ("A♭"), when the caller knows it */
   rootName?: string;
+  /** the chord's name, for the one-line text a screen reader (and a search engine) reads in place of the box: "Fmaj7: x-x-3-2-1-0" */
+  name?: string;
 }
 
 /**
@@ -34,7 +36,7 @@ interface Props {
  * as a barre. A dot under the pointer shows its note name instead. Clicking it or its play button strums it; the
  * switches under it are shared by every chord box.
  */
-export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName }: Props) {
+export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName, name }: Props) {
   const [mode, setMode] = useChordLabels();
   const [dots, setDots] = useChordDots();
   // the note the microphone hears, ringed on every string that plays it
@@ -71,7 +73,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
   });
 
   const svg = (
-    <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img" aria-label="Chord diagram">
+    <svg viewBox={`0 0 ${w} ${h}`} width="100%" aria-hidden>
       {Array.from({ length: rows + 1 }, (_, i) => (
         <line key={`f${i}`} x1={left} x2={left + 5 * ss} y1={top + edge(i)} y2={top + edge(i)} stroke={grid} strokeWidth={i === 0 && lo === 1 ? 3 : 1} />
       ))}
@@ -126,13 +128,18 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
   );
 
   const seg = (on: boolean) => `px-1.5 py-0.5 transition ${on ? "bg-slate-700 text-slate-100" : "text-slate-400 hover:text-slate-200"}`;
+  // the box's dots and switches are many short labels: kept out of search snippets, the frets said once in words instead
+  const said = `${name ?? "Chord box"}: ${abs.map((v) => (v === null ? "x" : v)).join("-")}`;
   return (
     <div className="flex flex-col items-center gap-1">
+      <span className="sr-only">{said}</span>
+      <div data-nosnippet className="contents">
       {onPlay ? (
         <button
           type="button"
           onClick={onPlay}
           title="Click to hear it"
+          aria-label={`Play ${name ?? "this chord"}`}
           className={`cursor-pointer block w-full rounded-lg p-2 transition hover:bg-slate-800/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${active ? "bg-slate-800/80 ring-1 ring-sky-400" : ""}`}
         >
           {svg}
@@ -172,6 +179,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -44,22 +44,3 @@ export function splitChords(text: string): ChordPart[] {
   }
   return out;
 }
-
-/** A chord's quality written alone before "chord" in a title: the "9" of "A 9 chord", the "maj7" of "A maj7 shape". */
-const QUALITY_WORD = /(?<![\w♯♭])(maj7|maj9|m7♭5|m7|7|9|6|sus2|sus4|dim7|dim|aug|add9)(?=\s+(?:chords?|shapes?|on|for)\b)/g;
-
-/** A title split at chord names and chord qualities, each drawn as a chip so "A 9 chord" doesn't read as A9. */
-export function titleChords(text: string): ChordPart[] {
-  return splitChords(text).flatMap((p) => {
-    if (typeof p !== "string") return [p];
-    const parts: ChordPart[] = [];
-    let last = 0;
-    for (const m of p.matchAll(QUALITY_WORD)) {
-      if (m.index > last) parts.push(p.slice(last, m.index));
-      parts.push({ chord: m[0] });
-      last = m.index + m[0].length;
-    }
-    if (last < p.length) parts.push(p.slice(last));
-    return parts;
-  });
-}

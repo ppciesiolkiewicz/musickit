@@ -10,7 +10,7 @@ import { NeckFrets } from "@/components/chordKit/ScaleNeck";
 import ChordName from "@/components/chordKit/ChordName";
 import Explained from "@/components/course/Explained";
 import type { Piece } from "@/features/course/glossary";
-import { splitChords, titleChords } from "../chordNames";
+import { splitChords } from "../chordNames";
 import { ARTICLES } from "../index";
 import { AUTHOR } from "../author";
 import { blockRoots, markArticle, markTitle, type Mark } from "../marks";
@@ -43,16 +43,11 @@ function ChordText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null })
 }
 
 /**
- * A title with its explained words (`markTitle`), and its chord names and chord qualities as chips, so "A 9 chord" reads as
- * a 9 chord, not A9.
+ * A title with its explained words (`markTitle`). Chord names stay plain text, so a heading reads as one line to a search
+ * engine; the text under it opens their chord boxes.
  */
 function ChordTitle({ text }: { text: string }) {
-  return markTitle(text).flatMap((piece, i) => typeof piece !== "string" ? [<Explained key={i} pieces={[piece]} link={false} />]
-    : titleChords(piece).map((p, j) => (typeof p === "string" ? <Fragment key={`${i}-${j}`}>{p}</Fragment> : (
-      <span key={`${i}-${j}`} className="mx-0.5 inline-flex rounded-md border border-slate-600 bg-slate-800 px-1.5 align-baseline leading-snug">
-        <ChordName name={p.chord} />
-      </span>
-    ))));
+  return markTitle(text).map((piece, i) => typeof piece === "string" ? <Fragment key={i}>{piece}</Fragment> : <Explained key={i} pieces={[piece]} link={false} />);
 }
 
 /**

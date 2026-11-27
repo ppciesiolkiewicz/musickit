@@ -236,7 +236,7 @@ export default function QuickRecord() {
         className={`fixed right-0 bottom-0 z-2500 flex max-h-[min(36rem,calc(100dvh-2rem))] mb-4 w-80 max-w-[88vw] flex-col gap-4 rounded-l-2xl border border-r-0 border-slate-700 bg-slate-950/95 p-4 text-slate-200 shadow-2xl shadow-black/60 backdrop-blur transition-transform duration-300 ease-out ${open ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center gap-2">
           <Icon name="mic" size={16} className="text-rose-300" />
-          <h2 className="text-sm font-medium text-slate-100">Quick record</h2>
+          <p className="text-sm font-medium text-slate-100">Quick record</p>
           <button type="button" onClick={() => setOpen(false)} aria-label="Close the recorder" title="Close (Esc)"
             className="ml-auto grid h-8 w-8 place-items-center rounded-lg border border-slate-700 text-slate-300 transition hover:border-slate-500 hover:text-slate-100">
             <Icon name="x" size={14} />
@@ -256,7 +256,7 @@ export default function QuickRecord() {
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col gap-2">
-          <h3 className="text-[11px] uppercase tracking-wider text-slate-500">Takes</h3>
+          <p className="text-[11px] uppercase tracking-wider text-slate-500">Takes</p>
           {takes.length === 0 ? (
             <p className="text-xs text-slate-500">Nothing yet. Takes stay until you close the tab.</p>
           ) : (

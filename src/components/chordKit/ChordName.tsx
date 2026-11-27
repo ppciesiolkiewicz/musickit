@@ -17,7 +17,7 @@ export default function ChordName({ name, className = "" }: { name: string; clas
       card={<>
         <span className="font-medium text-slate-100">{label}</span>
         <div className="w-40 self-center">
-          <ChordDiagram shape={voiced.shape} rootFret={voiced.fret} rootName={root} onPlay={() => strumShape(voiced.shape, voiced.fret)} />
+          <ChordDiagram name={label} shape={voiced.shape} rootFret={voiced.fret} rootName={root} onPlay={() => strumShape(voiced.shape, voiced.fret)} />
         </div>
       </>} />
   );

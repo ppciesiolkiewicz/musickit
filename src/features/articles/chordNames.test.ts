@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { splitChords, titleChords, type ChordPart } from "./chordNames";
+import { splitChords, type ChordPart } from "./chordNames";
 
 const show = (parts: ChordPart[]) => parts.map((p) => (typeof p === "string" ? p : `[${p.chord}]`)).join("");
 
@@ -14,11 +14,5 @@ describe("chord names in article text", () => {
 
   it("leaves {{…}} notes and chords whole", () => {
     assert.equal(show(splitChords("{{b7}} over {{chord:V7}} in Am")), "{{b7}} over {{chord:V7}} in [Am]");
-  });
-
-  it("chips a chord quality in a title, so A 9 chord isn't A9", () => {
-    assert.equal(show(titleChords("6. A 9 chord")), "6. A [9] chord");
-    assert.equal(show(titleChords("7. A maj7 on the low E")), "7. A [maj7] on the low E");
-    assert.equal(show(titleChords("2. B7 for B")), "2. [B7] for [B]");
   });
 });

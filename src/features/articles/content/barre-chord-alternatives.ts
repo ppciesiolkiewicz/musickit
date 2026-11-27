@@ -4,7 +4,7 @@ export const barreChordAlternatives: Article = {
   slug: "barre-chord-alternatives",
   title: "Easy alternatives to barre chords",
   metaTitle: "Easy Barre Chord Alternatives for F, B and Minor Chords · attunr",
-  description: "Can't play F or B yet? Easier chords that do a barre chord's job: Fmaj7, B7, minor barres on four strings, small triads and two easy jazz shapes.",
+  description: "Can't play F or B yet? Fmaj7, B7, four-string minor chords, triads and two no-barre shapes, with audio for each.",
   intro: "Easier chords that do a barre chord's job while the barre comes along, to hear and play right on the page.",
   updated: "2026-11-26",
   sings: false,
@@ -101,9 +101,14 @@ export const barreChordAlternatives: Article = {
         "The open D and Dm shapes move too. Their open D string was doing work, so up the neck your first finger takes it. Two frets up, D becomes E and Dm becomes Em; two more and they're F♯ and F♯m.",
         "Press Play under each chord box below to hear them.",
       ], tool: { type: "chord-shapes", chords: ["D", "E", "F♯", "Dm", "Em", "F♯m"], frets: ["x x 0 2 3 2", "x x 2 4 5 4", "x x 4 6 7 6", "x x 0 2 3 1", "x x 2 4 5 3", "x x 4 6 7 5"] } },
+      { title: "B♭, Fm and Gm", lines: [
+        "Three more barre chords come up in a lot of songs: B♭, Fm and Gm. Each one is a shape from this exercise, moved.",
+        "B♭ is the B triad on the top three strings, one fret down. Fm is the Dm shape three frets up, and Gm is two frets above that.",
+        "Press Play under each chord box below to hear them.",
+      ], tool: { type: "chord-shapes", chords: ["B♭", "Fm", "Gm"], frets: ["x x x 3 3 1", "x x 3 5 6 4", "x x 5 7 8 6"] } },
     ] },
 
-    { type: "exercise", title: "6. A 9 chord", lines: [
+    { type: "exercise", title: "6. The 9 chord", lines: [
       "The 9 chord has its root on the A string and needs no full barre. It adds the ♭7 and the 9th (the 2nd, an octave up): a funky, bluesy sound for a blues or a funk song.",
       "Press Play under C9 below to hear it.",
     ], tool: { type: "chord-shapes", chords: ["C9"], frets: ["x 3 2 3 3 x"] }, parts: [
@@ -112,7 +117,7 @@ export const barreChordAlternatives: Article = {
       ], tool: { type: "chord-shapes", chords: ["C9", "D9", "E9"], frets: ["x 3 2 3 3 x", "x 5 4 5 5 x", "x 7 6 7 7 x"] } },
     ] },
 
-    { type: "exercise", title: "7. A maj7 on the low E", lines: [
+    { type: "exercise", title: "7. The maj7 shape on the low E", lines: [
       "For a major chord with its root on the low E string, there's the maj7 shape: four fingers, one on each note, and no barre. Your first finger takes the low E and touches the A string lightly to keep it quiet.",
       "Fmaj7 here is the same soft F as in exercise 1, down on the low strings. Press Play under Fmaj7 below to hear it.",
     ], tool: { type: "chord-shapes", chords: ["Fmaj7"], frets: ["1 x 2 2 1 x | 1 x 3 4 2 x"] }, parts: [
@@ -125,8 +130,8 @@ export const barreChordAlternatives: Article = {
     { type: "list", items: [
       "**F:** Fmaj7, softer, so try it in the song first. Leave out the high e and it's plain F.",
       "**B:** B7, where the song goes on to E or Em.",
-      "**A minor barre:** the open Am shape moved up, on the top four strings.",
-      "**A major barre:** a triad on the top three strings, or the open D shape moved up.",
+      "**A minor barre:** the open Am shape moved up, on the top four strings, or the open Dm shape moved up (Fm, Gm).",
+      "**A major barre:** a triad on the top three strings (B♭ is the B triad one fret down), or the open D shape moved up.",
       "**A blues or funk song:** the 9 chord.",
       "**Moving a shape:** with no open strings it moves as it is. With open strings, a finger has to take their place.",
     ] },

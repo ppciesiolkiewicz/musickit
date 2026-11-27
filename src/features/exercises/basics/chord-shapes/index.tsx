@@ -25,7 +25,7 @@ export function View({ chords, voicing = "open", frets }: { chords: string[]; vo
         <div key={`${name}-${i}`} className="flex w-48 flex-col items-center gap-1">
           <span className="text-base font-medium text-slate-100">{name}</span>
           <Hint title={name} description="Tap the chord box to hear it strummed.">
-            <div data-tour="chord-shapes-box"><ChordDiagram shape={c.shape} rootFret={c.fret} rootName={name.match(/^[A-G][♯♭#b]?/)?.[0]} onPlay={() => strumShape(c.shape, c.fret)} /></div>
+            <div data-tour="chord-shapes-box"><ChordDiagram name={name} shape={c.shape} rootFret={c.fret} rootName={name.match(/^[A-G][♯♭#b]?/)?.[0]} onPlay={() => strumShape(c.shape, c.fret)} /></div>
           </Hint>
         </div>
       ))}
