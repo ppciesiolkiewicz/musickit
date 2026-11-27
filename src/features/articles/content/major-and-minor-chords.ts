@@ -29,7 +29,7 @@ export const majorAndMinorChords: Article = {
     ] },
 
     { type: "exercise", title: "2. Major or minor, by ear", lines: [
-      "Press Play below to start the backing track. It plays C and Cm, and each stays for one, two or three bars.",
+      "Press Play below to start the backing track. It plays the C and Cm chords, and each stays for one, two or three bars.",
       "Look away from the chord boxes and call out major or minor each time the chord changes, then look back to check.",
       "If you lose your place, wait for the next change and start again from there.",
     ], tool: { type: "backing-track", key: "c", chords: ["C", "C", "Cm", "Cm", "C", "Cm", "Cm", "C"], style: "ballad", bpm: 70 } },
@@ -57,13 +57,13 @@ export const majorAndMinorChords: Article = {
     { type: "guide", slug: "major-and-minor-scales-guitar", text: "Want both scales on the guitar? This guide puts A major and A minor side by side on the whole neck." },
 
     { type: "h2", text: "Major key or minor key" },
-    { type: "p", text: "A song in a minor key can use exactly the notes of a major key. G major is G, A, B, C, D, E and F♯, and E minor uses the same seven notes. What tells them apart is the chord the music comes to rest on: G in G major, Em in E minor." },
+    { type: "p", text: "A song in a minor key can use exactly the notes of a major key. G major is G, A, B, C, D, E and F♯, and E minor uses the same seven notes. What tells them apart is the chord the music comes to rest on: the G chord in G major, the Em chord in E minor." },
 
     { type: "exercise", title: "5. Where does it rest?", lines: [
-      "Press Play below to start the backing track in G major. Listen for the chord where the music comes to rest, and call out \"home\" each time it comes round. Home is G, a major chord.",
+      "Press Play below to start the backing track in G major. Listen for the chord where the music comes to rest, and call out \"home\" each time it comes round. Home is the G chord, a major chord.",
     ], tool: { type: "backing-track", progression: "three-chord", key: "g", style: "pop", bpm: 80 },
     between: [
-      "Now press Play on the backing track below. The notes are the same, but it rests on Em, a minor chord: the key is E minor. Call out \"home\" on each Em.",
+      "Now press Play on the backing track below. The notes are the same, but it rests on the Em chord, a minor chord: the key is E minor. Call out \"home\" each time the Em chord comes round.",
     ],
     beside: { type: "backing-track", progression: "aeolian", key: "e", style: "pop", bpm: 80 } },
     { type: "p", text: "E minor is the relative minor of G major: same notes, a different home. On the guitar, a relative minor chord always sits in the same frets as its major chord, and the [CAGED guide](/learn/caged-system-guitar) shows where." },
@@ -71,7 +71,7 @@ export const majorAndMinorChords: Article = {
     { type: "h2", text: "Make it your own" },
     { type: "list", items: [
       "Take a song you play with a major chord in it and swap that chord for its minor. Listen to how the line changes.",
-      "Slide the E and Em shapes up to the 3rd fret as barre chords: now they're G and Gm, and the same finger still turns one into the other. More in [Movable chord shapes](/learn/movable-chord-shapes).",
+      "Slide the E and Em shapes up to the 3rd fret as barre chords: now they're the G and Gm chords, and the same finger still turns one into the other. More in [Movable chord shapes](/learn/movable-chord-shapes).",
       "Put on a song you like and listen for the chord it comes to rest on: major or minor?",
     ] },
     { type: "p", text: "You'll notice it first in songs you know: where a song turns darker, there's often a minor chord." },

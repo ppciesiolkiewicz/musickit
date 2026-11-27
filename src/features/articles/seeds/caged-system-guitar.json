@@ -7,13 +7,15 @@
   "versions": {
     "agents": 2,
     "teaching": 12,
-    "voice": 4
+    "voice": 5
   },
   "notes": [
     "another article about CAGED in a single scale. These are like 2 articles -> one focuses on learning CAGED position by position with interactive diagrams and second one answers \"How to find chords for a song\" with both minor and major caged and relations between open chords.",
     "add words like visual and interactive",
     "So let's just give me basic CAGED learning article. (2026-11-27)",
-    "I also want to have an idea of relative chord and another in this chord series about CAGED would be \"How to find chords for the scale using CAGED\" (2026-11-27)"
+    "I also want to have an idea of relative chord and another in this chord series about CAGED would be \"How to find chords for the scale using CAGED\" (2026-11-27)",
+    "Use less mental shortcuts throughout article 'C chord' more common than just C (2026-11-27)",
+    "There're are too many diagrams below. Normalize text in between diagrams. Add to style (2026-11-27)"
   ],
   "blocks": [
     "guitar-intermediate-caged-a-shape",
@@ -32,7 +34,6 @@
   ],
   "open": [
     "Next in the series: \"How to find chords for the scale using CAGED\" (the chords of the key inside each shape: npm run -s theory -- neighbours, and the CAGED explorer's \"Chords inside this box\"). Link it from the end of this article once it exists.",
-    "The caged-neck shape panels draw four necks in one row: check they read on a phone.",
     "Search volume for the query not checked yet."
   ]
 }

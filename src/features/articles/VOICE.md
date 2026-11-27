@@ -1,5 +1,5 @@
 ---
-version: 4
+version: 5
 ---
 
 # The articles' voice
@@ -20,6 +20,17 @@ holds only what the articles add to it. Each article's seed file records the ver
   what the reader will notice getting easier.
 - **The author's words win.** Where the author asks for wording that `teaching-voice` would not use (on lip rolls: "Don't worry
   if you're not on the note, or if your mic can't pick up the buzz"), keep the author's wording, and record it in the seed file's `notes`.
+
+- **Say what a letter is.** A chord is "the C chord", "the Am chord", "C in the A shape is still the C chord", not a bare
+  "C" that could be a note, a key or a chord. A bare letter is fine inside a list that has just said what it lists ("the
+  open chords C, A, G, E and D") and in a chord box's own name.
+
+## Diagrams and text take turns
+
+- One or two diagrams, then text. Never a wall of diagrams: text comes before each diagram, between two of them (an
+  exercise's `between`) and after (`after`), each line about the diagram next to it.
+- Use the smallest tool that shows the point. A chord shape is a chord box (`chord-shapes` with `frets`), not a tool that
+  draws four necks for it; the whole neck is one map. Point at the tool page (the CAGED explorer, a scale page) for the rest.
 
 ## What every article has
 
