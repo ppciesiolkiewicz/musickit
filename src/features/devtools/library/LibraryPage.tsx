@@ -37,7 +37,7 @@ function Versions({ p }: { p: { promptVersion: number | null; docsAgents: number
         <span key={name}>
           {i > 0 && ", "}
           <span className={v === null ? "text-slate-500" : v < now ? "text-amber-300" : undefined} title={v !== null && v < now ? `behind: now ${now}` : undefined}>
-            {name} {orDash(v)}
+            {name} {orDash(v)}{v !== null && v < now ? ` → ${now}` : ""}
           </span>
         </span>
       ))}

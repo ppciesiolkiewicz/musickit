@@ -132,7 +132,7 @@ export function SeedSections() {
 
 /** A version against the current one: `v—` when it was not recorded, warm when it is older. */
 function VersionPill({ name, v, current, title }: { name: string; v: number | null; current: number; title: string }) {
-  return <Pill tone={v === current ? "lime" : v === null ? "slate" : "amber"} title={`${title}; now v${current}`}>{name} v{v ?? "—"}</Pill>;
+  return <Pill tone={v === current ? "lime" : v === null ? "slate" : "amber"} title={`${title}; now v${current}`}>{name} v{v ?? "—"}{v !== current ? ` → v${current}` : ""}</Pill>;
 }
 
 /** One plan or block drawn as the player sees it, with the versions it was written to and, for a seed file, its section comments. */

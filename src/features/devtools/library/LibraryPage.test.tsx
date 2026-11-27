@@ -17,7 +17,7 @@ test("the seed plans table lists each file with a link to draw it, and marks an 
   );
   assert.match(html, new RegExp(`href="/admin/content/library/plans\\?item=${f.id}"`));
   assert.equal(html.match(/behind: now/g)?.length, 1);
-  assert.match(html, new RegExp(`title="behind: now ${PROMPT_VERSION}">prompt ${PROMPT_VERSION - 1}<`));
+  assert.match(html, new RegExp(`title="behind: now ${PROMPT_VERSION}">prompt ${PROMPT_VERSION - 1} → ${PROMPT_VERSION}<`));
 });
 
 test("a block's choices are listed with level, steps, minutes and active; the drawn one is marked, the others link to themselves", () => {
