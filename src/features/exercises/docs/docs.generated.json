@@ -269,9 +269,9 @@
       },
       {
         "name": "islands",
-        "type": "boolean",
+        "type": "boolean | \"only\"",
         "required": false,
-        "description": "on the whole neck (no `shapes`): frame each shape's island, the notes the open chord's fingers press, moved up. Written by\na person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)"
+        "description": "on the whole neck (no `shapes`): frame each shape's island, the notes the open chord's fingers press, moved up. Written by\na person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`). \"only\": the islands' notes alone,\nthe chord's other notes left off"
       }
     ]
   },

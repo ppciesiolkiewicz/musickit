@@ -116,7 +116,7 @@ type PlanToolProps =
   /** the chord on `degree` (1-7) of the scale, with its sus and extended chords around it */
   | { type: "chord-circle"; key: number; scale: string; degree: number }
   /** the CAGED shapes of the key's major or minor chord: `shapes` stacked in CAGED order; absent: all five on the whole neck */
-  | { type: "caged-neck"; key: number; scale: string; shapes?: CagedLetter[]; /** frame each shape's island on the whole neck; written by a person, never offered to the AI */ islands?: true }
+  | { type: "caged-neck"; key: number; scale: string; shapes?: CagedLetter[]; /** frame each shape's island on the whole neck ("only": the islands' notes alone); written by a person, never offered to the AI */ islands?: true | "only" }
   /** the key's 3rds or 6ths on one pair of strings (`strings`: guitar numbers, the lower string first), from fret `from` (absent: 0) to fret `to` (absent: the last fret drawn, 17) */
   | { type: "double-stops-neck"; key: number; scale: string; interval: DyadName; strings: string; level?: ToolLevel; from?: number; to?: number }
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing; /** per chord, exact frets written by a person ("5 7 7 5 x x"); never offered to the AI */ frets?: (string | null)[] }
@@ -514,7 +514,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   "caged-neck": {
     parse(t, d) {
       const sk = scaleKey(t, d);
-      return sk && { type: "caged-neck", ...sk, ...opt("shapes", shapesOf(t.shapes, d)), ...(t.islands === true ? { islands: true as const } : {}) };
+      return sk && { type: "caged-neck", ...sk, ...opt("shapes", shapesOf(t.shapes, d)), ...(t.islands === true || t.islands === "only" ? { islands: t.islands } : {}) };
     },
   },
   "double-stops-neck": {

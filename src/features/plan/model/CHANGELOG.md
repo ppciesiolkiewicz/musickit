@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 25 (2026-11-27)
+
+- `caged-neck` `islands` (written by a person, never offered to the AI) takes `"only"`: the islands' notes alone on the whole neck, the chord's other notes left off. The minor E shape's island keeps its ♭3 on the G string.
+
 ### 24 (2026-11-26)
 
 - The explained words the prompt lists gain the six string names (low E string, A string, D string, G string, B string, high e string), and "tab" is no longer marked after "new" or "browser" ("opens in a new tab").

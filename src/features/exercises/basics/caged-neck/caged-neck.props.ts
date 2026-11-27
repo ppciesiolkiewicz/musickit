@@ -11,7 +11,8 @@ export interface CagedNeckProps {
   shapes?: string[];
   /**
    * on the whole neck (no `shapes`): frame each shape's island, the notes the open chord's fingers press, moved up. Written by
-   * a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)
+   * a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`). "only": the islands' notes alone,
+   * the chord's other notes left off
    */
-  islands?: boolean;
+  islands?: boolean | "only";
 }

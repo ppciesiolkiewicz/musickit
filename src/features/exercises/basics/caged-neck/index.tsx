@@ -5,7 +5,7 @@ import { keyChoiceFor, keyContext } from "@/features/creator";
 import type { CagedLetter } from "@/lib/chordKit/caged";
 
 /** The CAGED shapes of the key's chord on the guitar neck (the minor shapes when the scale has a minor 3rd): with `shapes`, those shapes one under another, each with its chord, arpeggio, pentatonic and scale; without, all five on the whole neck. */
-export function View({ pc, scale, shapes, islands }: { pc: number; scale: string; shapes?: CagedLetter[]; islands?: boolean }) {
+export function View({ pc, scale, shapes, islands }: { pc: number; scale: string; shapes?: CagedLetter[]; islands?: boolean | "only" }) {
   const quality = keyContext(keyChoiceFor(pc, scale))?.steps[2] === 3 ? "minor" : "major";
   return (
     <div data-tour="caged-neck-panel" className="flex flex-col gap-4">

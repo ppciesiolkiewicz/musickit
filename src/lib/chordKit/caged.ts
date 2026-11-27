@@ -74,8 +74,33 @@ export const islandNotes = (box: Pick<CagedBox, "frets" | "letter" | "quality">)
   const lo = Math.min(...box.frets.filter((f): f is number => f !== null));
   const notes = box.frets.flatMap((f, i): [number, number][] => (f !== null && f > lo ? [[i, f]] : []));
   if (box.letter === "G" && box.quality === "major" && box.frets[5] !== null) notes.splice(-1, 0, [4, box.frets[5]]);
+  // the open Em chord's fingers press only its root and 5th; its ♭3 is the open G string, so the minor E shape keeps it
+  if (box.letter === "E" && box.quality === "minor" && box.frets[3] !== null) notes.push([3, box.frets[3]]);
   return notes;
 };
+
+/**
+ * The fingers of each shape's island, low E first (null = not in the island), as the open chord presses those notes. The D
+ * shapes add the root on the D string with finger 1, since a chord box is never rooted on the B string (`shapeFromFrets`).
+ */
+const ISLAND_FINGERS: Record<CagedQuality, Record<CagedLetter, (number | null)[]>> = {
+  major: { C: [N, 3, 2, N, 1, N], A: [N, N, 1, 2, 3, N], G: [2, 1, N, N, 3, 4], E: [N, 2, 3, 1, N, N], D: [N, N, 1, 2, 4, 3] },
+  minor: { C: [N, 3, 1, N, 2, N], A: [N, N, 2, 3, 1, N], G: [2, 1, N, N, 3, 4], E: [N, 2, 3, 1, N, N], D: [N, N, 1, 3, 4, 2] },
+};
+
+const tab = (frets: (number | null)[]) => frets.map((f) => (f === null ? "x" : String(f))).join(" ");
+
+/** A shape's island as a chord box's `frets` ("x 3 2 x 1 x | x 3 2 x 1 x"): the island's notes and their fingers; the D shape with its root. */
+export function islandChord(box: Pick<CagedBox, "frets" | "letter" | "quality">): string {
+  const frets: (number | null)[] = [N, N, N, N, N, N];
+  islandNotes(box).forEach(([i, f]) => { frets[i] = f; });
+  if (box.letter === "D") frets[2] = box.frets[2];
+  const fingers = ISLAND_FINGERS[box.quality][box.letter].map((g, i) => (frets[i] === null ? null : g));
+  return `${tab(frets)} | ${fingers.map((g) => (g === null ? "x" : String(g))).join(" ")}`;
+}
+
+/** A shape's whole chord as a chord box's `frets` ("x 3 5 5 5 3"): the barre chord, or the open chord at the nut; its fingers come from the library. */
+export const barreChord = (box: Pick<CagedBox, "frets">): string => tab(box.frets);
 
 /** The five boxes for a root, ordered from the nut upwards. */
 export function cagedBoxes(rootPc: number, quality: CagedQuality): CagedBox[] {

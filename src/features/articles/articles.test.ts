@@ -26,7 +26,7 @@ describe("articles", () => {
   });
 
   it("set up every tool the way the plan's parser accepts", () => {
-    for (const a of ARTICLES) for (const b of a.blocks) for (const t of b.type === "exercise" ? [b.tool, ...(b.beside ? [b.beside] : []), ...(b.parts ?? []).flatMap((p) => (p.tool ? [p.tool] : []))] : b.type === "row" ? b.tools : []) assert.ok(parseTool(t), `${a.slug}: ${b.type}`);
+    for (const a of ARTICLES) for (const b of a.blocks) for (const t of b.type === "exercise" ? [...(b.tool ? [b.tool] : []), ...(b.beside ? [b.beside] : []), ...(b.parts ?? []).flatMap((p) => (p.tool ? [p.tool] : []))] : b.type === "row" ? b.tools : []) assert.ok(parseTool(t), `${a.slug}: ${b.type}`);
   });
 
   it("keep descriptions short enough for a search result, and link only to pages that exist", () => {

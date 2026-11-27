@@ -174,11 +174,11 @@ const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q ==
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 
 /** The neck map on its own, for the teacher studio: the five boxes of a key up the whole neck. */
-export function CagedNeckMap({ rootPc, quality, islands = false }: { rootPc: number; quality: CagedQuality; /** frame each shape's island (`islandNotes`) */ islands?: boolean }) {
+export function CagedNeckMap({ rootPc, quality, islands = false }: { rootPc: number; quality: CagedQuality; /** frame each shape's island (`islandNotes`); "only": the islands' notes alone, the other chord tones left off */ islands?: boolean | "only" }) {
   const [labelSystem] = useLabelSystem();
   const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
   const keyName = useMemo(() => cagedContext(rootPc, quality).names[0], [rootPc, quality]);
-  return <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind="triad" labelSystem={labelSystem} selected={null} embedded islands={islands} />;
+  return <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind="triad" labelSystem={labelSystem} selected={null} embedded islands={islands !== false} only={islands === "only"} />;
 }
 
 /** One box on its own, for the teacher studio: its title, then the chord, arpeggio, pentatonic and scale in one row. */
@@ -202,12 +202,14 @@ export function CagedBoxPanels({ rootPc, quality, letter }: { rootPc: number; qu
 }
 
 /** The whole neck at a glance: a CSS grid with one column per fret and one row per string. Each CAGED box is a run of columns with its own colour. */
-function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selected, embedded = false, islands = false }: {
+function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selected, embedded = false, islands = false, only = false }: {
   boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem; selected: number | null;
   /** in the teacher studio: no label picker, and no bleed past the page margins */
   embedded?: boolean;
   /** a frame in its shape's colour round each shape's island: the notes the open chord's fingers press, moved up */
   islands?: boolean;
+  /** with islands: only the islands' notes get a dot; the colours still run between all the chord's notes */
+  only?: boolean;
 }) {
   const cells = useMemo(() => boxCells(rootPc, quality, { ...boxes[0], from: 0, to: NECK_END }, arpKind).filter((c) => c.arpRole), [boxes, rootPc, quality, arpKind]);
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
@@ -280,7 +282,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
                     borderTopRightRadius: r === 0 && f === NECK_END ? 8 : undefined, borderBottomRightRadius: r === 5 && f === NECK_END ? 8 : undefined,
                   }}
                 >
-                  {c && (
+                  {c && (!only || islandColour.has(`${s}-${f}`)) && (
                     <button
                       type="button"
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}

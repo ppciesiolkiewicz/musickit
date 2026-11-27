@@ -1,6 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { cagedBoxes, islandNotes, laneAt, laneStarts } from "./caged";
+import { barreChord, cagedBoxes, islandChord, islandNotes, laneAt, laneStarts } from "./caged";
+import { shapeFromFrets } from "@/features/exercises/cues/voicing";
 
 describe("laneAt: each string's colour runs from one of its notes to the next", () => {
   const notes = [1, 4, 9, 13, 16];
@@ -35,5 +36,26 @@ describe("islandNotes: the notes the open chord's fingers press, moved up with t
     assert.deepEqual(got, {
       C: [[1, 3], [2, 2], [4, 1]], A: [[2, 5], [3, 5], [4, 5]], G: [[0, 8], [1, 7], [4, 8], [5, 8]], E: [[1, 10], [2, 10], [3, 9]], D: [[3, 12], [4, 13], [5, 12]],
     });
+  });
+  it("A minor: the E shape keeps its ♭3 on the G string", () => {
+    const e = cagedBoxes(9, "minor").find((b) => b.letter === "E")!;
+    // Am in the E shape 5-7-7-5-5-5: B and E on the A and D strings, C on the G string
+    assert.deepEqual(islandNotes(e), [[1, 7], [2, 7], [3, 5]]);
+  });
+});
+
+describe("islandChord and barreChord: every shape draws as a chord box", () => {
+  for (const [root, q, name] of [[0, "major", "C"], [4, "major", "E"], [7, "major", "G"], [9, "major", "A"], [9, "minor", "Am"], [4, "minor", "Em"], [2, "minor", "Dm"]] as const) {
+    it(`${name}: island and barre chord in all five shapes`, () => {
+      for (const b of cagedBoxes(root, q)) {
+        assert.ok(shapeFromFrets(name, islandChord(b)), `${name} ${b.letter} island ${islandChord(b)}`);
+        assert.ok(shapeFromFrets(name, barreChord(b)), `${name} ${b.letter} barre ${barreChord(b)}`);
+      }
+    });
+  }
+  it("C major: the article's island chord boxes", () => {
+    assert.deepEqual(cagedBoxes(0, "major").map(islandChord), [
+      "x 3 2 x 1 x | x 3 2 x 1 x", "x x 5 5 5 x | x x 1 2 3 x", "8 7 x x 8 8 | 2 1 x x 3 4", "x 10 10 9 x x | x 2 3 1 x x", "x x 10 12 13 12 | x x 1 2 4 3",
+    ]);
   });
 });

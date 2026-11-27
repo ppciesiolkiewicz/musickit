@@ -22,9 +22,11 @@ export type ArticleBlock =
    * something to sing on the page: a heading, its lines (one paragraph each) and the tool, written as a seed exercise writes it
    * (`parseTool` reads it). `beside`: a second tool drawn under it, for two scales compared on the same neck, with `between`, lines
    * between the two. `key`: what this exercise's own notes count from when its tool has no key (`{{a}}` beside a B7 chord box);
-   * never lent to another block, as a tool's key is
+   * never lent to another block, as a tool's key is. `chain`: a chord through its five CAGED shapes as chord boxes with arrows
+   * (`CagedChain` in `ui/ChordChain.tsx`), after the tools (after `between` when there is a tool), with a Chord selector when it
+   * names more than one chord; `barre`: the whole chord in each shape, else only the notes the open chord's fingers press
    */
-  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; key?: string; beside?: Record<string, unknown>; between?: string[]; after?: string[]; parts?: ExercisePart[] }
+  | { type: "exercise"; title: string; lines: string[]; tool?: Record<string, unknown>; chain?: { chords: string[]; barre?: true }; key?: string; beside?: Record<string, unknown>; between?: string[]; after?: string[]; parts?: ExercisePart[] }
   /**
    * every note from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it
    * (`ui/NamesChart.tsx`). One octave unless `octaves` says more: then the names come round again from each Do, and no table.

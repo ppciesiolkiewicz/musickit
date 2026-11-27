@@ -21,7 +21,8 @@
     "Let's put this view up the thing - add some negative margins on desktop on these longer necks so looks better and also highlight the triads with islands (2026-11-27)",
     "Also lets be more broad first -> C chord represented all the other shapes, use arrows like C - A shape -> C (A shape) -> C -> (G shape etc) (2026-11-27)",
     "This is nice - but 1 island and highlight notes in that island same as that box (2026-11-27)",
-    "G chord should include p5 on b string (2026-11-27)"
+    "G chord should include p5 on b string (2026-11-27)",
+    "IN caged article - i want to add full caged later . I think we start with Major caged first and minor caged later in the article. Order: Major 1. : open chords 2. Neck with islands - open chords highlught only 3. Chord N across the neck using other shapes (e.g. C + add switcher to E , G and A) - this should be tighter section instead of many sections 4. full caged + barre chords. Minor: same (2026-11-27)"
   ],
   "blocks": [
     "guitar-intermediate-caged-a-shape",
@@ -34,7 +35,8 @@
     "npm run -s theory -- boxes A minor (A x-0-2-2-1-0 frets 0-3; G 5-3-2-2-5-5 frets 1-6; E 5-7-7-5-5-5 frets 4-8; D x-x-7-9-10-8 frets 6-11; C x-12-10-9-10-x frets 8-13: each Am shape is the next CAGED letter in a C major shape's frets)",
     "npm run -s theory -- scale C major; npm run -s theory -- scale A minor (C D E F G A B; A B C D E F G)",
     "npm run -s theory -- neighbours C C; npm run -s theory -- neighbours C E (vi: Am in the A shape, open; Am in the D shape, x-x-7-9-10-8)",
-    "Fretted notes only (open chord fingers moved up, pitch classes from standard tuning): C shape x-3-2-x-1-x C E C; A shape x-x-5-5-5-x G C E; G shape 8-7-x-x-8-8 C E G C (the open G played 3-2-0-0-3-3); E shape x-10-10-9-x-x G C E; D shape x-x-10-12-13-12 C G C E (the open D string is the D shape's root, so finger 1 frets it); Am in the D shape x-x-7-9-10-8 A E A C"
+    "Fretted notes only (open chord fingers moved up, pitch classes from standard tuning): C shape x-3-2-x-1-x C E C; A shape x-x-5-5-5-x G C E; G shape 8-7-x-x-8-8 C E G C (the open G played 3-2-0-0-3-3); E shape x-10-10-9-x-x G C E; D shape x-x-10-12-13-12 C G C E (the open D string is the D shape's root, so finger 1 frets it); Am in the D shape x-x-7-9-10-8 A E A C",
+    "npm run -s theory -- boxes E major / G major / A major / E minor / D minor (orders: E D C A G; G E D C A; A G E D C; Em: E D C A G; Dm: D C A G E). The chains' frets come from cagedBoxes (islandChord, barreChord), the same code; caged.test.ts checks every shape of C, E, G, A, Am, Em, Dm draws as a chord box. Open Cm x-3-1-0-1-x, Gm 3-1-0-0-3-3 (the minor C and G forms at the nut). The Em shape's fretted notes are only R and 5, so its island keeps the ♭3 on the G string."
   ],
   "sources": [
     "/admin/dev/search"
@@ -42,6 +44,6 @@
   "open": [
     "Next in the series: \"How to find chords for the scale using CAGED\" (the chords of the key inside each shape: npm run -s theory -- neighbours, and the CAGED explorer's \"Chords inside this box\"). Link it from the end of this article once it exists.",
     "Search volume for the query not checked yet.",
-    "shapeFromFrets (exercises/cues/voicing.ts) never roots a chord box on the B string, so the D shape's three fretted notes alone (x-x-x-12-13-12) don't draw; the D shapes here keep the root on the D string."
+    "Barre chord boxes the library has no fingering for (the G and C shapes of most chords) draw without fingers."
   ]
 }

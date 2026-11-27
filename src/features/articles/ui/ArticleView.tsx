@@ -16,7 +16,7 @@ import { AUTHOR } from "../author";
 import { blockRoots, markArticle, markTitle, type Mark } from "../marks";
 import { articleLabels, type Article, type ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
-import ChordChain from "./ChordChain";
+import ChordChain, { CagedChain } from "./ChordChain";
 import ChordFinder from "./ChordFinder";
 import { ArticleLabels, LabelSwitch } from "./ArticleLabels";
 import NamesChart from "./NamesChart";
@@ -112,14 +112,15 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
       return <div className={`grid gap-4 ${tools.length > 1 ? "sm:grid-cols-2" : ""}`}>{tools.map((tool, i) => <div key={i} className={`min-w-0 ${WIDE.has(tool.type) && tools.length === 1 ? "bleed" : ""}`}><Tool tool={tool} /></div>)}</div>;
     }
     case "exercise": {
-      const tools = [block.tool, ...(block.beside ? [block.beside] : [])].map((t) => parseTool(t)).filter((t) => t !== null);
-      const pair = tools.length > 1;
+      const tools = [...(block.tool ? [block.tool] : []), ...(block.beside ? [block.beside] : [])].map((t) => parseTool(t)).filter((t) => t !== null);
+      const chain = block.chain ? <CagedChain chords={block.chain.chords} barre={block.chain.barre} /> : null;
+      const pair = tools.length + (chain ? 1 : 0) > 1;
       const between = block.between ?? [], at = block.lines.length;
       return (
         <section aria-label={block.title} className="metal-panel mt-6 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
           <h2 className="text-lg font-semibold text-slate-50"><ChordTitle text={block.title} /></h2>
           {block.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[i]} root={root} /></p>)}
-          {tools.length > 0 && (
+          {(tools.length > 0 || chain) && (
             <div className={pair ? "flex flex-col gap-6" : "contents"}>
               {tools.map((tool, i) => (
                 <Fragment key={i}>
@@ -127,6 +128,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
                   <div className={`my-2 min-w-0 ${BIG_CHORDS} ${WIDE.has(tool.type) ? "bleed" : ""}`}>{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>
                 </Fragment>
               ))}
+              {chain && <>{tools.length === 1 && between.map((t, j) => <p key={t} className="text-slate-300"><Inline runs={lines[at + j]} root={root} /></p>)}{chain}</>}
             </div>
           )}
           {block.after?.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[at + between.length + i]} root={root} /></p>)}
