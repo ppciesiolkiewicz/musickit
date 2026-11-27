@@ -2,6 +2,7 @@ import { degreeColour } from "../../theory/scales";
 import type { Dot } from "../visuals";
 import { section, type CourseStage } from "../model";
 import { chordsFromScale } from "../lessons/chords-from-scale";
+import { hearingChanges } from "../lessons/hearing-changes";
 import { A, C, D, E, G, MINOR_SEMIS, PATH, chords, links, neck, path, task, text, toneDot, toneDots, visual } from "../build";
 
 const MAJOR_TRIAD = [0, 4, 7], MINOR_TRIAD = [0, 3, 7], PENT = [0, 3, 5, 7, 10];
@@ -103,7 +104,7 @@ export const STAGE_1: CourseStage = {
       visual({ kind: "circle", caption: "Pick a key: its 4 and 5 are its neighbours on the circle; its relative minor sits inside." }),
       task("Play G C D G and Em Am B7 Em, four strums each, saying Do Fa Sol Do as you change."),
     ]),
-    section("hearing-changes", "Hearing chord changes", "three-views", "Telling the 1, 4 and 5 chords apart by ear over a backing, so you can follow a song's changes."),
+    section("hearing-changes", "Hearing chord changes", "three-views", "Hearing when the chord changes over a backing track, then whether it moved to the 4th or the 5th chord of the key, so you can follow a song's chords by ear.", hearingChanges),
     section("pentatonic", "E minor pentatonic", "soloing", "The E minor pentatonic in position 1: five notes that fit every chord of the key.", [
       text(
         "Leave two notes out of the E minor scale (F♯ and C) and you get the E minor pentatonic: E G A B D, five notes that never clash with any chord of the key. In position 1 it lies on the open strings and the 2nd and 3rd frets.",

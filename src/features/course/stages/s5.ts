@@ -1,5 +1,8 @@
 import { MAJOR, rotate } from "../../theory/theory";
 import { section, type CourseStage } from "../model";
+import { fastRuns } from "../lessons/fast-runs";
+import { stretchingYourRange } from "../lessons/stretching-your-range";
+import { improvisingAMelody } from "../lessons/improvising-a-melody";
 import { E, MINOR_SEMIS, chords, links, melody, neck, task, text, toneDots, tune, visual } from "../build";
 
 const DORIAN = [0, 2, 3, 5, 7, 9, 10], PHRYGIAN = [0, 1, 3, 5, 7, 8, 10], HARMONIC_MINOR = [0, 2, 3, 5, 7, 8, 11];
@@ -69,8 +72,8 @@ export const STAGE_5: CourseStage = {
         neck("E melodic minor in position 1.", 0, 4, toneDots(E, [0, 2, 3, 5, 7, 9, 11], 0, 4)),
         task("Play E natural, harmonic and melodic minor one after another, over an Em drone. Which one sounds most finished?"),
       ]),
-    section("fast-runs", "Fast runs", "technique", "Fast, clean vocal runs and licks built from the pentatonic and the modes."),
-    section("stretching-your-range", "Stretching your range", "technique", "Safely extending your lowest and highest notes without strain."),
-    section("improvising-a-melody", ["Improvising a melody over chords", "Melody over chords"], "melody", "Making up a sung melody over chord changes, landing on chord tones."),
+    section("fast-runs", "Fast runs", "technique", "Faster sung runs: over the pentatonic notes, past the high Do and through the whole scale, slow first and then faster.", fastRuns),
+    section("stretching-your-range", "Stretching your range", "technique", "Lip rolls and slides through the break in your voice, then a few notes lower and higher, without strain.", stretchingYourRange),
+    section("improvising-a-melody", ["Improvising a melody over chords", "Melody over chords"], "melody", "Making up a sung tune over chords: chord tones over one chord, then over changing chords, then phrases that ask and answer.", improvisingAMelody),
   ],
 };

@@ -1,5 +1,8 @@
 import { section, type CourseStage } from "../model";
 import { chords, links, songs, task, text } from "../build";
+import { iiVI } from "../lessons/ii-v-i";
+import { comping } from "../lessons/comping";
+import { guideTones } from "../lessons/guide-tones";
 
 export const STAGE_7: CourseStage = {
   slug: "11", label: "11", title: "Jazz colours",
@@ -14,7 +17,7 @@ export const STAGE_7: CourseStage = {
         task("Play Dm7 G7 Cmaj7, the ii–V–I in C, with shells, moving as little as you can."),
         links([{ href: "/theory/chords?q=shell", label: "Shell voicings" }]),
       ]),
-    section("ii-v-i", "ii–V–I", "colour", "The ii–V–I, the core chord move of jazz, in major and minor, with shells."),
+    section("ii-v-i", "ii–V–I", "colour", "The ii–V–I, the core chord move of jazz, in major and minor, with shells.", iiVI),
     section("extended", "9ths & 13ths", "colour", "9th and 13th chords: extra colour on top of a 7th chord.", [
         text(
           "A 9th or 13th is a colour note stacked on top of a shell: the 9th is the 2 an octave up, the 13th is the 6. D9 is the bright, funky dominant; G13 is the classic jazz and soul chord before C.",
@@ -35,7 +38,7 @@ export const STAGE_7: CourseStage = {
           { title: "Fly Me to the Moon", artist: "jazz standard", chords: ["Am7", "Dm7", "G7", "Cmaj7", "Fmaj7", "Bm7♭5", "E7"], progression: "Am7 Dm7 G7 Cmaj7 · Fmaj7 Bm7♭5 E7 Am7" },
         ),
       ]),
-    section("comping", "Comping", "colour", "Comping: short, rhythmic chords behind a soloist or singer."),
-    section("guide-tones", "Guide tones", "colour", "Guide tones: the 3rds and 7ths that lead smoothly from one chord to the next."),
+    section("comping", "Comping", "colour", "Comping: short, rhythmic chords behind a soloist or singer.", comping),
+    section("guide-tones", "Guide tones", "colour", "Guide tones: the 3rds and 7ths that lead smoothly from one chord to the next.", guideTones),
   ],
 };

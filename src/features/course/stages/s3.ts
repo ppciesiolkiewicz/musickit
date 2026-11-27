@@ -1,6 +1,11 @@
 import type { Dot } from "../visuals";
 import { section, type CourseStage } from "../model";
 import { C, D, E, G, PATH, chords, links, neck, path, songs, task, text, toneDot, toneDots } from "../build";
+import { augmentedChords } from "../lessons/augmented-chords";
+import { chordsInFolk } from "../lessons/chords-in-folk";
+import { chordsInPopRock } from "../lessons/chords-in-pop-rock";
+import { diminishedChords } from "../lessons/diminished-chords";
+import { tiDo } from "../lessons/ti-do";
 
 /** A chord from its fret list, low E to high e (null = not played), as dots named from its root. */
 const shape = (root: number, frets: (number | null)[]): Dot[] => frets.flatMap((f, s) => (f === null ? [] : [toneDot(s, f, root)]));
@@ -71,7 +76,7 @@ export const STAGE_3: CourseStage = {
         task("Play Gmaj7, G7 and Em7 in a random order with your eyes closed, then name each by its sound."),
         links([], [{ href: "/theory/ears?kind=chord", label: "Chord quality with 7ths" }]),
       ]),
-    section("ti-do", ["Ti–Do: the pull of the 7th", "Ti–Do"], "three-views", "Ti, the note just below Do, and why it pulls home so strongly that the 5 chord wants to resolve."),
+    section("ti-do", ["Ti–Do: the pull of the 7th", "Ti–Do"], "three-views", "Ti, the note a half step under Do: singing it home, and finding it in the D and D7 chords that lead home to G.", tiDo),
     section("colour-paths", ["The same paths with colour", "Paths with colour"], "paths", "The 1, 4, 5 paths again, with 7th-chord colour on top.", [
       text(
         "The 1 → 4 → 5 → 1 path from stage 5 hasn't changed: the roots still go G → C → D → G. Only the colour on top is new. Play Gmaj7 → Cmaj7 → D7 → G and the 7ths make a little tune of their own on the top strings.",
@@ -87,9 +92,9 @@ export const STAGE_3: CourseStage = {
       chords("The colour version of 1 → 4 → 5 → 1.", ["Gmaj7", "Cmaj7", "D7", "G"]),
       task("Play the loop slowly and sing the top note of each chord: F♯, B, C, B. Then the plain G C D G for comparison."),
     ]),
-    section("augmented-chords", "Augmented chords", "colour", "Augmented chords: a major chord with a raised 5th, tense and floating, pulling toward the next chord."),
-    section("diminished-chords", "Diminished chords", "colour", "Diminished chords: stacked minor 3rds, the tense chord that wants to resolve."),
-    section("chords-in-pop-rock", "Chords in pop & rock", "colour", "The chords and progressions that pop and rock songs lean on."),
-    section("chords-in-folk", "Chords in folk", "colour", "The chords and progressions of folk and campfire songs."),
+    section("augmented-chords", "Augmented chords", "colour", "Augmented chords: a major chord with its 5th raised a half step, tense and floating, leading into the next chord.", augmentedChords),
+    section("diminished-chords", "Diminished chords", "colour", "Diminished chords: a minor chord with its 5th lowered a half step, and the four triads on one root told apart.", diminishedChords),
+    section("chords-in-pop-rock", "Chords in pop & rock", "colour", "The pop loop of the 1st, 5th, 6th and 4th chords, and the rock move to a chord from outside the key.", chordsInPopRock),
+    section("chords-in-folk", "Chords in folk", "colour", "Folk's three chords in a waltz: the 1st, 4th and 5th chords, counted in three.", chordsInFolk),
   ],
 };

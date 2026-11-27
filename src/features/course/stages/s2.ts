@@ -1,4 +1,8 @@
 import { section, type CourseStage } from "../model";
+import { singingLeaps } from "../lessons/singing-leaps";
+import { sightSinging } from "../lessons/sight-singing";
+import { harmonyLine } from "../lessons/harmony-line";
+import { vocalRuns } from "../lessons/vocal-runs";
 import { A, B, G, MAJOR_SEMIS, PATH, chords, links, neck, path, songs, task, text, toneDot, toneDots } from "../build";
 
 const MAJOR_TRIAD = [0, 4, 7], MINOR_TRIAD = [0, 3, 7];
@@ -103,9 +107,9 @@ export const STAGE_2: CourseStage = {
         task("Sing do, then each note of the major scale up from it, naming the degree. Then let the ear game play them and name them."),
         links([], [{ href: "/theory/ears?level=6", label: "Ear: all intervals" }]),
       ]),
-    section("singing-leaps", "Singing leaps", "three-views", "Singing leaps of a 4th, 5th and octave cleanly, hearing the target note before you sing it."),
-    section("sight-singing", "Sight-singing melodies", "melody", "Reading a short melody as do-re-mi and singing it first time."),
-    section("harmony-line", ["A harmony line over chords", "A harmony line"], "three-views", "Singing a second line, a 3rd or 6th away, over the chords of a song."),
-    section("vocal-runs", "Runs", "technique", "Singing a quick run of scale notes clearly, slow first and then faster."),
+    section("singing-leaps", "Singing leaps", "three-views", "Singing leaps of a 4th, 5th and octave cleanly, hearing the target note before you sing it.", singingLeaps),
+    section("sight-singing", "Sight-singing melodies", "melody", "Reading a short melody as do-re-mi and singing it first time.", sightSinging),
+    section("harmony-line", ["A harmony line over chords", "A harmony line"], "three-views", "Singing a second line with a tune: a held note under it, a 3rd above it, then a line over the chords of a song.", harmonyLine),
+    section("vocal-runs", "Runs", "technique", "Singing a quick run of scale notes clearly, slow first and then faster.", vocalRuns),
   ],
 };

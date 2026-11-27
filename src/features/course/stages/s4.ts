@@ -1,4 +1,6 @@
 import { section, type CourseStage } from "../model";
+import { doMiSolShapes } from "../lessons/do-mi-sol-shapes";
+import { stringSkipping } from "../lessons/string-skipping";
 import { naturalDots, type Dot } from "../visuals";
 import { A, C, D, E, G, MAJOR_SEMIS, PATH, links, melody, neck, path, task, text, toneDot, toneDots, tune } from "../build";
 
@@ -46,7 +48,7 @@ export const STAGE_4: CourseStage = {
       task("Play the arpeggio in one shape, then slide to the next and play it again, all the way up the neck and back."),
       links([{ href: "/theory/arpeggios", label: "Arpeggios explorer" }]),
     ]),
-    section("do-mi-sol-shapes", ["Do–Mi–Sol in every shape", "Do–Mi–Sol shapes"], "caged", "Finding the major chord's three notes inside each of the five CAGED shapes, all the way up the neck."),
+    section("do-mi-sol-shapes", ["Do–Mi–Sol in every shape", "Do–Mi–Sol shapes"], "caged", "Naming the G chord's three notes, Do, Mi and Sol, inside each of the five CAGED shapes, all the way up the neck.", doMiSolShapes),
     section("triads-everywhere", ["Triads on every string set", "Triads on all strings"], "triads", "Triads on every set of three neighbouring strings.", [
       text(
         "Triads aren't only on the top three strings. Any three neighbouring strings hold a G triad somewhere: E–A–D, A–D–G, D–G–B and G–B–e. Each set gives the same chord a different shape and a different register.",
@@ -107,6 +109,6 @@ export const STAGE_4: CourseStage = {
         text("A 16th-century tune that lives up the neck. Read it through the box at the 8th fret: the tab stays in one place, and each note sits under a finger."),
         melody({ title: "Greensleeves", origin: "traditional English (16th century)", position: 8, notes: tune("A4 C5:2 D5 E5:1.5 F5:0.5 E5 D5:2 B4 G4:1.5 A4:0.5 B4 C5:2 A4 A4:1.5 G#4:0.5 A4 B4:2 G#4 E4:2") }),
       ]),
-    section("string-skipping", "String skipping", "technique", "Picking accurately across strings that aren't next to each other, for wide melodies and arpeggios."),
+    section("string-skipping", "String skipping", "technique", "Down and up picking across the strings, then jumping over a string and landing on the right one, for wide melodies and arpeggios.", stringSkipping),
   ],
 };

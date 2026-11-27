@@ -40,7 +40,9 @@ describe("plan links", () => {
   });
   it("course links say what the article covers", () => {
     const home = entries.find((x) => x.href === "/course/3/home-note")!;
-    assert.match(home.desc, /^Course 3 · One note, three views: .+ \(planned\)$/);
+    // every section is written now (2026-11-27), so none says "(planned)"
+    assert.match(home.desc, /^Course 3 · One note, three views: .+[^)]$/);
+    assert.ok(entries.every((x) => !x.desc.endsWith("(planned)")), "a course section is still planned");
     const tab = entries.find((x) => x.href === "/course/1/tab-and-chord-boxes")!;
     assert.ok(tab.desc.startsWith("Course 1 · Guitar basics: ") && !tab.desc.endsWith("(planned)"), tab.desc);
   });

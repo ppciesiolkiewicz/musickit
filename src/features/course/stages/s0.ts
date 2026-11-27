@@ -10,6 +10,10 @@ import { majorAndMinorScales } from "../lessons/major-and-minor-scales";
 import { matchingAPitch } from "../lessons/matching-a-pitch";
 import { breathAndHoldingANote } from "../lessons/breath-and-holding-a-note";
 import { doMiSolNeck } from "../lessons/do-mi-sol-neck";
+import { spider } from "../lessons/spider";
+import { stepMelodies } from "../lessons/step-melodies";
+import { singThenFind } from "../lessons/sing-then-find";
+import { legato } from "../lessons/legato";
 import { G, MAJOR_SEMIS, PATH, chords, links, melody, neck, path, pianoKeys, songs, strum, task, text, toneDots, tune, visual } from "../build";
 
 const LETTERS = ["C", "D", "E", "F", "G", "A", "B"];
@@ -19,7 +23,7 @@ const named = (string: number, fret: number, label: string) => ({ string, fret, 
 export const STAGES_0: CourseStage[] = [
   {
     slug: "1", label: "1", title: "Guitar basics",
-    intro: "How the guitar is tuned, how to read tab and chord boxes, and the names of the notes on the two lowest strings.",
+    intro: "How the guitar is tuned, how to read tab and chord boxes, the names of the notes on the two lowest strings, a steady beat and a first finger drill.",
     sections: [
       section("strings-and-tuning", "Strings & tuning", "basics", "The names of the six strings and how to tune them to each other by ear.", [
         text(
@@ -55,7 +59,7 @@ export const STAGES_0: CourseStage[] = [
         links([], [{ href: "/theory/notes?strings=E,A&naturals=1", label: "Find the notes on E and A", note: "a quiz: a note name comes up, tap it on the neck" }]),
       ]),
       section("steady-beat", "Keeping a steady beat", "basics", "Counting beats and bars with a click, then tapping and strumming in time without speeding up or slowing down.", steadyBeat),
-      section("spider", ["The spider: fingers 1-2-3-4", "The spider"], "technique", "One finger per fret across all six strings with alternate picking, then other finger orders like 1-3-2-4, for strength and control."),
+      section("spider", ["The spider: fingers 1-2-3-4", "The spider"], "technique", "One finger per fret across all six strings with alternate picking, then other finger orders like 1-3-2-4, for strength and control.", spider),
     ],
   },
   {
@@ -172,7 +176,7 @@ export const STAGES_0: CourseStage[] = [
         task("Play G major from the open G string up to the G on the high e, as in the do-re-mi path, saying each letter. Point to each note on the staff as you play it. Keep going until you can find a note on the staff without counting up from the bottom line."),
         links([], [{ href: "/theory/singing", label: "Singing", note: "sing the scale and watch your pitch on the staff" }]),
       ]),
-      section("step-melodies", ["Step melodies: Do–Re–Mi", "Step melodies"], "melody", "Short tunes that move one note at a time up and down the scale, sung first and then played."),
+      section("step-melodies", ["Step melodies: Do–Re–Mi", "Step melodies"], "melody", "Short tunes that move one note at a time, from Do up to Sol and home, sung first and then played.", stepMelodies),
       section("do-mi-sol", "Do–Mi–Sol", "melody", "The three notes of the major chord as a tune: leaping between Do, Mi and Sol by ear and with your voice.", doMiSol),
       section("intervals", "Intervals", "three-views", "The distance between two notes: half steps, whole steps and the octave, and how they add up to the scale.", [
         text(
@@ -228,9 +232,9 @@ export const STAGES_0: CourseStage[] = [
         melody({ title: "When the Saints Go Marching In", origin: "traditional", position: 0, notes: tune("C4 E4 F4 G4:4 C4 E4 F4 G4:4 C4 E4 F4 G4:2 E4:2 C4:2 E4:2 D4:4") }),
         task("Play Ode to Joy slowly from the tab until you don't need to look for each note. Then try to find the start of another tune you know by ear."),
       ]),
-      section("sing-then-find", "Sing it, then find it", "melody", "Sing a short phrase, then find it on the neck starting from Do, so your ear leads your fingers."),
+      section("sing-then-find", "Sing it, then find it", "melody", "Sing a short phrase, then find it on the neck starting from Do, so your ear leads your fingers.", singThenFind),
       section("do-mi-sol-neck", "Do–Mi–Sol on the neck", "melody", "The major chord's three notes played as a melody in position 1, in G and in C.", doMiSolNeck),
-      section("legato", ["Hammer-ons, pull-offs & trills", "Hammer-ons & pull-offs"], "technique", "Sounding notes with the fretting hand alone: hammer-ons, pull-offs and trills for smooth, connected lines."),
+      section("legato", ["Hammer-ons, pull-offs & trills", "Hammer-ons & pull-offs"], "technique", "Sounding notes with the fretting hand alone: hammer-ons, pull-offs and trills for smooth, connected lines.", legato),
     ],
   },
 ];
