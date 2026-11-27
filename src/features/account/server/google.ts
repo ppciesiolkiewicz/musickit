@@ -39,6 +39,16 @@ export function googleAuthUrl(config: GoogleConfig, opts: { redirectUri: string;
 const ISSUERS = ["https://accounts.google.com", "accounts.google.com"];
 
 /**
+ * The first name only: Google's `given_name`, else the first word of `name`. The setup and join forms ask for a first name
+ * or nickname, so the full name is never filled in or saved.
+ */
+const firstName = (c: Record<string, unknown>): string => {
+  const given = typeof c.given_name === "string" ? c.given_name.trim() : "";
+  if (given) return given;
+  return typeof c.name === "string" ? (c.name.trim().split(/\s+/)[0] ?? "") : "";
+};
+
+/**
  * The person in a Google ID token, or null when the token is not for us or has expired. The signature is not checked:
  * the token is only ever read straight from Google's token endpoint over HTTPS, which is what vouches for it.
  * Never pass this a token that came from a browser.
@@ -52,7 +62,7 @@ export function profileFromIdToken(idToken: unknown, clientId: string, now: Date
     if (!ISSUERS.includes(c.iss as string) || c.aud !== clientId) return null;
     if (typeof c.exp !== "number" || c.exp * 1000 <= now.getTime()) return null;
     if (typeof c.sub !== "string" || !c.sub || typeof c.email !== "string") return null;
-    return { sub: c.sub, email: c.email, emailVerified: c.email_verified === true || c.email_verified === "true", name: typeof c.name === "string" ? c.name : "" };
+    return { sub: c.sub, email: c.email, emailVerified: c.email_verified === true || c.email_verified === "true", name: firstName(c) };
   } catch {
     return null;
   }

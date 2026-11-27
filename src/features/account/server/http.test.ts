@@ -88,6 +88,9 @@ test("Google: keys, the sign-in address and reading the ID token", () => {
   assert.equal(profileFromIdToken(idToken({ ...good, iss: "https://evil.com" }), "id", now), null);
   assert.equal(profileFromIdToken(idToken({ ...good, exp: now.getTime() / 1000 - 1 }), "id", now), null);
   assert.equal(profileFromIdToken(idToken({ ...good, email_verified: false }), "id", now)?.emailVerified, false);
+  assert.equal(profileFromIdToken(idToken({ ...good, name: "Ann Lee", given_name: "Annie" }), "id", now)?.name, "Annie", "Google's first name");
+  assert.equal(profileFromIdToken(idToken({ ...good, name: "  Ann  Lee " }), "id", now)?.name, "Ann", "no first name: the first word");
+  assert.equal(profileFromIdToken(idToken({ ...good, name: undefined }), "id", now)?.name, "");
   assert.equal(profileFromIdToken("not-a-token", "id", now), null);
   assert.equal(profileFromIdToken(undefined, "id", now), null);
 });
