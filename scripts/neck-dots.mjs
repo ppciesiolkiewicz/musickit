@@ -163,8 +163,8 @@ for (const sheet of SHEETS) {
 const SCALE_MM = 648, FRETS = 22;
 const wire = (n) => SCALE_MM * (1 - 2 ** (-n / 12)); // nut to fret wire n
 const byName = Object.fromEntries(COLOURS.map((c) => [c.name, c]));
-// spare colours and how many of each, by share of a line: mostly magenta and green, few white and black; lime left out, too near green
-const SPARES = [["Magenta", 4], ["Green", 3], ["Cyan", 2], ["Violet", 1], ["Blue", 1], ["White", 0.5], ["Black", 0.5]].map(([n, w]) => [byName[n].hex, w]);
+// spare colours and how many of each, by share of a line: mostly green and magenta, few white and black; lime left out, too near green
+const SPARES = [["Green", 5], ["Magenta", 4], ["Cyan", 2], ["Violet", 1], ["Blue", 1], ["White", 0.5], ["Black", 0.5]].map(([n, w]) => [byName[n].hex, w]);
 const EDGE = byName.Cyan.hex, GREEN = byName.Green.hex, MAGENTA = byName.Magenta.hex, BRIDGE_DOT = 16;
 const spaces = Array.from({ length: FRETS }, (_, i) => {
   const n = i + 1, space = wire(n) - wire(n - 1);
