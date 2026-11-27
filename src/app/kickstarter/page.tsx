@@ -12,8 +12,6 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/kickstarter" },
-  // An offer sent by email, not a page to find in search.
-  robots: { index: false },
   ...shareMeta({ path: "/kickstarter", title: TITLE, description: DESCRIPTION }),
 };
 
