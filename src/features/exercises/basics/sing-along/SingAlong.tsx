@@ -229,7 +229,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         </Hint>
       </div>
       <div aria-hidden className="my-1 h-px w-1/3 bg-slate-700" />
-      <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+      {/* the controls' labels (Tune, Chords, Staff, Piano roll) repeat on every tool: kept out of search snippets */}
+      <div data-nosnippet className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
         <span data-tour="sing-play" className="inline-flex items-center gap-1.5">
           <Hint title={mainTitle} description={!sa.playing ? "Starts the tune from the start. While it plays, the button turns into Pause." : sa.paused ? "Plays on from where you paused." : "Holds the tune where it is. Press again to play on."}>
             <IconButton big lit tone={sa.playing && !sa.paused ? "sky" : "emerald"} title={`${mainTitle}${spaceArmed ? " (Space)" : ""}`} onClick={main}>

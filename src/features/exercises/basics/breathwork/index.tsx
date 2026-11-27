@@ -138,7 +138,7 @@ export function View({ drill = "farinelli", from, to, seconds, rounds }: Breathw
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Breathwork</p>
-          <h3 className="truncate text-base font-semibold text-slate-100">{TITLES[drill]}</h3>
+          <p className="truncate text-base font-semibold text-slate-100">{TITLES[drill]}</p>
           <p className="text-xs text-slate-400 tabular-nums">{meta} · {clock(total)}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">

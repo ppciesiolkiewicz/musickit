@@ -52,7 +52,8 @@ export default function NamesChart({ octaves = 1 }: { octaves?: number }) {
   const width = (7 * octaves + 1) * KW;
   return (
     <figure className="flex flex-col gap-3">
-      <div className={octaves > 1 ? "-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" : undefined}>
+      {/* the keys' labels kept out of search snippets: the table under one octave names the notes in words */}
+      <div data-nosnippet className={octaves > 1 ? "-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0" : undefined}>
         <svg viewBox={`0 0 ${width} ${KH}`} className={`select-none ${octaves > 1 ? "w-full min-w-[40rem]" : "w-full max-w-lg"}`} role="group" aria-label={octaves > 1 ? `${octaves} octaves of a piano from Do` : "One octave of a piano from Do"}>
           {whites.map((n) => keyOf(n, false))}
           {blacks.map((n) => keyOf(n, true))}

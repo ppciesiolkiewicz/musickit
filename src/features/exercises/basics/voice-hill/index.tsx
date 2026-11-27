@@ -254,7 +254,7 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
       </div>
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Warm-up · the hill</p>
-        <h3 className="truncate text-base font-semibold text-slate-100">{title}</h3>
+        <p className="truncate text-base font-semibold text-slate-100">{title}</p>
         <p className="text-xs tabular-nums text-slate-400">{seconds} seconds × {reps} · {range.label}</p>
       </div>
 

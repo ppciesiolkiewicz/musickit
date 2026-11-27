@@ -220,7 +220,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
       </div>
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Warm-up · lip roll</p>
-        <h3 className="truncate text-base font-semibold text-slate-100">{TITLES[shape]}</h3>
+        <p className="truncate text-base font-semibold text-slate-100">{TITLES[shape]}</p>
         <p className="text-xs tabular-nums text-slate-400">{meta}</p>
       </div>
 

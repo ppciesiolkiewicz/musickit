@@ -79,7 +79,8 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
     return { x, y, w: g.fx(Math.max(...frets)) - g.fx(Math.min(...frets)) + 2 * r + 8, h: g.sy(Math.min(...strings)) - g.sy(Math.max(...strings)) + 2 * r + 8, low: Math.min(...strings) === 0 };
   });
   return (
-    <div className="min-w-0">
+    // every dot is a short label (a note, an interval): kept out of search snippets, the neck is named by its aria-label
+    <div className="min-w-0" data-nosnippet>
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={title}>
         <FretboardBase g={g} markerSize={compact ? 4 : 6} numbersTop />
         {focusList.map((p, i) => {
@@ -162,5 +163,6 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
       {seam && position.notes.filter((c) => seam.has(cellKey(c))).map((c) => <circle key={`seam-${cellKey(c)}`} cx={x(c)} cy={y(c)} r={19} fill="none" stroke="var(--color-amber-300)" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />)}
     </svg>
   );
-  return horizontal ? <div className="overflow-x-auto">{svg}</div> : svg;
+  // the dots' labels kept out of search snippets, as on the whole neck
+  return horizontal ? <div className="overflow-x-auto" data-nosnippet>{svg}</div> : <div data-nosnippet className="contents">{svg}</div>;
 }

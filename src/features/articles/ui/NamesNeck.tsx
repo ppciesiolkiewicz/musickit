@@ -22,7 +22,8 @@ export default function NamesNeck() {
   const y = (s: number) => TOP + (5 - s) * SH; // s 0 = low E, drawn at the bottom
   const x = (f: number) => (f === 0 ? LEFT + NUT / 2 - 4 : LEFT + NUT + (f - 0.5) * FW);
   return (
-    <figure className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    // 78 dots of short labels, kept out of search snippets; the svg's aria-label names the neck
+    <figure data-nosnippet className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full min-w-[40rem] select-none" role="group" aria-label="A guitar neck, frets 0 to 12, every note named from Do">
         {MARKERS.map((f) => <circle key={f} cx={x(f)} cy={TOP + 2.5 * SH} r={5} fill="var(--color-slate-700)" />)}
         {[TOP + 1.5 * SH, TOP + 3.5 * SH].map((cy) => <circle key={cy} cx={x(12)} cy={cy} r={5} fill="var(--color-slate-700)" />)}

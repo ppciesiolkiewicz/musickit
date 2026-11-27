@@ -258,7 +258,7 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
       </div>
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Vowels · the mouth</p>
-        <h3 className="truncate text-base font-semibold text-slate-100">{title}</h3>
+        <p className="truncate text-base font-semibold text-slate-100">{title}</p>
         <p className="text-xs tabular-nums text-slate-400">{seconds} seconds each · {where} · {range.label}</p>
       </div>
 
