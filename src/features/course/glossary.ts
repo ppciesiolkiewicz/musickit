@@ -70,7 +70,7 @@ export const GLOSSARY: Term[] = [
   { id: "bend", label: "Bend", forms: ["bend", "bending"], short: "Pushing the string across the fret so the note rises, a half step or a whole step.", href: "/course/5/bends-and-slides" },
   { id: "slide", label: "Slide", forms: ["slide", "sliding"], short: "Gliding from one note to another without lifting: a finger along the string, or your voice through every pitch on the way.", href: "/course/5/bends-and-slides" },
   { id: "trill", label: "Trill", forms: ["trill"], short: "Fast hammer-ons and pull-offs between two notes, over and over.", href: "/course/4/legato" },
-  { id: "root", label: "Root", forms: ["root"], short: "The note a chord or scale is built on and named after.", href: "/course/2/what-is-a-chord" },
+  { id: "root", label: "Root", forms: ["root"], short: "The note a chord or scale is built on and named after: A is the root of Am and of the A minor scale. A scale's root is its home note, where a tune sounds finished.", href: "/course/2/what-is-a-chord" },
   { id: "beat", label: "Beat", forms: ["beat"], short: "The steady pulse you tap your foot to.", href: "/course/1/steady-beat" },
   { id: "bar", label: "Bar", forms: ["bar"], short: "A group of beats, usually four, counted \"1 2 3 4\" and then again.", href: "/course/1/steady-beat" },
   { id: "spider", label: "Spider", forms: ["spider"], short: "A finger drill: one finger per fret, walking across all six strings.", href: "/course/1/spider" },
