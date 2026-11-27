@@ -41,9 +41,9 @@ export const barreChordAlternatives: Article = {
     ] },
 
     { type: "exercise", title: "2. B7 for B", key: "b", lines: [
-      "B7 adds one note to B: the ♭7. It's {{a}}. That note pulls hard towards E.",
-      "So B7 works where B goes to E or Em, and sounds bluesy anywhere else.",
-      "Press Play under B below, then under B7.",
+      "B7 is B with one more note: A, the {{a}}, on the G string. No barre, and that A pulls hard towards E.",
+      "That pull is the catch. Where B goes to E or Em, B7 often sounds better than B; anywhere else it sounds bluesy. Try it in the song before you keep it.",
+      "Press Play under B below, then under B7, and listen for the A that B7 adds.",
     ], tool: { type: "chord-shapes", chords: ["B", "B7"], frets: ["x 2 4 4 4 2", null] }, between: [
       "Press Play below and listen for the pull from B7 back to Em.",
     ], beside: { type: "strum-along", chords: ["Em", "Am", "B7", "Em"], bpm: 60 }, parts: [
