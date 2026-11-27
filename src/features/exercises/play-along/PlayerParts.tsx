@@ -37,7 +37,7 @@ export function PlayButton({ playing, onClick, disabled, space, "data-tour": tou
 /** Tempo: a label, − / + by `step`, the bpm between, and a slider to drag it there in one go. */
 export function TempoControl({ bpm, min, max, step = 1, onChange, "data-tour": tour, className = "" }: { bpm: number; min: number; max: number; step?: number; onChange(bpm: number): void; "data-tour"?: string; className?: string }) {
   return (
-    <span data-tour={tour} className={`flex items-center gap-2 text-sm text-slate-300 ${className}`}>
+    <span data-tour={tour} className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-300 ${className}`}>
       <span className="mr-0.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Tempo</span>
       <Button size="icon-sm" disabled={bpm <= min} onClick={() => onChange(Math.max(min, bpm - step))} aria-label="Slower" title="Slower"><Icon name="minus" size={14} /></Button>
       <span className="min-w-8 text-center text-base font-semibold tabular-nums text-slate-100">{bpm}</span>
