@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-mix-caged-e-and-a-shapes",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track caged (guitar-caged), step 3: the E and A shapes together: one chord in both shapes in three keys, then the 1, 4 and 5 chords in one area of the neck, once with the 1 chord in the E shape and once with it in the A shape.",
+  "note": "The E and A shapes together: the key's chord in both shapes on a caged-neck (moves: any key), then the 1st, 4th and 5th chords as barre chords in one area of the neck, once with the 1st chord in the E shape and once in the A shape. Those chord-shapes and strum-alongs are pinned to their key, since the lowest barre shape changes with the key; the chords are tokens, counted the long way once.",
   "exercise": {
-    "title": "E and A shapes: one chord twice, then 1 4 5",
+    "title": "E and A shapes: one chord in two places, then three chords",
     "area": "guitar",
     "tags": [
       "technique",
@@ -18,7 +18,7 @@
     "concepts": [
       "caged"
     ],
-    "why": "The E shape has its root on the low E string and the A shape has it on the A string, so in one area of the neck the two shapes give you three different chords: the 1, 4 and 5 of a key.",
+    "why": "The E shape has its root on the low E string and the A shape has it on the A string, so in one area of the neck the two shapes give you three chords of a key: the 1st, the 4th and the 5th.",
     "learnBefore": [
       "/course/6/barres-every-key"
     ],
@@ -27,23 +27,10 @@
         "type": "section",
         "heading": "One chord, two places",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on the two chord panels below to hear the chord in the E shape and in the A shape. Play one, then the other, and say which string holds the root each time.\nThen try another key. Use the Key selector below to change the key.\nWhen you change the key, both shapes slide along the neck, and the root stays on the low E string in the E shape and on the A string in the A shape."
+            "text": "Each row below is the chord of {{=key}} in one shape: the E shape, with its root on the low E string, then the A shape, with its root on the A string. Press Play on the CAGED / Chord panel of each row to hear it. Then play one shape and the other, and say which string holds the root each time.\nPractice until you find the root of either shape without looking.\n{{?key}}In another key both shapes slide along the neck, and the root stays on the low E string in the E shape and on the A string in the A shape."
           },
           {
             "type": "tool",
@@ -61,12 +48,12 @@
       },
       {
         "type": "section",
-        "heading": "1 4 5 from the E shape",
+        "heading": "Three chords from the E shape",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear A, D and E as barre chords in one area of the neck. Then press Play under them to start the metronome, and strum down on every beat.\nA, the 1st chord, is in the E shape. D and E, the 4 and the 5, are both in the A shape."
+            "text": "Press a chord box below to hear the three chords as barre chords in one area of the neck. {{chord:I}} is the 1st chord of the key, built on {{1}}, and here it is in the E shape. {{chord:IV}} is the 4th chord, built on {{4}}, and {{chord:V}} is the 5th, built on {{5}}: both are in the A shape.\nThen press Play under them to start the metronome at {{=bpm}}, and strum down on every beat."
           },
           {
             "type": "tool",
@@ -77,7 +64,10 @@
                 "D",
                 "E"
               ],
-              "voicing": "barre"
+              "voicing": "barre",
+              "pinned": [
+                "key"
+              ]
             }
           },
           {
@@ -91,19 +81,22 @@
                 "A"
               ],
               "bpm": 70,
-              "pattern": "D D D D"
+              "pattern": "D D D D",
+              "pinned": [
+                "key"
+              ]
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "1 4 5 from the A shape",
+        "heading": "Three chords from the A shape",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear D, G and A as barre chords. Then press Play under them to start the metronome, and strum down on every beat.\nWhen the 1st chord is in the A shape, the 4 and the 5 are both in the E shape. Practice until you see where the 4 and 5 are before you leave the 1."
+            "text": "Press a chord box below to hear three chords of another key as barre chords. Now {{chord:I}} is in the A shape, and {{chord:IV}} and {{chord:V}} are both in the E shape.\nThen press Play under them to start the metronome, and strum down on every beat.\nPractice until you see where {{chord:IV}} and {{chord:V}} are before you leave {{chord:I}}."
           },
           {
             "type": "tool",
@@ -114,7 +107,10 @@
                 "G",
                 "A"
               ],
-              "voicing": "barre"
+              "voicing": "barre",
+              "pinned": [
+                "key"
+              ]
             }
           },
           {
@@ -128,7 +124,10 @@
                 "D"
               ],
               "bpm": 70,
-              "pattern": "D D D D"
+              "pattern": "D D D D",
+              "pinned": [
+                "key"
+              ]
             }
           }
         ]
@@ -145,7 +144,15 @@
       "steps": [
         "caged:3"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      }
     }
   ]
 }

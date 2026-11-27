@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-solo-across-the-join",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 1.",
+  "note": "Soloing across the crossing of positions 1 and 2: a solo-over on the 1st and 4th chords with their roots as targets (the chords are tokens, counted the long way), then phrases from one position into the other over drums and bass. Moves holds any key and 80 to 100 bpm; the solo-over's approach hint, which named a letter, is gone, since the app names the targets above the neck.",
   "exercise": {
-    "title": "Solo across the join",
+    "title": "Solo across the crossing",
     "area": "guitar",
     "tags": [
       "improv"
@@ -17,7 +17,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "A slide in the middle of a phrase hides the change of position, so a solo is the place to make the join part of the music.",
+    "why": "A slide in the middle of a phrase hides the change of position, so a solo is the place to make the crossing part of the music.",
     "learnBefore": [
       "/course/6/joining",
       "/course/5/soloing"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, which switches between Am7 and Dm7. Improvise in positions 1 and 2 and slide from one to the other in the middle of a phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
+            "text": "{{chord:i7}} is the 1st chord of the key, built on {{1}}, and {{chord:iv7}} is the 4th, built on {{4}}. Press Play below to start the backing track: it switches between the two. Improvise in positions 1 and 2 of the {{=key}} minor pentatonic scale, and slide from one to the other in the middle of a phrase.\nLand on {{1}} when {{chord:i7}} comes round and on {{4}} when {{chord:iv7}} comes round."
           },
           {
             "type": "tool",
@@ -51,8 +51,7 @@
                     "chord": "Dm7",
                     "target": [
                       "1"
-                    ],
-                    "approach": "land on D on beat 1"
+                    ]
                   }
                 ],
                 "bars": 2
@@ -70,7 +69,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass in A, with no chords to follow. Start each phrase in position 2 and end it on a ringed {{1}} in position 1. Then turn it round: start low and end high."
+            "text": "Press Play below to start the backing track: drums and bass in {{=key}}, with no chords to follow. Start each phrase in position 2 and end it on a ringed {{1}} in position 1. Then turn it round: start low and end high.\nPractice until the crossing comes in the middle of a phrase without a gap.\n{{?key}}In another key both positions sit on other frets, and the crossing is still a slide on the G string."
           },
           {
             "type": "tool",
@@ -110,7 +109,15 @@
       "steps": [
         "pentatonic-positions:4"
       ],
-      "minutes": 9
+      "minutes": 9,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

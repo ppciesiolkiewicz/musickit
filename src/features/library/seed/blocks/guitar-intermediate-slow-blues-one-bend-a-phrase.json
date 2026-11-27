@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-slow-blues-one-bend-a-phrase",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 2.",
+  "note": "One bend per phrase over a slow minor blues, with the two bend notes ringed on positions 1 and 2, then phrases answered across the crossing on a position-neck with cross. Moves holds any key and 70 to 80 bpm, so the text names the key as a param.",
   "exercise": {
     "title": "Slow blues, one bend a phrase",
     "area": "guitar",
@@ -40,7 +40,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play above to start the backing track: a slow 12-bar blues in A minor. Play short phrases from the neck below and put one bend in each: {{4}} up to {{5}}, or {{b7}} up to {{1}}. Hold the bend and let the backing track move under it before you go on."
+            "text": "Press Play above to start the backing track: a slow 12-bar blues in {{=key}} minor. The neck below shows positions 1 and 2 of the {{=key}} minor pentatonic scale. Play short phrases from it and put one bend in each: the ringed {{4}} up to {{5}}, or the ringed {{b7}} up to {{1}}. Hold the bend and let the backing track move under it before you go on.\nPractice until each bend reaches its note and stays there."
           },
           {
             "type": "tool",
@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play above to start the backing track again. Play a phrase low in position 1, then answer it with one that slides up the G string from {{4}} to {{5}} and ends in position 2. Keep the two phrases close, as if one replies to the other."
+            "text": "Press Play above to start the backing track again. Play a phrase low in position 1, then answer it with one that takes the crossing: a slide up the G string from the ringed {{4}} to the ringed {{5}}, ending in position 2. Keep the two phrases close, as if one replies to the other.\n{{?key}}In another key both positions sit on other frets, and the crossing is still the slide from {{4}} to {{5}} on the G string."
           },
           {
             "type": "tool",
@@ -80,7 +80,8 @@
                 "to": 2
               },
               "highlight": [
-                "1"
+                "4",
+                "5"
               ]
             }
           }
@@ -95,7 +96,15 @@
       "steps": [
         "pentatonic-positions:4"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

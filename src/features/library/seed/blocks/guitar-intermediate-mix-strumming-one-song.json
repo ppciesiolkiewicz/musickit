@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-mix-strumming-one-song",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track strumming (guitar-basic-chords), step 6: eighths with chucks, the island strum and sixteenths as the verse, chorus and bridge of one song on G, Em, C and D at one tempo, then all three in a row over drums and bass. missing: a muted stroke (a chuck) in strum-along's pattern, so the chucks on 2 and 4 are in the text only; and a strum-along pattern per chord or per section, so the whole song has no strokes drawn while the pattern changes.",
+  "note": "Eighths with chucks, the island strum and sixteenths as the verse, chorus and bridge of one song on G, Em, C and D at one tempo, then all three in a row over a backing track. The key is the lesson (open chords), so moves holds only a tempo range. missing: a muted stroke (a chuck) in strum-along's pattern, so the chucks on 2 and 4 are in the text only; and a strum-along pattern per section, so the whole song has no strokes drawn while the pattern changes.",
   "exercise": {
     "title": "Three strums in one song",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, strum down and up in eighths, and make the down strum on beats 2 and 4 a chuck.\nPractice until the chucks land on 2 and 4 without you counting."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, strum down and up in eighths, and make the down strum on beats 2 and 4 a chuck.\nPractice until the chucks land on 2 and 4 without you counting."
           },
           {
             "type": "tool",
@@ -106,7 +106,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass on G, Em, C and D, a bar each. Play the four bars twice as the verse, twice as the chorus and twice as the bridge, then start again.\nIf a new pattern starts late, keep your hand swinging and join in on the next beat 1."
+            "text": "Press Play below to start the backing track: drums and bass on the same four chords, a bar each. Play the four bars twice with the verse strum, twice with the chorus strum and twice with the bridge strum, then start again.\nIf a new strum starts late, keep your hand swinging and join in on the next beat 1."
           },
           {
             "type": "tool",
@@ -133,7 +133,14 @@
       "steps": [
         "strumming:6"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

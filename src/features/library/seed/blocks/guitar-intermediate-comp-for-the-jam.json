@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-comp-for-the-jam",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 7.",
+  "note": "Comping open sus and 7th chords with nobody else on the chords: the shapes first with the island strum over the metronome, then the same strum over a backing track with no keys, Dsus2 tried in place of Dm7. The key is the lesson (open shapes), so moves holds only a tempo range and the chords stay as letters; one extra line per block, and the title names the drill, not an event of a plan.",
   "exercise": {
-    "title": "Comp for the jam",
+    "title": "Comp Am7, Dsus2 and Dm7 under drums and bass",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -25,12 +25,23 @@
     "cells": [
       {
         "type": "section",
-        "heading": "With the metronome",
+        "heading": "The shapes in time",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum the part with the pattern in the boxes: two bars of Am7, then Dsus2 and Dm7."
+            "text": "Press a chord box below to hear the chord, and fret each one in turn. Then press Play under them to start the metronome at {{=bpm}}.\nAfter a bar of count-in, the lit box shows the chord to play and each beat shows its strums: the island strum.\nPractice until the change from Dsus2 to Dm7 lands on beat 1 with no gap in the strum."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Am7",
+                "Dsus2",
+                "Dm7"
+              ]
+            }
           },
           {
             "type": "tool",
@@ -55,7 +66,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Play Dsus2 in the first bar of Dm7 if you like the sound, and leave it out if you don't."
+            "text": "Press Play below to start the backing track: drums and bass with no keys, so your guitar is the only thing playing the chords. The lit box shows the chord, and the strum is the same island strum.\nIn the first bar of Dm7, try Dsus2 in its place, and keep it where you like the sound."
           },
           {
             "type": "tool",
@@ -87,7 +98,14 @@
       "steps": [
         "sus-add9:1"
       ],
-      "minutes": 6
+      "minutes": 6,
+      "moves": {
+        "bpm": {
+          "from": 85,
+          "to": 105,
+          "step": 10
+        }
+      }
     }
   ]
 }

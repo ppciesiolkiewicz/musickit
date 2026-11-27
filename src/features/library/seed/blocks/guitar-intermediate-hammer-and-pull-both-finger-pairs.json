@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-hammer-and-pull-both-finger-pairs",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 7.",
+  "note": "Two legato-trills side by side, fingers 1 and 3 then 2 and 4, at one tempo so the weaker pair shows. The old tempo stages are now moves (72 to 96 bpm), and the one extra line is the goal: both pairs as even as each other.",
   "exercise": {
     "title": "Hammer and pull, both finger pairs",
     "area": "guitar",
@@ -24,12 +24,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "A stage further",
+        "heading": "Two finger pairs",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on the first tab below to start the metronome. Pick the first note once, then trill fingers 1 and 3 with hammer-ons and pull-offs, one note per beat.\nWhen both notes are even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again."
+            "text": "Press Play on the first tab below to start the metronome at {{=bpm}}. Pick the first note once, then trill fingers 1 and 3 with hammer-ons and pull-offs, one note per beat."
           },
           {
             "type": "tool",
@@ -43,7 +43,7 @@
           },
           {
             "type": "text",
-            "text": "Then press Play on the second tab and do the same with fingers 2 and 4.\nWhen you change pairs, listen for the one whose hammered note is quieter: that is the pair to practice more."
+            "text": "Then press Play on the second tab below and do the same with fingers 2 and 4.\nPractice until both pairs sound the same, every hammered note as loud as the picked one; the pair whose hammered notes are quieter is the one to play more."
           },
           {
             "type": "tool",
@@ -56,21 +56,7 @@
               "bpm": 72
             }
           }
-        ],
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 84
-            },
-            {
-              "bpm": 96
-            }
-          ]
-        }
+        ]
       }
     ]
   },
@@ -81,7 +67,14 @@
       "steps": [
         "legato:2"
       ],
-      "minutes": 4
+      "minutes": 4,
+      "moves": {
+        "bpm": {
+          "from": 72,
+          "to": 96,
+          "step": 12
+        }
+      }
     }
   ]
 }

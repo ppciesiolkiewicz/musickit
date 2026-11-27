@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-mix-triads-four-string-sets",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track triads (guitar-caged), step 7: triads on all four string sets together, inside frets 2 to 7 in G: the chord G on each set up and back, G C D G on one set after another, then a new set every bar.",
+  "note": "Triads on all four string sets together, inside a few frets in G: the 1st chord on each set up and back, then the 1st, 4th and 5th chords on one set after another, then a new set every bar. The chords are tokens, counted the long way once. Moves holds only a tempo range: the grips' frets would drop an octave part-way in some keys, so the key stays G.",
   "exercise": {
     "title": "One progression on four string sets",
     "area": "guitar",
@@ -18,19 +18,19 @@
     "concepts": [
       "triads"
     ],
-    "why": "Inside a few frets, G, C and D each have a triad on every set of three strings, so the same three chords can be played low, in the middle or on top without moving your hand along the neck.",
+    "why": "Inside a few frets, the 1st, 4th and 5th chords of a key each have a triad on every set of three strings, so the same three chords can be played low, in the middle or on top without moving your hand along the neck.",
     "learnBefore": [
       "/course/8/triads-everywhere"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "G on four sets",
+        "heading": "One chord on four sets",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track and follow the tab: the chord G as a triad on the three lowest strings, then one set of strings higher on each beat, up and back down.\nPractice until your hand finds each set without leaving its place on the neck."
+            "text": "{{chord:I}} is the 1st chord of the key, built on {{1}}. Press Play below to start the backing track at {{=bpm}}, and follow the tab: {{chord:I}} as a triad on the three lowest strings, then one set of strings higher on each beat, up and back down.\nPractice until your hand finds each set without leaving its place on the neck."
           },
           {
             "type": "tool",
@@ -126,12 +126,12 @@
       },
       {
         "type": "section",
-        "heading": "G, C and D, set by set",
+        "heading": "Three chords, set by set",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: G, C, D and G, a bar each, on the three lowest strings. Each time the four bars come round again, they sit one set of strings higher.\nWhen you change the set, the chords and their order stay, and the three notes of each chord come in a new order from low to high."
+            "text": "{{chord:IV}} is the 4th chord of the key, built on {{4}}, and {{chord:V}} is the 5th, built on {{5}}. Press Play below to start the backing track: {{chord:I}}, {{chord:IV}}, {{chord:V}} and {{chord:I}} again, a bar each, on the three lowest strings. Each time the four bars come round again, they sit one set of strings higher.\nWhen you change the set, the chords and their order stay, and the three notes of each chord come in a new order from low to high."
           },
           {
             "type": "tool",
@@ -1168,7 +1168,14 @@
       "steps": [
         "triads:7"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

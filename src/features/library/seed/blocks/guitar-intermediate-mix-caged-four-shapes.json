@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-mix-caged-four-shapes",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track caged (guitar-caged), step 6: the C, A, G and E shapes of one chord together, in neck order: C in the four shapes from low to high, the roots two neighbours share, then a new shape every bar in three keys.",
+  "note": "The C, A, G and E shapes of one chord in neck order: the four shapes on a caged-neck, the roots two neighbours share on an arpeggio-neck, then a new shape every bar on a strum-along. The old Key selector is now moves (any key, 60 to 80 bpm), so the text names the key as a param and its last line says what stays the same in another key.",
   "exercise": {
-    "title": "One chord in four shapes, up the neck",
+    "title": "{{=key}} in four shapes, up the neck",
     "area": "guitar",
     "tags": [
       "technique",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Each row of panels below is C in one shape: the C, A, G and E shapes, in the order they come up the neck. Play the chord of each row from the lowest to the highest, and say the shape's letter as you play it.\nPractice until you can go up and back down without stopping to look for the next shape."
+            "text": "Each row of panels below is the chord of {{=key}} in one shape: the C, A, G and E shapes, in the order they come up the neck. Play the chord of each row from the lowest row to the highest, and say the shape's letter as you play it.\nPractice until you can go up and back down without stopping to look for the next shape."
           },
           {
             "type": "tool",
@@ -55,7 +55,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows every note of the C chord. Find each {{1}} from the open C chord up to the E shape: each one belongs to two shapes next to each other.\nPlay from one {{1}} to the next up the neck, and name the two shapes that meet there."
+            "text": "The neck below shows every note of the chord of {{=key}} on the whole neck. Find each {{1}} from the lowest one up the neck to the E shape: each one belongs to two shapes next to each other.\nPlay from one {{1}} to the next up the neck, and name the two shapes that meet there."
           },
           {
             "type": "tool",
@@ -73,23 +73,10 @@
         "type": "section",
         "heading": "A new shape every bar",
         "minutes": 4,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            },
-            {
-              "key": "e-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, strum the chord once on beat 1, each bar in the next shape up the neck, and use the rest of the bar to move. After the E shape, come back down through the G and A shapes.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the four shapes move up the neck together and keep the order C, A, G, E."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, strum the chord once on beat 1, each bar in the next shape up the neck, and use the rest of the bar to move. After the E shape, come back down through the G and A shapes.\nIf a shape comes late, keep your strumming hand going and catch the next beat 1.\n{{?key}}In another key the four shapes sit on other frets and keep the order C, A, G, E up the neck."
           },
           {
             "type": "tool",
@@ -135,7 +122,15 @@
       "steps": [
         "caged:6"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

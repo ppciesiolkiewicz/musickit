@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-fifths-on-two-strings",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track double-stops (guitar-caged), step 1: the 5th as a double stop, on the low E and A strings, one string over, then moved along the low E string. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
+  "note": "The 5th as a double stop on the two lowest string pairs: one pair alone, then a bar on each pair, then the shape moved along the low E string. The old tempo stages are now moves (60 to 84 bpm); the key stays, since the grips sit by the open strings. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
   "exercise": {
     "title": "5ths on two strings",
     "area": "guitar",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track and follow the tab: two strings struck together, once per beat. The lower note is the root and the higher one is its 5th.\nStrum only those two strings, and practice until both notes sound at once and nothing else rings."
+            "text": "Press Play below to start the backing track at {{=bpm}}, and follow the tab: two strings struck together, once per beat. The lower note is the root and the higher one is its 5th.\nStrum only those two strings.\nPractice until both notes sound at once and nothing else rings."
           },
           {
             "type": "tool",
@@ -185,24 +185,10 @@
         "type": "section",
         "heading": "Along the low E string",
         "minutes": 2,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 84
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. The 5th now moves along the neck: keep your two fingers in their shape and slide the whole hand to each new place.\nWhen every change lands on beat 1, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the backing track again.\nIf a change comes late at a new stage, go back one stage and stay there a little longer."
+            "text": "Press Play below to start the backing track. The 5th now moves along the neck: keep your two fingers in their shape and slide the whole hand to each new place.\nPractice until the shape is in your muscle memory: your hand lands on each new fret with both fingers ready on beat 1."
           },
           {
             "type": "tool",
@@ -379,7 +365,14 @@
       "steps": [
         "double-stops:1"
       ],
-      "minutes": 6
+      "minutes": 6,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 84,
+          "step": 12
+        }
+      }
     }
   ]
 }

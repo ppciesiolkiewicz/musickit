@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-three-positions-two-keys-no-looking",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 7.",
+  "note": "Three positions run without looking, then one set of frets heard from two roots: the old Variant selector set a key, so it is now two drones and two necks in one section, a minor pentatonic position 1 and, two frets lower, position 2 in the same frets. Moves holds any key and 80 to 100 bpm; both keys move together.",
   "exercise": {
     "title": "Three positions, two keys, no looking",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "A minor and G minor pentatonic share three of their five notes, so in the same frets the shape changes and your hand has to know which root it is playing from.",
+    "why": "Two minor pentatonic scales whose roots are two frets apart share three of their five notes, so in the same frets the shape changes only a little, and your hand has to know which root it is playing from.",
     "learnBefore": [
       "/course/6/joining",
       "/course/8/pentatonic-boxes",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Run positions 1 to 3 of A minor pentatonic and back, one note per beat, with your eyes off the screen. Then check the neck below for any note you were not sure of."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Play positions 1 to 3 of the {{=key}} minor pentatonic scale and back, one note per beat, with your eyes off the screen. Then check the neck below for any note you were not sure of.\nThe goal of this practice is to cross from one position to the next without looking at the neck."
           },
           {
             "type": "tool",
@@ -69,7 +69,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}.\nThen try the other variant. Use the Variant selector below to change it, then press Play to start the drone again, now on the new root.\nWhen you change the variant, your hand stays in the same frets: this is position 2 of G, and the ringed notes are in new places. Go back and forth until you can end a phrase on a ringed {{1}} in either."
+            "text": "Press Play on the first drone below to start it. On the neck under it, play position 1 of the {{=key}} minor pentatonic scale from the low E string up and back down, and end on a ringed {{1}}."
           },
           {
             "type": "tool",
@@ -95,21 +95,37 @@
                 "1"
               ]
             }
-          }
-        ],
-        "choice": {
-          "label": "variant",
-          "options": [
-            {
-              "key": "a",
-              "position": 1
-            },
-            {
+          },
+          {
+            "type": "text",
+            "text": "Press Stop on the first drone. Then press Play on the second drone below: its root is two frets lower. The neck under it shows the same frets as position 2 of the minor pentatonic scale on that root, with the ringed {{1}} notes in new places. Play it and end on a ringed {{1}}.\nWhen you change drones, your hand stays in the same frets and only the note you end on moves.\nPractice until you can end a phrase on a ringed {{1}} over either drone."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
               "key": "g",
-              "position": 2
+              "parts": {
+                "drone": "always"
+              }
             }
-          ]
-        }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "g",
+              "boxes": [
+                2
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -120,7 +136,15 @@
       "steps": [
         "pentatonic-positions:7"
       ],
-      "minutes": 8
+      "minutes": 8,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-first-week-changes-one-pair-at-a-time",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-new-first-week.json, day 4.",
+  "note": "One pair of open chords per block, changed back and forth: Em and Am, then E and Am (one shape moved over a string), then A and D (one finger leads). Each block has one goal line; the fingering stays in the chord boxes. The key is the lesson, so there are no moves.",
   "exercise": {
     "title": "Changes, one pair at a time",
     "area": "guitar",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Change between Em and Am for about a minute, one strum on each, then rest your hand and go again.\nEach round, lift all your fingers at once and put them down at once."
+            "text": "Press a chord box below to hear the chord. Change between Em and Am with one strum on each, then rest your hand and go again.\nPractice until the change is in your muscle memory: all your fingers lift at once and land at once."
           },
           {
             "type": "tool",
@@ -50,7 +50,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The same drill with E and Am. The chord boxes below show one shape in two places: all three fingers move across one string together.\nPractice until the shape holds while it moves."
+            "text": "Press a chord box below to hear the chord. Change between E and Am the same way: the boxes show one shape in two places, so all three fingers move across one string together.\nPractice until the shape holds while it moves."
           },
           {
             "type": "tool",
@@ -71,7 +71,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The same drill with A and D. Finger 3 stays on its string and slides up one fret, so let it lead and put the other two fingers down around it.\nGo slowly enough that D is ready before you strum it."
+            "text": "Press a chord box below to hear the chord. Change between A and D the same way: one finger stays on the B string and slides up one fret, so let it lead and put the other two fingers down around it.\nGo slowly enough that D is ready before you strum it."
           },
           {
             "type": "tool",

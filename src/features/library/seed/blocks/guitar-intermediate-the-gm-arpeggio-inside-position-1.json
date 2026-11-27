@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-the-gm-arpeggio-inside-position-1",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 5.",
+  "note": "The minor arpeggio found inside the minor pentatonic scale: the position with the chord's three notes ringed, then the arpeggio drawn on its own. One position is on the screen, so the title names no number; moves holds any key, so the title and text name the key as a param and the chord as a token.",
   "exercise": {
-    "title": "The Gm arpeggio inside position 1",
+    "title": "The minor arpeggio inside {{=key}} minor pentatonic",
     "area": "guitar",
     "tags": [
       "theory"
@@ -17,7 +17,7 @@
     "concepts": [
       "arpeggios"
     ],
-    "why": "The notes of Gm are three of the five notes of G minor pentatonic, so the arpeggio is already inside the position: leave two notes out.",
+    "why": "The notes of the minor chord on the root are three of the five notes of the minor pentatonic scale, so the arpeggio is already inside the position: leave two notes out.",
     "learnBefore": [
       "/course/6/arpeggios",
       "/course/5/arpeggios"
@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "The ringed notes below are the notes of Gm inside position 1 of G minor pentatonic: {{1}}, {{b3}} and {{5}}. Play only the ringed notes, up and back down, and leave the other two notes of the scale out."
+        "text": "The neck below shows the {{=key}} minor pentatonic scale in one position, and the ringed dots are the notes of {{chord:i}}: {{1}}, {{b3}} and {{5}}. Start on the lowest ringed {{1}} and play only the ringed notes up to the high e string and back down, leaving the other two notes of the scale out."
       },
       {
         "type": "tool",
@@ -45,7 +45,7 @@
       },
       {
         "type": "text",
-        "text": "Now the same arpeggio drawn on its own, with one more note lower down on the A string. Play it up and back down until you can start on any ringed {{1}} and go either way."
+        "text": "Now the same arpeggio drawn on its own, with the rest of the scale gone. Play it up and back down from the lowest {{1}}.\nPractice until you can start on any ringed {{1}} and go up or down.\n{{?key}}In another key the arpeggio sits on other frets, and it is still the three ringed notes inside the same position."
       },
       {
         "type": "tool",
@@ -69,7 +69,10 @@
       "steps": [
         "arpeggios:1"
       ],
-      "minutes": 5
+      "minutes": 5,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-first-week-a-d-and-e-a-song-in-four-bars",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-new-first-week.json, day 6.",
+  "note": "A four-bar song on A, D and E: one strum a bar, then a strum on every beat, then the same bars over a backing track. The key is the lesson (open chords), so moves holds only a tempo range, and the text leaves the chord order to the lit boxes.",
   "exercise": {
     "title": "A, D and E: a song in four bars",
     "area": "guitar",
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: two bars of A, one of D, one of E. Strum down once on beat 1 and use the rest of the bar to move.\nPractice until D and E are ready before their beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play. Strum down once on beat 1 and use the rest of the bar to move.\nPractice until D and E are ready before their beat 1."
           },
           {
             "type": "tool",
@@ -57,7 +57,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. The same four bars, with a down strum on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+            "text": "Press Play below to start the metronome. Play the same four bars with a down strum on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -82,7 +82,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and try a down and up strum on the A bars.\nPractice until you can look away from your fretting hand on the A bars."
+            "text": "Press Play below to start the backing track: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and on the A bars try a down and an up strum on each beat.\nPractice until you can look away from your fretting hand on the A bars."
           },
           {
             "type": "tool",
@@ -110,7 +110,14 @@
         "open-chords:2",
         "strumming:1"
       ],
-      "minutes": 9
+      "minutes": 9,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

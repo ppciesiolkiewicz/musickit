@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-solo-in-g",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 5.",
+  "note": "Ending phrases on chord notes over a minor 1st and 4th chord: a solo-over that rings the root and 3rd of the chord playing, then phrases that open with the 1st chord's arpeggio and answer onto the 4th chord's root. Moves holds any key and 80 to 100 bpm, so the title names the key as a param; the chords are tokens, and the letter in the old approach hint is gone.",
   "exercise": {
-    "title": "Solo in G",
+    "title": "Solo in {{=key}} minor, ending on chord notes",
     "area": "guitar",
     "tags": [
       "improv"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, which switches between Gm7 and Cm7. Improvise in any of the three positions and end each phrase on a ringed note: the root or the 3rd of the chord playing."
+            "text": "{{chord:i7}} is the 1st chord of the key, built on {{1}}, and {{chord:iv7}} is the 4th, built on {{4}}. Press Play below to start the backing track at {{=bpm}}: it switches between the two. Improvise with the notes of the {{=key}} minor pentatonic scale on the neck, and end each phrase on a ringed note: the root or the 3rd of the chord playing.\nPractice until your phrases end on a ringed note without you looking for it."
           },
           {
             "type": "tool",
@@ -71,7 +71,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the same backing track. Over Gm7, start each phrase with the three notes of the Gm arpeggio, then carry on with the scale. Over Cm7, answer with a phrase that ends on {{c}}."
+            "text": "Press Play below to start the same backing track. Over {{chord:i7}}, start each phrase with the three notes of its arpeggio, the ringed {{1}}, {{b3}} and {{5}}, then carry on with the scale. Over {{chord:iv7}}, answer with a phrase that ends on its root, {{4}}.\n{{?key}}In another key the chords and the scale sit on other frets, and each phrase still ends on the root or the 3rd of the chord playing."
           },
           {
             "type": "tool",
@@ -94,8 +94,7 @@
                     "chord": "Cm7",
                     "target": [
                       "1"
-                    ],
-                    "approach": "end on C"
+                    ]
                   }
                 ],
                 "bars": 2
@@ -115,7 +114,15 @@
       "steps": [
         "pentatonic-positions:5"
       ],
-      "minutes": 6
+      "minutes": 6,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

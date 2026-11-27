@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-mix-pentatonic-five-positions",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track pentatonic-positions (guitar-scales), step 6: all five positions together in A minor, in neck order: each one up and down in turn, the same five as C major pentatonic with the root moved, then a phrase in each position over a backing track. The app numbers the major pentatonic's positions from its own root (the minor position 1 is major position 5), so the major block names no position numbers and hides the picker.",
+  "note": "All five minor pentatonic positions in neck order: each up and down over the metronome, the same five as the major pentatonic scale with its root moved (the major block names no position numbers and hides the picker, since the app numbers the major positions from its own root), then a phrase in each position over a backing track, with the five positions on the neck beside it. Moves holds any key and 70 to 90 bpm.",
   "exercise": {
-    "title": "Five pentatonic positions in neck order",
+    "title": "{{=key}} minor pentatonic: five positions in neck order",
     "area": "guitar",
     "tags": [
       "technique",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Play position 1 up and back down, one note per beat, then do the same in position 2, and so on up to position 5 and back.\nBefore you move up, look at the higher note on each string: it is the lower note of the next position."
+            "text": "Press Play below to start the metronome at {{=bpm}}. The neck under it frames all five positions of the {{=key}} minor pentatonic scale. Play position 1 from the low E string up to the high e string and back down, one note per beat, then position 2 the same way, and so on up to position 5 and back.\nBefore you move up, look at the higher dot on each string: it is the lower dot of the next position."
           },
           {
             "type": "tool",
@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows C major pentatonic: the same notes in the same five places, with {{1}} moved to C. Play each position up and back down again, and this time start and end on a ringed {{1}}.\nWhen you change from A minor to C major, no finger moves: only the note you start and end on is new."
+            "text": "The neck below shows the same notes in the same five places, now as a major pentatonic scale: its {{1}} is the note three frets above the minor scale's root. Play each position up and back down again, and this time start and end on a ringed {{1}}.\nWhen you change from minor to major, no finger moves: only the note you start and end on is new."
           },
           {
             "type": "tool",
@@ -100,7 +100,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, four chords in A minor. Improvise a short phrase in position 1, answer it in position 2, and carry on up the neck and back down.\nPractice until your hand moves to the next position without you stopping to find it."
+            "text": "Press Play below to start the backing track: four chords in {{=key}} minor. Improvise a short phrase in position 1 on the neck under it, answer it in position 2, and carry on up the neck and back down.\nPractice until your hand moves to the next position without you stopping to find it.\n{{?key}}In another key the five positions sit on other frets, in the same order up the neck."
           },
           {
             "type": "tool",
@@ -109,6 +109,24 @@
               "progression": "minor-pop",
               "key": "a",
               "bpm": 80
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "highlight": [
+                "1"
+              ]
             }
           }
         ]
@@ -125,7 +143,15 @@
       "steps": [
         "pentatonic-positions:6"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      }
     }
   ]
 }

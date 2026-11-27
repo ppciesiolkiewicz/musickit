@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-slide-in-bend-out",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 6.",
+  "note": "One move, a slide into the next position and a bend at the end of the phrase: the crossing from position 1 to 2 with the slide's notes ringed, the bend held against a drone on the root, then the same move at the next crossing. Moves holds any key, so the text names the key as a param and the last line says what stays the same in another key.",
   "exercise": {
     "title": "Slide in, bend out",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "bends-slides"
     ],
-    "why": "A slide takes your hand to a new position and a bend finishes the phrase there, so the two together are one move you can use at every join.",
+    "why": "A slide takes your hand into the next position and a bend finishes the phrase there, so the two together are one move you can use at every crossing.",
     "learnBefore": [
       "/course/5/bends-and-slides",
       "/course/6/joining"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "On the neck below, climb position 1 and slide up the G string from {{4}} to {{5}}. You are now in position 2: on the B string, bend {{b7}} up until it sounds like the ringed {{1}} next to it. Play the whole move slowly until the slide and the bend feel like one phrase."
+            "text": "The neck below shows only the crossing from position 1 to position 2 of the {{=key}} minor pentatonic scale. Climb position 1 from the low E string, and on the G string slide from the ringed {{4}} up to the ringed {{5}}. You are now in position 2: on the B string, bend {{b7}} up until it sounds like the {{1}} next to it.\nPractice until the slide and the bend feel like one phrase."
           },
           {
             "type": "tool",
@@ -43,7 +43,8 @@
                 "to": 2
               },
               "highlight": [
-                "1"
+                "4",
+                "5"
               ]
             }
           }
@@ -56,7 +57,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone on A, and play the move again. The bend ends on the drone's own note, so hold it at the top and listen for the two to settle into one sound. If the bend stops short, push a little further and listen again."
+            "text": "Press Play below to start the drone on {{=key}}, and play the move again. The bend ends on the drone's own note, so hold it at the top and listen for the two to settle into one sound.\nIf the bend stops short, push a little further and listen again."
           },
           {
             "type": "tool",
@@ -78,7 +79,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The same move at the next join. Climb position 2 and slide up the G string from {{5}} to {{b7}} into position 3. On the high E string, bend {{4}} up until it sounds like {{5}}. Same move, new place: now try it going into a position you choose."
+            "text": "Now the same move at the next crossing. Climb position 2 and slide up the G string from the ringed {{5}} to the ringed {{b7}} into position 3. On the high e string, bend {{4}} up until it sounds like {{5}}.\nPractice until the bend reaches its note without you checking the drone.\n{{?key}}In another key the move sits on other frets, and both slides are still on the G string."
           },
           {
             "type": "tool",
@@ -91,7 +92,8 @@
                 "to": 3
               },
               "highlight": [
-                "1"
+                "5",
+                "b7"
               ]
             }
           }
@@ -107,7 +109,10 @@
         "bends-slides:1",
         "bends-slides:3"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

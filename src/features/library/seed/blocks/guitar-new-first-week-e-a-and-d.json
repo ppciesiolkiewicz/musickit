@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-first-week-e-a-and-d",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-new-first-week.json, day 3.",
+  "note": "E, A and D as open chords: E found from Em by one added finger, A and D picked string by string from their lowest string, then two bars of each over the metronome. The key is the lesson, so moves holds only a tempo range.",
   "exercise": {
     "title": "E, A and D",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Fret Em, then add the one finger that turns it into E.\nTake that finger off and put it back, with a strum each time, until you hear the chord change with it."
+            "text": "Press a chord box below to hear the chord. Fret Em, then add the one finger that turns it into E.\nTake that finger off and put it back, with a strum each time.\nPractice until you hear the chord change with it."
           },
           {
             "type": "tool",
@@ -73,7 +73,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, two bars on each chord.\nUse the second bar to look ahead at the next shape. If a change comes late, keep your strumming hand going and catch the next beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, two bars on each chord, and use the second bar to look ahead at the next shape.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -103,7 +103,14 @@
         "open-chords:2",
         "strumming:1"
       ],
-      "minutes": 8
+      "minutes": 8,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

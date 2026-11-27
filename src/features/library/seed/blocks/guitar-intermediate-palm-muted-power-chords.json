@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-palm-muted-power-chords",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track power-chords (guitar-basic-chords), step 3: power chords on both roots in palm-muted eighth-note downstrokes, with the mute lifted on the last bar. missing: a palm-mute mark on a tool, and eighth-note steps in guitar-play-along (its steps are one per beat), so the riff is strummed bars in a strum-along, not a tabbed riff.",
+  "note": "Power chords on both roots in palm-muted eighth-note downstrokes, with the mute lifted on the last bar. The old tempo stages are now moves (70 to 100 bpm; the last section keeps its 10 above). missing: a palm-mute mark on a tool, and eighth-note steps in guitar-play-along (its steps are one per beat), so the riff is strummed bars in a strum-along, not a tabbed riff.",
   "exercise": {
     "title": "Palm-muted power chords in eighths",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome and fret the power chord in the lit box. Rest the side of your picking hand on the strings right where they leave the bridge, and strum down twice per beat.\nIf the notes sound dead, move your hand back towards the bridge until you hear the chord again."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Fret the power chord in the lit box, rest the side of your picking hand on the strings right where they leave the bridge, and strum down twice per beat.\nIf the notes sound dead, move your hand back towards the bridge until you hear the chord again."
           },
           {
             "type": "tool",
@@ -74,24 +74,10 @@
         "type": "section",
         "heading": "Let the last bar ring",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 80
-            },
-            {
-              "bpm": 96
-            },
-            {
-              "bpm": 112
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Play the first three bars muted, then lift your picking hand on the last bar so that chord rings open.\nWhen the mute is back on beat 1 of the next round, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the chords blur at a new stage, go back one stage."
+            "text": "Press Play below to start the metronome. Play the first three bars muted, then lift your picking hand on the last bar so that chord rings open.\nPractice until the mute is back on beat 1 of the next round without a gap."
           },
           {
             "type": "tool",
@@ -118,7 +104,14 @@
       "steps": [
         "power-chords:3"
       ],
-      "minutes": 8
+      "minutes": 8,
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

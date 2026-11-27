@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-first-week-a-three-note-tune-then-your-own",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-new-first-week.json, day 7.",
+  "note": "A three-note tune from the tab, then tunes of your own from its notes over a drone on the home note. Moves holds any key, so the text names the home note as a degree and the drone's key as a param, and the last block makes the drill the player's own.",
   "exercise": {
     "title": "A three-note tune, then your own",
     "area": "guitar",
@@ -18,7 +18,7 @@
     "concepts": [
       "guitar-melodies"
     ],
-    "why": "A tune sounds finished when it ends on its home note, which in this key is the open G string, so three notes and that one ending are enough to make up tunes of your own.",
+    "why": "A tune sounds finished when it ends on its home note, so the three notes of this tune and that ending are enough to make up tunes of your own.",
     "learnBefore": [
       "/course/4/melodies",
       "/course/3/home-note"
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune, then play along from the tab.\nNotice which of its notes your fingers find without the tab."
+            "text": "Press Play below to hear the tune, then play along from the tab.\nPractice until your fingers find its three notes without the tab."
           },
           {
             "type": "tool",
@@ -55,7 +55,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone, one long G. Make up short tunes from the three notes of the tune above, on the G string, in any order and any rhythm.\nEnd some of them on the open string and some on another note, and listen for which ending sounds finished."
+            "text": "Press Play below to start the drone on {{=key}}. Make up short tunes from the three notes of the tune above, in any order and any rhythm, and end each one on the tune's last note, {{1}}, the drone's own note.\nThen end one on another note, and listen for the difference: one ending sounds finished, the other sounds on its way somewhere.\n{{?key}}In another key the three notes sit on other frets, and the home note is still the tune's last note."
           },
           {
             "type": "tool",
@@ -79,7 +79,10 @@
       "steps": [
         "guitar-melodies:1"
       ],
-      "minutes": 5
+      "minutes": 5,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }
