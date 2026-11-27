@@ -23,9 +23,9 @@ export default function ExamplePreview({ json, entries, videos = false, blockId 
       )}
       {p.exercise ? (
         videos ? (
-          <OverlayDrawProvider draw={drawToolOverlay}><LibraryStrip blockId={blockId}>{(card) => <ExerciseCard exercise={p.exercise!} index={0} onAsks={card.onAsks} afterTool={card.afterTool} />}</LibraryStrip></OverlayDrawProvider>
+          <OverlayDrawProvider draw={drawToolOverlay}><LibraryStrip blockId={blockId}>{(card) => <ExerciseCard exercise={blockId ? { ...p.exercise!, blockId } : p.exercise!} index={0} onAsks={card.onAsks} afterTool={card.afterTool} />}</LibraryStrip></OverlayDrawProvider>
         ) : (
-          <ExerciseCard exercise={p.exercise} index={0} />
+          <ExerciseCard exercise={blockId ? { ...p.exercise, blockId } : p.exercise} index={0} />
         )
       ) : (
         <PlanPreview reply={previewPlanText(json)} />
