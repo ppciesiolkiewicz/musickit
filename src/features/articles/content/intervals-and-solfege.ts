@@ -6,12 +6,13 @@ export const intervalsAndSolfege: Article = {
   metaTitle: "Intervals vs Solfège: Every Note From Do on a Piano · attunr",
   description: "Every note from Do to the Do above on an interactive piano, named in solfège and as an interval. Tap a note to hear it, then name and sing them.",
   intro: "A visual, interactive chart of every note from Do to the Do above, named both ways: in solfège and as an interval, on a piano and a guitar neck. Tap a note to hear it.",
-  updated: "2026-11-26",
+  updated: "2026-11-27",
   sings: true,
   topics: ["theory", "singing"],
   blocks: [
     { type: "p", text: "Every note can go by two names. In solfège it's a syllable: Do, Re, Mi. As an interval it's how far the note is from Do: a 2nd, a 3rd, a 5th." },
     { type: "p", text: "Both count from Do, so they always point at the same note. Some players think in solfège, some in intervals. It's okay to go with your feeling now: pick the names that stick, and the others will follow." },
+    { type: "p", text: "Solfège came easier to me at first. Now I think in a mix of both, more so as I move into other modes." },
 
     { type: "h2", text: "Every note from Do" },
     { type: "p", text: "Here is one octave of a piano from Do, which is C here, up to the Do above. Each note shows its interval on the dot and its solfège name under it. Tap a note to hear it, or press Play below the piano to hear the whole octave rise." },

@@ -6,12 +6,13 @@ export const microphoneAndAudioInterface: Article = {
   metaTitle: "A Simple Choice: Beginner Microphone and Audio Interface for Singing · attunr",
   description: "What to buy if you want a better sound for singing practice: a Shure SM58, a Focusrite Scarlett Solo or 2i2, and why direct monitoring matters.",
   intro: "You don't need any of this to start. But if you're wondering what to buy, here's a simple setup that's hard to go wrong with.",
-  updated: "2026-11-26",
+  updated: "2026-11-27",
   sings: false,
   topics: ["singing"],
   blocks: [
     { type: "p", text: "Your laptop's or phone's mic is enough to practice pitch on attunr. A real mic and an interface give you a cleaner sound and let you hear yourself in headphones." },
     { type: "p", text: "This is for anyone overwhelmed by all the options. I'm not a gear specialist and I don't know your budget. This is a simple, budget-friendly setup that will get you through a lot. Nobody paid me to name it." },
+    { type: "p", text: "My guitar teacher recommended this setup to me. It made my practice better, and now I can record my own songs too." },
 
     { type: "h2", text: "The microphone: Shure SM58" },
     { type: "figure", src: "/images/learn/shure-sm58.jpg", width: 1200, height: 900, alt: "A black Shure SM58 microphone with a round silver mesh grille",

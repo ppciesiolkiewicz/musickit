@@ -86,9 +86,26 @@ export const movableChordShapes: Article = {
     { type: "exercise", title: "6. Root on the low E string", lines: [
       "This maj7 shape has its root on the low E string, under your first finger. F at the 1st fret gives Fmaj7.",
       "G is at the 3rd fret and A at the 5th, so slide it there for Gmaj7 and Amaj7. Your first finger touches the A string lightly to keep it quiet.",
+      "I liked learning jazz shapes like this one. Jazz has a name for being hard, but its shapes were much easier on my hand than a barre.",
       "Press Play under each chord box below.",
     ], tool: { type: "chord-shapes", chords: ["Fmaj7", "Gmaj7", "Amaj7"], frets: ["1 x 2 2 1 x | 1 x 3 4 2 x", "3 x 4 4 3 x | 1 x 3 4 2 x", "5 x 6 6 5 x | 1 x 3 4 2 x"] }, after: [
       "The goal is to land your first finger on the root and let the other three follow.",
+    ] },
+
+    { type: "exercise", title: "7. Bonus: C6 and Cmaj7", lines: [
+      "Two more jazz shapes, both movable. They're harder than the ones above, Cmaj7 most of all.",
+      "C6 is C with the 6th, A, added. Its root is on the low E string at the 8th fret, under your second finger, and it skips the A string like the maj7 shape: that finger touches the A string lightly to keep it quiet.",
+      "This Cmaj7 has its root on the A string at the 3rd fret, under your first finger. The other three fingers reach two frets further up, and that stretch is the hard part.",
+      "Press Play under each chord box below.",
+    ], tool: { type: "chord-shapes", chords: ["C6", "Cmaj7"], frets: ["8 x 7 9 8 x | 2 x 1 4 3 x", "x 3 5 4 5 x | x 1 3 2 4 x"] }, parts: [
+      { title: "C6 at G and A", lines: [
+        "Slide C6 down to G on the low E string, at the 3rd fret, for G6. Two frets up, at A, it's A6.",
+        "Press Play under each chord box below.",
+      ], tool: { type: "chord-shapes", chords: ["G6", "A6"], frets: ["3 x 2 4 3 x | 2 x 1 4 3 x", "5 x 4 6 5 x | 2 x 1 4 3 x"] } },
+      { title: "A smaller stretch", lines: [
+        "Slide Cmaj7 up two frets for Dmaj7, and two more for Emaj7. The frets get closer together as you go up, so the stretch gets smaller.",
+        "If Cmaj7 is too wide for your hand, start with Emaj7 and work your way down.",
+      ], tool: { type: "chord-shapes", chords: ["Cmaj7", "Dmaj7", "Emaj7"], frets: ["x 3 5 4 5 x | x 1 3 2 4 x", "x 5 7 6 7 x | x 1 3 2 4 x", "x 7 9 8 9 x | x 1 3 2 4 x"] } },
     ] },
 
     { type: "h2", text: "Make it your own" },

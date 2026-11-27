@@ -16,7 +16,9 @@
     "Intro: be more like \"Movable shapes are guitar chords which you can slide across the neck wthout changing your finger position.\"",
     "Add basic example here",
     "Frets and steps: This is not good.",
-    "What makes a shape movable: This is weird as well"
+    "What makes a shape movable: This is weird as well",
+    "I really liked learning jazz shapes becasue despite jazz getting rap of being hard - the chord shapes were much easier than barre",
+    "- Let's add \"6 drop 3 chords\" , .e.g. C6 \n- Let's add Cmaj7 with root on A \n\nAs a bonus chords. \n\nI think these are harder - especialy Cmaj7"
   ],
   "blocks": [
     "guitar-advanced-barre-shapes-anywhere"
@@ -29,7 +31,8 @@
     "npm run -s theory -- scale G major (V7 = D7: D F♯ A C; D7 x 5 4 5 3 x = D F♯ C D)",
     "npm run -s theory -- scale A major (V7 = E7: E G♯ B D; E7 x 7 6 7 5 x = E G♯ D E)",
     "Chord boxes copied from barre-chord-alternatives and checked by chord-shapes' shapeFromFrets (articles.test.ts): plain F, G, A x x 3 2 1 x / 5 4 3 / 7 6 5; Bm, Cm, C♯m four-string; B7 open (library) and C7 x 3 2 3 1 x; D, E, F♯ and Dm, Em, F♯m from the open D shapes; C9, D9, E9; Fmaj7, Gmaj7, Amaj7 on the low E with fingering 1 x 3 4 2 x",
-    "One fret = a half step, two frets = a whole step: boxes F and G (low E 1 and 3), boxes B and C (A string 2 and 3)"
+    "One fret = a half step, two frets = a whole step: boxes F and G (low E 1 and 3), boxes B and C (A string 2 and 3)",
+    "chordKit gripName on the bonus grips: C6 8 x 7 9 8 x = R 6 3 5 (C A E G), G6 3 x 2 4 3 x, A6 5 x 4 6 5 x; Cmaj7 x 3 5 4 5 x = R 5 7 3 (C G B E), Dmaj7 x 5 7 6 7 x, Emaj7 x 7 9 8 9 x. Fingering 2 x 1 4 3 x for the 6, x 1 3 2 4 x for the maj7 (shapes.ts rs:5 maj7 fg)."
   ],
   "sources": [
     "src/features/articles/content/barre-chord-alternatives.ts (its six Movable shapes parts and its summary line on moving a shape)"

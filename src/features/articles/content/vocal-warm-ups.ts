@@ -6,11 +6,12 @@ export const vocalWarmUps: Article = {
   metaTitle: "Vocal Warm-ups for Beginners: Sing Along on the Page · attunr",
   description: "A five-minute vocal warm-up to sing right on this page, your voice drawn live as you sing: breathing, a buzz, lip rolls, a hum, the five-tone scale.",
   intro: "Five minutes, six warm-ups, sung right here with your mic. Breath first, then buzz, then sound.",
-  updated: "2026-11-26",
+  updated: "2026-11-27",
   sings: true,
   topics: ["singing"],
   blocks: [
     { type: "p", text: "A warm-up wakes your voice up gently before you ask anything hard of it. Each one below asks a little more than the last." },
+    { type: "p", text: "Even a short one works for me: I can feel my voice open up and get ready to sing." },
     { type: "list", items: [
       "Start quiet and low. Nothing should hurt.",
       "Leave it out on a sore throat: rest is the warm-up then.",
@@ -31,6 +32,7 @@ export const vocalWarmUps: Article = {
       "Press Start below: the mic starts with it. Lip roll along as the tone slides down.",
       "**Don't worry if you're not on the note, or if your mic can't pick up the buzz.** An even buzz matters much more than the note.",
       "No buzz? Press two fingers gently into your cheeks beside your mouth, or roll your tongue instead.",
+      "Lip rolls took me a while to learn, so give them a few days.",
     ], tool: { type: "lip-roll", shape: "down", play: "always", plays: 3, voice: "tenor" } },
 
     { type: "exercise", title: "4. Lip rolls, up and back down", lines: [

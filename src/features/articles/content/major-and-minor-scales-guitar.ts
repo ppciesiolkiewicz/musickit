@@ -6,13 +6,14 @@ export const majorAndMinorScalesGuitar: Article = {
   metaTitle: "Major vs Minor Scale on Guitar: A Visual, Interactive Neck · attunr",
   description: "A minor and A major side by side on an interactive guitar neck. Tap a note to hear it and play small islands of notes that come back all over the neck.",
   intro: "A visual, interactive look at A major and A minor on the whole neck, with a few small islands of notes to play and hear. Part 1 of a series on knowing one key all over the neck.",
-  updated: "2026-11-26",
+  updated: "2026-11-27",
   sings: false,
   topics: ["guitar", "theory"],
   frets: 12,
   blocks: [
     { type: "p", text: "Most of us learn a scale as one position: a block of frets to run up and down. But the neck doesn't stop there. The same notes come back all the way up, and small groups of them come back together." },
     { type: "p", text: "I call those groups **islands**: three notes around a root, under one hand. Below, A minor sits on top of A major, with two islands of the same scale notes framed on both. Play one island, then the other one up the neck: same notes, same tune, just higher or lower." },
+    { type: "p", text: "Once I noticed the islands, I was surprised how simple they are." },
 
     { type: "h2", text: "How to read the neck" },
     { type: "list", items: [
