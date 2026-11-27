@@ -8,7 +8,7 @@ import ChordDiagram from "./ChordDiagram";
 import { fretWidthFactor } from "./Fretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import {
-  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, boxScaleChords, cagedBoxes, cagedContext, islandStrings, ladderMidi, laneAt, laneStarts, layerNotes,
+  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, boxScaleChords, cagedBoxes, cagedContext, islandNotes, ladderMidi, laneAt, laneStarts, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
 } from "@/lib/chordKit/caged";
 import { STRING_PLAIN, STRING_SHORT } from "@/lib/chordKit/shapeTools";
@@ -174,7 +174,7 @@ const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q ==
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 
 /** The neck map on its own, for the teacher studio: the five boxes of a key up the whole neck. */
-export function CagedNeckMap({ rootPc, quality, islands = false }: { rootPc: number; quality: CagedQuality; /** frame each shape's island (`islandStrings`) */ islands?: boolean }) {
+export function CagedNeckMap({ rootPc, quality, islands = false }: { rootPc: number; quality: CagedQuality; /** frame each shape's island (`islandNotes`) */ islands?: boolean }) {
   const [labelSystem] = useLabelSystem();
   const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
   const keyName = useMemo(() => cagedContext(rootPc, quality).names[0], [rootPc, quality]);
@@ -222,6 +222,9 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
   const alpha = (k: number) => (selLane < 0 ? "var(--lane-alpha, 26%)" : laneBox(k) === selLane ? "55%" : "8%");
   const rowFrets = useMemo(() => [0, 1, 2, 3, 4, 5].map((s) => cells.filter((c) => c.string === s).map((c) => c.fret).sort((p, q) => p - q)), [cells]);
   const SECTIONS = sorted.length;
+  // with islands: each shape's island notes are ringed in the shape's colour (their fill stays the degree's), so the island reads as one group
+  const islandColour = new Map<string, string>();
+  if (islands) sorted.forEach((b, k) => islandNotes(b).forEach(([i, f]) => islandColour.set(`${i}-${f}`, colour(k))));
   const starts = laneStarts(rowFrets, SECTIONS);
   const labelSpans = starts.map((st, k) => {
     const from = Math.min(NECK_END, st);
@@ -283,7 +286,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
                       onClick={() => strum([c.midi], { gapMs: 0, holdMs: 700 })}
                       aria-label={`${lab(c)} on string ${STRING_LETTERS[s]}, fret ${f}`}
                       className={`group relative cursor-pointer grid size-4 before:absolute before:-inset-1 place-items-center rounded-full text-[8px] font-bold sm:size-7 sm:text-xs ${c.isRoot ? "ring-2 ring-slate-50" : "ring-1 ring-slate-950"}`}
-                      style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK }}
+                      style={{ backgroundColor: c.scaleDegree === null ? "#f43f5e" : degreeColour(c.scaleDegree), color: DOT_INK, ...(islandColour.has(`${s}-${f}`) ? { outline: `3px solid ${islandColour.get(`${s}-${f}`)}`, outlineOffset: 2 } : {}) }}
                     >
                       <span className="group-hover:hidden">{lab(c)}</span>
                       <span className="hidden group-hover:inline">{hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</span>
@@ -293,19 +296,16 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
               );
             }),
           )}
-          {islands && sorted.flatMap((b, k) => {
-            // one frame per run of neighbouring strings: the G shape's island is the two low strings and the high e
-            const runs = islandStrings(b).reduce<number[][]>((rs, i) => (rs.length && rs[rs.length - 1].at(-1) === i - 1 ? (rs[rs.length - 1].push(i), rs) : [...rs, [i]]), []);
-            return runs.map((ss) => {
-              const fs = ss.map((i) => b.frets[i] as number);
-              if (Math.max(...fs) > NECK_END) return null;
-              return (
-                <div key={`isl${k}-${ss[0]}`} aria-hidden className="pointer-events-none rounded-xl border-2" style={{
-                  gridRow: `${5 - Math.max(...ss) + 2} / ${5 - Math.min(...ss) + 3}`, gridColumn: `${Math.min(...fs) + COL0} / ${Math.max(...fs) + COL0 + 1}`,
-                  borderColor: colour(k), boxShadow: `0 0 10px color-mix(in srgb, ${colour(k)} 60%, transparent)`,
-                }} />
-              );
-            });
+          {islands && sorted.map((b, k) => {
+            // one island per shape: a frame round every note the open chord's fingers press, moved up
+            const isl = islandNotes(b), ss = isl.map(([i]) => i), fs = isl.map(([, f]) => f);
+            if (!ss.length || Math.max(...fs) > NECK_END) return null;
+            return (
+              <div key={`isl${k}`} aria-hidden className="pointer-events-none rounded-xl border-2" style={{
+                gridRow: `${5 - Math.max(...ss) + 2} / ${5 - Math.min(...ss) + 3}`, gridColumn: `${Math.min(...fs) + COL0} / ${Math.max(...fs) + COL0 + 1}`,
+                borderColor: colour(k), boxShadow: `0 0 10px color-mix(in srgb, ${colour(k)} 60%, transparent)`,
+              }} />
+            );
           })}
           {frets.map((f) => (
             <div key={`fn${f}`} className="pt-1.5 text-center text-slate-500" style={{ gridRow: 8, gridColumn: f + COL0 }}>{f === 0 ? <><span className="sm:hidden">0</span><span className="hidden sm:inline">open</span></> : f}</div>

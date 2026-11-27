@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { cagedBoxes, islandStrings, laneAt, laneStarts } from "./caged";
+import { cagedBoxes, islandNotes, laneAt, laneStarts } from "./caged";
 
 describe("laneAt: each string's colour runs from one of its notes to the next", () => {
   const notes = [1, 4, 9, 13, 16];
@@ -28,10 +28,12 @@ describe("laneStarts: where each lane begins, for the labels above the neck", ()
   });
 });
 
-describe("islandStrings: the strings the open chord's fingers press, moved up with the shape", () => {
-  it("C major: three strings in every shape, the ones the article's chord boxes use", () => {
-    const got = Object.fromEntries(cagedBoxes(0, "major").map((b) => [b.letter, islandStrings(b)]));
-    // low E = 0 … high e = 5: C x-3-2-0-1-0, A x-3-5-5-5-3, G 8-7-5-5-5-8, E 8-10-10-9-8-8, D x-x-10-12-13-12
-    assert.deepEqual(got, { C: [1, 2, 4], A: [2, 3, 4], G: [0, 1, 5], E: [1, 2, 3], D: [3, 4, 5] });
+describe("islandNotes: the notes the open chord's fingers press, moved up with the shape", () => {
+  it("C major: the notes the article's chord boxes play, the G shape with its B string", () => {
+    const got = Object.fromEntries(cagedBoxes(0, "major").map((b) => [b.letter, islandNotes(b)]));
+    // [string, fret], low E = 0 … high e = 5: C x-3-2-0-1-0, A x-3-5-5-5-3, G 8-7-5-5-5-8 (played 8-7-x-x-8-8), E 8-10-10-9-8-8, D x-x-10-12-13-12
+    assert.deepEqual(got, {
+      C: [[1, 3], [2, 2], [4, 1]], A: [[2, 5], [3, 5], [4, 5]], G: [[0, 8], [1, 7], [4, 8], [5, 8]], E: [[1, 10], [2, 10], [3, 9]], D: [[3, 12], [4, 13], [5, 12]],
+    });
   });
 });

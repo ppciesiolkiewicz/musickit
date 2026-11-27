@@ -21,7 +21,7 @@ export const cagedSystemGuitar: Article = {
     { type: "chord-chain", chords: [
       { chord: "C", frets: "x 3 2 x 1 x | x 3 2 x 1 x", caption: "C shape" },
       { chord: "C", frets: "x x 5 5 5 x | x x 1 2 3 x", caption: "A shape" },
-      { chord: "C", frets: "8 7 x x x 8 | 2 1 x x x 3", caption: "G shape" },
+      { chord: "C", frets: "8 7 x x 8 8 | 2 1 x x 3 4", caption: "G shape" },
       { chord: "C", frets: "x 10 10 9 x x | x 2 3 1 x x", caption: "E shape" },
       { chord: "C", frets: "x x 10 12 13 12 | x x 1 2 4 3", caption: "D shape" },
     ] },
@@ -55,8 +55,8 @@ export const cagedSystemGuitar: Article = {
     ] },
 
     { type: "exercise", title: "3. The C chord in the G and E shapes", lines: [
-      "Next up the neck is the G shape: the three fingers of the open G chord, on the two lowest strings and the high e string, moved up five frets. Press the chord box below to hear it, then play it.",
-    ], tool: { type: "chord-shapes", chords: ["C"], frets: ["8 7 x x x 8 | 2 1 x x x 3"] },
+      "Next up the neck is the G shape: the open G chord played with four fingers, on the two lowest strings and the two highest, moved up five frets. Press the chord box below to hear it, then play it.",
+    ], tool: { type: "chord-shapes", chords: ["C"], frets: ["8 7 x x 8 8 | 2 1 x x 3 4"] },
     between: [
       "Then comes the E shape: the three fingers of the open E chord, moved up eight frets. Press the chord box below to hear it, then play it.",
     ],
