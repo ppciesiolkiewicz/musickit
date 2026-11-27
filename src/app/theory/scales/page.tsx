@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import { SignUpCorner, SignUpEnd } from "@/features/explore";
 import Lesson from "@/components/theory/Lesson";
 import ScalesIndex from "@/components/chordKit/ScalesIndex";
 import { keyOr } from "@/features/theory/keySlug";
@@ -18,6 +19,8 @@ export default async function ScalesPage({ searchParams }: { searchParams: Promi
   const initialKey = keyOr(key);
   return (
     <PageShell
+      action={<SignUpCorner />}
+      end={<SignUpEnd />}
       active="/theory/scales"
       pageId="scales"
       tour={SCALES_TOUR}

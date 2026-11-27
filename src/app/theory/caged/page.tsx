@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import { SignUpCorner, SignUpEnd } from "@/features/explore";
 import Lesson from "@/components/theory/Lesson";
 import CagedExplorer from "@/components/chordKit/CagedExplorer";
 import NeighboursView from "@/components/chordKit/NeighboursView";
@@ -14,6 +15,8 @@ export const metadata: Metadata = {
 export default function CagedPage() {
   return (
     <PageShell
+      action={<SignUpCorner />}
+      end={<SignUpEnd />}
       active="/theory/caged"
       full
       pageId="caged"

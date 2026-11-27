@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import { SignUpCorner, SignUpEnd } from "@/features/explore";
 import { SettingsPanel, SettingsSection } from "@/components/ui";
 import { VolumeRow } from "@/features/settings";
 import Lesson from "@/components/theory/Lesson";
@@ -15,6 +16,8 @@ export const metadata: Metadata = {
 export default function MetronomeDronePage() {
   return (
     <PageShell
+      action={<SignUpCorner />}
+      end={<SignUpEnd />}
       active="/theory/metronome-drone"
       full
       pageId="metronome-drone"

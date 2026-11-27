@@ -9,4 +9,4 @@ place, after Practice plan and Interactive notes (the nav, `src/components/SiteN
   to `THEORY_SECTIONS` gets a tile with no change here; `wide: true` there makes its tile wide. A tool
   the Singing menu also lists (`alsoIn` singing: the pitch roll) has a second tile under Singing.
 - `PracticeTiles.tsx`: the tiles, in brushed metal (`.metal-tile` in `src/app/decor.css`) that lifts on hover. One colour per tile from the page's `tone`, the icon at the top, the name at the
-  bottom; a wide tile adds its `desc`.
+  bottom; a wide tile adds its `desc`. One tile is `PracticeTile` (exported for /explore, which adds `locked`: a lock in the corner).

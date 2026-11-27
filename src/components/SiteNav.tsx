@@ -8,6 +8,7 @@ import Wordmark from "./Wordmark";
 import { SpotlightButton } from "@/features/search/Spotlight";
 import { NAV_PLACES, isUnder } from "@/lib/appPlaces";
 import { isMarketingPath } from "@/lib/publicPaths";
+import { VisitorOnly } from "@/features/explore";
 import TeacherOnly from "@/features/students/ui/TeacherOnly";
 
 /**
@@ -57,7 +58,7 @@ function DemoLink({ current }: { current: boolean }) {
  * sees what is inside; without a login they lead to the login page (src/proxy.ts). A page a visitor may read
  * (`isMarketingPath`: the home pages, FAQ, demos, logging in) adds Demos and has the wordmark go home (the switch
  * between the two home pages is at the top of each, and in the footer); on the app's pages the wordmark goes to the
- * plan, and search joins the bar. The tuner button sits left of the style on every page but the tuner page, home pages included;
+ * plan, and search joins the bar. A visitor who isn't signed in also gets Explore, the tools that open without an account. The tuner button sits left of the style on every page but the tuner page, home pages included;
  * `devices` adds the audio devices button after the style. A teacher's account (`can("students")`) gets a fourth link,
  * Students, after the three (on a phone its icon only; under 380 px Interactive notes is its icon too, so the four fit; under 340 px it is for everyone).
  */
@@ -77,6 +78,10 @@ export default function SiteNav({ active, devices = false, themeIntro = false }:
         {NAV_PLACES.map((l) => (
           <NavLink key={l.href} href={l.href} label={l.label} current={isUnder(active, l.under)} foldIcon={l.href === NOTES_HREF ? "file-text" : undefined} />
         ))}
+        {/* a visitor's way to the tools that open without an account (src/lib/publicPaths.ts, OPEN_TOOLS) */}
+        <VisitorOnly>
+          <NavLink href="/explore" label="Explore" current={isUnder(active, ["/explore"])} />
+        </VisitorOnly>
         {/* a teacher's fourth place, once the account is known to have students */}
         {!visitor && (
           <TeacherOnly>

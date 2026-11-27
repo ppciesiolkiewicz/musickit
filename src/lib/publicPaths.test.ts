@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isMarketingPath, isPublicPath, loginHref } from "./publicPaths";
+import { isMarketingPath, isOpenToolPath, isPublicPath, loginHref } from "./publicPaths";
 
 const PUBLIC = [
   "/", "/schools", "/faq", "/terms", "/privacy", "/demo", "/demo/guitar-beginner", "/login", "/login/confirm", "/claim",
@@ -9,7 +9,7 @@ const PUBLIC = [
   "/sitemap.xml", "/instruments/piano/a.mp3", "/images/teacher.webp", "/admin/dev", "/admin/content/stories", "/admin", "/admin/messages",
 ];
 const GATED = [
-  "/plan", "/practice", "/theory/scales", "/tuner", "/looper", "/course/1", "/note/x", "/account", "/teachers/studio",
+  "/plan", "/practice", "/theory/notes", "/theory/scalesx", "/tunerx", "/looper", "/course/1", "/note/x", "/account", "/teachers/studio",
   "/schools-x", "/demox", "/dev", "/devx", "/adminx", "/cheatsheet", "/welcome", "/claimx",
 ];
 
@@ -24,6 +24,16 @@ test("the app needs a login", () => {
 test("marketing paths are the public pages a visitor reads, not files or APIs", () => {
   for (const p of ["/", "/schools", "/faq", "/terms", "/privacy", "/learn", "/learn/pitch-matching-exercises", "/about", "/demo", "/demo/voice-beginner", "/login", "/kickstarter", "/landing-1", "/intro", "/claim", "/reminders/off"]) assert.equal(isMarketingPath(p), true, p);
   for (const p of ["/plan", "/practice", "/api/auth/session", "/teachers/video/render", "/account"]) assert.equal(isMarketingPath(p), false, p);
+});
+
+test("the open tools and the pages under them are public, with the app's bar", () => {
+  for (const p of ["/theory/scales", "/theory/scales/dorian/d", "/theory/chords", "/theory/caged", "/tuner", "/theory/metronome-drone"]) {
+    assert.equal(isPublicPath(p), true, p);
+    assert.equal(isOpenToolPath(p), true, p);
+    assert.equal(isMarketingPath(p), false, p);
+  }
+  for (const p of ["/theory/arpeggios", "/theory/singing", "/course", "/theory"]) assert.equal(isOpenToolPath(p), false, p);
+  assert.equal(isMarketingPath("/explore"), true);
 });
 
 test("the login link carries where to come back to", () => {

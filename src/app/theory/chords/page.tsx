@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import { SignUpCorner, SignUpEnd } from "@/features/explore";
 import Lesson from "@/components/theory/Lesson";
 import ChordKit from "@/components/chordKit/ChordKit";
 import { CHORDS_TOUR } from "@/features/guide/tours/chords";
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 export default function ChordsPage() {
   return (
     <PageShell
+      action={<SignUpCorner />}
+      end={<SignUpEnd />}
       full
       active="/theory/chords"
       pageId="chords"

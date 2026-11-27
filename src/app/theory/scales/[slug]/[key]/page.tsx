@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import PageShell from "@/components/PageShell";
+import { SignUpCorner, SignUpEnd } from "@/features/explore";
 import ScalePage from "@/components/chordKit/ScalePage";
 import PentatonicPage from "@/components/chordKit/PentatonicPage";
 import { MODE_PAGES, findModePage } from "@/features/theory/scales";
@@ -52,7 +53,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   // other spellings (C-sharp, c#, 1) land on the one canonical address
   if (key !== keySlug(pc)) permanentRedirect(scaleHref(slug, pc));
   return (
-    <PageShell active="/theory/scales" title="Scales and modes" full devices>
+    <PageShell action={<SignUpCorner />} end={<SignUpEnd />} active="/theory/scales" title="Scales and modes" full devices>
       {page ? <ScalePage familyIndex={page.familyIndex} modeIndex={page.modeIndex} initialKey={pc} /> : <PentatonicPage slug={slug} initialKey={pc} />}
     </PageShell>
   );

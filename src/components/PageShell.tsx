@@ -26,7 +26,7 @@ const COLUMN = "mx-auto w-full max-w-[51rem]";
  * form (log in, create account). `column` keeps the title and content to one reading column in the middle (the plan, whose
  * cards hold a column of text and tools), while the nav and footer keep the page's width.
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, back, pageId, tour, tourNudge = false, decor, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, back, pageId, tour, tourNudge = false, decor, end, children }: {
   /** the page's heading; a node when the browser decides its words (a given plan's page, by the plan) */
   title: ReactNode;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
@@ -58,6 +58,8 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   tourNudge?: boolean;
   /** decoration drawn behind the whole page, from the nav down (GlassShapes); it sits under the content and takes no clicks */
   decor?: ReactNode;
+  /** a section after the page's content, before the footer (an open tool's sign-up offer, `SignUpEnd`) */
+  end?: ReactNode;
   children: ReactNode;
 }) {
   const section = sectionFor(active);
@@ -111,6 +113,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
           )}
         </header>
         <main className={`pb-6 ${centered ? "flex justify-center" : ""} ${column ? COLUMN : ""}`}>{pageId ? <GuideProvider pageId={pageId}>{children}</GuideProvider> : children}</main>
+        {end}
         <SiteFooter />
       </div>
     </div>

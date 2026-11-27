@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Icon from "@/components/Icon";
-import type { Tone } from "@/features/theory/sections";
+import type { TheorySection, Tone } from "@/features/theory/sections";
 import { openSpotlight } from "@/features/search/Spotlight";
 import { filterTiles, practiceTiles } from "./tiles";
 
@@ -114,21 +114,7 @@ export default function PracticeTiles() {
               <ul className="grid grid-flow-dense grid-cols-3 gap-1.5 md:grid-cols-6 lg:grid-cols-4">
                 {g.tiles.map((t) => (
                   <li key={t.href} className={t.wide ? "col-span-3 md:col-span-2" : ""}>
-                    <Link
-                      href={t.href}
-                      className={`group relative flex h-full flex-col justify-end p-2.5 text-white metal-tile focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 sm:p-3 ${t.wide ? "aspect-[5/2] md:aspect-[2/1]" : "aspect-square"} ${TILE[t.tone]}`}
-                    >
-                      {t.isNew && (
-                        <span className="absolute right-1.5 top-1.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wide text-slate-900 shadow">New</span>
-                      )}
-                      <Icon name={t.icon} size={t.wide ? 28 : 24} className="mb-auto opacity-95 drop-shadow-[0_1px_1px_rgb(0_0_0/0.3)]" />
-                      <span className="text-sm font-semibold leading-tight sm:text-[15px]">{t.label}</span>
-                      {t.wide ? (
-                        <span className="mt-0.5 line-clamp-1 text-[13px] text-white/90">{t.desc}</span>
-                      ) : (
-                        <span className="sr-only">{t.desc}</span>
-                      )}
-                    </Link>
+                    <PracticeTile t={t} />
                   </li>
                 ))}
               </ul>
@@ -137,5 +123,27 @@ export default function PracticeTiles() {
         </div>
       )}
     </div>
+  );
+}
+
+/** One page as a tile: its colour, its icon at the top, its name at the bottom left; a wide tile also shows its description. `locked`: a lock in the corner, for a page that needs an account (/explore). */
+export function PracticeTile({ t, locked = false }: { t: TheorySection; locked?: boolean }) {
+  return (
+    <Link
+      href={t.href}
+      className={`group relative flex h-full flex-col justify-end p-2.5 text-white metal-tile focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 sm:p-3 ${t.wide ? "aspect-[5/2] md:aspect-[2/1]" : "aspect-square"} ${TILE[t.tone]}`}
+    >
+      {locked && <Icon name="lock" size={14} label="Needs an account" className="absolute right-2 top-2 opacity-80" />}
+      {t.isNew && !locked && (
+        <span className="absolute right-1.5 top-1.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wide text-slate-900 shadow">New</span>
+      )}
+      <Icon name={t.icon} size={t.wide ? 28 : 24} className="mb-auto opacity-95 drop-shadow-[0_1px_1px_rgb(0_0_0/0.3)]" />
+      <span className="text-sm font-semibold leading-tight sm:text-[15px]">{t.label}</span>
+      {t.wide ? (
+        <span className="mt-0.5 line-clamp-1 text-[13px] text-white/90">{t.desc}</span>
+      ) : (
+        <span className="sr-only">{t.desc}</span>
+      )}
+    </Link>
   );
 }
