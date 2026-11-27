@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-cadd9-g-dsus4-em",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 2.",
+  "note": "Four open chords with a sus and an add9 among them: the shapes in pairs, the island strum one bar per chord, then the same chords in sixteenths with misses, where the change has to happen inside the last upstroke. The sixteenths copy is folded in as the third block; its old Stage selector of tempos is now moves (80 to 100 bpm, the sixteenths 20 below). Open shapes, so no key move.",
   "exercise": {
     "title": "Cadd9, G, Dsus4, Em",
     "area": "guitar",
@@ -19,17 +19,18 @@
     ],
     "why": "Cadd9 adds one note to C and Dsus4 swaps one note of D, so both sound like the plain chord with a new colour on top.",
     "learnBefore": [
-      "/course/7/sus-add9"
+      "/course/7/sus-add9",
+      "/course/2/sixteenths"
     ],
     "cells": [
       {
         "type": "section",
         "heading": "The four shapes",
-        "minutes": 3,
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret the four chords as shown. Change between Cadd9 and G first, then between G and Dsus4, until each pair moves as one shape."
+            "text": "Press a chord box below to hear it, then fret the four chords as shown. Change between Cadd9 and G first, then between G and Dsus4.\nPractice until each pair moves as one shape."
           },
           {
             "type": "tool",
@@ -48,11 +49,11 @@
       {
         "type": "section",
         "heading": "In time",
-        "minutes": 3,
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord. Stay on it until the changes stop interrupting your strumming hand."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, one bar per chord.\nPractice until the changes stop interrupting your strumming hand."
           },
           {
             "type": "tool",
@@ -69,6 +70,31 @@
             }
           }
         ]
+      },
+      {
+        "type": "section",
+        "heading": "In sixteenths",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Now your hand goes down and up four times a beat and misses the strings where the box shows a dot. There is no gap to change in, so move your fingers during the last upstroke of the bar and land on beat 1.\nIf a change comes late, keep your hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Cadd9",
+                "G",
+                "Dsus4",
+                "Em"
+              ],
+              "bpm": 60,
+              "pattern": "D . . U . U D U D . . U . U D U"
+            }
+          }
+        ]
       }
     ]
   },
@@ -79,6 +105,13 @@
       "steps": [
         "sus-add9:3"
       ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]

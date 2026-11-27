@@ -1,23 +1,24 @@
 {
   "id": "voice-intermediate-a-tune-that-falls-a-4th",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 1.",
+  "note": "One drill, a tune built on a leap down, in two sizes: a fall of a 4th, then a drop of an octave, each learned in the named stages (with the tune, Tune muted over the chords, Chords muted too), then a tune of the singer's own over a drone with one of those leaps in it. The key is moves, with a {{?key}} line on what stays the same.",
   "exercise": {
-    "title": "A tune that falls a 4th",
+    "title": "Tunes that fall a 4th and an octave",
     "area": "voice",
     "tags": [
+      "sing",
       "song"
     ],
     "topic": "voice-melodies",
     "concepts": [
       "sight-singing"
     ],
-    "why": "In a tune the leap sits between other notes, so singing one shows whether you can find the 4th without Do sounding first.",
+    "why": "A fall of a 4th from Fa and a drop of an octave from the high Do both land on Do, so keep the sound of Do in your ear and the leap has somewhere known to land.",
     "learnBefore": [
       "/course/6/singing-leaps",
       "/course/6/sight-singing"
@@ -25,12 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The tune, in two keys",
-        "minutes": 5,
+        "heading": "A fall of a 4th",
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune starts on Fa and falls a 4th to Do.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the fall is still a 4th."
+            "text": "Press Play below to hear the tune: the mic starts with it. The tune starts on Fa and falls a 4th to Do. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the fall lands without a slide, press Chords to mute the chords too, and sing the tune a cappella."
           },
           {
             "type": "tool",
@@ -44,26 +45,39 @@
               "voice": "tenor"
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "f"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A drop of an octave",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on the high Do and drops an octave to Do. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the drop lands without a slide, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key the notes are new, and the falls are still a 4th and an octave."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "octave"
+              },
+              "key": "d",
+              "voice": "tenor"
             }
-          ]
-        }
+          }
+        ]
       },
       {
         "type": "section",
         "heading": "Your own, with a leap",
-        "minutes": 4,
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from {{1}}, {{4}} and {{5}} on \"la\", with one leap in it, and end on {{1}}. Then make another that starts with a leap down."
+            "text": "Press Start exercise below: the drone and the mic start together. Make up a short tune from the notes on the staff with one leap down in it, a 4th or an octave, and end on {{1}}. Sing it on \"la\".\nThen make another that starts with the leap, from {{4}} down to {{1}} or from the high {{1}} down to the low one."
           },
           {
             "type": "tool",
@@ -75,8 +89,13 @@
               "labels": "solfege",
               "notes": [
                 "1",
+                "3",
                 "4",
                 "5"
+              ],
+              "highlight": [
+                "1",
+                "4"
               ],
               "drone": true
             }
@@ -92,6 +111,9 @@
       "steps": [
         "sight-singing:2"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 9
     }
   ]

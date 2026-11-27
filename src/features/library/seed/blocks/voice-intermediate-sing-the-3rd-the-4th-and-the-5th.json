@@ -1,14 +1,14 @@
 {
   "id": "voice-intermediate-sing-the-3rd-the-4th-and-the-5th",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 1.",
+  "note": "One interval-singer drill (hear the landing note, then sing it from Do) in two sections: the 3rd, the 4th and the 5th, then the octave added with Sol as its marker, and the same leaps again with the voice hidden. Folded in from the 4th-5th-octave and leaps-you-can't-see drills; each step changes one thing: the leaps, then the help taken away.",
   "exercise": {
-    "title": "Sing the 3rd, the 4th and the 5th",
+    "title": "Sing the 3rd, the 4th, the 5th and the octave",
     "area": "voice",
     "tags": [
       "sing"
@@ -23,28 +23,95 @@
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Start below: Do sounds, and the leap to sing shows by name, a 3rd, a 4th or a 5th. Hear the landing note in your head first, then sing it on \"oo\" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again."
+        "type": "section",
+        "heading": "The 3rd, the 4th, the 5th",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: M3 for a major 3rd, P4 for a 4th, P5 for a 5th.\nHear the landing note in your head first, then sing it on \"oo\" and hold it until Yes shows. Press Next below for another leap, from a new Do.\nIf a leap misses, press Restart below to hear Do again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-singer",
+              "key": "c",
+              "keys": [
+                "c",
+                "d",
+                "f",
+                "g"
+              ],
+              "voice": "tenor",
+              "intervals": [
+                4,
+                5,
+                7
+              ],
+              "dir": "up"
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "interval-singer",
-          "key": "c",
-          "keys": [
-            "c",
-            "d",
-            "f",
-            "g"
-          ],
-          "voice": "tenor",
-          "intervals": [
-            4,
-            5,
-            7
-          ],
-          "dir": "up"
-        }
+        "type": "section",
+        "heading": "Add the octave",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear Do. Now P8, the octave, can come too. For the octave, hear Sol on the way up and go past it to the high Do. Sing the landing note on \"oo\" and hold it until Yes shows.\nWhen the octave lands without watching your line, sing the same leaps on the game under it, where your voice is not drawn."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-singer",
+              "key": "c",
+              "keys": [
+                "c",
+                "d",
+                "f",
+                "g",
+                "a"
+              ],
+              "voice": "tenor",
+              "intervals": [
+                4,
+                5,
+                7,
+                12
+              ],
+              "dir": "up"
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Start below. The game shows only whether your note counted.\nPractice until each leap lands with nothing to watch but Yes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-singer",
+              "key": "c",
+              "keys": [
+                "c",
+                "d",
+                "f",
+                "g",
+                "a"
+              ],
+              "voice": "tenor",
+              "intervals": [
+                4,
+                5,
+                7,
+                12
+              ],
+              "dir": "up",
+              "dot": false
+            }
+          }
+        ]
       }
     ]
   },

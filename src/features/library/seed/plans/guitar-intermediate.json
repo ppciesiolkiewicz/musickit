@@ -31,7 +31,7 @@
         "theme": "Two positions and the crossing",
         "exercises": [
           {
-            "block": "guitar-intermediate-hammer-and-pull-in-stages",
+            "block": "guitar-beginner-hammer-pull-fingers-1-3",
             "choice": "intermediate"
           },
           {
@@ -52,7 +52,7 @@
         "theme": "Bends that reach the note",
         "exercises": [
           {
-            "block": "guitar-intermediate-down-up-picking-in-stages",
+            "block": "guitar-beginner-down-up-picking",
             "choice": "intermediate"
           },
           {
@@ -85,7 +85,7 @@
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-name-the-notes-up-the-neck",
+            "block": "guitar-beginner-notes-e-a-to-fret-12",
             "choice": "intermediate"
           },
           {

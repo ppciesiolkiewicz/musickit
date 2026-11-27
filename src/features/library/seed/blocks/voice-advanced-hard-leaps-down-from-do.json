@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-hard-leaps-down-from-do",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 3.",
+  "note": "Hard leaps sung down from Do, each found on a note of the scale under it (La, Mi, just under Sol); Do moves through six keys and the line about another key says what stays.",
   "exercise": {
     "title": "Hard leaps down from Do",
     "area": "voice",
@@ -26,7 +26,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below to hear Do and start the mic. The leaps go down from Do: m3 is the minor 3rd, TT the tritone, m6 the minor 6th.\nHear the landing note in your head before you sing: the minor 3rd lands on La, the minor 6th on Mi, and the tritone a half step under Sol. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but the leaps still land on La, on Mi and just under Sol."
+        "text": "Press Start below to hear Do and start the mic. The leaps go down from Do: m3 is the minor 3rd, TT the tritone, m6 the minor 6th.\nHear the landing note in your head before you sing: the minor 3rd lands on La, the minor 6th on Mi, and the tritone a half step under Sol. Then sing that note on \"oo\" and hold it until Yes shows, and press Next below for another leap.\nPractice until each drop lands without sliding into it.\nWhen Do moves to a new key, the notes are new but the leaps still land on La, on Mi and just under Sol."
       },
       {
         "type": "tool",

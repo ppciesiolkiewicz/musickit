@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-down-up-picking",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 8,
-    "agents": 2,
-    "teaching": 7
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track picking (guitar-techniques), step 2: down and up strokes, four notes a string (picking-drill at level beginner), on one string, across all six, then a little faster. It states its moves (tempo 60 to 100): the first step names the tempo as a param, the last section's drill stays 12 above the first, and no step mentions a selector, since the app brings the faster tempo.",
+  "note": "Track picking (guitar-techniques), step 2: down and up strokes, four notes a string (picking-drill at level beginner), on one string, across all six, then a little faster. Three choices show the same words and differ only in how far the tempo climbs (beginner to 100, intermediate to 120, advanced to 140): the old in-stages files for intermediate and advanced players were this drill with a tempo ladder, now the moves' range. The first step names the tempo as a param, the last section stays 12 above the first, and no step mentions a selector.",
   "exercise": {
     "title": "Down and up with the pick",
     "area": "guitar",
@@ -52,7 +52,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Now the drill moves to the next string after every four notes, across all six strings and back.\nIf you lose the order of the strokes, say \"down, up\" out loud as you play."
+            "text": "Press Play below to start the metronome. Now the drill moves to the next string after every four notes, across all six strings and back, down, up, down, up on each.\nPractice until your hand swings evenly, with no stop between the strings."
           },
           {
             "type": "tool",
@@ -71,7 +71,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome, a little faster now, and play the drill across the strings again.\nIf the strokes get uneven, play only the open G string until they are even again."
+            "text": "Press Play below to start the metronome, a little faster now, and play the drill across the strings again.\nIf the upstrokes get quieter than the downstrokes, play only the open G string until they are even again."
           },
           {
             "type": "tool",
@@ -99,6 +99,36 @@
         "bpm": {
           "from": 60,
           "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 6
+    },
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "picking:2"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 120,
+          "step": 10
+        }
+      },
+      "minutes": 6
+    },
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "picking:2"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 140,
           "step": 10
         }
       },

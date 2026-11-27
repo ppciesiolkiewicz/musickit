@@ -1,14 +1,14 @@
 {
   "id": "guitar-advanced-solo-over-am7-and-d7",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 1.",
+  "note": "The Dorian 6th aimed for over the two-chord Dorian vamp: a solo-over that rings the root on the 1st chord and the 6th (the 3rd of the 4th chord) on the change, then longer phrases over the backing track with two neighbouring positions on the neck. The key is moves (any key), so chords are chord tokens counted the long way once, the title names the key as {{=key}}, and a {{?key}} line says what stays the same. Folds in the Dm7-and-G7 version of the same drill.",
   "exercise": {
-    "title": "Solo over Am7 and D7",
+    "title": "{{=key}} Dorian: solo over {{chord:i7}} and {{chord:IV7}}",
     "area": "guitar",
     "tags": [
       "improv"
@@ -17,7 +17,7 @@
     "concepts": [
       "major-on-neck"
     ],
-    "why": "F♯, the 6th of A Dorian, is the 3rd of D7, so landing on it as the chord changes makes one note say both the mode and the chord.",
+    "why": "The 6th of the Dorian scale is the 3rd of the chord built on its 4th note, so landing on it as that chord arrives makes one note say both the mode and the chord.",
     "learnBefore": [
       "/course/9/modes",
       "/course/5/soloing"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, which switches between Am7 and D7. Improvise in A Dorian, in either position from the last exercise. Land on {{a}} when Am7 comes round and on {{f-sharp}} when D7 comes round."
+            "text": "Press Play below to start the backing track. It switches between {{chord:i7}}, the 1st chord of the key, built on {{1}}, and {{chord:IV7}}, the 4th chord, built on {{4}}.\nImprovise with the dots of the {{=key}} Dorian scale on the neck. Land on {{1}} when {{chord:i7}} comes round and on {{6}} when {{chord:IV7}} comes round: the ringed note shows the one to aim for.\nPractice until your phrase reaches {{6}} on the first beat of the change, not after it."
           },
           {
             "type": "tool",
@@ -52,7 +52,7 @@
                     "target": [
                       "3"
                     ],
-                    "approach": "land on F♯ on beat 1"
+                    "approach": "land on the 6th on beat 1"
                   }
                 ],
                 "bars": 2
@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums, bass and keys on Am7 and D7. Play longer phrases now, and put the ringed {{6}} somewhere in each one: on the change, held, or passed through quickly.\nIf you lose the chords, stop on a ringed {{1}} and wait for Am7 to come round."
+            "text": "Press Play below to start the backing track: drums, bass and keys on the same two chords. Under it are positions 1 and 2 of the {{=key}} Dorian scale, with {{1}} and {{6}} ringed. Play longer phrases now, and put {{6}} somewhere in each one: on the change, held, or passed through quickly.\nIf you lose the chords, stop on a ringed {{1}} and wait for {{chord:i7}} to come round.\n{{?key}}In another key both positions sit on other frets, and {{6}} is still the 3rd of {{chord:IV7}}."
           },
           {
             "type": "tool",
@@ -89,7 +89,7 @@
               "key": "a",
               "positions": [
                 1,
-                4
+                2
               ],
               "highlight": [
                 "1",
@@ -108,6 +108,9 @@
       "steps": [
         "major-on-neck:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 9
     }
   ]

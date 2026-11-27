@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-in-hold-out",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 1.",
+  "note": "Track breath, step 4 (farinelli:intermediate): one breathwork circle at \"level\": \"intermediate\", the count growing by one each round; the text says how full to breathe and names the feel to reach in the long rounds at the end. Folds in the filled-to-80% and long-rounds copies, whose fill and last-rounds lines are here.",
   "exercise": {
     "title": "In, hold, out",
     "area": "voice",
@@ -17,14 +17,14 @@
     "concepts": [
       "breath"
     ],
-    "why": "The count grows by one each round, so your breath gets longer in steps too small to strain.",
+    "why": "The count grows by one each round, so your breath gets longer in steps too small to strain, and filling to about 80% leaves room to hold in the long rounds.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown. Keep your shoulders still and let your belly do the moving."
+        "text": "Press Start in the circle below. Breathe in as it grows, hold while it stays and breathe out as it shrinks, each for the count shown in the middle.\nKeep your shoulders still and let your belly do the moving. Fill to about 80%, not to the top.\nPractice until the last two rounds feel as easy as the first."
       },
       {
         "type": "tool",

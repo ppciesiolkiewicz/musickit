@@ -30,7 +30,7 @@
         "theme": "The note that makes Dorian",
         "exercises": [
           {
-            "block": "guitar-advanced-skip-a-string-in-stages",
+            "block": "guitar-intermediate-skip-a-string",
             "choice": "advanced"
           },
           {
@@ -51,7 +51,7 @@
         "theme": "Triads on every string set",
         "exercises": [
           {
-            "block": "guitar-advanced-name-the-notes-whole-neck",
+            "block": "guitar-beginner-notes-e-a-to-fret-12",
             "choice": "advanced"
           },
           {
@@ -93,7 +93,7 @@
         "theme": "Mixolydian: the ♭7, and the modes from one root",
         "exercises": [
           {
-            "block": "guitar-advanced-down-up-picking-in-stages",
+            "block": "guitar-beginner-down-up-picking",
             "choice": "advanced"
           },
           {

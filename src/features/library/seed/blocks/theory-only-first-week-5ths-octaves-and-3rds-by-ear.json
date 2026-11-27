@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-5ths-octaves-and-3rds-by-ear",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 7.",
+  "note": "Track intervals, step 2 (interval-ears:2): one ear game at \"level\": \"beginner\" (the 5th, the octave and both 3rds), each answer named as the game's button shows it with its meaning beside it, and a way in that hears each 3rd as the start of a major or a minor chord. Folds in the major-or-minor-3rd drill it was a copy of.",
   "exercise": {
     "title": "5ths, octaves and 3rds, by ear",
     "area": "theory",
@@ -17,14 +17,18 @@
     "concepts": [
       "intervals"
     ],
-    "why": "The 3rds are the first two notes of a major or a minor chord and the 5th is its outside, so every interval in this game can be checked against a chord you already hear.",
+    "why": "A major chord starts with a major 3rd and a minor chord with a minor 3rd, so a chord sound you already know tells the two 3rds apart, and the wide 5th and octave stand out from both.",
     "learnBefore": [
-      "/course/3/intervals"
+      "/course/3/intervals",
+      "/course/3/major-or-minor"
+    ],
+    "exploreMore": [
+      "/theory/ears"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5, P8, M3 or m3.\nNotice which ones you name without pressing Replay. For the others, hear the start of a major or a minor chord in your head and compare.\nThen say each answer out loud before you pick it."
+        "text": "Press Start in the game below to hear two notes, one after the other. Pick P5 for a 5th, P8 for an octave, M3 for a major 3rd or m3 for a minor 3rd.\nSort wide from narrow first: the two 3rds are the narrow ones. For a 3rd, hear the two notes as the start of a chord, and pick M3 if that chord sounds major and m3 if it sounds minor.\nIf two answers sound alike, press Replay in the game and say your answer out loud before you pick it.\nPractice until you name each one without pressing Replay."
       },
       {
         "type": "tool",
@@ -33,9 +37,6 @@
           "level": "beginner"
         }
       }
-    ],
-    "exploreMore": [
-      "/theory/ears"
     ]
   },
   "choices": [

@@ -1,23 +1,25 @@
 {
   "id": "voice-advanced-read-tunes-with-an-octave",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 4.",
+  "note": "One sight-reading drill for wide leaps, a section per size: a tune with two 7ths, one with an octave up and down, one that leaps past the octave. Each is read from the staff before it is heard, then checked with Play; the why says how to find each leap from a note already known, each section has a fix for a leap that misses, and the key is moves, with a {{?key}} line on what stays the same.",
   "exercise": {
-    "title": "Read tunes with an octave",
+    "title": "Read tunes with wide leaps: a 7th, an octave and past it",
     "area": "voice",
     "tags": [
-      "song"
+      "sing",
+      "song",
+      "multi-octave"
     ],
     "topic": "voice-melodies",
     "concepts": [
       "sight-singing"
     ],
-    "why": "After an octave leap you are on the note you just left, higher or lower, so keep its sound in your ear through the leap and the landing is already known.",
+    "why": "A wide leap lands near a note you already hear: an octave is the same note higher or lower, a 7th is one step short of it and a 9th or 10th is the Re or Mi you know an octave up, so think the near note and the leap has a place to land.",
     "learnBefore": [
       "/course/6/sight-singing",
       "/course/6/singing-leaps"
@@ -25,12 +27,37 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Octave up, octave down",
-        "minutes": 5,
+        "heading": "Leaps of a 7th",
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Tap the first note of the tune below to hear it, before you press Play. The tune opens with Do up to the high Do, and in its second bar Sol drops an octave to the Sol under Do. Sing it from the staff on the note names, at your own pace. Then press Play below to hear the tune, and check what you sang against it.\nOnce both leaps land without a slide, read the tune in another key. Use the Key selector below to change the key, then tap the first note again.\nWhen you change the key, the notes change but both leaps are still an octave."
+            "text": "Tap the first note of the tune below to hear it, before you press Play. The tune opens with Do up to Ti, a major 7th, and its second bar opens with Re up to the high Do, a minor 7th. Sing it from the staff on the note names, at your own pace.\nThen press Play below to hear the tune: the mic starts with it. Check what you sang against it.\nIf Do up to Ti misses, sing Do up to the high Do and step down to Ti. Then sing the leap again and only think the high Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "sevenths",
+                "index": 1
+              },
+              "key": "d",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "An octave up and down",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the first note of the tune below to hear it. The tune opens with Do up to the high Do, and in its second bar Sol drops an octave to the Sol under Do. Sing it from the staff on the note names.\nThen press Play below to hear the tune, and check where your line lands after each leap.\nPractice until both leaps land without a slide."
           },
           {
             "type": "tool",
@@ -46,26 +73,16 @@
               "chords": false
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "f"
-            },
-            {
-              "key": "g"
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
-        "heading": "Octave, then minor 6th",
-        "minutes": 5,
+        "heading": "Past the octave",
+        "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts on the Sol under Do and leaps up an octave, and its second bar opens with Mi up to the high Do, a minor 6th. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to hear it.\nIf the minor 6th misses, sing Sol on the way: Mi, Sol, then the high Do. Then sing the leap again and only think the Sol."
+            "text": "Tap the first note of the tune below to hear it. The tune leaps from Do up to the high Re, a 9th, then settles on the high Do. Sing it from the staff on the note names.\nThen press Play below to hear the tune, and check where your leap landed.\nIf the 9th misses, sing Do, Re and the high Re as three notes. Then leave out the middle one.\n_If the top note strains, sing it softer, never louder._\n{{?key}}In another key the notes are new, and each leap is still the same size."
           },
           {
             "type": "tool",
@@ -73,10 +90,10 @@
               "type": "melody-singer",
               "pick": {
                 "difficulty": "expert",
-                "stage": "octave",
+                "stage": "tenths",
                 "index": 0
               },
-              "key": "a",
+              "key": "d",
               "voice": "tenor",
               "chords": false
             }
@@ -92,6 +109,9 @@
       "steps": [
         "sight-singing:4"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

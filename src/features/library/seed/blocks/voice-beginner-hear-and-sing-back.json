@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-hear-and-sing-back",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 6.",
+  "note": "Track steps-to-leaps, mix step 8 (steps and skips in one tune): one rising ear game narrowed with \"set\" to a step, both 3rds, the 5th and the 6th, where both notes are sung back on \"oo\" before each answer; the answers are named as the game's buttons show them, and the one care line keeps the singer off the high notes. Folds in the five-intervals-sung-back copy, whose set this is.",
   "exercise": {
     "title": "Hear and sing back",
     "area": "voice",
@@ -18,20 +18,21 @@
       "steps-to-leaps",
       "singing-intervals"
     ],
-    "why": "Singing back what you hear links your ear to your voice, which is what learning a tune by ear is.",
+    "why": "Singing the two notes back makes your voice find the distance your ear just heard, which is how a tune is learned by ear.",
     "learnBefore": [
       "/course/3/intervals"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below to hear a 3rd, a 5th or a 6th. Sing both notes back on \"la\" before you answer."
+        "text": "Press Start in the game below to hear two notes, the second one higher. Sing both back on \"oo\", then pick the interval's name: M2 for a step (a major 2nd), m3 or M3 for a minor or major 3rd, P5 for a 5th or M6 for a major 6th.\n_Don't reach for high notes: start the pair lower when the top note feels tight._\nPractice until your voice lands on the second note straight away, without sliding up to it."
       },
       {
         "type": "tool",
         "tool": {
           "type": "interval-ears",
           "set": [
+            2,
             3,
             4,
             7,

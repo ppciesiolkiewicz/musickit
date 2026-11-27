@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-thirds-up-two-strings",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 12,
-    "agents": 2,
-    "teaching": 8
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track double-stops (guitar-caged), step 2, on the double-stops-neck tool at level beginner: 3rds on the G and B strings, frets 0 to 7. Tapped and copied one at a time, then up and back after Play, then with each chord's name said aloud. The text carries no frets: the neck shows them. It states its moves (any key) and mentions no selector.",
+  "note": "Track double-stops (guitar-caged), step 2: 3rds on the G and B strings, frets 0 to 7, on the double-stops-neck at level beginner (tapped and copied, then up and back with each chord named), then the root and 3rd of each chord of a G, C, G, D backing track in a tab play-along, the pair and its two notes in turn (folded in from guitar-beginner-thirds-on-strings-3-2). The text carries no frets; the key moves, so the play-along's shape names its key and its grips move with it.",
   "exercise": {
     "title": "{{=key}} major in 3rds on the G and B strings",
     "area": "guitar",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap the lowest double stop on the neck below to hear it, then play it: the G and B strings struck together.\nGo up the neck one double stop at a time, tapping it and then playing it, until your hand finds each one after a single look."
+            "text": "Tap the lowest double stop on the neck below to hear it, then play it: the G and B strings struck together. Go up the neck one double stop at a time, tapping it and then playing it.\nPractice until your hand finds each one after a single look."
           },
           {
             "type": "tool",
@@ -49,7 +49,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the 3rds up the neck and back down. Then play them yourself the same way, one double stop per slow beat.\nIf one sounds wrong, tap it on the neck and match what you hear."
+            "text": "Press Play below to hear the 3rds up the neck and back down. Then play them yourself the same way, one double stop per slow beat, and say the name of the chord above each one as you play it.\nEach double stop is the lowest two notes of that chord, and the ringed note, on the G string, is its root."
           },
           {
             "type": "tool",
@@ -64,20 +64,61 @@
       },
       {
         "type": "section",
-        "heading": "Name the chords",
+        "heading": "A 3rd on each chord",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Each double stop is the lowest two notes of the chord named above it, and the ringed note, on the G string, is that chord's root. Play the 3rds up and back again, and say each chord's name as you play it.\n{{?key}}In another key the frets and the names are new, and the 3rd of a major chord still has both notes in one fret."
+            "text": "Press Play below to start the backing track: four chords, a bar each. On each chord, play its root and 3rd together, then the lower note alone, both again, then the higher note alone.\nWhen the chord changes, the shape stays the same and only the fret is new.\n{{?key}}In another key the frets are new, and the 3rd of a major chord still has both notes in one fret."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "double-stops-neck",
-              "key": "g",
-              "interval": "3rds",
-              "level": "beginner"
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "key": "g",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      { "grip": ["1", "3"], "strings": "32", "fret": 0 },
+                      "1",
+                      { "grip": ["1", "3"], "strings": "32", "fret": 0 },
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      { "grip": ["1", "3"], "strings": "32", "fret": 5 },
+                      "1",
+                      { "grip": ["1", "3"], "strings": "32", "fret": 5 },
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      { "grip": ["1", "3"], "strings": "32", "fret": 0 },
+                      "1",
+                      { "grip": ["1", "3"], "strings": "32", "fret": 0 },
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      { "grip": ["1", "3"], "strings": "32", "fret": 7 },
+                      "1",
+                      { "grip": ["1", "3"], "strings": "32", "fret": 7 },
+                      "3"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
             }
           }
         ]

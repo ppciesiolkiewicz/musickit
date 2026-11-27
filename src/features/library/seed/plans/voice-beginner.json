@@ -60,7 +60,7 @@
             "choice": "beginner"
           },
           {
-            "block": "voice-beginner-3rd-or-5th",
+            "block": "voice-beginner-steps-or-skips",
             "choice": "beginner"
           },
           {
@@ -89,11 +89,11 @@
             "choice": "beginner"
           },
           {
-            "block": "voice-beginner-five-note-run",
+            "block": "voice-intermediate-five-notes-up-and-back",
             "choice": "beginner"
           },
           {
-            "block": "voice-beginner-steps-and-skips-mixed",
+            "block": "voice-beginner-steps-or-skips",
             "choice": "beginner"
           },
           {

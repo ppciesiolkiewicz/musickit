@@ -1,14 +1,14 @@
 {
   "id": "guitar-advanced-am9-d9-gmaj7",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 3.",
+  "note": "The ii–V–I with a minor 9th, a 9th and a major 7th, as barre shapes and then strummed in sixteenths with misses. A key-chords tool counts the chords by their number and gives the block its written key, so the old copies in G and in C are now moves (any key, 76 to 96 bpm, the old tempo stages). The text names chords by ordinal, never by letter, since the boxes carry the names.",
   "exercise": {
-    "title": "Am9, D9, Gmaj7",
+    "title": "The ii–V–I with 9ths",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,7 +17,7 @@
     "concepts": [
       "shells"
     ],
-    "why": "A Dorian and G major are the same seven notes, so the two chords of the Dorian vamp are also the ii and the V of G: one more chord takes them home.",
+    "why": "The 2nd and 5th chords of a key both lead to the 1st, so a 9th added on top of each changes their colour but not where they go.",
     "learnBefore": [
       "/course/11/extended",
       "/course/11/ii-v-i"
@@ -30,7 +30,19 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am9 to D9 first, then from D9 to Gmaj7, until each pair moves without a stop in between."
+            "text": "Below are the chords of the {{=key}} major scale, each with its number. This drill takes three of them: the 2nd chord as a minor 9th, the 5th chord as a 9th, and the 1st chord as a major 7th, where the other two lead."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "g",
+              "scale": "major-ionian"
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from the 2nd chord to the 5th first, then from the 5th to the 1st.\nPractice until each pair moves without a stop in between."
           },
           {
             "type": "tool",
@@ -48,12 +60,12 @@
       },
       {
         "type": "section",
-        "heading": "In time",
+        "heading": "Sixteenths with misses",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum the pattern in the boxes: a bar of Am9, a bar of D9, then two bars of Gmaj7. Listen for the bar where the chords stop wanting to move on."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord: a bar of the 2nd chord, a bar of the 5th, then two bars of the 1st. Your hand goes down and up four times a beat and misses the strings where the box shows a dot.\nListen for the bar where the chords stop wanting to move on.\n{{?key}}In another key the three shapes sit on other frets, and the 1st chord still sounds like the place the other two were heading."
           },
           {
             "type": "tool",
@@ -65,8 +77,8 @@
                 "Gmaj7",
                 "Gmaj7"
               ],
-              "bpm": 90,
-              "pattern": "D . D U . U D U"
+              "bpm": 76,
+              "pattern": "D . . U . U D U D . . U . U D U"
             }
           }
         ]
@@ -81,6 +93,14 @@
         "shells:3",
         "shells:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 76,
+          "to": 96,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

@@ -1,14 +1,14 @@
 {
   "id": "voice-guitar-advanced-first-week-the-octave-run",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 5.",
+  "note": "The octave run in three shapes, one section each: the run itself from the runs book, the scale sung in groups of four over the metronome on a staff, then the chord as a run of skips. The tempo is a move (60 up to 80) where the old file had a tempo ladder as a Stage selector; the top notes are sung lighter all the way through.",
   "exercise": {
-    "title": "The octave run",
+    "title": "The octave run, in fours and in skips",
     "area": "voice",
     "tags": [
       "sing",
@@ -26,12 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The run",
+        "heading": "The whole run",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" as it climbs."
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the scale from {{1}} to the high {{1}} and comes back, four notes per beat, and each pass starts a semitone higher, the last one reaching the top of your range.\nSing it on \"ah\" and close towards \"oo\" as it climbs, so the top notes come out lighter."
           },
           {
             "type": "tool",
@@ -41,33 +41,20 @@
                 "difficulty": "hard",
                 "stage": "octave-run"
               },
-              "voice": "baritone"
+              "voice": "baritone",
+              "bpm": 60
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "The run in fours, up and down",
+        "heading": "In fours, up and down",
         "minutes": 4,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 56
-            },
-            {
-              "bpm": 63
-            },
-            {
-              "bpm": 70
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the metronome and the mic. Sing the run in groups of four, one group per beat: {{1}} {{2}} {{3}} {{4}}, then {{2}} {{3}} {{4}} {{5}}, up to the high {{1}}. Then come down the same way, each group starting one note lower. Sing it on \"ah\".\nWhen the way down is as even as the way up, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the groups run into each other at a new stage, go back one stage."
+            "text": "Press Start exercise below to start the metronome and the mic. Sing the scale in groups of four, one group per beat: {{1}} {{2}} {{3}} {{4}}, then {{2}} {{3}} {{4}} {{5}}, and on up to the high {{1}}. Then come down the same way, each group starting one note lower. Sing it on \"ah\".\nPractice until the way down is as even as the way up.\nIf the groups run into each other, sing just the way up a few times, then add the way down."
           },
           {
             "type": "tool",
@@ -78,19 +65,19 @@
               "voice": "baritone",
               "labels": "degree",
               "click": true,
-              "bpm": 56
+              "bpm": 60
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "The run in skips",
+        "heading": "In skips",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: the mic starts with it. This one skips: Do, Mi, Sol and the high Do, then back down, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"oo\", which keeps the top note light."
+            "text": "Press Play below to hear the next run: the mic starts with it. This one skips round {{1}}, {{3}} and {{5}} before it climbs to the high {{1}} and comes back down, and each pass starts a semitone higher. Sing it on \"oo\", which keeps the top note light."
           },
           {
             "type": "tool",
@@ -100,7 +87,8 @@
                 "difficulty": "expert",
                 "stage": "arpeggio-run"
               },
-              "voice": "baritone"
+              "voice": "baritone",
+              "bpm": 60
             }
           }
         ]
@@ -114,7 +102,14 @@
       "steps": [
         "runs:7"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

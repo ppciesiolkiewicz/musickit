@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-six-leaps-to-tell-apart",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 5.",
+  "note": "One rising-leap ear drill in two sections: the 4th, the 5th and the octave first, where singing the landing note back tells Fa from Sol, then six leaps with the 3rds and the 6th added. Folded in from the 4th-to-the-octave and the 4th-and-5th-neighbours drills; each section changes only the set of leaps.",
   "exercise": {
     "title": "Six leaps to tell apart",
     "area": "voice",
@@ -17,30 +17,60 @@
     "concepts": [
       "steps-to-leaps"
     ],
-    "why": "With six leaps to choose from a guess stops working, so the ear has to know each one by its own sound.",
+    "why": "Leaps a step apart, like the 4th and the 5th, sound alike until you sing the landing note back, so singing it before you pick makes your ear know each leap by its own sound.",
     "learnBefore": [
       "/course/6/every-interval",
       "/course/6/singing-leaps"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Start below. The game plays Do and then a note a 3rd, a 4th, a 5th, a 6th or an octave above it. Sing the second note back on \"la\", then pick its name."
+        "type": "section",
+        "heading": "The 4th, the 5th, the octave",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear Do and then a note a 4th, a 5th or an octave above it. Sing the second note back on \"la\", then pick its name: P4 for the 4th, P5 for the 5th, P8 for the octave.\nThe 4th lands on Fa and the 5th on Sol, one step apart, and the octave lands on the high Do, which blends with Do into one sound."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                5,
+                7,
+                12
+              ],
+              "dir": "up"
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "interval-ears",
-          "set": [
-            3,
-            4,
-            5,
-            7,
-            9,
-            12
-          ],
-          "dir": "up"
-        }
+        "type": "section",
+        "heading": "Six leaps",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below. Now the second note can also be a 3rd or a 6th above Do: m3 for a minor 3rd, M3 for a major 3rd, M6 for a major 6th. Sing it back on \"la\", then pick its name.\nPractice until you know the leap by its sound before you sing it back."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                3,
+                4,
+                5,
+                7,
+                9,
+                12
+              ],
+              "dir": "up"
+            }
+          }
+        ]
       }
     ]
   },

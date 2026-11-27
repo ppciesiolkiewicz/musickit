@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-ii-v-i-shapes-in-c-and-g",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 7.",
+  "note": "The ii–V–I as open 7th shapes in the two keys where all three are open chords: the C shapes heard and strummed in time, then the G shapes, then both keys back to back on one strum-along. The open shapes are the lesson, so the keys stay written (no key moves) and the chords stay letters, counted the long way once per key; the tempo is moves (60 to 80). Every strum-along has its pattern. Folds in the separate C and G shape drills.",
   "exercise": {
-    "title": "ii-V-I shapes in C and G",
+    "title": "ii–V–I open 7th shapes in C and G",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,29 +17,95 @@
     "concepts": [
       "seventh-shapes"
     ],
-    "why": "Both keys back to back shows the shapes are under your fingers.",
+    "why": "The ii–V–I is the same three-chord move in every key, so once its open shapes sit under your fingers in C, the shapes in G are the same move with new grips.",
     "learnBefore": [
       "/course/7/sevenths",
       "/course/11/ii-v-i"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press a chord box to hear it. Play four strums per chord: the ii-V-I in C, then in G. Change keys without stopping."
+        "type": "section",
+        "heading": "The ii–V–I in C",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Dm7 is the 2nd chord in the key of C, G7 is the 5th and Cmaj7 is the 1st: in that order they make the ii–V–I. Press a chord box below to hear it, then fret each shape and pick the strings one at a time to check they ring."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Dm7",
+                "G7",
+                "Cmaj7"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, one bar for each chord.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Dm7",
+                "G7",
+                "Cmaj7",
+                "Cmaj7"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "chord-shapes",
-          "chords": [
-            "Dm7",
-            "G7",
-            "Cmaj7",
-            "Am7",
-            "D7",
-            "Gmaj7"
-          ]
-        }
+        "type": "section",
+        "heading": "Into G, then both keys",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "In the key of G the ii–V–I is Am7, D7 and Gmaj7. Press a chord box below to hear it, then fret each shape and check it rings."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Am7",
+                "D7",
+                "Gmaj7"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome again. The boxes run through the ii–V–I in C, then in G: strum down on every beat and change keys without stopping.\nPractice until the six shapes are in your muscle memory: your fingers find each grip before its beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Dm7",
+                "G7",
+                "Cmaj7",
+                "Cmaj7",
+                "Am7",
+                "D7",
+                "Gmaj7",
+                "Gmaj7"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
       }
     ]
   },
@@ -50,6 +116,13 @@
       "steps": [
         "seventh-shapes:3"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 5
     }
   ]

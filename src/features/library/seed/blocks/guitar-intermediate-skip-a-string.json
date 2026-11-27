@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-skip-a-string",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 6.",
+  "note": "String skipping on the picking-drill (level advanced: down and up, two notes a string, a string skipped), then three notes a string so the jump leaves on a down stroke one time and an up stroke the next. The old tempo-ladder Stage selector is now moves (70 up to 90 for intermediate, up to 120 for advanced), so the text names the tempo only as {{=bpm}} and no selector. Folds in the three advanced versions as the advanced choice; one extra line per block.",
   "exercise": {
     "title": "Skip a string",
     "area": "guitar",
@@ -17,19 +17,19 @@
     "concepts": [
       "picking"
     ],
-    "why": "Skipping a string makes the pick travel twice as far between notes, so it trains the aim that wide phrases across the positions need.",
+    "why": "Skipping a string makes the pick travel twice as far between notes, so it trains the aim that wide phrases across a position need.",
     "learnBefore": [
       "/course/8/string-skipping"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "One stage at a time",
-        "minutes": 4,
+        "heading": "Two notes, then the jump",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Pick down, up on each string, then jump over the next string, as the tab shows. Keep the strokes small, and let your wrist do the jump.\nWhen the pick lands on the right string without you looking, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf you hit the string in between, go back one stage."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Pick down, up on one string, then jump over the next string to the one after it, as the tab shows. Keep the strokes small and let your wrist make the jump.\nPractice until the pick lands on the right string without you looking at your picking hand."
           },
           {
             "type": "tool",
@@ -39,21 +39,27 @@
               "bpm": 70
             }
           }
-        ],
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Three notes a string",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome again. Now pick three notes on each string before the jump, and keep the strokes going down, up, down, up across it, as the arrows under the tab show: one jump leaves on a down stroke, the next on an up stroke.\nIf you hit the string in between, slow your hand down and aim for the far string before you pick."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "advanced",
+              "notesPerString": 3,
               "bpm": 70
-            },
-            {
-              "bpm": 80
-            },
-            {
-              "bpm": 90
             }
-          ]
-        }
+          }
+        ]
       }
     ]
   },
@@ -64,6 +70,28 @@
       "steps": [
         "picking:4"
       ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 4
+    },
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "picking:4"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 120,
+          "step": 10
+        }
+      },
       "minutes": 4
     }
   ]

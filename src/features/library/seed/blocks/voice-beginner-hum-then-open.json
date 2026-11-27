@@ -1,14 +1,14 @@
 {
   "id": "voice-beginner-hum-then-open",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 2.",
+  "note": "Matching a pitch from a hum: the low Do and then Sol over a drone, each hummed with lips closed and opened to \"oo\" on the same note. The why says why a hum is easy to tune, the drill stays at 3 minutes with one care line, and the key is moves, with a {{?key}} line on what stays the same.",
   "exercise": {
-    "title": "Hum, then open",
+    "title": "Hum, then open to \"oo\"",
     "area": "voice",
     "tags": [
       "sing"
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. Hum the low {{1}} with your lips closed, then open it to \"oo\" on the same note.\nThen skip up to {{5}} the same way: hum it first, then open.\n_Don't reach for high notes: {{5}} here is the one just above the low {{1}}._"
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Hum the low {{1}} with your lips closed, then open the hum to \"oo\" on the same note.\nThen skip up to {{5}} the same way: hum it first, then open it to \"oo\".\nPractice until your line stays flat on the staff as the hum opens.\n_Don't reach for high notes: the {{5}} here is the one just above the low {{1}}._\n{{?key}}In another key the drone sits higher or lower, and the hum still opens on the same note."
       },
       {
         "type": "tool",
@@ -38,6 +38,9 @@
             "1",
             "5"
           ],
+          "highlight": [
+            "1"
+          ],
           "drone": true
         }
       }
@@ -50,6 +53,9 @@
       "steps": [
         "pitch:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 3
     }
   ]

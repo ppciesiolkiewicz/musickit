@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-em-am-changes",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 8,
-    "agents": 2,
-    "teaching": 7
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "The why names what makes this change easy (two fingers move as one shape), so the learner knows what to look for in the next pair of chords. The three blocks are the same change turned a new way: untimed, one strum a bar, a strum on every beat. Its key is the lesson, so its moves are a tempo only (60 to 90): the step names the tempo as a param and the chords stay Em and Am. The chord boxes show the fingers, so the text never does.",
+  "note": "Em to Am as one change turned three ways: each string checked and the change slowed down with no metronome (the string-by-string check and the care line for sore fingertips folded in from guitar-new-first-week-em-and-am-every-string-ringing, the slow back-and-forth from guitar-new-first-week-em-to-am-one-strum-a-bar), one strum a bar, then a strum on every beat. The why names what makes the change easy (two fingers move as one shape). Its key is the lesson, so its moves are a tempo only (60 to 90), named as a param; the chord boxes show the fingers, so the text never does.",
   "exercise": {
     "title": "Em to Am, clean and in time",
     "area": "guitar",
@@ -30,13 +30,8 @@
         "minutes": 3,
         "cells": [
           {
-            "type": "list",
-            "items": [
-              "Press a chord box below to hear how the chord should sound.",
-              "Fret Em as shown, then pick the strings one at a time to check that each one rings.",
-              "Fret Am as shown and check it the same way.",
-              "Go back and forth between the two, slowly, until your hand starts to find each shape before you look."
-            ]
+            "type": "text",
+            "text": "Press a chord box below to hear how the chord should sound. Fret Em as shown, then pick its six strings one at a time.\nIf a string buzzes or stays quiet, move that finger closer to its fret and pick the string again. Then check Am the same way, from the A string to the high e string: the × on its chord box marks the low E string, which it leaves out.\n_If your fingertips hurt, take your hand off the neck and rest._"
           },
           {
             "type": "tool",
@@ -47,6 +42,10 @@
                 "Am"
               ]
             }
+          },
+          {
+            "type": "text",
+            "text": "Then go back and forth between the two, slowly, strumming each once, and watch fingers 2 and 3 in the chord boxes above: they move together across one string.\nPractice until your hand starts to find each shape before you look."
           }
         ]
       },
@@ -57,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play.\nStrum down once on beat 1, then use the rest of the bar to move to the next chord.\nThis trains your timing: the change has to be ready by beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play. Strum down once on beat 1, then use the rest of the bar to move to the next chord.\nIf a change comes late, leave that strum out and be ready for the next beat 1."
           },
           {
             "type": "tool",
@@ -80,7 +79,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Now strum down on every beat, two bars on each chord.\nThere is no gap to move in, so if a change comes late, keep your strumming hand going and catch the next beat 1.\nPractice until the change happens without looking."
+            "text": "Press Play below to start the metronome. Now strum down on every beat, two bars on each chord, and keep your strumming hand going through the change.\nPractice until the change is in your muscle memory: your hand finds Am, and Em again, without you looking."
           },
           {
             "type": "tool",

@@ -1,14 +1,14 @@
 {
   "id": "guitar-beginner-pentatonic-box1",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 8,
-    "agents": 2,
-    "teaching": 7
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone on the whole neck, over a backing track, then free phrases that end on a root. It states its moves (any key, tempo 60 to 90), so the title and the first step name the key and the tempo as params and no step mentions a selector: the app brings the next key or a faster tempo. The why says what the roots are for, so the learner knows where to end a phrase in any scale.",
+  "note": "One position of the minor pentatonic scale, four jobs, each the same dots turned a new way: one note per beat over the metronome, only the roots with the whole neck above, every dot over a faster backing track, then a drill of the learner's own made by changing one thing (folded in from guitar-beginner-position-1-at-80-then-your-own-drill, whose faster tempo is now the moves' range). One position is on the screen, so no position number anywhere; key and tempo are moves (any key, 60 to 90), named only as params.",
   "exercise": {
-    "title": "{{=key}} minor pentatonic, position 1",
+    "title": "{{=key}} minor pentatonic: the dots, the roots, your own drill",
     "area": "guitar",
     "tags": [
       "technique",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}. Play position 1 from the lowest {{1}} up to the high E string and back down, one note per beat.\nPractice until your fingers find the next note without you looking."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Under it is the neck with the notes of the {{=key}} minor pentatonic scale: each dot is a note to play, and the ringed dots are the {{1}} notes.\nStart on the ringed {{1}} on the low E string and play both dots on each string up to the high e string, then come back down the same way, one note per beat.\nPractice until your fingers find the next dot without you looking."
           },
           {
             "type": "tool",
@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Now only the {{1}} notes are in play. Hop between them in any order, until you can go to each one without hunting for it.\n{{?key}}In another key the position sits on other frets, and the roots keep their places inside it."
+            "text": "Now only the {{1}} notes are in play, and above the dots the whole neck shows where they sit. Hop between the ones inside the frame in any order.\nPractice until you can go to each {{1}} without hunting for it.\n{{?key}}In another key the dots sit on other frets, and the roots keep their places among them."
           },
           {
             "type": "tool",
@@ -96,7 +96,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass, faster than the metronome was. Play the whole position again, starting from a different {{1}} each time."
+            "text": "Press Play below to start the backing track: drums and bass, faster than the metronome was. Play all the dots again, low to high and back, starting from a different {{1}} each time."
           },
           {
             "type": "tool",
@@ -128,12 +128,26 @@
       },
       {
         "type": "section",
-        "heading": "Make it up",
+        "heading": "Your own drill",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Keep the backing track going and make up short phrases from the position, with a gap after each. End each phrase on {{1}} and hear how it sounds finished. Every note in the position fits this backing, so try anything."
+            "text": "Keep the backing track going and make a drill of your own by changing one thing: the direction, the rhythm, or which dots you play. Play it until it feels easy, then change another thing.\nEnd each run on a ringed {{1}} and listen for how it sounds finished."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
           }
         ]
       }

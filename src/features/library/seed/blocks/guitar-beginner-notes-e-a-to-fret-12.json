@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-notes-e-a-to-fret-12",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track notes-on-neck (guitar-scales), step 2: natural notes on the low E and A strings up to fret 12 (note-finder at level beginner), found, named, then every place of one note.",
+  "note": "The note game on the low E and A strings up to fret 12 (note-finder at level beginner, path step notes-on-neck:2), turned three ways: find and play the named note, say the lit note's name before pressing it, tap every place one note sits. One choice per level that comes to this step (beginner, and intermediate and advanced players filling the gap), all with the same words and tools. Each block has one extra line: a feel to reach, the sense it trains, or what to practice next.",
   "exercise": {
     "title": "Notes on the low E and A strings, up to fret 12",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Playing it (mic) under the neck below. Then press Start above the neck. The game names a note: find it on the low E or the A string and play it, saying its name out loud.\nPractice until you find the notes past the 5th fret without counting up from the open string."
+            "text": "Press Playing it (mic) under the neck below. Then press Start above the neck.\nThe game names a note and a string: find it on your guitar and play it, saying its name out loud. The game hears your answer.\nPractice until the high frets come as quickly as the low ones, without counting up from the open string."
           },
           {
             "type": "tool",
@@ -44,12 +44,12 @@
       },
       {
         "type": "section",
-        "heading": "Name the lit note",
+        "heading": "Say the name, then check",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below. Now the game lights a note on the neck: press its name under the neck.\nPlay the note on your guitar as you answer, so your hand learns the place while your eyes learn the name."
+            "text": "Press Start in the game below. Now the game lights a note on the neck: say its name out loud first, then press that name under the neck to check.\nPlay the note on your guitar as you answer, so your hand learns the place while your eyes learn the name."
           },
           {
             "type": "tool",
@@ -68,7 +68,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below. The game names a note: tap every place it sits on the two strings, then play those places on your guitar, low to high.\nThen make up your own round: pick any note and find it on both strings."
+            "text": "Press Start in the game below. The game names a note: tap every place it sits on the two strings, then play those places on your guitar, low to high.\nNotice which notes your finger goes to at once: the ones you still count up to are the ones to practice next."
           },
           {
             "type": "tool",
@@ -89,6 +89,22 @@
     {
       "name": "beginner",
       "level": "beginner",
+      "steps": [
+        "notes-on-neck:2"
+      ],
+      "minutes": 6
+    },
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "notes-on-neck:2"
+      ],
+      "minutes": 6
+    },
+    {
+      "name": "advanced",
+      "level": "advanced",
       "steps": [
         "notes-on-neck:2"
       ],

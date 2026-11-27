@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-leaps-falling",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 2.",
+  "note": "One falling-leap ear drill in two sections: four leaps down, then six, the lower note sung back before it is named. Folded in from the six-falling-leaps drill; each section changes only the set of leaps.",
   "exercise": {
     "title": "Leaps, falling",
     "area": "voice",
@@ -17,28 +17,61 @@
     "concepts": [
       "steps-to-leaps"
     ],
-    "why": "In a falling leap the top note comes first and there is no Do under it yet, so the ear has to measure downwards.",
+    "why": "In a falling leap the top note comes first and there is no Do under it yet, so singing the lower note back makes your ear measure the drop before you name it.",
     "learnBefore": [
       "/course/6/every-interval",
       "/course/6/singing-leaps"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Start below. The game plays a note and then one a 3rd, a 4th, a 5th or an octave below it. Hum the lower note back, then pick its name."
+        "type": "section",
+        "heading": "Four leaps down",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear a note and then one a 3rd, a 4th, a 5th or an octave below it. Sing the lower note back on \"la\", then pick its name: M3 for a major 3rd, P4 for a 4th, P5 for a 5th, P8 for the octave.\nIf two leaps sound alike, press Replay below and sing both notes, the top one and then the lower one."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                4,
+                5,
+                7,
+                12
+              ],
+              "dir": "down"
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "interval-ears",
-          "set": [
-            4,
-            5,
-            7,
-            12
-          ],
-          "dir": "down"
-        }
+        "type": "section",
+        "heading": "Six leaps down",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below. Now the drop can also be a minor 3rd or a 6th: m3 for the minor 3rd, M6 for the major 6th. Sing the lower note back on \"la\", then pick its name.\nPractice until you hear how far the note fell before you sing it back."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                3,
+                4,
+                5,
+                7,
+                9,
+                12
+              ],
+              "dir": "down"
+            }
+          }
+        ]
       }
     ]
   },

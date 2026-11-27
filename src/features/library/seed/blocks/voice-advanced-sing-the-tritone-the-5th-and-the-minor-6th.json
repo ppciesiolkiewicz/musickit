@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "note": "The tritone and the minor 6th sung from Do, each found as a half step either side of Sol, with P5 asked too so Sol itself stays in the ear; Do moves through six keys and the line about another key says what stays.",
   "exercise": {
     "title": "Sing the tritone, the 5th and the minor 6th",
     "area": "voice",
@@ -26,7 +26,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: TT is the tritone, m6 the minor 6th.\nHear Sol in your head first: the tritone lands a half step under it, the minor 6th a half step above it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a note won't come, press Show me below to hear it.\nWhen Do moves to a new key, the notes are new but each leap is still a half step from Sol."
+        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: P5 is the 5th, TT the tritone, m6 the minor 6th.\nHear Sol in your head first: the tritone lands a half step under it, the minor 6th a half step above it. Then sing that note on \"oo\" and hold it until Yes shows, and press Next below for another leap.\nPractice until you hear Sol and the half step beside it before you sing.\nWhen Do moves to a new key, the notes are new but each leap is still a half step from Sol."
       },
       {
         "type": "tool",

@@ -39,11 +39,11 @@
             "choice": "intermediate"
           },
           {
-            "block": "voice-intermediate-the-4th-the-5th-and-their-neighbours",
+            "block": "voice-intermediate-six-leaps-to-tell-apart",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-hammer-and-pull-in-stages",
+            "block": "guitar-beginner-hammer-pull-fingers-1-3",
             "choice": "intermediate"
           },
           {
@@ -89,7 +89,7 @@
             "choice": "intermediate"
           },
           {
-            "block": "voice-intermediate-sing-the-4th-the-5th-and-the-octave",
+            "block": "voice-intermediate-sing-the-3rd-the-4th-and-the-5th",
             "choice": "intermediate"
           },
           {
@@ -97,7 +97,7 @@
             "choice": "intermediate"
           },
           {
-            "block": "voice-intermediate-a-tune-that-drops-an-octave",
+            "block": "voice-intermediate-a-tune-that-falls-a-4th",
             "choice": "intermediate"
           }
         ]
@@ -106,7 +106,7 @@
         "theme": "A harmony line, chord tones and a solo",
         "exercises": [
           {
-            "block": "voice-intermediate-in-hold-out-filled-to-80",
+            "block": "voice-intermediate-in-hold-out",
             "choice": "intermediate"
           },
           {

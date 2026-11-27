@@ -29,7 +29,7 @@
             "choice": "new"
           },
           {
-            "block": "guitar-new-first-week-em-and-am-every-string-ringing",
+            "block": "guitar-new-em-am-changes",
             "choice": "new"
           },
           {
@@ -42,15 +42,15 @@
         "theme": "Em to Am, and the names of the notes",
         "exercises": [
           {
-            "block": "guitar-new-first-week-the-spider-at-the-5th-fret",
+            "block": "guitar-beginner-the-spider-where-position-1-lives",
             "choice": "new"
           },
           {
-            "block": "guitar-new-first-week-notes-on-the-low-e-and-a-strings",
+            "block": "guitar-new-notes-on-e-and-a",
             "choice": "new"
           },
           {
-            "block": "guitar-new-first-week-em-to-am-one-strum-a-bar",
+            "block": "guitar-new-em-am-changes",
             "choice": "new"
           }
         ]
@@ -59,7 +59,7 @@
         "theme": "Three new chords: E, A and D",
         "exercises": [
           {
-            "block": "guitar-new-first-week-open-strings-a-little-faster",
+            "block": "guitar-new-first-week-pick-each-open-string",
             "choice": "new"
           },
           {
@@ -76,11 +76,11 @@
         "theme": "Quicker changes",
         "exercises": [
           {
-            "block": "guitar-new-first-week-spider-every-note-ringing",
+            "block": "guitar-beginner-the-spider-where-position-1-lives",
             "choice": "new"
           },
           {
-            "block": "guitar-new-first-week-find-the-note-and-play-it",
+            "block": "guitar-new-notes-on-e-and-a",
             "choice": "new"
           },
           {
@@ -97,7 +97,7 @@
         "theme": "Down and up",
         "exercises": [
           {
-            "block": "guitar-new-first-week-open-strings-down-then-down-and-up",
+            "block": "guitar-new-first-week-pick-each-open-string",
             "choice": "new"
           },
           {
@@ -114,11 +114,11 @@
         "theme": "A, D and E: a three-chord song",
         "exercises": [
           {
-            "block": "guitar-new-first-week-spider-faster-in-stages",
+            "block": "guitar-beginner-the-spider-where-position-1-lives",
             "choice": "new"
           },
           {
-            "block": "guitar-new-first-week-say-the-name-then-check",
+            "block": "guitar-new-notes-on-e-and-a",
             "choice": "new"
           },
           {
@@ -131,15 +131,15 @@
         "theme": "The first days again, and a tune of your own",
         "exercises": [
           {
-            "block": "guitar-new-first-week-open-strings-without-looking",
+            "block": "guitar-new-first-week-pick-each-open-string",
             "choice": "new"
           },
           {
-            "block": "guitar-new-first-week-em-to-am-then-down-and-up",
+            "block": "guitar-new-first-week-down-and-up-strums",
             "choice": "new"
           },
           {
-            "block": "guitar-new-first-week-low-e-and-a-strings-which-notes-come-at-once",
+            "block": "guitar-new-notes-on-e-and-a",
             "choice": "new"
           },
           {

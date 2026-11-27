@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-a-g-and-d-triads",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 4.",
+  "note": "The 1st, ♭7th and 4th chords of A Mixolydian as triads on three string sets, two minutes each: the top three strings, one set lower, then the A, D and G strings. The eyes-off-the-tab copy is folded in: looking away is the goal of the second block and its A-D-G set is the third; tempo is moves (70 to 90 bpm). No key move: the play-along gives no key, and the chords are the lesson.",
   "exercise": {
     "title": "A, G and D triads",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "triads"
     ],
-    "why": "A, G and D are the I, ♭VII and IV chords of A Mixolydian, and between them the three triads hold all seven notes of the mode.",
+    "why": "A, G and D are the 1st, ♭7th and 4th chords of A Mixolydian, so between them the three triads hold all seven notes of the mode.",
     "learnBefore": [
       "/course/8/triads-everywhere",
       "/course/9/modes"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Strings G, B and E",
-        "minutes": 3,
+        "heading": "The top three strings",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track and follow the tab: each triad on the top three strings, struck once per beat for a bar. The chords go A, G, D and back to A."
+            "text": "Press Play below to start the backing track and follow the tab: each triad on the G, B and high e strings, struck once per beat for a bar. The chords go A, G, D and back to A.\nIf a shape comes late, let it go and catch the next bar."
           },
           {
             "type": "tool",
@@ -197,12 +197,12 @@
       },
       {
         "type": "section",
-        "heading": "Strings D, G and B",
-        "minutes": 3,
+        "heading": "One set of strings lower",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the same chords one set of strings lower. Practice until you can look away from the tab for a whole round."
+            "text": "Press Play below to start the backing track: the same chords on the D, G and B strings.\nPractice until you can look away from the tab for a whole round."
           },
           {
             "type": "tool",
@@ -366,6 +366,178 @@
             }
           }
         ]
+      },
+      {
+        "type": "section",
+        "heading": "The A, D and G strings",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track: the same chords on the A, D and G strings. Find each shape before its bar starts, and say the chord name as you strike it.\nPractice until your hand finds each shape from the one before it, not from the screen."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "A",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "A",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
       }
     ]
   },
@@ -376,6 +548,13 @@
       "steps": [
         "triads:7"
       ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]

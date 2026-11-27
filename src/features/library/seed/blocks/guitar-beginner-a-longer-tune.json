@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-a-longer-tune",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-beginner.json, day 6.",
+  "note": "One tune played along twice on the guitar-play-along: from the tab, then a little faster on the neck. Key and tempo are moves (any key, 65 to 85), so the headings name the task and not the tempo, the text names the tempo only as {{=bpm}}, and a {{?key}} line says what stays the same in another key. Folds in the new-key version of the same tune.",
   "exercise": {
     "title": "A longer tune",
     "area": "guitar",
@@ -17,19 +17,19 @@
     "concepts": [
       "guitar-melodies"
     ],
-    "why": "Reading it once from tab and once from the neck links the numbers to the places your fingers go.",
+    "why": "Reading the tune once from the tab and once from the neck links the fret numbers to the places your fingers go, and a tune keeps the same steps from its home note in any key.",
     "learnBefore": [
       "/course/4/melodies"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "From tab at 65",
+        "heading": "From the tab",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune and play along from the tab."
+            "text": "Press Play below to hear the tune at {{=bpm}}, and play along from the tab.\nPractice until your fingers find the next fret before its note sounds."
           },
           {
             "type": "tool",
@@ -48,12 +48,12 @@
       },
       {
         "type": "section",
-        "heading": "On the neck at 75",
+        "heading": "On the neck",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below: now the tune is on the neck, a little faster. Play along until you can play it with your eyes closed."
+            "text": "Press Play below to hear the tune again, a little faster, now shown on the neck. Play along with it.\nTo finish, play it on your own and change one thing: the speed, the octave or the ending.\n{{?key}}In another key the tune sits on other frets and keeps its shape: the same steps from its home note."
           },
           {
             "type": "tool",
@@ -79,6 +79,14 @@
       "steps": [
         "guitar-melodies:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 65,
+          "to": 85,
+          "step": 10
+        }
+      },
       "minutes": 5
     }
   ]

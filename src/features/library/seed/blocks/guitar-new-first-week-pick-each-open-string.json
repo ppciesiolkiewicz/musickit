@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-first-week-pick-each-open-string",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-new-first-week.json, day 1.",
+  "note": "The open strings picked in order over the metronome: down strokes first, then down and up in turn (picking-drill levels new and beginner), with the tempo as moves (60 to 80), so the text names it only as {{=bpm}} and never a selector. Each part has one extra line: a feel to reach, or what to do when the up strokes miss. Folds in the faster, down-and-up and look-away versions of the same drill.",
   "exercise": {
     "title": "Pick each open string",
     "area": "guitar",
@@ -17,23 +17,47 @@
     "concepts": [
       "picking"
     ],
-    "why": "Every chord and tune starts with the pick finding one string, so picking the six open strings in order teaches your hand how far apart they are.",
+    "why": "The strings sit the same distance apart under every chord and tune, so once the pick finds each open string without a look, it finds them everywhere.",
     "learnBefore": [
       "/course/1/strings-and-tuning",
       "/tuner"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab: each open string four times, picking down, one note per beat. The tab goes from the low E string to the high e string and back.\nPractice until your pick lands on the next string without you looking at it."
+        "type": "section",
+        "heading": "Down strokes",
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at {{=bpm}} and follow the tab: each open string four times, one note per beat, from the low E string to the high e string and back. Pick down on every note.\nPractice until your pick lands on the next string without you looking at it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "new",
+              "bpm": 60
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "picking-drill",
-          "level": "new",
-          "bpm": 60
-        }
+        "type": "section",
+        "heading": "Down and up",
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome again. Now pick down, then up, in turn, as the arrows under the tab show.\nIf the up strokes miss the string, make the strokes smaller and keep your hand close to the strings."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "beginner",
+              "bpm": 60
+            }
+          }
+        ]
       }
     ]
   },
@@ -44,6 +68,13 @@
       "steps": [
         "picking:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 3
     }
   ]

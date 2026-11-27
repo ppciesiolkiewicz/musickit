@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-a-harmony-line-over-three-chords",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 4.",
+  "note": "One harmony-line drill over {{chord:I}} {{chord:IV}} {{chord:V}} {{chord:I}}: the roots first, then the written line that moves by step on notes of each chord, then a line the singer chooses. The chords are tokens counted the long way the first time, the tempo and key are moves (the faster stages of the old file are the tempo range), and the line about another key opens with {{?key}}.",
   "exercise": {
     "title": "A harmony line over three chords",
     "area": "voice",
@@ -17,7 +17,7 @@
     "concepts": [
       "harmony-line"
     ],
-    "why": "A harmony line stays on notes of each chord and moves as little as it can, so it is easy to hold and fits every bar.",
+    "why": "A harmony line stays on a note of each chord and moves as little as it can, so each note is a step from the last and still fits the chord under it.",
     "learnBefore": [
       "/course/6/harmony-line"
     ],
@@ -25,11 +25,11 @@
       {
         "type": "section",
         "heading": "The roots first",
-        "minutes": 4,
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track: D, G, A and back to D, a bar each. On \"oo\", sing the root of each chord as it comes round: {{1}}, {{4}}, {{5}}, then {{1}} again. Practice until you hear each change coming before the chord box lights."
+            "text": "Press Start exercise below: the mic and the backing track start together, at {{=bpm}}. The backing track plays {{chord:I}}, {{chord:IV}}, {{chord:V}} and {{chord:I}} again, one bar each.\n{{chord:I}} is the 1st chord of the key, built on {{1}}, {{chord:IV}} is the 4th chord, built on {{4}}, and {{chord:V}} is the 5th chord, built on {{5}}. Sing the root of each chord as it comes round: {{1}}, {{4}}, {{5}}, then {{1}} again. Sing it on \"oo\".\nPractice until you hear each change coming before its chord box lights."
           },
           {
             "type": "tool",
@@ -43,7 +43,8 @@
                 "1",
                 "4",
                 "5"
-              ]
+              ],
+              "follow": "root"
             }
           },
           {
@@ -51,31 +52,31 @@
             "tool": {
               "type": "backing-track",
               "key": "d",
-              "style": "ballad",
-              "bpm": 70,
-              "parts": {
-                "drums": "on",
-                "bass": "off",
-                "keys": "always"
-              },
               "numerals": [
                 "I",
                 "IV",
                 "V",
                 "I"
-              ]
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 70
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "Now the line",
-        "minutes": 4,
+        "heading": "The harmony line",
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track. Over the same chords sing {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar on \"oo\". The line moves one step at a time, and each note belongs to the chord under it.\nThen sing it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes change but the line still moves one step at a time."
+            "text": "Press Start exercise below to start the mic and the backing track. Over the same chords, sing the harmony line: {{3}} over {{chord:I}}, {{4}} over {{chord:IV}}, {{2}} over {{chord:V}}, then {{3}} again, one note a bar. Sing it on \"oo\".\nThe line moves one step at a time, and each note belongs to the chord under it.\nIf a note comes late, sing it as the chord arrives and hold it to the end of the bar.\n{{?key}}In another key the chords and the notes are new, and the line still moves one step at a time."
           },
           {
             "type": "tool",
@@ -97,32 +98,70 @@
             "tool": {
               "type": "backing-track",
               "key": "d",
-              "style": "ballad",
-              "bpm": 70,
-              "parts": {
-                "drums": "on",
-                "bass": "off",
-                "keys": "always"
-              },
               "numerals": [
                 "I",
                 "IV",
                 "V",
                 "I"
-              ]
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 70
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "f"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A line you choose",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the backing track. Now choose your own note for each chord from {{1}} up to {{5}}, one a bar, and move by step where you can. Sing it on \"oo\".\nWhen you find a line you like, sing it again until you can start it from any bar."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
             }
-          ]
-        }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 70
+            }
+          }
+        ]
       }
     ]
   },
@@ -133,6 +172,14 @@
       "steps": [
         "harmony-line:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

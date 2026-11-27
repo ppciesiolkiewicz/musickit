@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-sing-the-two-7ths-and-the-octave",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 2.",
+  "note": "The two 7ths sung from Do, each found a step under the high Do, with the octave asked too so the high Do stays in the ear; Do moves through six keys and the line about another key says what stays.",
   "exercise": {
     "title": "Sing the two 7ths and the octave",
     "area": "voice",
@@ -26,7 +26,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: m7 is the minor 7th, M7 the major 7th.\nHear the high Do in your head first: the major 7th lands a half step under it, the minor 7th a whole step under it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but each 7th is still the same distance under the high Do."
+        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: m7 is the minor 7th, M7 the major 7th, P8 the octave.\nHear the high Do in your head first: the major 7th lands a half step under it, the minor 7th a whole step under it. Then sing that note on \"oo\" and hold it until Yes shows, and press Next below for another leap.\nIf a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but each 7th is still the same distance under the high Do."
       },
       {
         "type": "tool",

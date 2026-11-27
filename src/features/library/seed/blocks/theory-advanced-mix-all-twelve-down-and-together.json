@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-mix-all-twelve-down-and-together",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track intervals (theory-ear), step 7 (ladder interval-ears:5): all twelve intervals going down and sounded together, two games at \"level\": \"advanced\", then P4, TT and P5 together, narrowed with \"set\". Missing: interval-ears has no \"dir\" that mixes directions from one question to the next.",
+  "note": "Track intervals, mix step 7 (all twelve, down and together): three ear games, each changing one thing: all twelve falling, all twelve with both notes at once (\"level\": \"advanced\" with \"dir\"), then the three close ones narrowed with \"set\". Folds in the all-twelve-falling drill, whose hum-back check is the first section's fix. Missing: interval-ears has no \"dir\" that mixes directions from one question to the next.",
   "exercise": {
     "title": "All twelve intervals, down and together",
     "area": "theory",
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: any of the twelve intervals, with the upper note first.\nIf two answers sound alike, press Replay in the game and hum from the lower note up to the upper one.\nPractice until the 7ths and the tritone come as quickly as the 5th."
+            "text": "Press Start in the game below to hear two notes, the upper one first: any of the twelve intervals up to an octave. Pick the interval's name.\nIf two answers sound alike, press Replay in the game and hum the two notes from the lower one up.\nPractice until the 7ths and the tritone come as quickly as the 5th."
           },
           {
             "type": "tool",
@@ -51,7 +51,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: the same twelve, with both notes at once.\nListen for the lower note first, then for how far over it the upper one sits.\nWhen you change from down to together, the order is gone but each interval keeps its size."
+            "text": "Press Start in the game below to hear the same twelve, with both notes at once.\nListen for the lower note first, then for how far over it the upper one sits.\nWhen the two notes come together, the order is gone but each interval keeps its size."
           },
           {
             "type": "tool",
@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: only P4, TT and P5, both notes at once (P4 for a 4th, TT for the tritone, P5 for a 5th).\nThe three are a half step apart in size, so listen for the one in the middle, TT, and place the other two under and over it.\nPractice until the three no longer sound alike."
+            "text": "Press Start in the game below to hear only three intervals, both notes at once. Pick P4 for a 4th, TT for the tritone or P5 for a 5th.\nThe three are a half step apart in size, so find the one in the middle, TT, and place the other two under and over it.\nPractice until the three no longer sound alike."
           },
           {
             "type": "tool",

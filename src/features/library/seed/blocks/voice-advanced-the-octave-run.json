@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-the-octave-run",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 4.",
+  "note": "Both octave runs from the runs book, one per section: the whole scale up to the high Do and back, then the run that goes on by step to the high Mi. Each pass climbs a semitone to the top of the voice, and the tempo is a move (70 up to 100). Folded in from the run-past-the-octave drill.",
   "exercise": {
     "title": "The octave run",
     "area": "voice",
@@ -23,19 +23,51 @@
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the whole scale from Do to the high Do and comes straight back, past Do to the Ti under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\". If the notes smear into each other, sing one pass on \"la\", then go back to \"ah\"."
+        "type": "section",
+        "heading": "Up to the high Do",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the whole scale from {{1}} to the high {{1}} and comes straight back, past Do to the {{7}} under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\". If the notes smear into each other, sing one pass on \"la\", then go back to \"ah\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "octave-run"
+              },
+              "voice": "tenor",
+              "bpm": 70
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "run-singer",
-          "pick": {
-            "difficulty": "hard",
-            "stage": "octave-run"
+        "type": "section",
+        "heading": "On to the high Mi",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the next run. It climbs past the high {{1}} to the high {{3}}, comes down with two turns and dips to the {{7}} under Do, so the top notes come by step instead of by a leap. Sing it lightly on \"ah\", and move to \"oo\" above the high Do.\nPractice until the half steps at the top are as small as the ones at the bottom."
           },
-          "voice": "tenor"
-        }
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "octave-run",
+                "index": 1
+              },
+              "voice": "tenor",
+              "bpm": 70
+            }
+          }
+        ]
       }
     ]
   },
@@ -46,7 +78,14 @@
       "steps": [
         "runs:7"
       ],
-      "minutes": 4
+      "minutes": 4,
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

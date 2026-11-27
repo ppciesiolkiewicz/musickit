@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-the-chord-as-a-fast-run",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 2.",
+  "note": "Both expert chord runs from the runs book, one per section: round Do, Mi and Sol before the top, then up the chord to a held high Do. Each pass climbs a semitone to the top of the voice, and the tempo is a move (70 up to 100). Folded in from the up-the-chord-hold-the-top drill.",
   "exercise": {
     "title": "The chord as a fast run",
     "area": "voice",
@@ -17,25 +17,57 @@
     "concepts": [
       "runs"
     ],
-    "why": "A run of skips has no steps to lean on, so every note has to be aimed, and going round Do, Mi and Sol twice before the top puts the chord in your ear first.",
+    "why": "A run of skips has no steps to lean on, so every note has to be aimed, and Do, Mi and Sol are the notes your ear already holds as the home chord.",
     "learnBefore": [
       "/course/9/fast-runs"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes round Do, Mi and Sol twice, climbs to the high Do and comes back down past Do to the Ti under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it on \"ah\", and move to \"oo\" for the high Do when a pass feels tight."
+        "type": "section",
+        "heading": "Round the chord, then up",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes round {{1}}, {{3}} and {{5}} a few times, climbs to the high {{1}} and comes back down to the {{7}} under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it on \"ah\", and move to \"oo\" for the high Do when a pass feels tight."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "arpeggio-run"
+              },
+              "voice": "tenor",
+              "bpm": 70
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "run-singer",
-          "pick": {
-            "difficulty": "expert",
-            "stage": "arpeggio-run"
+        "type": "section",
+        "heading": "Hold the top",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the next run. It climbs the chord from the {{5}} under Do to the high {{1}}, holds it for three beats, and comes back down the chord. Sing it on \"ah\", and move to \"oo\" for the held note.\nPractice until the held note lands without sliding: it tells you whether the run arrived in tune."
           },
-          "voice": "tenor"
-        }
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "arpeggio-run",
+                "index": 1
+              },
+              "voice": "tenor",
+              "bpm": 70
+            }
+          }
+        ]
       }
     ]
   },
@@ -46,7 +78,14 @@
       "steps": [
         "runs:2"
       ],
-      "minutes": 4
+      "minutes": 4,
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

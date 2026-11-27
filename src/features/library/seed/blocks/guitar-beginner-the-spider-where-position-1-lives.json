@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-the-spider-where-position-1-lives",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 18,
-    "agents": 2,
-    "teaching": 10
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "A beginner's warm-up with every part of the run said: which frets, which fingers, which string it starts on, which way it goes and where it turns. The why ties the frets to the scale learned there. The tempo moves, so the text names it only as {{=bpm}}.",
+  "note": "The spider at frets 5 to 8 with every part of the run said: which frets, which fingers, which string it starts on, which way it goes and where it turns, what to do about a buzz, and a care line for an aching hand. The why ties the frets to the scale learned there. Two choices show the same words: new (3 minutes, 50 to 70 bpm) and beginner (5 minutes, 50 to 90). Folded in: the three first-week spider files (every note ringing, faster in stages, at the 5th fret), whose tempo stages are now the moves' range.",
   "exercise": {
     "title": "The spider at frets 5 to 8",
     "area": "guitar",
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows the spider: on each string, frets 5, 6, 7 and 8 with fingers 1, 2, 3 and 4, one note per beat.\nStart on the low E string and play the four notes on every string up to the high e string. Then come back down, one string at a time, with the same four notes on each. The row under the tab shows the finger for each note, and the note playing is lit.\nPractice until your hand stays still and only the fingers move."
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows the spider: on each string, frets 5, 6, 7 and 8 with fingers 1, 2, 3 and 4, one note per beat. The row under the tab shows the finger for each note, and the note playing is lit.\nStart on the low E string and play the four notes on every string up to the high e string. Then come back down, one string at a time, with the same four notes on each. If a note buzzes, press that finger closer to its fret when it comes round on the next string.\nPractice until every note rings and your hand stays still, with only the fingers moving.\n_If your hand aches, stop and shake it out._"
       },
       {
         "type": "tool",
@@ -32,7 +32,7 @@
           "type": "finger-pattern",
           "level": "new",
           "show": "finger",
-          "bpm": 60
+          "bpm": 50
         }
       }
     ]
@@ -46,12 +46,27 @@
       ],
       "moves": {
         "bpm": {
-          "from": 60,
+          "from": 50,
           "to": 90,
           "step": 10
         }
       },
       "minutes": 5
+    },
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "spider:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 50,
+          "to": 70,
+          "step": 10
+        }
+      },
+      "minutes": 3
     }
   ]
 }

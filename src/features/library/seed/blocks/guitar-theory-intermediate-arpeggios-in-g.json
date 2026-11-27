@@ -2,11 +2,11 @@
   "id": "guitar-theory-intermediate-arpeggios-in-g",
   "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 24,
-    "agents": 2,
-    "teaching": 12
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "The three 7th arpeggios of a ii-V-I: first each on its own arpeggio-neck, placed by its root string so the three sit in one stretch of the neck, then chained one bar each in a guitar-play-along with chord-steps, whose key lets the chord tokens and the long-form count name the chords. Key and tempo are moves, so the text names no note, fret or key value.",
+  "note": "The three 7th arpeggios of a ii-V-I: first each on its own arpeggio-neck, placed by its root string so the three sit in one stretch of the neck, then chained one bar each in a guitar-play-along with chord-steps, whose key lets the chord tokens and the long-form count name the chords; the goal ends with the eyes off the neck. Key and tempo are moves, so the text names no note, fret or key value. Folded in: guitar-theory-intermediate-arpeggios-of-the-ii-v-i (the same drill in C, now a key move) and guitar-theory-intermediate-arpeggios-from-memory (the chain played without looking, now the end of the goal).",
   "exercise": {
     "title": "Arpeggios of {{chord:ii7}}, {{chord:V7}} and {{chord:Imaj7}}",
     "area": "guitar",
@@ -99,7 +99,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "{{chord:ii7}} is the 2nd chord of the key, built on {{2}}. {{chord:V7}} is the 5th chord, built on {{5}}, and {{chord:Imaj7}} is the 1st, built on {{1}}.\nPress Play below to start the line: the backing track holds each chord for a bar while you play its arpeggio up from the ringed root, one note per beat.\nPractice until the line runs through all three chords with no stop at the changes.\n{{?key}}In another key the three shapes sit on other frets, and each one still starts from its ringed root."
+            "text": "{{chord:ii7}} is the 2nd chord of the key, built on {{2}}. {{chord:V7}} is the 5th chord, built on {{5}}, and {{chord:Imaj7}} is the 1st, built on {{1}}.\nPress Play below to start the line: the backing track holds each chord for a bar while you play its arpeggio up from the ringed root, one note per beat.\nPractice until the line runs through all three chords with no stop at the changes, and then with your eyes off the neck.\n{{?key}}In another key the three shapes sit on other frets, and each one still starts from its ringed root."
           },
           {
             "type": "tool",

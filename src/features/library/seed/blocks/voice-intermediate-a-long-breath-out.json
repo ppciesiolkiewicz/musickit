@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-a-long-breath-out",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 5.",
+  "note": "Track breath, step 6 (a long breath out): one breathwork circle with the \"long-exhale\" drill at its own lengths (in for 4, out for 8); the text follows the circle, names the control that runs it again, and the feel to reach is an even flow to the end of the breath. The advanced block of this drill stays separate, because its breathwork is set longer and a choice can't change a tool's seconds.",
   "exercise": {
     "title": "A long breath out",
     "area": "voice",
@@ -17,14 +17,14 @@
     "concepts": [
       "breath"
     ],
-    "why": "A long phrase is one slow breath out, so a breath out that lasts longer than the breath in is the phrase without its notes.",
+    "why": "A long phrase is one slow breath out, so a breath out twice as long as the breath in is the phrase without its notes.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the circle below. Breathe in while the circle grows, then let the air out slowly until the circle is small again. Aim for the same flow of air at the end as at the start."
+        "text": "Press Start in the circle below. Breathe in while the circle grows, then let the air out slowly until it is small again.\nWhen the rounds are done, press Again in the circle to run them once more.\nPractice until the air flows as evenly at the end of the breath out as at the start."
       },
       {
         "type": "tool",

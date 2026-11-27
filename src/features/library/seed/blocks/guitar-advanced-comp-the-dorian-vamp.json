@@ -1,14 +1,14 @@
 {
   "id": "guitar-advanced-comp-the-dorian-vamp",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 5.",
+  "note": "Comping a two-chord Dorian vamp: strummed in sixteenths with misses over the metronome, then over drums and bass alone, leaving strums out. The old Stage selector of tempos is now moves (80 to 100 bpm, any key), the backing track gives the key as numerals so it follows the key, and the old soul-vamp copy is folded in. The text names the chords by what they are, never by letter.",
   "exercise": {
-    "title": "Comp the Dorian vamp",
+    "title": "Comp the {{=key}} Dorian vamp",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,7 +17,7 @@
     "concepts": [
       "shells"
     ],
-    "why": "Comping is leaving room: with only drums and bass under you every strum you leave out can be heard, so the gaps become part of the rhythm.",
+    "why": "With only drums and bass under you, every strum you leave out can be heard, so the gaps become part of the rhythm.",
     "learnBefore": [
       "/course/11/comping",
       "/course/11/extended"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "One stage at a time",
+        "heading": "Sixteenths with misses",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum the pattern in the boxes, two bars of Am9 and two of D9.\nWhen the change no longer makes your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late, keep the hand going and catch the next beat 1."
+            "text": "The Dorian vamp is two chords: the minor chord on {{=key}}, and the major chord on the 4th note above it, each with a 9th on top.\nPress Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, two bars of each chord. Your hand goes down and up four times a beat and misses the strings where the box shows a dot.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -46,21 +46,7 @@
               "pattern": "D . . U . U D U D . . U . U D U"
             }
           }
-        ],
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 80
-            },
-            {
-              "bpm": 90
-            },
-            {
-              "bpm": 100
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
@@ -69,21 +55,21 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Leave some strums out, and keep your hand moving through the gaps."
+            "text": "Press Play below to start the backing track: drums and bass, with the chord boxes lighting bar by bar. The boxes show 7th chords: you are the only one playing the chords, with your 9th shapes. Leave some strums out, and keep your hand moving through the gaps.\nPractice until the gaps feel as steady as the strums.\n{{?key}}In another key the two shapes sit on other frets, and the second chord is still a 4th above the first."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-track",
-              "chords": [
-                "Am9",
-                "Am9",
-                "D9",
-                "D9"
-              ],
               "key": "a",
+              "numerals": [
+                "i7",
+                "i7",
+                "IV7",
+                "IV7"
+              ],
               "style": "funk",
-              "bpm": 95,
+              "bpm": 90,
               "parts": {
                 "drums": "always",
                 "bass": "on"
@@ -101,6 +87,14 @@
       "steps": [
         "shells:3"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

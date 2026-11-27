@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-a-fast-pentatonic-run",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "note": "Two expert pentatonic runs from the runs book, one per section: the run from Mi to the high Do, then the riff that opens on a held Sol. Each pass climbs a semitone to the top of the voice, and the tempo is a move (70 up to 100), so the drill gets faster without a copy. Folded in from the to-the-top and pentatonic-riff drills.",
   "exercise": {
     "title": "A fast pentatonic run",
     "area": "voice",
@@ -23,19 +23,51 @@
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run starts on Mi, climbs to the high Do and comes down to the La under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+        "type": "section",
+        "heading": "From Mi to the high Do",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run starts on {{3}}, climbs to the high {{1}} and comes back down to the {{6}} under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "pentatonic-run"
+              },
+              "voice": "tenor",
+              "bpm": 70
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "run-singer",
-          "pick": {
-            "difficulty": "expert",
-            "stage": "pentatonic-run"
+        "type": "section",
+        "heading": "From a held Sol",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the next run. It holds {{5}} for a beat, turns up to the high {{1}} and runs down to Do, then dips to the {{6}} under it. Tune the held {{5}} first, then let the fast notes leave from it, on \"ah\".\nPractice until the passes stay clear right up to the top of your range."
           },
-          "voice": "tenor"
-        }
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "pentatonic-run",
+                "index": 1
+              },
+              "voice": "tenor",
+              "bpm": 70
+            }
+          }
+        ]
       }
     ]
   },
@@ -46,7 +78,14 @@
       "steps": [
         "runs:4"
       ],
-      "minutes": 4
+      "minutes": 4,
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      }
     }
   ]
 }

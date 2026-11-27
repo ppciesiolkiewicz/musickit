@@ -1,14 +1,14 @@
 {
   "id": "guitar-advanced-am7-and-d9",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 1.",
+  "note": "The minor 7th chord on the 2nd note of the key and the 9th chord on the 5th, as barre shapes and then as a sixteenth-note groove. The chord-circle shows the why (the 9th is one note on top of the 7th) and gives the block its written key, so the old Dm9-and-G9 copy is now moves (any key, 80 to 100 bpm). The text names no chord by its letter, the boxes do; one extra line per block.",
   "exercise": {
-    "title": "Am7 and D9",
+    "title": "Minor 7th to 9th chord, in sixteenths",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,7 +17,7 @@
     "concepts": [
       "shells"
     ],
-    "why": "A 9th chord is a 7th chord with one more note on top, so D9 goes wherever D7 goes and adds a colour above it.",
+    "why": "A 9th chord is a 7th chord with one more note on top, so it goes wherever the 7th chord goes and adds a colour above it.",
     "learnBefore": [
       "/course/11/extended",
       "/course/7/sevenths"
@@ -30,7 +30,20 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am7 to D9 and back until your fingers lift and land together."
+            "text": "Below, the 7th chord on the 5th note of the key sits in the big circle, with the chords it can turn into around it. Press the big circle to hear it, then press its 9th chord and listen for the one note the 9th adds on top."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-circle",
+              "key": "g",
+              "scale": "major-ionian",
+              "degree": 5
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown: the minor 7th chord on the 2nd note of the key, then the 9th chord. Change from one to the other and back.\nPractice until your fingers lift and land together, with no finger arriving late."
           },
           {
             "type": "tool",
@@ -52,7 +65,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, two bars of each chord. Your hand goes down and up four times a beat and misses the strings where the box shows a dot.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, two bars of each chord. Your hand goes down and up four times a beat and misses the strings where the box shows a dot.\nIf a change comes late, keep your strumming hand going and catch the next beat 1.\n{{?key}}In another key both shapes sit on other frets, and the 9th chord still adds one note on top of the 7th."
           },
           {
             "type": "tool",
@@ -79,6 +92,14 @@
       "steps": [
         "shells:3"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-d-dsus2-dsus4",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 1.",
+  "note": "Dsus2 and Dsus4 as one finger off or on a D: the shapes, a bar of each in downstrokes, then Dsus4 as the bar before D at the end of a phrase. One file for the drill at two levels (the beginner copy and the sus groove are folded in): the words are the same, the beginner choice moves 60 to 70 bpm and the intermediate one 60 to 90. Open shapes, so no key move.",
   "exercise": {
-    "title": "D, Dsus2, Dsus4",
+    "title": "Dsus2 and Dsus4 around D",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,19 +17,19 @@
     "concepts": [
       "sus-add9"
     ],
-    "why": "A sus chord swaps the 3rd of the chord for the note next to it, so one finger lifting or landing turns a plain D into a moving part.",
+    "why": "Dsus2 is D with one finger lifted and Dsus4 is D with one finger added, both on the high e string, so one finger turns a still D into a moving part.",
     "learnBefore": [
       "/course/7/sus-add9"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "The three shapes",
-        "minutes": 3,
+        "heading": "One finger off, one on",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from D to Dsus2 and back, then from D to Dsus4 and back, until only the one finger moves."
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from D to Dsus2 and back, then from D to Dsus4 and back.\nPractice until only the one finger moves and the rest of your hand stays still."
           },
           {
             "type": "tool",
@@ -46,12 +46,12 @@
       },
       {
         "type": "section",
-        "heading": "As a groove",
-        "minutes": 4,
+        "heading": "A bar of each",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, one bar each. If a change comes late, keep your strumming hand going and catch the next beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nIf the finger comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -63,8 +63,45 @@
                 "D",
                 "Dsus2"
               ],
-              "bpm": 80,
-              "pattern": "D . D U . U D U"
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Dsus4 into D",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to see the two new shapes, G and A. Then press Play under them to start the metronome. Strum the pattern in the boxes: after G and A, Dsus4 holds for a bar and falls back to D in the next.\nListen for how the bar of Dsus4 leans towards D."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "A",
+                "Dsus4",
+                "D"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "A",
+                "Dsus4",
+                "D"
+              ],
+              "bpm": 60,
+              "pattern": "D . D U D . D U"
             }
           }
         ]
@@ -78,6 +115,28 @@
       "steps": [
         "sus-add9:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 7
+    },
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "sus-add9:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 70,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

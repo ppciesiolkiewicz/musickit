@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-the-3rd-and-7th-of-each-chord",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "note": "The 3rd and 7th of each chord of a ii–V–I, alone on the tab, then under a struck shell, then as the target of a short fill after the shell. The eyes-off-the-tab and in-C copies are folded in: looking away is the goal of the first block, and the key is now moves (any key, 66 to 86 bpm). Note names that were fixed to G are gone, so the text follows any key.",
   "exercise": {
     "title": "The 3rd and 7th of each chord",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: it holds Am7, D7 and two bars of Gmaj7 while you play the tab, one note per beat. You play only the 3rd and the 7th of each chord.\nWatch how little your hand moves from one chord to the next, then switch to the neck view to see the whole line in place."
+            "text": "Press Play below to start the backing track: it holds each chord while you play the tab, one note per beat, only the 3rd and the 7th of each chord. Watch how little your hand moves from one chord to the next.\nPractice until you can play a round with your eyes off the tab, and check it only when a note will not come."
           },
           {
             "type": "tool",
@@ -91,7 +91,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Now the root goes under the two notes: strike the shell on the A, D and G strings on beat 1, pick its 3rd and its 7th, then strike the shell again.\nPractice until your hand finds each shell before its bar starts."
+            "text": "Press Play below to start the backing track. Now the root goes under the two notes: strike the shell on beat 1, pick its 3rd and its 7th, then strike the shell again.\nPractice until your hand finds each shell before its bar starts."
           },
           {
             "type": "tool",
@@ -202,12 +202,12 @@
       },
       {
         "type": "section",
-        "heading": "Land on the 3rd",
+        "heading": "Shell, then a line",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, which goes round Am7, D7 and Gmaj7. Improvise in G major and land on the ringed note as each chord arrives: {{c}} over Am7, {{f-sharp}} over D7, {{b}} over Gmaj7.\nThen aim for each chord's 7th instead, and hear how the line changes colour."
+            "text": "Press Play below to start the backing track. Strike the lit shell on beat 1 of each chord, then fill the rest of the bar with a short line in the {{=key}} major scale that ends on a ringed note, the 3rd or the 7th of the chord.\nPlay the kind of fill you would put between two sung lines: short, with room after it.\n{{?key}}In another key the shells sit on other frets, and the 3rd and 7th keep their places inside each one."
           },
           {
             "type": "tool",
@@ -221,31 +221,66 @@
                   {
                     "chord": "Am7",
                     "target": [
-                      "b3"
-                    ]
+                      "b3",
+                      "b7"
+                    ],
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "b3",
+                        "b7"
+                      ],
+                      "strings": "543"
+                    }
                   },
                   {
                     "chord": "D7",
                     "target": [
-                      "3"
+                      "3",
+                      "b7"
                     ],
-                    "approach": "land on F♯ on beat 1"
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "3",
+                        "b7"
+                      ],
+                      "strings": "543"
+                    }
                   },
                   {
                     "chord": "Gmaj7",
                     "target": [
-                      "3"
-                    ]
+                      "3",
+                      "7"
+                    ],
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "3",
+                        "7"
+                      ],
+                      "strings": "543"
+                    }
                   },
                   {
                     "chord": "Gmaj7",
                     "target": [
-                      "3"
-                    ]
+                      "3",
+                      "7"
+                    ],
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "3",
+                        "7"
+                      ],
+                      "strings": "543"
+                    }
                   }
                 ]
               },
-              "bpm": 80,
+              "bpm": 76,
               "view": "neck"
             }
           }
@@ -260,6 +295,14 @@
       "steps": [
         "shells:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 66,
+          "to": 86,
+          "step": 10
+        }
+      },
       "minutes": 12
     }
   ]

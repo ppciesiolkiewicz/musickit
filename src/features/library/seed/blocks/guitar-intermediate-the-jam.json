@@ -1,14 +1,14 @@
 {
   "id": "guitar-intermediate-the-jam",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 7.",
+  "note": "A jam across three positions of the minor pentatonic scale, one aim per block: the chord's root or 3rd on a solo-over, the slide-in and bend over a minor blues, then one solo that climbs from position 1 to position 3 and back over the backing track. The key is moves (any key): chords are chord tokens counted the long way once, the key is {{=key}}, and a {{?key}} line says what stays the same. Folds in the three-position solo (up, then down) of the same step.",
   "exercise": {
-    "title": "The jam",
+    "title": "{{=key}} minor pentatonic: a jam across three positions",
     "area": "guitar",
     "tags": [
       "improv"
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Improvise in any of the three positions and end each phrase on a ringed note: {{a}} or {{c}} when Am7 comes round, {{d}} or {{f}} when Dm7 comes round."
+            "text": "Press Play below to start the backing track. It plays {{chord:i7}}, the 1st chord of the key, built on {{1}}, then {{chord:iv7}}, the 4th chord, built on {{4}}.\nImprovise with the dots of the {{=key}} minor pentatonic scale on the neck, starting in position 1 and moving up a position every few bars until you reach position 3. End each phrase on a ringed note: the root or the 3rd of the chord playing.\nPractice until you hear the change coming and are already on your way to a ringed note."
           },
           {
             "type": "tool",
@@ -72,7 +72,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: a slow blues in A minor. Put the slide-in, bend-out move in each time round: slide up the G string into the next position and finish with a bend.\nHold the bend and let the backing track move under it before the next phrase."
+            "text": "Press Play below to start the backing track: a slow minor blues in {{=key}}. Under it are positions 1, 2 and 3 of the {{=key}} minor pentatonic scale. Each time round, slide up the G string into the next position and finish the phrase with a bend.\nHold the bend and let the backing track move under it before the next phrase."
           },
           {
             "type": "tool",
@@ -104,12 +104,12 @@
       },
       {
         "type": "section",
-        "heading": "Your own solo",
+        "heading": "Up and back down",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, now on Am7 and D7. Play one long solo that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: a root, a 3rd, a bend or a slide. Keep the phrase you like best and start your next solo with it."
+            "text": "Press Play below to start the backing track, now on {{chord:i7}} and {{chord:IV7}}, a 7th chord built on {{4}}. Play one long solo that climbs from position 1 to position 3 and comes back down, and end your last phrase on the lowest ringed {{1}}. Choose what each phrase aims for: a root, a 3rd, a bend or a slide.\nKeep the phrase you like best and start your next solo with it.\n{{?key}}In another key the three positions sit on other frets, and the slide into the next position is still on the G string."
           },
           {
             "type": "tool",
@@ -118,6 +118,22 @@
               "progression": "dorian",
               "key": "a",
               "bpm": 90
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3
+              ],
+              "highlight": [
+                "1"
+              ]
             }
           }
         ]
@@ -134,6 +150,9 @@
       "steps": [
         "pentatonic-positions:7"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 12
     }
   ]

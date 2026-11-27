@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-hiss-then-buzz",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 2.",
+  "note": "Track breath, step 5 (hiss, then buzz): one breathwork circle with the \"sss-zzz\" drill at its own lengths; each sound gets its own sound clause, and the feel to reach is air at one speed as the voice comes in and goes out. The advanced block of this drill stays separate, because its breathwork is set longer and a choice can't change a tool's seconds.",
   "exercise": {
     "title": "Hiss, then buzz",
     "area": "voice",
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the circle below. Hiss on \"sss\", add your voice for \"zzz\", then hiss again, as the circle shows. Keep the air moving at the same speed through all three."
+        "text": "Press Start in the circle below. Hiss on \"sss\" as the circle shows, then add your voice and buzz on \"zzz\", then hiss again.\nWhen the rounds are done, press Again in the circle to run them once more.\nPractice until the air moves at the same speed through all three sounds."
       },
       {
         "type": "tool",

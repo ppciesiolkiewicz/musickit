@@ -1,23 +1,24 @@
 {
   "id": "voice-intermediate-read-two-tunes-with-a-5th",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 6.",
+  "note": "One read-before-you-hear-it drill in three short tunes: one that moves through the home chord, then two that open with the same fall of a 5th and part in their second half. Each is read from the staff from its first note, then checked with Play; the last section says what to look for between the two tunes, and the key is moves, with a {{?key}} line on what stays the same.",
   "exercise": {
-    "title": "Read two tunes with a 5th",
+    "title": "Read tunes before you hear them",
     "area": "voice",
     "tags": [
+      "sing",
       "song"
     ],
     "topic": "voice-melodies",
     "concepts": [
       "sight-singing"
     ],
-    "why": "A leap you can read is one you know by its look as well as its sound, so reading two tunes built on one leap ties the two together.",
+    "why": "Singing a tune before you hear it makes your ear find every step from the one before, so the check afterwards shows which leaps you already know by their look on the staff.",
     "learnBefore": [
       "/course/6/sight-singing",
       "/course/6/singing-leaps"
@@ -25,12 +26,35 @@
     "cells": [
       {
         "type": "section",
-        "heading": "From the staff",
-        "minutes": 3,
+        "heading": "Through the home chord",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Before you press Play, tap the first note of the tune below to hear it. It starts on Sol and falls a 5th to Do. Sing it from the staff on the note names, then press Play on the tune to check."
+            "text": "Before you press Play, tap the first note of the tune below to hear it. Sing the tune from the staff on the note names, at your own pace.\nThen press Play below to hear the tune: the mic starts with it. Check what you sang against it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "chords"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A fall of a 5th",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the first note of the tune below to hear it. The tune starts on Sol and falls a 5th to Do. Sing it from the staff on the note names, then press Play below to check.\nPractice until the fall lands on Do without a slide."
           },
           {
             "type": "tool",
@@ -49,12 +73,12 @@
       },
       {
         "type": "section",
-        "heading": "The same leap, a new ending",
-        "minutes": 3,
+        "heading": "The same fall, a new ending",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts with the same fall and then dips under Do before it comes home. Tap its first note, sing it from the staff, then press Play on the tune to check. Look for the bar where the two tunes part."
+            "text": "This tune starts with the same fall and then dips under Do before it comes home. Tap its first note below, sing it from the staff on the note names, then press Play below to check.\nLook for the bar where the two tunes part.\n{{?key}}In another key the notes are new, and the fall is still a 5th."
           },
           {
             "type": "tool",
@@ -80,6 +104,9 @@
       "steps": [
         "sight-singing:2"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 6
     }
   ]

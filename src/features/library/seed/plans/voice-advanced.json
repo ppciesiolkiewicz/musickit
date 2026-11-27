@@ -68,7 +68,7 @@
             "choice": "advanced"
           },
           {
-            "block": "voice-advanced-read-tunes-with-a-7th",
+            "block": "voice-advanced-read-tunes-with-an-octave",
             "choice": "advanced"
           }
         ]
@@ -85,7 +85,7 @@
             "choice": "advanced"
           },
           {
-            "block": "voice-advanced-hard-leaps-you-cant-see",
+            "block": "voice-advanced-every-hard-leap-up-and-down",
             "choice": "advanced"
           },
           {

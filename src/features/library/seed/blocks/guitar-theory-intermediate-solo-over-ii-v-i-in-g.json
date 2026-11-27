@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-solo-over-ii-v-i-in-g",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 4.",
+  "note": "Soloing over a ii–V–I from its guide tones out, on two solo-over play-alongs: first only the ringed 3rds and 7ths, one long note per chord, then the whole major scale with the same notes ringed to land on. The key is moves (any key), so the chords are chord tokens counted the long way once, the title names the key as {{=key}}, and a {{?key}} line says what stays the same. Folds in the ii–V–I jam and the guide-tone improvising drills of the same step; the second section now has its own tool.",
   "exercise": {
-    "title": "Solo over ii-V-I in G",
+    "title": "Solo over the ii–V–I in {{=key}}",
     "area": "guitar",
     "tags": [
       "improv"
@@ -17,7 +17,7 @@
     "concepts": [
       "major-on-neck"
     ],
-    "why": "Guide tones work the same in a new key: C to C to B, or G to F♯ to F♯.",
+    "why": "The 3rd and 7th of each chord move by a step or stay put into the next chord, so a solo that lands on them at each change follows the chords even when the notes between are free.",
     "learnBefore": [
       "/course/11/ii-v-i",
       "/course/11/guide-tones"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Play only the targets, one long note per chord. Pick either line."
+            "text": "{{chord:ii7}} is the 2nd chord of the key, built on {{2}}. {{chord:V7}} is the 5th chord, built on {{5}}, and {{chord:Imaj7}} is the 1st chord, built on {{1}}. In that order they make the ii–V–I.\nPress Play below to start the backing track. The ringed notes on the neck are the 3rd and 7th of the chord playing, its guide tones. Play only those, one long note per chord, and move to the nearest ringed note at each change.\nPractice until you reach the next guide tone without looking for it."
           },
           {
             "type": "tool",
@@ -77,7 +77,44 @@
         "cells": [
           {
             "type": "text",
-            "text": "Same backing track. Now improvise in G major. Still land on a target at each change. Record the last two minutes."
+            "text": "Press Play below to start the backing track again. Now the neck shows the whole {{=key}} major scale, with the same guide tones ringed. Start with three or four notes per chord, one of them a ringed note, and let the phrases grow longer as the changes get easier to hear.\nIf you lose the chords, hold a ringed note and wait for the next change.\n{{?key}}In another key the chords have other names, and their 3rds and 7ths still move by a step or stay put at each change."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "g",
+                "scale": "major-ionian",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "b3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "target": [
+                      "3",
+                      "7"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
           }
         ]
       }
@@ -90,6 +127,9 @@
       "steps": [
         "major-on-neck:1"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

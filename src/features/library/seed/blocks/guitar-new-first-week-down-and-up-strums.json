@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-first-week-down-and-up-strums",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-new-first-week.json, day 5.",
+  "note": "Down and up strumming built in three strum-alongs, each with the pattern its text describes: down on every beat on Em, the up strum added between the beats, then the same strum with a change from Em to Am. The tempo is moves (60 to 80), named only as {{=bpm}}; open shapes keep their key, so the chords stay letters. One extra line per block: what to watch, a feel to reach, what to do when a change is late. Folds in the Em-to-Am version of the same drill.",
   "exercise": {
     "title": "Down and up strums",
     "area": "guitar",
@@ -21,7 +21,8 @@
     "why": "Between two down strums your hand already travels back up, so an up strum is no new move: the pick brushes the strings on a trip the hand was making anyway.",
     "learnBefore": [
       "/course/2/all-downstrums",
-      "/course/1/steady-beat"
+      "/course/1/steady-beat",
+      "/course/2/em-and-am"
     ],
     "cells": [
       {
@@ -31,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Hold Em and strum down on every beat.\nWatch your hand between the strums: it comes back up past the strings each time without touching them."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Hold Em and strum down on every beat.\nWatch your hand between the strums: it comes back up past the strings each time without touching them."
           },
           {
             "type": "tool",
@@ -53,7 +54,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome, at the same tempo. Still on Em, strum down on each beat and up halfway to the next one: the arrows in the chord box show each strum.\nCount 1 and 2 and 3 and 4 and, with a down strum on each number and an up strum on each \"and\". Practice until the up strum feels like part of the same swing."
+            "text": "Press Play below to start the metronome again, at the same tempo. Still on Em, strum down on each beat and up halfway to the next one: the arrows in the chord box show each strum.\nCount 1 and 2 and 3 and 4 and, with a down strum on each number and an up strum on each \"and\".\nPractice until the up strum feels like part of the same swing."
           },
           {
             "type": "tool",
@@ -70,12 +71,12 @@
       },
       {
         "type": "section",
-        "heading": "Now with a change",
+        "heading": "Em to Am",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Now it is two bars of Em, then two bars of Am, with the same down and up strum.\nIf a change comes late, keep your hand swinging and let the first strum of the new chord go by."
+            "text": "Press Play below to start the metronome. Now it is two bars of Em, then two bars of Am, with the same down and up strum. Start moving your fingers to the next chord on the last \"and\" of the bar.\nIf a change comes late, keep your hand swinging and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -103,6 +104,13 @@
         "strumming:2",
         "open-chords:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

@@ -14,7 +14,8 @@ test("a plan row draws from the seed plan with its id", () => {
 
 test("a block row draws from the seed block whose computed id matches, keyed by the file id", () => {
   const ids = seedBlocksById();
-  assert.equal(ids.size, SEED_BLOCKS.length);
+  assert.ok(ids.size >= SEED_BLOCKS.length, "each choice's computed id names its file");
+  assert.equal(new Set(ids.values()).size, SEED_BLOCKS.length);
   const [blockId, file] = [...ids].find(([, f]) => f.showcase)!;
   const item = seedItem(blockId);
   assert.equal(item?.kind, "block");
@@ -31,7 +32,11 @@ test("a curated block id draws its first choice and lists every choice, active o
   const item = seedItem("guitar-beginner-down-up-picking");
   assert.equal(item?.kind, "block");
   assert.equal(item?.choiceId, "guitar-beginner-down-up-picking/beginner");
-  assert.deepEqual(item?.choices, [{ id: "guitar-beginner-down-up-picking/beginner", name: "beginner", level: "beginner", steps: ["picking:2"], moves: { bpm: { from: 60, to: 100, step: 10 } }, minutes: 6, active: true }]);
+  assert.deepEqual(item?.choices, [
+    { id: "guitar-beginner-down-up-picking/beginner", name: "beginner", level: "beginner", steps: ["picking:2"], moves: { bpm: { from: 60, to: 100, step: 10 } }, minutes: 6, active: true },
+    { id: "guitar-beginner-down-up-picking/intermediate", name: "intermediate", level: "intermediate", steps: ["picking:2"], moves: { bpm: { from: 60, to: 120, step: 10 } }, minutes: 6, active: true },
+    { id: "guitar-beginner-down-up-picking/advanced", name: "advanced", level: "advanced", steps: ["picking:2"], moves: { bpm: { from: 60, to: 140, step: 10 } }, minutes: 6, active: true },
+  ]);
   assert.equal(JSON.parse(item!.json).choiceId, "guitar-beginner-down-up-picking/beginner");
 });
 

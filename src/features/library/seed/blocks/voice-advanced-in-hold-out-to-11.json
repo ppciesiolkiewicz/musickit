@@ -1,14 +1,14 @@
 {
   "id": "voice-advanced-in-hold-out-to-11",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "note": "Track breath, step 7 (farinelli:advanced): one breathwork circle set past the easy rounds (\"from\" and \"to\" with \"level\": \"advanced\"), so three minutes go to the long counts; the feel to reach is a long round as easy as a short one. Folds in the to-12 and to-13 copies; their ranges meet in one, since a stage choice can't set breathwork's from and to.",
   "exercise": {
-    "title": "In, hold, out to 11",
+    "title": "In, hold, out: the long counts",
     "area": "voice",
     "tags": [
       "sing"
@@ -17,14 +17,14 @@
     "concepts": [
       "breath"
     ],
-    "why": "Each round is one count longer than the last, so your breath reaches eleven counts without one hard jump.",
+    "why": "Each round is one count longer than the last and the drill starts past the easy rounds, so your breath grows at the length where holding is hardest, without one big jump.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown. Fill to about 80%, not to the top, so the long holds stay easy."
+        "text": "Press Start in the circle below. Breathe in as it grows, hold while it stays and breathe out as it shrinks, each for the count shown in the middle.\nFill to about 80%, not to the top, and keep your shoulders still, so the hold stays easy in the longest rounds.\nPractice until the last round feels as easy as the first."
       },
       {
         "type": "tool",
@@ -32,8 +32,8 @@
           "type": "breathwork",
           "drill": "farinelli",
           "level": "advanced",
-          "from": 6,
-          "to": 11
+          "from": 7,
+          "to": 12
         }
       }
     ]

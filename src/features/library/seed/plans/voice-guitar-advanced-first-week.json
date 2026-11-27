@@ -42,23 +42,23 @@
         "theme": "A ii–V–I in G, and where your runs stand",
         "exercises": [
           {
-            "block": "voice-guitar-advanced-first-week-warm-up-breath-and-a-lip-roll",
-            "choice": "advanced"
+            "block": "voice-warm-up-in-hold-out",
+            "choice": "new"
           },
           {
-            "block": "voice-guitar-advanced-first-week-five-notes-faster-in-stages",
+            "block": "voice-intermediate-five-notes-up-and-back",
             "choice": "intermediate"
           },
           {
-            "block": "voice-guitar-advanced-first-week-am9-d9-and-gmaj7",
+            "block": "guitar-advanced-am9-d9-gmaj7",
             "choice": "advanced"
           },
           {
-            "block": "voice-guitar-advanced-first-week-name-the-chord-you-hear",
+            "block": "guitar-theory-intermediate-name-the-chord",
             "choice": "intermediate"
           },
           {
-            "block": "voice-guitar-advanced-first-week-guide-tones-over-the-ii-v-i-in-g",
+            "block": "voice-advanced-guide-tones-over-ii-v-i",
             "choice": "advanced"
           }
         ]
@@ -75,7 +75,7 @@
             "choice": "advanced"
           },
           {
-            "block": "voice-guitar-advanced-first-week-the-hard-leaps-7ths-tritone-minor-6th",
+            "block": "voice-advanced-hard-leaps",
             "choice": "advanced"
           },
           {
@@ -92,11 +92,11 @@
         "theme": "Pentatonic runs at speed, and a soul vamp",
         "exercises": [
           {
-            "block": "voice-guitar-advanced-first-week-warm-up-middle-then-light-and-high",
-            "choice": "advanced"
+            "block": "voice-warm-up-lip-rolls-up-then-down",
+            "choice": "new"
           },
           {
-            "block": "voice-guitar-advanced-first-week-comp-a-soul-vamp",
+            "block": "guitar-advanced-comp-the-dorian-vamp",
             "choice": "advanced"
           },
           {

@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-g-c-and-d-in-time",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 18,
-    "agents": 2,
-    "teaching": 10
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Three open chords put in time in three sections that change one thing each: the shapes alone, one strum a bar with three beats to move, then a strum on every beat. Each step says the control, what it starts, the beat to strum on and the beat to move on.",
+  "note": "Three open chords put in time in three sections that change one thing each: the shapes alone, one strum a bar with three beats to move, then a strum on every beat with the eyes on the lit chord box instead of the hand (folded in from guitar-beginner-g-c-and-d-without-looking, whose faster tempo is the moves' range). Each step says the control, what it starts, the beat to strum on and the beat to move on; the key is the lesson, so only the tempo moves.",
   "exercise": {
     "title": "G, C and D in time",
     "area": "guitar",
@@ -78,7 +78,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum down on every beat, one bar for each chord, and start moving your fingers to the next chord on beat 4.\nPractice until the new chord sounds on beat 1 with no gap before it."
+            "text": "Press Play below to start the metronome. Strum down on every beat, one bar for each chord, and start moving your fingers to the next chord on beat 4. Watch the lit chord box instead of your hand.\nPractice until the changes are in your muscle memory: the new chord sounds on beat 1 with no gap, and your hand finds it without you looking."
           },
           {
             "type": "tool",

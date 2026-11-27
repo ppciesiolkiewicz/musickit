@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-steps-or-skips",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 1.",
+  "note": "Track steps-to-leaps, mix step 8 (steps and skips in one tune): two ear games narrowed with \"set\", rising, each changing one thing: a step, a 3rd or a 5th, then both 3rds and the 6th joining in; every answer is named as the game's button shows it with its meaning beside it, and each is hummed back before it is picked. Folds in the 3rd-or-5th, 3rd-5th-or-6th and steps-and-skips-mixed copies as the second game (a stage choice can't change interval-ears' set).",
   "exercise": {
     "title": "Steps or skips?",
     "area": "voice",
@@ -17,26 +17,59 @@
     "concepts": [
       "steps-to-leaps"
     ],
-    "why": "Melodies move by steps and skips, so hearing which is which tells you where the next note is before you sing it.",
+    "why": "A tune moves by steps and skips, and humming the two notes back puts the distance in your voice, so once you can tell them apart you know where the next note is before you sing it.",
     "learnBefore": [
-      "/course/3/intervals"
+      "/course/3/intervals",
+      "/course/3/do-mi-sol"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Start below to hear two notes, a step or a skip apart. Hum the two back, then answer."
+        "type": "section",
+        "heading": "Step or skip",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below to hear two notes, the second one higher. Hum both back, then pick M2 for a step (a major 2nd), M3 for a skip to a major 3rd or P5 for a skip to a 5th.\nPractice until the step and the two skips sound different to you before you hum them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                2,
+                4,
+                7
+              ],
+              "dir": "up"
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "interval-ears",
-          "set": [
-            2,
-            4,
-            7
-          ],
-          "dir": "up"
-        }
+        "type": "section",
+        "heading": "More skips mixed in",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below to hear the same step and skips, with two more mixed in: m3 for a minor 3rd and M6 for a major 6th. Hum both notes back, then pick.\nIf two answers sound alike, press Replay in the game: the minor 3rd is a half step narrower than the major 3rd, and the 6th is one step wider than the 5th.\nPractice until you name a step or a skip from the sound, without humming it first."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                2,
+                3,
+                4,
+                7,
+                9
+              ],
+              "dir": "up"
+            }
+          }
+        ]
       }
     ]
   },

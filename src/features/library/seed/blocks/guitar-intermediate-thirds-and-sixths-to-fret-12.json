@@ -1,12 +1,12 @@
 {
   "id": "guitar-intermediate-thirds-and-sixths-to-fret-12",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 12,
-    "agents": 2,
-    "teaching": 8
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track double-stops (guitar-caged), step 5, on the double-stops-neck tool: 3rds on the G and B strings and 6ths on the G and high e strings at level intermediate (frets 0 to 12), then the 3rds at level advanced (to fret 17), where they come round again an octave up. The text carries no frets: the neck shows them. It states its moves (any key) and mentions no selector.",
+  "note": "Track double-stops (guitar-caged), step 5: 3rds on the G and B strings and 6ths on the G and high e strings on a double-stops-neck at level intermediate (frets 0 to 12, slid from pair to pair), then a 3rd and a 6th on each chord of a G, C, D backing track in a tab play-along (folded in from guitar-intermediate-thirds-sixths-up-the-neck; it takes the place of the old run past fret 12, which the why still explains). The text carries no frets; the key moves, so the play-along's shape names its key and its grips move with it.",
   "exercise": {
     "title": "{{=key}} major in 3rds and 6ths, up the neck",
     "area": "guitar",
@@ -49,7 +49,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the 6ths on the G and high e strings over the same frets. Then play them up and back with the same slides, and keep the B string silent.\nWhere the shape stays the same, the whole hand slides; where it changes, one finger slides a fret further than the other."
+            "text": "Press Play below to hear the 6ths on the G and high e strings up to fret 12 and back. Then play them up and back with the same slides, and keep the B string silent.\nWhere the shape stays the same, the whole hand slides; where it changes, one finger slides a fret further than the other."
           },
           {
             "type": "tool",
@@ -64,20 +64,136 @@
       },
       {
         "type": "section",
-        "heading": "Past fret 12",
+        "heading": "A 3rd, then a 6th",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "The double stops below now run past fret 12. Play the 3rds from the lowest to the highest and back.\nFrom fret 12 up they are the ones from the bottom of the neck again, an octave higher, and in another key they still come round again twelve frets up."
+            "text": "Press Play below to start the backing track: three chords, a bar each. On each chord, play a 3rd on two beats, then a 6th on two beats, as the tab shows.\nFrom the 3rd to the 6th, the note on the G string stays and the other note moves to the high e string.\n{{?key}}In another key the frets are new, and the note on the G string still stays put."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "double-stops-neck",
-              "key": "g",
-              "interval": "3rds",
-              "level": "advanced"
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "key": "g",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5"
+                        ],
+                        "strings": "32",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5"
+                        ],
+                        "strings": "32",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 4
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5"
+                        ],
+                        "strings": "32",
+                        "fret": 9
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5"
+                        ],
+                        "strings": "32",
+                        "fret": 9
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 9
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 9
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5"
+                        ],
+                        "strings": "32",
+                        "fret": 11
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5"
+                        ],
+                        "strings": "32",
+                        "fret": 11
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 11
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 11
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
             }
           }
         ]

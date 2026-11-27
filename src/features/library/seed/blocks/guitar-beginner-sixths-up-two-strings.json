@@ -1,12 +1,12 @@
 {
   "id": "guitar-beginner-sixths-up-two-strings",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 12,
-    "agents": 2,
-    "teaching": 8
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track double-stops (guitar-caged), step 3, on the double-stops-neck tool at level beginner: 6ths on the G and high e strings, frets 0 to 7. The B string kept silent first, then up and back after Play, then the root found on top. The text carries no frets: the neck shows them. It states its moves (any key) and mentions no selector.",
+  "note": "Track double-stops (guitar-caged), step 3: 6ths on the G and high e strings, frets 0 to 7, on the double-stops-neck at level beginner (the B string kept silent, then up and back with the root on top), then one 6th held on each chord of a G, C, G, D backing track in a tab play-along (folded in from guitar-beginner-sixths-on-strings-3-1). The text carries no frets; the key moves, so the play-along's shape names its key and its grips move with it.",
   "exercise": {
     "title": "{{=key}} major in 6ths on the G and high e strings",
     "area": "guitar",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap the lowest double stop on the neck below to hear it, then play it on the G and high e strings.\nThe B string between them stays silent: pick the G string and pluck the high e string with your middle finger at the same moment.\nGo up the neck one double stop at a time, until the B string stays quiet on every one."
+            "text": "Tap the lowest double stop on the neck below to hear it, then play it on the G and high e strings.\nThe B string between them stays silent: pick the G string and pluck the high e string with your middle finger at the same moment. Go up the neck one double stop at a time.\nPractice until the B string stays quiet on every one."
           },
           {
             "type": "tool",
@@ -49,7 +49,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the 6ths up the neck and back down. Then play them yourself the same way, one double stop per slow beat.\nIf your hand loses its place, tap that double stop on the neck and start again from it."
+            "text": "Press Play below to hear the 6ths up the neck and back down. Then play them yourself the same way, one double stop per slow beat, and say the name of the chord above each one as you play it.\nIn a 6th the ringed note, the root of that chord, is the higher one, on the high e string."
           },
           {
             "type": "tool",
@@ -64,20 +64,61 @@
       },
       {
         "type": "section",
-        "heading": "The root on top",
+        "heading": "A 6th on each chord",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "In a 6th the ringed note, the root of the chord named above it, is the higher one, on the high e string. Play the 6ths up and back again, and say each chord's name as you play it.\n{{?key}}In another key the frets and the names are new, and the root is still the note on the high e string."
+            "text": "Press Play below to start the backing track: four chords, a bar each. On each chord, play the 6th the tab shows on every beat: the chord's 5th on the G string and its 3rd on the high e string.\nWhen the chord changes, the shape stays the same and only the fret is new.\n{{?key}}In another key the frets are new, and the B string still stays silent."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "double-stops-neck",
-              "key": "g",
-              "interval": "6ths",
-              "level": "beginner"
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "key": "g",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      { "grip": ["5", "3"], "strings": "31", "fret": 0 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 0 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 0 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 0 }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 7 }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      { "grip": ["5", "3"], "strings": "31", "fret": 2 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 2 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 2 },
+                      { "grip": ["5", "3"], "strings": "31", "fret": 2 }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
             }
           }
         ]

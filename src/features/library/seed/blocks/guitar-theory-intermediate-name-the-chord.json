@@ -2,11 +2,11 @@
   "id": "guitar-theory-intermediate-name-the-chord",
   "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 24,
-    "agents": 2,
-    "teaching": 12
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track sevenths-up, step 5 (maj7, 7 and m7): one ear game narrowed with qualities to the three chords the step names, the two notes that tell them apart said before the first answer, and each answer named as the game's button shows it.",
+  "note": "Track sevenths-up, step 5 (maj7, 7 and m7): one ear game narrowed with qualities to the three chords the step names, the two notes that tell them apart said before the first answer, each answer named as the game's button shows it, and the goal an answer that comes at once. Folded in: guitar-theory-intermediate-chord-qualities-faster, guitar-theory-intermediate-ear-check and voice-guitar-advanced-first-week-name-the-chord-you-hear, the same game with the default five kinds and no listening plan.",
   "exercise": {
     "title": "Name maj7, 7 and m7 by ear",
     "area": "theory",
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the game below to hear a chord. Pick its kind: Major 7 for maj7, Dominant 7 for the chord written 7 (as in A7), or Minor 7 for m7.\nListen to the top note first: a half step below the root's octave means Major 7, a whole step below it means Dominant 7 or Minor 7. For those two, listen to the 3rd: a minor 3rd means Minor 7.\nPress Replay in the game to hear the same chord again, and hum its top note.\nPractice until the answer comes from the sound, without working it out note by note."
+        "text": "Press Start in the game below to hear a chord. Pick its kind: Major 7 for maj7, Dominant 7 for the chord written 7 (as in A7), or Minor 7 for m7.\nListen to the top note first: a half step below the root's octave means Major 7, a whole step below it means Dominant 7 or Minor 7. For those two, listen to the 3rd: a minor 3rd means Minor 7.\nPress Replay in the game to hear the same chord again, and hum its top note.\nPractice until the answer comes from the sound at once, without working it out note by note."
       },
       {
         "type": "tool",
