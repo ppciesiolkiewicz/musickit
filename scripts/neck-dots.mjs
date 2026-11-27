@@ -191,13 +191,13 @@ function line(hexes, len) {
 }
 
 // Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
-// across the board, each zone a band running along the neck. [fret, zones]
-const COVERS = [[1, 5], [3, 4], [5, 3], [7, 4], [12, 5]];
-const COVER_COLOURS = ["Green", "Violet", "Cyan", "Magenta", "Blue"];
+// across the board, each zone a band running along the neck under one string (low E on the left); every cover the same
+const COVERS = [1, 3, 5, 7, 12];
+const COVER_COLOURS = ["Green", "Violet", "Cyan", "Magenta", "Blue", "White"];
 const WIRE_W = 2.5; // mm of fret wire taken off the space's length
 /** Fret n's cover, lying as on the neck seen from the player (across the board left to right, nut at the top): the board's
  * width at the space's body end by the space less a wire, the zones side by side, a dashed cut line round it. */
-function cover(n, zones) {
+function cover(n, zones = COVER_COLOURS.length) {
   const w = Math.round(boardAt(wire(n))), h = Math.round(wire(n) - wire(n - 1) - WIRE_W), z = w / zones;
   const rects = COVER_COLOURS.slice(0, zones).map((c, i) => `<rect x="${i * z}" width="${z + 0.05}" height="${h}" fill="${byName[c].hex}"/>`).join("");
   return { w, h, svg: `<svg width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}">${rects}<rect x="0.06" y="0.06" width="${w - 0.12}" height="${h - 0.12}" fill="none" stroke="#333" stroke-width="0.15" stroke-dasharray="0.8 0.5"/></svg>` };
@@ -274,8 +274,8 @@ ${spares}` : `<h1>Neck dots · Strat kit (25.5″) · A3</h1>
 ${lineSet()}${lineSet(GREEN)}
 <h2>Bridge <span>level with the saddles, ${SCALE_MM} mm from the nut</span></h2>
 <div class="line"><span class="g"><b>${BRIDGE_DOT} mm</b>${strip(BRIDGE_DOT, across(BRIDGE_DOT), byName.Blue.hex)}</span></div>
-<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge; low E side on the left, nut end at the top</span></h2>
-<div class="covers">${COVERS.map(([n, zones]) => { const c = cover(n, zones); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${zones} zones · ${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>
+<h2>Fret covers <span>for testing · each fills one fret space, one colour band per string, the same on each, wire to wire and edge to edge; low E side on the left, nut end at the top</span></h2>
+<div class="covers">${COVERS.map((n) => { const c = cover(n); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>
 ${spares ? `<h2>Spares</h2>${spares}` : ""}
 `}</body></html>`;
 }
