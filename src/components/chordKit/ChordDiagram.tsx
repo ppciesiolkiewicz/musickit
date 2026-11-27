@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Shape } from "@/lib/chordKit/shapes";
 import { toneColourIndex, toneLabel } from "@/features/theory/labels";
 import type { KeyContext } from "@/features/theory/theory";
@@ -30,13 +31,16 @@ interface Props {
 /**
  * The one chord box: six strings, frets, and one dot per sounding string labelled with the finger that frets it (when
  * the shape has a fingering) or its interval, coloured by interval either way; a finger held across strings is drawn
- * as a barre. Clicking it or its play button strums it; the switches under it are shared by every chord box.
+ * as a barre. A dot under the pointer shows its note name instead. Clicking it or its play button strums it; the
+ * switches under it are shared by every chord box.
  */
 export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, rootName }: Props) {
   const [mode, setMode] = useChordLabels();
   const [dots, setDots] = useChordDots();
   // the note the microphone hears, ringed on every string that plays it
   const heard = useHeardNote();
+  // the string whose dot is under the pointer: its dot shows the note name
+  const [hover, setHover] = useState<number | null>(null);
   // chord boxes always show intervals; without a key there is only the chord root to count from
   const system = "interval";
   const from = mode === "key" && ctx ? "scale" : "chord";
@@ -94,14 +98,15 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
         const role = intervalLabel(shape, semi);
         const tone = { rootPc, rootName, semi, role, ctx };
         const finger = fingers?.[i];
-        const label = byFinger ? (finger ? String(finger) : "") : toneLabel(system, tone, from);
+        const label = hover === i ? toneLabel("note", tone, from) : byFinger ? (finger ? String(finger) : "") : toneLabel(system, tone, from);
+        const point = { onPointerEnter: () => setHover(i), onPointerLeave: () => setHover((h) => (h === i ? null : h)) };
         const sw = swatchForIndex(toneColourIndex(tone, from));
         const y = a === 0 ? top - 12 : fretY(a);
         const lit = heard === (OPEN_NOTE[i] + a) % 12;
         // open strings: a small ring above the nut, like the usual "o", so they never crowd each other
         if (a === 0)
           return (
-            <g key={i}>
+            <g key={i} {...point}>
               <circle cx={x} cy={y} r={7} fill="var(--color-slate-950)" stroke={lit ? HEARD : sw.fill} strokeWidth={lit ? 3 : 1.6} />
               <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill={sw.fill} fontSize={label.length > 2 ? 6 : 7.5} fontWeight={700}>
                 {label}
@@ -109,7 +114,7 @@ export default function ChordDiagram({ shape, rootFret, onPlay, active, ctx, roo
             </g>
           );
         return (
-          <g key={i}>
+          <g key={i} {...point}>
             <circle cx={x} cy={y} r={lit ? 10.5 : 9} fill={sw.fill} stroke={lit ? HEARD : sw.line} strokeWidth={lit ? 3 : 1.2} />
             <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fill={sw.text} fontSize={label.length > 2 ? 8 : 10} fontWeight={600}>
               {label}

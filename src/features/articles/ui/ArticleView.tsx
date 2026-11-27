@@ -7,6 +7,9 @@ import { Tool } from "@/features/plan/ui/Tool";
 import type { NoteRoot } from "@/features/plan/model/noteText";
 import { CareLine, NoteText } from "@/features/plan/ui/reader/NoteText";
 import { NeckFrets } from "@/components/chordKit/ScaleNeck";
+import ChordName from "@/components/chordKit/ChordName";
+import type { Piece } from "@/features/course/glossary";
+import { splitChords, titleChords } from "../chordNames";
 import { ARTICLES } from "../index";
 import { AUTHOR } from "../author";
 import { blockRoots, markArticle, type Mark } from "../marks";
@@ -29,6 +32,24 @@ const BIG_CHORDS =
 /** A link to another guide opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
 const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("#"));
 
+/** Article text with its chord names drawn as names to point at, each opening its chord box. */
+function ChordText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) {
+  return pieces.flatMap((p, i) => (typeof p === "string" ? splitChords(p) : [p]).map((part, j) =>
+    typeof part !== "string" && "chord" in part
+      ? <ChordName key={`${i}-${j}`} name={part.chord} className="inline underline decoration-slate-500" />
+      : <NoteText key={`${i}-${j}`} pieces={[part]} root={root} link={false} />,
+  ));
+}
+
+/** A title with its chord names and chord qualities as chips, so "A 9 chord" reads as a 9 chord, not A9. */
+function ChordTitle({ text }: { text: string }) {
+  return titleChords(text).map((p, i) => (typeof p === "string" ? <Fragment key={i}>{p}</Fragment> : (
+    <span key={i} className="mx-0.5 inline-flex rounded-md border border-slate-600 bg-slate-800 px-1.5 align-baseline leading-snug">
+      <ChordName name={p.chord} />
+    </span>
+  )));
+}
+
 /**
  * One line of article text as marked runs (`markArticle`): bold, links, care lines, the glossary's explained words with no
  * course link (the course needs a login), and `{{1}}` notes as dots counted from `root`.
@@ -36,9 +57,9 @@ const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/l
 export function Inline({ runs, root = null }: { runs: Mark[]; root?: NoteRoot | null }) {
   return runs.map((r, k) =>
     r.kind === "link" ? <Link key={k} href={r.href} {...(opensNewTab(r.href) ? { target: "_blank", rel: "noopener" } : {})} className="text-sky-300 underline-offset-2 hover:underline">{r.text}</Link>
-    : r.kind === "bold" ? <strong key={k} className="font-semibold text-slate-50"><NoteText pieces={r.pieces} root={root} link={false} /></strong>
-    : r.kind === "care" ? <CareLine key={k}><NoteText pieces={r.pieces} root={root} link={false} /></CareLine>
-    : <Fragment key={k}><NoteText pieces={r.pieces} root={root} link={false} /></Fragment>,
+    : r.kind === "bold" ? <strong key={k} className="font-semibold text-slate-50"><ChordText pieces={r.pieces} root={root} /></strong>
+    : r.kind === "care" ? <CareLine key={k}><ChordText pieces={r.pieces} root={root} /></CareLine>
+    : <Fragment key={k}><ChordText pieces={r.pieces} root={root} /></Fragment>,
   );
 }
 
@@ -90,7 +111,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
       const between = block.between ?? [], at = block.lines.length;
       return (
         <section aria-label={block.title} className="metal-panel mt-6 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
-          <h2 className="text-lg font-semibold text-slate-50">{block.title}</h2>
+          <h2 className="text-lg font-semibold text-slate-50"><ChordTitle text={block.title} /></h2>
           {block.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[i]} root={root} /></p>)}
           {tools.length > 0 && (
             <div className={pair ? "flex flex-col gap-6" : "contents"}>
@@ -109,7 +130,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
             return (
               // a part is its own small section: a rule above it, so it doesn't run on from the tool before
               <div key={part.title} className="mt-4 flex flex-col gap-3 border-t border-slate-700/60 pt-6">
-                <h3 className="text-base font-semibold text-slate-100">{part.title}</h3>
+                <h3 className="text-base font-semibold text-slate-100"><ChordTitle text={part.title} /></h3>
                 {part.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[from + i]} root={root} /></p>)}
                 {tool && <div className={`my-2 min-w-0 ${BIG_CHORDS}`}><Tool tool={tool} /></div>}
               </div>

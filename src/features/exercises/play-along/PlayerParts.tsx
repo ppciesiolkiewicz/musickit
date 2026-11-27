@@ -1,11 +1,8 @@
 "use client";
 
-import { useMemo, type ReactNode, type Ref } from "react";
-import ChordDiagram from "@/components/chordKit/ChordDiagram";
-import ChordPeek from "@/components/chordKit/ChordPeek";
+import { type ReactNode, type Ref } from "react";
+import ChordName from "@/components/chordKit/ChordName";
 import Icon from "@/components/Icon";
-import { strumShape } from "@/lib/chordKit/playback";
-import { chordShapeFor } from "../cues/voicing";
 import { Button, HUE_TONES, KeyCap, Slider, hueAt, type Hue } from "@/components/ui";
 
 /**
@@ -81,22 +78,6 @@ export function chordHues(chords: string[]): Hue[] {
     if (!seen.has(c)) seen.set(c, hueAt(seen.size));
     return seen.get(c)!;
   });
-}
-
-/** A chord card's name: pointing at it (or tapping it) opens its chord box with its Play. A name with no shape is plain text. */
-function ChordName({ name, className }: { name: string; className: string }) {
-  const voiced = useMemo(() => chordShapeFor(name, "open"), [name]);
-  const label = name.replace("#", "♯");
-  if (!voiced) return <span className={className}>{label}</span>;
-  return (
-    <ChordPeek label={label} className={`${className} text-left decoration-dotted underline-offset-4 hover:underline`}
-      card={<>
-        <span className="font-medium text-slate-100">{label}</span>
-        <div className="w-40 self-center">
-          <ChordDiagram shape={voiced.shape} rootFret={voiced.fret} onPlay={() => strumShape(voiced.shape, voiced.fret)} />
-        </div>
-      </>} />
-  );
 }
 
 /** A chord card: its colour as a top stripe; `lit` fills and lifts it in that colour, `next` dashes its border. */
