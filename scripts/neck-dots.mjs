@@ -197,7 +197,7 @@ function line(hexes, len) {
 // black: the guitar is white and light brown, and the background green and bright.
 const COVERS = [1, 3, 5, 7, 12];
 const COVER_SETS = [
-  ["cyan", ["Cyan", "Magenta", "Blue", "Green", "Violet", "Cyan"]],
+  ["cyan", ["Cyan", "Magenta", "Blue", "Magenta", "Violet", "Cyan"]], // no green at all: for a green background
   ["magenta", ["Magenta", "Cyan", "Violet", "Green", "Blue", "Magenta"]],
   ["green", ["Green", "Magenta", "Blue", "Cyan", "Violet", "Green"]], // for a background that isn't green
 ];
