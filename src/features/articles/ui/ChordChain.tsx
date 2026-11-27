@@ -19,7 +19,7 @@ export function cagedLinks(chord: string, barre = false): ChainLink[] {
 
 /**
  * One chord moving up the neck through its shapes: chord boxes in a row with an arrow between each, every box with its exact
- * frets (checked by `shapeFromFrets`, as `chord-shapes` does) and a caption under it. Wider than the column on a wide screen.
+ * frets (checked by `shapeFromFrets`, as `chord-shapes` does) the chord's name above it and a caption under it. Wider than the column on a wide screen.
  */
 export default function ChordChain({ chords }: { chords: ChainLink[] }) {
   const boxes = useMemo(() => chords.flatMap((c) => {
@@ -32,8 +32,9 @@ export default function ChordChain({ chords }: { chords: ChainLink[] }) {
         <Fragment key={`${b.chord}-${b.frets}`}>
           {i > 0 && <span aria-hidden className="text-2xl text-slate-500">→</span>}
           <figure className="flex w-36 flex-col items-center gap-1">
+            <span className="text-lg font-medium text-slate-100">{b.chord}</span>
             <ChordDiagram name={b.chord} shape={b.v.shape} rootFret={b.v.fret} rootName={b.chord.match(/^[A-G][♯♭#b]?/)?.[0]} onPlay={() => strumShape(b.v.shape, b.v.fret)} />
-            <figcaption className="text-sm font-medium text-slate-200">{b.caption}</figcaption>
+            <figcaption className="text-sm text-slate-400">{b.caption}</figcaption>
           </figure>
         </Fragment>
       ))}
