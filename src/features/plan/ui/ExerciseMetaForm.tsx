@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import Icon from "@/components/Icon";
+import { NumberField } from "@/components/ui";
 import { catalogue, linkLabel } from "../model/catalogue";
 
 /** What the meta form edits: the title as the player types it (hashtags included), minutes, why and the two link slots. */
@@ -39,7 +40,7 @@ export default function ExerciseMetaForm({ meta, onChange }: { meta: MetaDraft; 
       <div className="flex flex-wrap items-center gap-2">
         <input value={meta.titleText} onChange={(e) => set({ titleText: e.target.value })} aria-label="Title" placeholder="Title #guitar #beginner #technique" className={`${field} min-w-0 flex-1 text-base`} />
         <label className="flex items-center gap-1.5 text-xs text-slate-400">
-          <input type="number" min={1} max={120} value={meta.minutes} onChange={(e) => set({ minutes: Math.min(120, Math.max(1, Math.round(Number(e.target.value)) || 1)) })} aria-label="Minutes" className={`${field} w-16`} />
+          <NumberField min={1} max={120} value={meta.minutes} onCommit={(minutes) => set({ minutes })} aria-label="Minutes" className={`${field} w-16`} />
           min
         </label>
       </div>

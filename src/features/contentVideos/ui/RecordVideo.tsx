@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import Link from "next/link";
 import { getAudioContext, openRecordInput, wakeAudio, type RecordInput } from "@/features/sound";
 import RecordInputSelect from "@/components/RecordInputSelect";
+import { NumberField } from "@/components/ui";
 import RecordSoundSelect, { useRecordSound } from "@/components/RecordSoundSelect";
 import { clockTime } from "@/features/recorder/recorder";
 import { MAX_TAKE_SECONDS, pickVideoType, videoFileName } from "@/features/videos/recording";
@@ -51,7 +52,6 @@ const CLICK_KEY = "musickit.content.click";
 const clickOnKey = (tool: string) => `${CLICK_KEY}.${tool}`;
 interface ClickChoice { bpm?: number }
 const clampBpm = (n: number) => Math.min(300, Math.max(30, Math.round(n) || 80));
-const clampBars = (n: number) => Math.min(32, Math.max(1, Math.round(n) || 1));
 
 const CAMERA_KEY = "musickit.content.camera";
 /** the second camera, on the face, and where its circle sits: kept in this browser */
@@ -615,7 +615,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="flex items-center gap-1.5" title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
                 <label className="flex items-center gap-1.5"><input type="checkbox" checked={click} onChange={(e) => pickClickOn(e.target.checked)} className="accent-sky-500" /> Click at{tempo ? ` ${bpm} bpm` : ""}</label>
-                {!tempo && <><input type="number" min={30} max={300} value={clickChoice.bpm ?? bpm} onChange={(e) => pickClick({ bpm: +e.target.value })} onBlur={() => pickClick({ bpm })} aria-label="Click tempo in bpm" className={`${input} w-16`} /> bpm</>}
+                {!tempo && <><NumberField min={30} max={300} value={bpm} onCommit={(v) => pickClick({ bpm: v })} aria-label="Click tempo in bpm" className={`${input} w-16`} /> bpm</>}
               </span>
               {click && (
                 <>
@@ -625,7 +625,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
                     </select>
                   </label>
                   <label className="flex items-center gap-1.5" title="The recording stops by itself after this many bars.">Length
-                    <input type="number" min={1} max={32} value={length} onChange={(e) => setLength(clampBars(+e.target.value))} className={`${input} w-16`} /> bars
+                    <NumberField min={1} max={32} value={length} onCommit={setLength} aria-label="Length in bars" className={`${input} w-16`} /> bars
                   </label>
                 </>
               )}
