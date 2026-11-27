@@ -10,8 +10,9 @@ export const barreChordAlternatives: Article = {
   sings: false,
   topics: ["guitar"],
   blocks: [
-    { type: "p", text: "Barre chords are hard. Most of us take weeks before every string rings, and F is the chord that makes people put the guitar down. Good news: you don't have to wait for it to play the song." },
-    { type: "p", text: "Every barre has an easier stand-in. Some add a note, which changes the feel, so they won't suit every song. Others are the barre with strings left out, and fit anywhere. Here are the ones I'd reach for, easiest first." },
+    { type: "p", text: "Barre chords are hard. Most of us take weeks before every string rings, and F is the chord that makes people put the guitar down. For me it took years: I broke my thumb a long time ago, and it never got all its strength back." },
+    { type: "p", text: "What helped was finding shapes that leave the barre out. They were easier on my hand, and some sounded better than the barre." },
+    { type: "p", text: "You don't have to wait for the barre to play the song: every barre has an easier stand-in. Some add a note, which changes the feel, so they won't suit every song. Others are the barre with strings left out, and fit anywhere. Here are the ones I'd reach for, easiest first." },
 
     { type: "h2", text: "Look up your chord" },
     { type: "p", text: "Type the barre chord your song asks for, and you'll see its easier chords. The exercises below show how each one works." },
@@ -71,6 +72,7 @@ export const barreChordAlternatives: Article = {
 
     { type: "exercise", title: "4. A fill between strums", lines: [
       "The four-string shape leaves your hand free for a short fill between strums: a few single notes on the same four strings.",
+      "It's the shape I play most, because it lets me add a short fill between the chords, like the one below.",
       "Here it is on Cm, the four-string shape one fret up. Press Play below to hear Cm for two beats and a short fill before the next Cm, and watch the lit dots on the neck.",
     ], tool: { type: "guitar-play-along", view: "neck", bpm: 60, under: "none", shape: { shape: "riff", key: "c", scale: "Aeolian", notes: [
       { frets: [{ string: 4, fret: 5, beats: 2 }, { string: 3, fret: 5, beats: 2 }, { string: 2, fret: 4, beats: 2 }, { string: 1, fret: 3, beats: 2 }], beats: 2 },
@@ -145,6 +147,6 @@ export const barreChordAlternatives: Article = {
       "**A blues or funk song:** the 9 chord.",
       "**Moving a shape:** with no open strings it moves as it is. With open strings, a finger has to take their place.",
     ] },
-    { type: "p", text: "You'll notice the changes getting quicker first. The barre comes later, and by then your hand already knows half of it." },
+    { type: "p", text: "You'll notice the changes getting quicker first. The barre comes later, and by then your hand already knows half of it. If it never fully comes, as with my thumb, these shapes still cover most songs." },
   ],
 };
