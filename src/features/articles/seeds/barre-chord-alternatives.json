@@ -36,7 +36,9 @@
     "Add Dm triad as movable, D as movable",
     "Uniformly have \"movable shapes\" sub-header",
     "This FMaj7 should not be barre at all we can fret if with 4 fingers with index on top string",
-    "Remove this but replace this with some Summary (Make it your own). Also give more space to labels"
+    "Remove this but replace this with some Summary (Make it your own). Also give more space to labels",
+    "\"high/low e string\"  etc should be a special word with graphic",
+    "Let's make \"Movable shapes\" \"Movable chord shapes\" etc. a special word or maybe article? which we link in"
   ],
   "blocks": [
     "guitar-advanced-barre-shapes-anywhere"

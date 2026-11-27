@@ -35,7 +35,7 @@ export const barreChordAlternatives: Article = {
         "Press Play under each chord box below and listen for the {{7}} dropping out.",
       ], tool: { type: "chord-shapes", chords: ["Fmaj7", "F"], frets: ["x x 3 2 1 0", "x x 3 2 1 x"] } },
       { title: "Movable shapes", lines: [
-        "Plain F has no open strings, so it moves as it is. Slide it up two frets for G, and two more for A.",
+        "Plain F has no open strings, so it's a movable shape: slide it up two frets for G, and two more for A.",
       ], tool: { type: "chord-shapes", chords: ["F", "G", "A"], frets: ["x x 3 2 1 x", "x x 5 4 3 x", "x x 7 6 5 x"] } },
     ] },
 

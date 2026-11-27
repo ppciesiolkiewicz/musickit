@@ -47,6 +47,17 @@ describe("glossary", () => {
       ["half-step:half step", "whole-step:whole-step", "bend:bend", "harmonic-minor:harmonic minor", "tempo:bpm"]);
   });
 
+  it("finds a string by its short name and in the plural", () => {
+    assert.deepEqual(terms(explain(["Mute the low E and A strings, keep the G and B strings and the high e strings."])[0]),
+      ["low-e-string:low E", "a-string:A strings", "b-string:B strings", "high-e-string:high e strings"]);
+    assert.deepEqual(terms(explain(["Low E first, then the high e."])[0]), ["high-e-string:high e"]);
+  });
+
+  it("finds a movable shape", () => {
+    assert.deepEqual(terms(explain(["Plain F is a movable shape, and so are the movable chord shapes after it."])[0]),
+      ["movable-shape:movable shape"]);
+  });
+
   it("bar stays out of longer words", () => {
     assert.deepEqual(terms(explain(["A barre chord, then a 12-bar blues on the root note."])[0]), ["barre-chord:barre chord", "twelve-bar:12-bar blues", "root:root"]);
     assert.deepEqual(terms(explain(["Play a bar chord at fret 5."])[0]), ["barre-chord:bar chord"]);
