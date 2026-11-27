@@ -76,9 +76,9 @@ export const barreChordAlternatives: Article = {
       "Here it is on Cm, the four-string shape one fret up. Press Play below to hear Cm for two beats and a short fill before the next Cm, and watch the lit dots on the neck.",
     ], tool: { type: "guitar-play-along", view: "neck", bpm: 60, under: "none", shape: { shape: "riff", key: "c", scale: "Aeolian", notes: [
       { frets: [{ string: 4, fret: 5, beats: 2 }, { string: 3, fret: 5, beats: 2 }, { string: 2, fret: 4, beats: 2 }, { string: 1, fret: 3, beats: 2 }], beats: 2 },
-      { string: 2, fret: 6, beats: 0.5 }, { string: 2, fret: 4, beats: 0.5 }, { string: 3, fret: 5, beats: 1 },
+      { string: 2, fret: 4, beats: 0.5 }, { string: 2, fret: 6, beats: 0.5 }, { string: 3, fret: 5, beats: 1 },
       { frets: [{ string: 4, fret: 5, beats: 2 }, { string: 3, fret: 5, beats: 2 }, { string: 2, fret: 4, beats: 2 }, { string: 1, fret: 3, beats: 2 }], beats: 2 },
-      { string: 3, fret: 3, beats: 0.5 }, { string: 4, fret: 3, beats: 0.5 }, { string: 3, fret: 3, beats: 0.5 }, { string: 3, fret: 5, beats: 0.5 },
+      { string: 3, fret: 5, beats: 0.5 }, { string: 3, fret: 3, beats: 0.5 }, { string: 4, fret: 3, beats: 0.5 }, { string: 3, fret: 3, beats: 0.5 },
     ] } }, between: [
       "The fill uses four notes of the C minor pentatonic scale: {{b3}}, {{4}}, {{b7}} and {{1}}. Make up your own fill from the dots on the top four strings below.",
     ], beside: { type: "position-neck", scale: "minor-pentatonic", key: "c", positions: [4], enable: ["1", "b3", "4", "b7"] }, parts: [
