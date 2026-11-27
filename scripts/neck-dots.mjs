@@ -190,6 +190,19 @@ function line(hexes, len) {
   return `<svg width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}">${rects}<rect x="${x + 0.06}" y="0.06" width="${len + 2 * RIM - 0.12}" height="${h - 0.12}" rx="0.6" fill="none" stroke="#333" stroke-width="0.15" stroke-dasharray="0.8 0.5"/></svg>`;
 }
 
+// Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
+// across the board, each zone a band running along the neck. [fret, zones]
+const COVERS = [[1, 5], [3, 4], [5, 3], [7, 4], [12, 5]];
+const COVER_COLOURS = ["Green", "Violet", "Cyan", "Magenta", "Blue"];
+const WIRE_W = 2.5; // mm of fret wire taken off the space's length
+/** Fret n's cover, lying as on the neck seen from the player (across the board left to right, nut at the top): the board's
+ * width at the space's body end by the space less a wire, the zones side by side, a dashed cut line round it. */
+function cover(n, zones) {
+  const w = Math.round(boardAt(wire(n))), h = Math.round(wire(n) - wire(n - 1) - WIRE_W), z = w / zones;
+  const rects = COVER_COLOURS.slice(0, zones).map((c, i) => `<rect x="${i * z}" width="${z + 0.05}" height="${h}" fill="${byName[c].hex}"/>`).join("");
+  return { w, h, svg: `<svg width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}">${rects}<rect x="0.06" y="0.06" width="${w - 0.12}" height="${h - 0.12}" fill="none" stroke="#333" stroke-width="0.15" stroke-dasharray="0.8 0.5"/></svg>` };
+}
+
 function kitPage(spareLines, sparesOnly = false) {
   const W = 297, M = 10, usable = W - 2 * M;
   const cell = (svg, d, top, bottom) => `<div class="k" style="width:${Math.max(10.6, d + 1.2)}mm"><div class="kd" style="height:${Math.max(10.5, d + 0.5)}mm">${svg}</div><b>${top}</b><span>${bottom}</span></div>`;
@@ -246,6 +259,8 @@ h2 i { display: inline-block; width: 2.2mm; height: 2.2mm; border-radius: 50%; m
 .lines { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 0.8mm 5mm; margin-bottom: 1.2mm; }
 .ln { display: grid; grid-template-columns: 5mm 9mm auto 1fr; align-items: center; gap: 1mm; }
 .sp { gap: ${GAP}mm; flex-wrap: nowrap; } .sp b { font-weight: normal; font-size: 7.5pt; color: #444; width: 9mm; }
+.covers { display: flex; gap: 5mm; align-items: flex-start; margin-bottom: 1.2mm; }
+.cv { display: flex; flex-direction: column; align-items: center; gap: 0.4mm; } .cv svg { display: block; } .cv b { font-size: 6pt; } .cv span { font-size: 5pt; color: #444; }
 .ln b { font-size: 6pt; } .ln span { font-size: 5pt; color: #444; } .ln svg { display: block; }
 </style></head><body>
 ${sparesOnly ? `<div class="cal">${card}${card}</div>
@@ -259,6 +274,8 @@ ${spares}` : `<h1>Neck dots · Strat kit (25.5″) · A3</h1>
 ${lineSet()}${lineSet(GREEN)}
 <h2>Bridge <span>level with the saddles, ${SCALE_MM} mm from the nut</span></h2>
 <div class="line"><span class="g"><b>${BRIDGE_DOT} mm</b>${strip(BRIDGE_DOT, across(BRIDGE_DOT), byName.Blue.hex)}</span></div>
+<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge; low E side on the left, nut end at the top</span></h2>
+<div class="covers">${COVERS.map(([n, zones]) => { const c = cover(n, zones); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${zones} zones · ${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>
 ${spares ? `<h2>Spares</h2>${spares}` : ""}
 `}</body></html>`;
 }
