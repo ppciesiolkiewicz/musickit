@@ -21,9 +21,10 @@ export type ArticleBlock =
   /**
    * something to sing on the page: a heading, its lines (one paragraph each) and the tool, written as a seed exercise writes it
    * (`parseTool` reads it). `beside`: a second tool drawn under it, for two scales compared on the same neck, with `between`, lines
-   * between the two
+   * between the two. `key`: what this exercise's own notes count from when its tool has no key (`{{a}}` beside a B7 chord box);
+   * never lent to another block, as a tool's key is
    */
-  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[]; parts?: ExercisePart[] }
+  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; key?: string; beside?: Record<string, unknown>; between?: string[]; after?: string[]; parts?: ExercisePart[] }
   /**
    * every note from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it
    * (`ui/NamesChart.tsx`). One octave unless `octaves` says more: then the names come round again from each Do, and no table.

@@ -40,8 +40,8 @@ export const barreChordAlternatives: Article = {
       ], tool: { type: "chord-shapes", chords: ["F", "G", "A"], frets: ["x x 3 2 1 x", "x x 5 4 3 x", "x x 7 6 5 x"] } },
     ] },
 
-    { type: "exercise", title: "2. B7 for B", lines: [
-      "B7 adds one note to B: A, the ♭7. That note pulls hard towards E.",
+    { type: "exercise", title: "2. B7 for B", key: "b", lines: [
+      "B7 adds one note to B: the ♭7. It's {{a}}. That note pulls hard towards E.",
       "So B7 works where B goes to E or Em, and sounds bluesy anywhere else.",
       "Press Play under B below, then under B7.",
     ], tool: { type: "chord-shapes", chords: ["B", "B7"], frets: ["x 2 4 4 4 2", null] }, between: [

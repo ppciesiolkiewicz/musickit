@@ -5,7 +5,7 @@ import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "./index";
 import { articleJsonLd } from "./jsonLd";
-import { markArticle, markTitle, runsOf } from "./marks";
+import { blockRoots, markArticle, markTitle, runsOf } from "./marks";
 import { GLOSSARY } from "@/features/course/glossary";
 import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
 import { articleStats, articleTexts } from "./stats";
@@ -96,5 +96,19 @@ describe("articles", () => {
 
   it("write practice, not practise", () => {
     for (const a of ARTICLES) for (const t of [a.title, a.intro, a.description, ...texts(a)]) assert.ok(!/practis/i.test(t), t);
+  });
+});
+
+describe("blockRoots", () => {
+  const ex = (tool: Record<string, unknown>, key?: string) => ({ type: "exercise" as const, title: "t", lines: [], tool, ...(key ? { key } : {}) });
+  const article = (blocks: ReturnType<typeof ex>[]) => ({ ...ARTICLES[0], blocks });
+
+  it("counts an exercise's notes from its own key, and lends it to no other block", () => {
+    const roots = blockRoots(article([ex({ type: "chord-shapes" }), ex({ type: "chord-shapes" }, "b"), ex({ type: "chord-shapes" })]));
+    assert.deepEqual(roots, [null, { root: 11 }, null]);
+  });
+
+  it("prefers the tool's key to the exercise's own", () => {
+    assert.deepEqual(blockRoots(article([ex({ type: "scale-neck", key: "c" }, "b")])), [{ root: 0 }]);
   });
 });

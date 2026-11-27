@@ -50,12 +50,14 @@ const keyOf = (b: ArticleBlock): number | null => {
 };
 
 /**
- * The root each block's `{{1}}` notes count from: its own tool's key, else the next exercise's, else the last one before it
- * (as plan text reads the tool after it). Null when no exercise has a key.
+ * The root each block's `{{1}}` notes count from: its own tool's key, else its own `key`, else the next exercise's tool's,
+ * else the last one before it (as plan text reads the tool after it). Null when no exercise has a key.
  */
 export function blockRoots(article: Article): (NoteRoot | null)[] {
   const keys = article.blocks.map(keyOf);
-  return keys.map((own, i) => {
+  return keys.map((tool, i) => {
+    const b = article.blocks[i];
+    const own = tool ?? (b.type === "exercise" && b.key != null ? parseKeySlug(b.key) : null);
     const root = own ?? keys.slice(i + 1).find((k) => k !== null) ?? keys.slice(0, i).reverse().find((k) => k !== null) ?? null;
     return root === null ? null : { root };
   });
