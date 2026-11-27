@@ -17,6 +17,10 @@ A TaskSeries is a named group of tasks that belong together: one feature or one 
 - A series can point into another: a task that needs a missing tool names the MissingTools task instead of repeating it.
 
 
+
+TaskSeries RoastMe.dev:
+https://roastmy.dev/r/8ffcc2ac-f27b-4d31-bfcd-1b8d92e7efb7
+
 TaskSeries:
 Visualize singing certain notes over chords as a grid of sus2 sus4 or as a bubble chart.
 
@@ -1904,3 +1908,10 @@ degrees (these articles should use highlighted word functionality - could be its
   becomes its own shared feature. Words written with teaching-voice; facts from `npm run theory`.
 Decided 2026-11-26: reuse GLOSSARY and `explain()` in the articles; add the missing terms (scale degree, relative, Do).
 GLOSSARY links go to /course, which needs a login: on a public article hide the link or send it to sign-up.
+
+NEW24: [NEW 2026-11-26] Go through the roastmy.dev review of the landing page and act on its fixes
+https://roastmy.dev/r/8ffcc2ac-f27b-4d31-bfcd-1b8d92e7efb7
+- AI review of the public landing page: PageSpeed, accessibility, links, and a score out of 100 with ranked fixes and a
+  rewritten headline and CTA. Their numbers and copy are suggestions to weigh, not rules; any copy change goes through
+  design:ux-copy and teaching-voice as usual.
+- A free roast is public (listed in their Roastery, indexable). A re-test after fixes costs a credit.
