@@ -165,7 +165,7 @@ const wire = (n) => SCALE_MM * (1 - 2 ** (-n / 12)); // nut to fret wire n
 const byName = Object.fromEntries(COLOURS.map((c) => [c.name, c]));
 // spare colours and how many of each, by share of a line: mostly cyan and green, few white and black; lime left out, too near green
 const SPARES = [["Cyan", 4], ["Green", 3], ["Magenta", 1.5], ["Violet", 1], ["Blue", 1], ["White", 0.5], ["Black", 0.5]].map(([n, w]) => [byName[n].hex, w]);
-const EDGE = byName.Cyan.hex, MAGENTA = byName.Magenta.hex, BRIDGE_DOT = 16;
+const EDGE = byName.Cyan.hex, GREEN = byName.Green.hex, MAGENTA = byName.Magenta.hex, BRIDGE_DOT = 16;
 const spaces = Array.from({ length: FRETS }, (_, i) => {
   const n = i + 1, space = wire(n) - wire(n - 1);
   return { n, mid: (wire(n - 1) + wire(n)) / 2, small: Math.min(8, Math.max(5, Math.floor(space * 0.4))), big: Math.min(20, Math.floor(space * 0.7)) };
@@ -192,16 +192,20 @@ function line(hexes, len) {
 }
 
 // Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
-// across the board, each zone a band running along the neck under one string (low E on the left), cyan at both edges
-// like the edge dots; every cover the same
+// across the board, each zone a band running along the neck under one string (low E on the left). Two sets, every cover in
+// a set the same: cyan at both edges like the edge dots, and green at both edges. No white: the guitar is white and light
+// brown, and the background green and bright.
 const COVERS = [1, 3, 5, 7, 12];
-const COVER_COLOURS = ["Cyan", "Magenta", "Blue", "White", "Violet", "Cyan"];
+const COVER_SETS = [
+  ["cyan", ["Cyan", "Black", "Magenta", "Blue", "Violet", "Cyan"]],
+  ["green", ["Green", "Magenta", "Blue", "Cyan", "Violet", "Green"]],
+];
 const WIRE_W = 2.5; // mm of fret wire taken off the space's length
 /** Fret n's cover, lying as on the neck seen from the player (across the board left to right, nut at the top): the board's
  * width at the space's body end by the space less a wire, the zones side by side, a dashed cut line round it. */
-function cover(n, zones = COVER_COLOURS.length) {
-  const w = Math.round(boardAt(wire(n))), h = Math.round(wire(n) - wire(n - 1) - WIRE_W), z = w / zones;
-  const rects = COVER_COLOURS.slice(0, zones).map((c, i) => `<rect x="${i * z}" width="${z + 0.05}" height="${h}" fill="${byName[c].hex}"/>`).join("");
+function cover(n, colours) {
+  const w = Math.round(boardAt(wire(n))), h = Math.round(wire(n) - wire(n - 1) - WIRE_W), z = w / colours.length;
+  const rects = colours.map((c, i) => `<rect x="${i * z}" width="${z + 0.05}" height="${h}" fill="${byName[c].hex}"/>`).join("");
   return { w, h, svg: `<svg width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}">${rects}<rect x="0.06" y="0.06" width="${w - 0.12}" height="${h - 0.12}" fill="none" stroke="#333" stroke-width="0.15" stroke-dasharray="0.8 0.5"/></svg>` };
 }
 
@@ -269,18 +273,18 @@ h2 i { display: inline-block; width: 2.2mm; height: 2.2mm; border-radius: 50%; m
 .ln b { font-size: 6pt; } .ln span { font-size: 5pt; color: #444; } .ln svg { display: block; }
 </style></head><body>
 ${sparesOnly ? `<div class="cal">${card}${card}</div>
-${lineSet()}${lineSet(EDGE)}
+${lineSet()}${lineSet(GREEN)}
 ${spares}` : `<h1>Neck dots · Strat kit (25.5″) · A3</h1>
 <p>Print at 100%, matte sticker paper. Dots: fret, and mm from the nut to the middle of the fret space. Lines: wire, mm from the nut to the wire, and length; the dashed frame is that length, cut outside it for a longer line. Strings off; stick each line across the board beside its wire, on the body side, touching the wire.</p>
 <h2>Calibration</h2>
 <div class="cal">${card}${card}</div>
 <h2>Dots <span>rows: top edge (low E side), bottom edge (high E side); big top, big bottom, then big 13–22 top and bottom; nut dots on the headstock, touching the nut; spares at the row ends</span></h2>${dotRows}
-<h2>Lines across the board <span>${zones} · how many lines says which · a set, a spare set, a cyan set</span></h2>${lineSet()}
-${lineSet()}${lineSet(EDGE)}
+<h2>Lines across the board <span>${zones} · how many lines says which · a set and a green set</span></h2>${lineSet()}
+${lineSet(GREEN)}
 <h2>Bridge <span>level with the saddles, ${SCALE_MM} mm from the nut</span></h2>
 <div class="line"><span class="g"><b>${BRIDGE_DOT} mm</b>${strip(BRIDGE_DOT, across(BRIDGE_DOT), byName.Blue.hex)}</span></div>
-<h2>Fret covers <span>for testing · each fills one fret space, one colour band per string, cyan at both edges, the same on each, wire to wire and edge to edge; low E side on the left, nut end at the top</span></h2>
-<div class="covers">${COVERS.map((n) => { const c = cover(n); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>
+<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge, one colour band per string; a set with cyan at both edges, a set with green; low E side on the left, nut end at the top</span></h2>
+${COVER_SETS.map(([, colours]) => `<div class="covers">${COVERS.map((n) => { const c = cover(n, colours); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>`).join("")}
 ${spares ? `<h2>Spares</h2>${spares}` : ""}
 `}</body></html>`;
 }
@@ -304,7 +308,7 @@ ${spares ? `<h2>Spares</h2>${spares}` : ""}
     await page.setViewportSize({ width: Math.round(297 * 96 / 25.4), height: 800 });
     await page.screenshot({ path: `${process.env.PREVIEW}/neck-dots-strat-a3.pdf.png`, fullPage: true });
   }
-  // the spares sheet: two calibration cards, a coloured and a cyan set of lines, and spare dots filling the page; little text
+  // the spares sheet: two calibration cards, a coloured and a green set of lines, and spare dots filling the page; little text
   // rounds of sizes, big first, until nothing more fits (a line too big is skipped for the smaller ones after it)
   const spareOrder = Array.from({ length: 5 }, () => [[20, 1], [16, 2], [12, 2], [10, 2], [8, 3], [6, 4]]).flat();
   const sp = [];
