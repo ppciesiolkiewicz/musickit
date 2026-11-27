@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 24 (2026-11-26)
+
+- The explained words the prompt lists gain the six string names (low E string, A string, D string, G string, B string, high e string), and "tab" is no longer marked after "new" or "browser" ("opens in a new tab").
+
 ### 23 (2026-11-26)
 
 - `scale-neck` `islands`: islands sit by fret 7 when they all fit there and never past fret 12, and the neck is drawn only one fret past the last one; every root is ringed in red; each island plays rising, from the root to the root an octave up (Do Fa Sol Do); `"8"` in `notes` is the root an octave up (an island of Do and the Do above).

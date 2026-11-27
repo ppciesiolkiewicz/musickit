@@ -2,16 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSharedPiano, noteToMidi, onSilence, playSequence, type Step } from "@/features/sound";
-import { TERM_FIGURES, type BeatsFigure, type KeysFigure, type TuneFigure } from "./termFigures";
+import { strum } from "@/lib/chordKit/playback";
+import { TERM_FIGURES, type BeatsFigure, type KeysFigure, type StringFigure, type TuneFigure } from "./termFigures";
 
 /** An explained word's picture (`TERM_FIGURES`), drawn small enough for its note, with a Play button for each part. */
 export default function TermFigure({ id }: { id: string }) {
   const figure = TERM_FIGURES[id];
-  useEffect(() => void getSharedPiano(), []); // start loading the piano while the note is read
+  useEffect(() => void (figure?.kind !== "string" && getSharedPiano()), [figure]); // start loading the piano while the note is read
   if (!figure) return null;
   return (
     <span className="flex flex-col gap-1.5">
-      {figure.kind === "tune" ? <Tune figure={figure} /> : figure.kind === "keys" ? <Keys figure={figure} /> : <Beats figure={figure} />}
+      {figure.kind === "tune" ? <Tune figure={figure} /> : figure.kind === "keys" ? <Keys figure={figure} /> : figure.kind === "string" ? <Strings figure={figure} /> : <Beats figure={figure} />}
       <span className="text-slate-400">{figure.caption}</span>
     </span>
   );
@@ -202,6 +203,40 @@ function Beats({ figure }: { figure: BeatsFigure }) {
       </svg>
       <span className="flex flex-wrap gap-1">
         {figure.bpms.map((bpm) => <PlayButton key={bpm} label={figure.bpms.length > 1 ? `${bpm} bpm` : "Play"} onPlay={() => playAt(bpm)} />)}
+      </span>
+    </>
+  );
+}
+
+const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
+const OPEN_STRING_MIDI = [40, 45, 50, 55, 59, 64];
+
+/** The six strings upright, as on a chord box: low E on the left, thicker for lower strings, the named one lit and labelled. */
+function Strings({ figure }: { figure: StringFigure }) {
+  const [ringing, setRinging] = useState(false);
+  const lit = 6 - figure.string; // index from the low E
+  const h = 64, top = 6, gap = 24, left = (W - gap * 5) / 2;
+  const play = () => {
+    strum([OPEN_STRING_MIDI[lit]], { holdMs: RING_MS });
+    setRinging(true);
+    setTimeout(() => setRinging(false), RING_MS);
+  };
+  return (
+    <>
+      <svg viewBox={`0 0 ${W} ${h + 16}`} className="w-full" aria-hidden>
+        <rect x={left - 8} y={top} width={gap * 5 + 16} height={4} rx={1} className="fill-slate-300" />
+        {STRING_NAMES.map((name, i) => {
+          const x = left + i * gap, on = i === lit;
+          return (
+            <g key={i}>
+              <line x1={x} x2={x} y1={top} y2={h} strokeWidth={on ? 3.5 : 2.2 - i * 0.25} className={on ? (ringing ? "stroke-sky-200" : "stroke-sky-400") : "stroke-slate-500"} />
+              <text x={x} y={h + 12} textAnchor="middle" fontSize={10} fontWeight={on ? 700 : 400} className={on ? "fill-sky-300" : "fill-slate-500"}>{name}</text>
+            </g>
+          );
+        })}
+      </svg>
+      <span className="flex flex-wrap gap-1">
+        <PlayButton label={`Open ${STRING_NAMES[lit]}`} onPlay={play} />
       </span>
     </>
   );

@@ -17,6 +17,8 @@ export interface Term {
    * solfège name follows: "Do" the note, never "do" or "Do it" the verb
    */
   exact?: true;
+  /** words that, just before a form, mean it is another thing: "tab" after "new" is a browser tab */
+  notAfter?: string[];
 }
 
 export const GLOSSARY: Term[] = [
@@ -34,7 +36,13 @@ export const GLOSSARY: Term[] = [
     } },
   { id: "high-notes", label: "Reaching for high notes", forms: ["reach for high notes", "reach for a high note", "reaching for high notes", "reaching for a high note"], short: "Pushing your voice up to a note that feels tight. Stop below that note and sing where your voice feels easy: your range grows from there.", href: "/course/9/stretching-your-range" },
   { id: "staff", label: "Staff", forms: ["staff"], short: "The five lines music is written on: a note sits higher on it the higher it sounds. While you sing, your pitch shows on it as a line.", href: "/course/3/staff" },
-  { id: "tab", label: "Tab", forms: ["tab", "tablature"], short: "Guitar notation: six lines for the strings, low E at the bottom, and a number on a line for the fret to press. 0 means the open string.", href: "/course/1/tab-and-chord-boxes" },
+  { id: "tab", label: "Tab", forms: ["tab", "tablature"], notAfter: ["new", "browser", "this", "that"], short: "Guitar notation: six lines for the strings, low E at the bottom, and a number on a line for the fret to press. 0 means the open string.", href: "/course/1/tab-and-chord-boxes" },
+  { id: "low-e-string", label: "Low E string", forms: ["low E string"], exact: true, short: "String 6: the thickest string, with the lowest note. It's at the top as you hold the guitar.", href: "/course/1/tab-and-chord-boxes" },
+  { id: "a-string", label: "A string", forms: ["A string"], exact: true, short: "String 5: the second thickest, next to the low E string.", href: "/course/1/tab-and-chord-boxes" },
+  { id: "d-string", label: "D string", forms: ["D string"], exact: true, short: "String 4: the third from the top.", href: "/course/1/tab-and-chord-boxes" },
+  { id: "g-string", label: "G string", forms: ["G string"], exact: true, short: "String 3: the third from the bottom.", href: "/course/1/tab-and-chord-boxes" },
+  { id: "b-string", label: "B string", forms: ["B string"], exact: true, short: "String 2: the second thinnest, next to the high e string.", href: "/course/1/tab-and-chord-boxes" },
+  { id: "high-e-string", label: "High e string", forms: ["high e string"], exact: true, short: "String 1: the thinnest string, with the highest note. It's at the bottom as you hold the guitar.", href: "/course/1/tab-and-chord-boxes" },
   { id: "chord-box", label: "Chord box", forms: ["chord box", "chord diagram"], short: "A diagram of a chord on the neck: the lines are strings and frets, each dot is where a finger presses, O plays a string open and X leaves it out.", href: "/course/1/tab-and-chord-boxes" },
   { id: "eighths", label: "Eighths", forms: ["eighths", "eighth", "eighth note", "8th", "8th note"], short: "Two even notes or strums per beat, counted \"1 & 2 & 3 & 4 &\".", href: "/course/2/all-downstrums" },
   { id: "sixteenths", label: "Sixteenths", forms: ["sixteenths", "sixteenth", "sixteenth note", "16th", "16th note"], short: "Four even notes or strums per beat, counted \"1 e & a\".", href: "/course/2/sixteenths" },
@@ -132,6 +140,7 @@ export function explain(texts: string[]): Piece[][] {
     for (const m of text.matchAll(RE)) {
       const { term, form } = ENTRIES[m.slice(1).findIndex((g) => g !== undefined)];
       if (term.exact && notExact(text, m.index, m[0], form)) continue;
+      if (term.notAfter && new RegExp(`\\b(?:${term.notAfter.join("|")})\\s+$`, "i").test(text.slice(0, m.index))) continue;
       const id = term.each ? `${term.id}:${form}` : term.id;
       if (seen.has(id)) continue;
       seen.add(id);

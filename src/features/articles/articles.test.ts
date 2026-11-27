@@ -24,7 +24,7 @@ describe("articles", () => {
   });
 
   it("set up every tool the way the plan's parser accepts", () => {
-    for (const a of ARTICLES) for (const b of a.blocks) for (const t of b.type === "exercise" ? [b.tool, ...(b.beside ? [b.beside] : [])] : b.type === "row" ? b.tools : []) assert.ok(parseTool(t), `${a.slug}: ${b.type}`);
+    for (const a of ARTICLES) for (const b of a.blocks) for (const t of b.type === "exercise" ? [b.tool, ...(b.beside ? [b.beside] : []), ...(b.parts ?? []).flatMap((p) => (p.tool ? [p.tool] : []))] : b.type === "row" ? b.tools : []) assert.ok(parseTool(t), `${a.slug}: ${b.type}`);
   });
 
   it("keep descriptions short enough for a search result, and link only to pages that exist", () => {
@@ -75,7 +75,7 @@ describe("articles", () => {
       const ids = marked.flat(3).flatMap((r) => (r.kind === "link" ? [] : r.pieces.flatMap((p) => (typeof p === "string" ? [] : [p.term.each ? `${p.term.id}:${p.text.toLowerCase()}` : p.term.id]))));
       assert.equal(new Set(ids).size, ids.length, a.slug);
       a.blocks.forEach((b, i) => {
-        const lines = b.type === "p" || b.type === "care" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.between ?? []), ...(b.after ?? [])] : [];
+        const lines = b.type === "p" || b.type === "care" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.between ?? []), ...(b.after ?? []), ...(b.parts ?? []).flatMap((p) => p.lines)] : [];
         lines.forEach((t, j) => assert.deepEqual(marked[i][j].map((r) => (r.kind === "link" ? r.text : r.pieces.map((p) => (typeof p === "string" ? p : p.text)).join(""))), runsOf(t).map((r) => r.text)));
       });
     }

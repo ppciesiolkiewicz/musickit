@@ -33,6 +33,7 @@ import { isSingingLabels, type SingingLabels } from "@/features/theory/labels";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { layersOf, othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
+import { shapeFromFrets } from "@/features/exercises/cues/voicing";
 import { lengthLabel, libraryVideo, publishedVideos } from "@/features/videos/library";
 import { sanitiseVideoRef, type VideoRef } from "@/features/videos/ref";
 import type { CatalogueEntry } from "./catalogue";
@@ -118,7 +119,7 @@ type PlanToolProps =
   | { type: "caged-neck"; key: number; scale: string; shapes?: CagedLetter[] }
   /** the key's 3rds or 6ths on one pair of strings (`strings`: guitar numbers, the lower string first), from fret `from` (absent: 0) to fret `to` (absent: the last fret drawn, 17) */
   | { type: "double-stops-neck"; key: number; scale: string; interval: DyadName; strings: string; level?: ToolLevel; from?: number; to?: number }
-  | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
+  | { type: "chord-shapes"; chords: string[]; voicing?: Voicing; /** per chord, exact frets written by a person ("5 7 7 5 x x"); never offered to the AI */ frets?: (string | null)[] }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; /** ring the playing chord's notes, in step with the backing track */ follow?: StaffFollow; /** one note a chord, semitones above the key, in order: rung in step with the backing track */ line?: number[] } & Marks
   | { type: "backing-band"; bpm: number; key: number; /** the parts offered and how; never empty */ parts: BandParts }
   | { type: "note-finder"; level?: ToolLevel; query: string }
@@ -542,7 +543,15 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   "chord-shapes": {
     parse(t, d) {
       const chords = chordList(t.chords, 8, d);
-      return chords.length ? { type: "chord-shapes", chords, ...(t.voicing === "barre" || t.voicing === "open" ? { voicing: t.voicing } : {}) } : no(d, "no chord it could read");
+      if (!chords.length) return no(d, "no chord it could read");
+      const frets = Array.isArray(t.frets) ? chords.map((c, i) => {
+        const f = (t.frets as unknown[])[i];
+        if (typeof f !== "string" || !f.trim()) return null;
+        if (shapeFromFrets(c, f)) return f.trim();
+        d.notes.push(`"frets" ${JSON.stringify(f)} don't play ${c}; used its own shape.`);
+        return null;
+      }) : [];
+      return { type: "chord-shapes", chords, ...(t.voicing === "barre" || t.voicing === "open" ? { voicing: t.voicing } : {}), ...(frets.some(Boolean) ? { frets } : {}) };
     },
   },
   staff: {
@@ -1282,7 +1291,10 @@ const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p
 // the video tool is offered only while the library has a video to watch
 /** Tools the parser reads but the AI plan is not offered (the user, 2026-11-13: no videos in the plan for now). */
 export const PROMPT_HIDDEN: ToolName[] = ["video"];
-const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name) && !PROMPT_HIDDEN.includes(d.name as ToolName));
+/** Props the parser reads but the AI plan is not offered: frets are written by a person, never the AI (`exercises/CLAUDE.md`). */
+export const PROMPT_HIDDEN_PROPS: Partial<Record<ToolName, string[]>> = { "chord-shapes": ["frets"] };
+const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name) && !PROMPT_HIDDEN.includes(d.name as ToolName))
+  .map((d) => ({ ...d, props: d.props.filter((p) => !PROMPT_HIDDEN_PROPS[d.name as ToolName]?.includes(p.name)) }));
 /** Shapes the parser reads but the AI plan is not offered: a riff is written by hand in the riff maker, and a block that plays one comes from the library. */
 export const PROMPT_HIDDEN_SHAPES = ["riff"];
 const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape" && !PROMPT_HIDDEN_SHAPES.includes(d.name));

@@ -24,10 +24,10 @@ export function runsOf(text: string): ({ kind: "text" | "bold" | "care"; text: s
 
 /** The lines of a block the glossary reads: paragraphs, list items, care lines and an exercise's lines (not titles or headings). */
 const linesOf = (b: ArticleBlock): string[] =>
-  b.type === "p" || b.type === "care" || b.type === "guide" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.between ?? []), ...(b.after ?? [])] : [];
+  b.type === "p" || b.type === "care" || b.type === "guide" ? [b.text] : b.type === "list" ? b.items : b.type === "exercise" ? [...b.lines, ...(b.between ?? []), ...(b.after ?? []), ...(b.parts ?? []).flatMap((p) => p.lines)] : [];
 
 /**
- * Every line of an article as marked runs, per block (`[block][line]`, an exercise's `lines`, its `between`, then its `after`). The glossary
+ * Every line of an article as marked runs, per block (`[block][line]`, an exercise's `lines`, its `between`, its `after`, then its `parts`' lines). The glossary
  * reads the whole article as plan text reads a block: each word marked once, at its first use. Links are left alone.
  */
 export function markArticle(article: Article): Mark[][][] {

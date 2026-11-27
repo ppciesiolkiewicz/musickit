@@ -1,0 +1,66 @@
+{
+  "slug": "barre-chord-alternatives",
+  "query": "barre chord alternatives",
+  "persona": "guitarist",
+  "written": "2026-11-26",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "Lets add barre chord alternatives article",
+    "Fmaj alternative to F barre (but because it's maj chord it has specific feeling so not always good replacement)",
+    "B -> B7",
+    "And then we go for any minor barre chord we just mute top 2 strings and do C/G style chord - this one doesnt have any extra notes so is a good replacement and good base for introducing solos in-between your chords",
+    "Then for major we just show a triad",
+    "And then we show jazz chords",
+    "Like C/D/E9 which are kinda easy as well as maj7 with root on E",
+    "It's meant to be for learn",
+    "and in the /learn style",
+    "This one is too tricky to play",
+    "I think this was meant to be open Am shape  using finger 345 and second string on e string and two top sitrngs muted",
+    "Could mention this this 321 triad is movable and actual major triad so we can just play G by sliding it by 2 frets",
+    "I'd like to have search alternative chord here. Like a spotlight style search with showing other chords",
+    "B7 chords becomes C7 when moved (make a a note that B string (B string should be also special word like other stirng names) was open and now we need to put our fingers different",
+    "I thought we had some work about these shapes being movable",
+    "Let's make movable always a separate next level heading , as well as F vs Fmaj7 make a note that if we mute the lowest string it becomes just F",
+    "This one needs fingers/intervals",
+    "New tab was highlighted by special word. Maybe \"new tab\" should be exception",
+    "Dont use \"Now play it\" be more inviting like \"Try playing it\"",
+    "Remove - this is the difference between articles and practice plans for sure but even for practice plan this type of phrase sounds wrong (on \"Practice until the change into Fmaj7 lands on beat 1 without a look at the neck.\")",
+    "Too much of letter spaghetti... We should use dots but even then the explenation should be simpler and only use \"high e string\" (special word also - add more special words like this that just have a graphic)",
+    "Let's keep that as \"movable shape\" and provide F G A. improve design on whole thing - the chord boxes are too small. We should have 3 in a row and centered if only 2",
+    "This section should have neck component playing something as an example . Content should be more intertwined with text",
+    "Add Dm triad as movable, D as movable",
+    "Uniformly have \"movable shapes\" sub-header",
+    "This FMaj7 should not be barre at all we can fret if with 4 fingers with index on top string",
+    "Remove this but replace this with some Summary (Make it your own). Also give more space to labels"
+  ],
+  "blocks": [
+    "guitar-advanced-barre-shapes-anywhere"
+  ],
+  "calculator": [
+    "npm run -s theory -- scale C major (Fmaj7 = F A C E; x x 3 2 1 0 puts E on the open high e)",
+    "npm run -s theory -- triads C --group 321 --chords IV --frets 0-3 (F: 2-1-1, A C F)",
+    "npm run -s theory -- triads E --group 321 --chords V --frets 2-5 (B: 4-4-2, B D♯ F♯)",
+    "Chord boxes checked by chord-shapes' shapeFromFrets against each chord's notes: C9 x 3 2 3 3 x = C E B♭ D; Fmaj7 1 x 2 2 1 x = F E A C; B7 open from the chord library",
+    "npm run -s theory -- triads C --group 432 --chords IV,V --frets 0-5 (F 3-2-1 F A C, G 5-4-3 G B D: the Fmaj7 shape's fretted notes, slid two frets)",
+    "npm run -s theory -- box B minor A (Bm x-2-4-4-3-2; the four-string one x x 4 4 3 2 = F♯ B D F♯, 5 R ♭3 5)",
+    "npm run -s theory -- positions C minor pentatonic (position 4, frets 3-6: E 3 G, 6 B♭; A 3 C, 6 E♭; under Cm x x 5 5 4 3)",
+    "The chord finder's shapes (alternatives.ts) are checked by alternatives.test.ts against shapeFromFrets for all 24 major and minor chords; triads come from chordKit's triadVoicings",
+    "C7 x 3 2 3 1 x = C E B♭ C (B7 x 2 1 2 0 2 one fret up, the open B string pressed at the 1st fret, high e left out), checked by shapeFromFrets",
+    "npm run -s theory -- triads A --group 432 --chords I --frets 4-8 (A 7-6-5: the F triad slid four frets)",
+    "D shape moved: E x x 2 4 5 4, F♯ x x 4 6 7 6; Dm shape moved: Em x x 2 4 5 3, F♯m x x 4 6 7 5; Fmaj7 1 x 2 2 1 x fingered 1 x 3 4 2 x, Gmaj7 and Amaj7 two and four frets up; all checked by shapeFromFrets",
+    "The example fill under Cm (x x 5 5 4 3): G (E 3), B♭ (E 6), C (A 3), then E♭ (A 6), C (A 3), all in C minor pentatonic position 4"
+  ],
+  "sources": [],
+  "open": [
+    "The four-string minor is now the open Am shape moved up (root on the A string, low E and A muted), as the author asked on review; the author's \"finger 345\" read as fingers 2, 3 and 4 counting the thumb as 1, with the first finger on the high e.",
+    "Search volume for the query not checked yet.",
+    "\"mute the lowest string\" read as the open high e (the string nearest the floor): Fmaj7 x x 3 2 1 0 without it is F x x 3 2 1 x. The \"Move it\" wording follows the course's Move it: G minor (/course/5/move-it): the open strings were doing work.",
+    "No \"Make it your own\" section, against VOICE.md: the author asked for a Summary in its place. No \"Practice until\" lines: the author finds them wrong in an article.",
+    "\"index on top string\" for the low-E Fmaj7 read as the low E string (the one at the top as you hold the guitar)."
+  ]
+}

@@ -30,7 +30,15 @@ export interface BeatsFigure {
   caption: string;
 }
 
-export type Figure = TuneFigure | KeysFigure | BeatsFigure;
+/** The six strings as a chord box draws them (low E on the left), one lit; Play sounds it open. */
+export interface StringFigure {
+  kind: "string";
+  /** guitar number: 6 the low E, 1 the high e */
+  string: 1 | 2 | 3 | 4 | 5 | 6;
+  caption: string;
+}
+
+export type Figure = TuneFigure | KeysFigure | BeatsFigure | StringFigure;
 
 const C_MAJOR = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"];
 const SOLFEGE = ["Do", "Re", "Mi", "Fa", "Sol", "La", "Ti", "Do"];
@@ -44,6 +52,12 @@ const MAJOR_MINOR: KeysFigure = {
 };
 
 export const TERM_FIGURES: Record<string, Figure> = {
+  "low-e-string": { kind: "string", string: 6, caption: "On a chord box it's the line on the left." },
+  "a-string": { kind: "string", string: 5, caption: "On a chord box it's the second line from the left." },
+  "d-string": { kind: "string", string: 4, caption: "On a chord box it's the third line from the left." },
+  "g-string": { kind: "string", string: 3, caption: "On a chord box it's the third line from the right." },
+  "b-string": { kind: "string", string: 2, caption: "On a chord box it's the second line from the right." },
+  "high-e-string": { kind: "string", string: 1, caption: "On a chord box it's the line on the right." },
   "relative-pitch": {
     kind: "tune",
     groups: [

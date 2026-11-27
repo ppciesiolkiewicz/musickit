@@ -12,11 +12,19 @@ import { AUTHOR } from "../author";
 import { blockRoots, markArticle, type Mark } from "../marks";
 import { articleLabels, type Article, type ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
+import ChordFinder from "./ChordFinder";
 import { ArticleLabels, LabelSwitch } from "./ArticleLabels";
 import NamesChart from "./NamesChart";
 import NamesNeck from "./NamesNeck";
 import PlayerControls from "./PlayerControls";
 import TempoTool from "./TempoTool";
+
+/**
+ * Chord boxes in an article: three to a row (two on a phone), as wide as the row allows and centred, so two or one sit in
+ * the middle. Applied from outside, so the plan's chord-shapes keep their own size.
+ */
+const BIG_CHORDS =
+  "[&_[data-tour=chord-shapes-chords]]:justify-center [&_[data-tour=chord-shapes-chords]>div]:w-[calc((100%-0.75rem)/2)] sm:[&_[data-tour=chord-shapes-chords]>div]:w-[calc((100%-1.5rem)/3)]";
 
 /** A link to another guide opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
 const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("#"));
@@ -39,7 +47,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
     case "p":
       return <p className="text-slate-300"><Inline runs={lines[0]} root={root} /></p>;
     case "h2":
-      return <h2 className="mt-4 text-xl font-semibold text-slate-50">{block.text}</h2>;
+      return <h2 className="mt-6 border-t border-slate-800 pt-8 text-xl font-semibold text-slate-50">{block.text}</h2>;
     case "list":
       return <ul className="flex list-disc flex-col gap-1.5 pl-5 text-slate-300">{block.items.map((t, i) => <li key={t}><Inline runs={lines[i]} root={root} /></li>)}</ul>;
     case "care":
@@ -57,6 +65,8 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
         </div>
       );
     }
+    case "chord-finder":
+      return <ChordFinder />;
     case "figure":
       return (
         <figure className="flex flex-col gap-2">
@@ -79,7 +89,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
       const pair = tools.length > 1;
       const between = block.between ?? [], at = block.lines.length;
       return (
-        <section aria-label={block.title} className="metal-panel mt-4 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
+        <section aria-label={block.title} className="metal-panel mt-6 flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 sm:p-5">
           <h2 className="text-lg font-semibold text-slate-50">{block.title}</h2>
           {block.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[i]} root={root} /></p>)}
           {tools.length > 0 && (
@@ -87,12 +97,24 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
               {tools.map((tool, i) => (
                 <Fragment key={i}>
                   {i === 1 && between.map((t, j) => <p key={t} className="text-slate-300"><Inline runs={lines[at + j]} root={root} /></p>)}
-                  <div className="min-w-0">{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>
+                  <div className={`my-2 min-w-0 ${BIG_CHORDS}`}>{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>
                 </Fragment>
               ))}
             </div>
           )}
           {block.after?.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[at + between.length + i]} root={root} /></p>)}
+          {block.parts?.map((part, k) => {
+            const from = at + between.length + (block.after?.length ?? 0) + block.parts!.slice(0, k).reduce((n, p) => n + p.lines.length, 0);
+            const tool = part.tool ? parseTool(part.tool) : null;
+            return (
+              // a part is its own small section: a rule above it, so it doesn't run on from the tool before
+              <div key={part.title} className="mt-4 flex flex-col gap-3 border-t border-slate-700/60 pt-6">
+                <h3 className="text-base font-semibold text-slate-100">{part.title}</h3>
+                {part.lines.map((t, i) => <p key={t} className="text-slate-300"><Inline runs={lines[from + i]} root={root} /></p>)}
+                {tool && <div className={`my-2 min-w-0 ${BIG_CHORDS}`}><Tool tool={tool} /></div>}
+              </div>
+            );
+          })}
         </section>
       );
     }
@@ -151,7 +173,7 @@ export default function ArticleView({ article }: { article: Article }) {
     // the plan reader's text is 18px from sm up, its inline note dots 1.9em of that: the same 34px here on 16px text
     <div className="flex flex-col gap-4 leading-relaxed sm:[--note-dot:2.15em]">
       {article.blocks.map((b, i) => <Fragment key={i}><Block block={b} lines={marked[i]} root={roots[i]} /></Fragment>)}
-      {dots && <LabelSwitch />}
+      {dots && <div className="mt-8"><LabelSwitch /></div>}
       <p className="mt-2 text-xs text-slate-500">Updated {new Date(`${article.updated}T00:00:00Z`).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.</p>
       <JoinCard />
       <MoreGuides current={article.slug} />

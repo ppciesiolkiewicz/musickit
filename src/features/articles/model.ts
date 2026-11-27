@@ -23,7 +23,7 @@ export type ArticleBlock =
    * (`parseTool` reads it). `beside`: a second tool drawn under it, for two scales compared on the same neck, with `between`, lines
    * between the two
    */
-  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[] }
+  | { type: "exercise"; title: string; lines: string[]; tool: Record<string, unknown>; beside?: Record<string, unknown>; between?: string[]; after?: string[]; parts?: ExercisePart[] }
   /**
    * every note from Do on a piano, each key with its solfège name and its interval under it; tap a key to hear it
    * (`ui/NamesChart.tsx`). One octave unless `octaves` says more: then the names come round again from each Do, and no table.
@@ -32,7 +32,15 @@ export type ArticleBlock =
   /** another guide as its /learn card, in the text where the reader may need it first (`Block` in `ui/ArticleView.tsx`), after `text`, the line that says why */
   | { type: "guide"; slug: string; text: string }
   /** small tools side by side (two to a row on a wide screen, one under the other on a phone), with no text: a row of charts */
-  | { type: "row"; tools: Record<string, unknown>[] };
+  | { type: "row"; tools: Record<string, unknown>[] }
+  /** a search box: type a major or minor barre chord, see easier chords for it as chord boxes (`ui/ChordFinder.tsx`, `alternatives.ts`) */
+  | { type: "chord-finder" };
+
+/**
+ * A smaller step at the end of an exercise, under its own subheading: the same shape moved to another chord ("Move it: B7 to
+ * C7"), its lines, and the tool that shows it.
+ */
+export interface ExercisePart { title: string; lines: string[]; tool?: Record<string, unknown> }
 
 /** What an article's dots start as: its own `labels`, else Intervals for a guitar article and Solfège for any other (singing). */
 export const articleLabels = (a: Pick<Article, "labels" | "topics">): LabelSystem => a.labels ?? (a.topics.includes("guitar") ? "interval" : "solfege");

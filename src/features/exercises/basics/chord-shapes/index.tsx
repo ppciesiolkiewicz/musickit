@@ -5,18 +5,19 @@ import ChordDiagram from "@/components/chordKit/ChordDiagram";
 import { Hint } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { strumShape } from "@/lib/chordKit/playback";
-import { chordShapeFor } from "../../cues/voicing";
+import { chordShapeFor, shapeFromFrets } from "../../cues/voicing";
 import type { Voicing } from "../../timeline/types";
 
-/** One shape per chord, in order (the easy open one, or the barre one); tap a box to strum it. */
-export function View({ chords, voicing = "open" }: { chords: string[]; voicing?: Voicing }) {
+/** One shape per chord, in order (the easy open one, the barre one, or the frets written for it); tap a box to strum it. */
+export function View({ chords, voicing = "open", frets }: { chords: string[]; voicing?: Voicing; frets?: (string | null)[] }) {
   useCoverage({ hints: 1 });
   const shapes = useMemo(
-    () => chords.flatMap((name) => {
-      const c = chordShapeFor(name, voicing);
+    () => chords.flatMap((name, i) => {
+      const fr = frets?.[i];
+      const c = (fr ? shapeFromFrets(name, fr) : null) ?? chordShapeFor(name, voicing);
       return c ? [{ name, c }] : [];
     }),
-    [chords, voicing],
+    [chords, voicing, frets],
   );
   return (
     <div data-tour="chord-shapes-chords" className="flex flex-wrap gap-3">
