@@ -82,17 +82,17 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
     const a = cross && positions.find((p) => p.number === cross.from), b = cross && positions.find((p) => p.number === cross.to);
     return cross && a && b ? crossingPath(a, b, cross.string) : null;
   }, [cross, positions]);
-  // each position where it sits lowest on the neck; "Higher up the neck" frames its copies an octave up too
-  const [higher, setHigher] = useState(false);
+  // each position where it sits lowest on the neck; "Higher up the neck" adds its copies an octave up to the row
   const places = useMemo(() => new Map(positions.map((p) => [p.number, octaves(p)])), [positions]);
-  const hasHigher = [...places.values()].some((all) => all.length > 1);
+  const upper = useMemo(() => [...places.values()].flatMap((all) => all.slice(1)).sort((a, b) => a.from - b.from), [places]);
+  const [higher, setHigher] = useState(false);
+  const [pickedUpper, setPickedUpper] = useState<string[]>([]);
   const framed = useMemo((): ScalePosition[] => path
     ? [path.lower, path.upper]
-    : positions.filter((p) => selected.includes(p.number)).flatMap((p) => {
-      if (placed && p.number === placed.number) return [shiftPosition(p, placed.shift)];
-      const all = places.get(p.number)!;
-      return higher ? all : [all[0]];
-    }), [path, positions, selected, placed, places, higher]);
+    : [
+      ...positions.filter((p) => selected.includes(p.number)).map((p) => (placed && p.number === placed.number ? shiftPosition(p, placed.shift) : places.get(p.number)![0])),
+      ...(higher ? upper.filter((p) => pickedUpper.includes(placeKey(p))) : []),
+    ], [path, positions, selected, placed, places, higher, upper, pickedUpper]);
   const playable = useMemo(() => new Set((path ? path.notes : framed.flatMap((p) => p.notes)).map(cellKey)), [path, framed]);
 
   const state = useCallback((c: ScaleCell) => (playable.has(cellKey(c)) ? noteState(vis, c.pc) : outside), [playable, vis, outside]);
@@ -168,7 +168,7 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
                   >
                     <Thumb p={places.get(p.number)![0]} />
                     <span>Position {p.number}</span>
-                    <span className="text-[10px] text-slate-500">frets {(higher ? places.get(p.number)! : places.get(p.number)!.slice(0, 1)).map((q) => `${q.from}–${q.to}`).join(", ")}</span>
+                    <span className="text-[10px] text-slate-500">frets {places.get(p.number)![0].from}–{places.get(p.number)![0].to}</span>
                   </button>
                   </Hint>
                   {next && canCross && (
@@ -185,10 +185,29 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
                 </div>
               );
             })}
-            {hasHigher && !path && (
-              <Hint title="Higher up the neck" description="Frames the picked positions again an octave up, where they fit on the neck.">
+            {higher && !path && upper.map((p) => {
+              const on = pickedUpper.includes(placeKey(p));
+              return (
+                <Hint key={placeKey(p)} title={`Position ${p.number}, higher up`} description="The same position an octave up. Tap it to frame it on the neck.">
+                <button
+                  type="button" onClick={() => { setCross(null); setPickedUpper((s) => (on ? s.filter((k) => k !== placeKey(p)) : [...s, placeKey(p)])); }} aria-pressed={on}
+                  className={`flex flex-col items-center rounded-lg border px-1.5 pb-1 pt-1.5 text-[11px] transition ${on ? "border-sky-400/80 bg-sky-500/10 text-sky-100" : "border-slate-700 text-slate-400 hover:border-slate-500"}`}
+                >
+                  <Thumb p={p} />
+                  <span>Position {p.number}</span>
+                  <span className="text-[10px] text-slate-500">frets {p.from}–{p.to}</span>
+                </button>
+                </Hint>
+              );
+            })}
+            {upper.length > 0 && !path && (
+              <Hint title="Higher up the neck" description="Adds the positions that fit again an octave up to this row.">
               <button
-                type="button" data-tour="position-neck-higher" onClick={() => setHigher((h) => !h)} aria-pressed={higher}
+                type="button" data-tour="position-neck-higher" aria-pressed={higher}
+                onClick={() => {
+                  setPickedUpper([]);
+                  setHigher(!higher);
+                }}
                 className={`ml-1 rounded-lg border px-2 py-1 text-[11px] transition ${higher ? "border-sky-400/80 bg-sky-500/10 text-sky-100" : "border-slate-700 text-slate-400 hover:border-slate-500"}`}
               >
                 Higher up the neck
@@ -214,6 +233,9 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
     </div>
   );
 }
+
+/** One place of a position on the neck: its number and first fret. */
+const placeKey = (p: ScalePosition) => `${p.number}@${p.from}`;
 
 /** Corners of a polygon rounded off by up to `radius`, as an SVG path. */
 function rounded(points: [number, number][], radius: number): string {
