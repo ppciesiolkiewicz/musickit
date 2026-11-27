@@ -1,7 +1,7 @@
 # Articles: rules
 
-- Every word is written in the articles' voice, `VOICE.md` beside this file, on top of the `teaching-voice` skill (load it
-  first), and checked with `review-teaching-text` before it ships. The voice lives only there: a seed file records its version
+- Every word is written in the articles' voice, the `article-voice` skill, which loads the `teaching-voice` skill first (an
+  article's exercises are teaching-voice text), and checked with `review-teaching-text` before it ships. The voice lives only there: a seed file records its version
   (`versions.voice`), never the voice itself.
 - Music facts come from the theory calculator (`npm run -s theory -- …`), recorded in the seed file's `calculator`.
 - Exercises reuse the library's tools and wording: name the seed blocks in the seed file's `blocks`. A tool is set up as the

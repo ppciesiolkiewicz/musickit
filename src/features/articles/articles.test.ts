@@ -21,7 +21,7 @@ describe("articles", () => {
       const s = seedOf(a.slug);
       assert.equal(s.slug, a.slug);
       assert.ok(s.versions.teaching <= DOC_VERSIONS.teaching && s.versions.agents <= DOC_VERSIONS.agents && s.versions.voice <= ARTICLE_VOICE_VERSION, a.slug);
-      assert.ok(!("voice" in s), `${a.slug}: the voice is in VOICE.md, not the seed file`);
+      assert.ok(!("voice" in s), `${a.slug}: the voice is in the article-voice skill, not the seed file`);
     }
   });
 
@@ -65,8 +65,8 @@ describe("articles", () => {
     }
   });
 
-  it("VOICE.md's version is ARTICLE_VOICE_VERSION", () => {
-    assert.equal(Number(/^version: (\d+)$/m.exec(readFileSync(new URL("./VOICE.md", import.meta.url), "utf8"))?.[1]), ARTICLE_VOICE_VERSION);
+  it("the article-voice skill's version is ARTICLE_VOICE_VERSION", () => {
+    assert.equal(Number(/^version: (\d+)$/m.exec(readFileSync(new URL("../../../.claude/skills/article-voice/SKILL.md", import.meta.url), "utf8"))?.[1]), ARTICLE_VOICE_VERSION);
   });
 
   it("give search engines an Article and its breadcrumb, published by the site's organization", () => {

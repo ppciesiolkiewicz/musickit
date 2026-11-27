@@ -159,6 +159,12 @@ Everything before the prompt had a version.
 
 ## Teaching
 
+### 14 (2026-11-27)
+
+- Two voices. `teaching-voice` is the plan and block voice: seed exercises and plans, the prompt's writing rules, glossary, about lines, captions, and the exercises inside an article. The new `article-voice` skill (what was `src/features/articles/VOICE.md`, version 6) is the voice of /learn articles and course sections, on top of teaching-voice.
+- `course-article`: written like a /learn article in `article-voice`, and kept true to the learning path: read the tracks in `plan/model/path.ts` whose course page is the section and teach their first steps in the path's order, reuse the library's blocks tagged with the track, and check `/admin/content/path` shows it written. The course-block steps move under "Old sections written with course blocks".
+- `review-teaching-text` checks article prose against `article-voice`. `exercise-example` changes only its version.
+
 ### 13 (2026-11-27)
 
 - `course-article`: a planned section is written in the /learn articles' style, not with the course blocks: one file per section in `src/features/course/lessons/<slug>.ts`, a `CourseArticle` of `ArticleBlock`s with live tools, in the voice of `src/features/articles/VOICE.md`, its glossary words marked as on /learn. Its `updated` is the day and the time (Sydney), so a section written to an older /learn style can be found and rewritten.
@@ -235,6 +241,10 @@ The older style, from before the teaching skills.
 
 ## AGENTS.md
 
+### 3 (2026-11-27)
+
+"Words on the screen" names the two voices: `teaching-voice` for plans and blocks, `article-voice` for /learn articles and course sections (which reads teaching-voice first). A /learn article has its row in the table; a course section's files include `src/features/course/lessons`.
+
 ### 2 (2026-11-15)
 
 A third version, the prompt's, with this changelog beside it; the history of every version moves here from `AGENTS.md`.
@@ -246,3 +256,11 @@ Versions are kept: this file and the teaching skills carry one, and every exampl
 ### 0
 
 Everything before versions were kept.
+
+## Article voice
+
+The `article-voice` skill, `ARTICLE_VOICE_VERSION` in `src/features/articles/model.ts`. Versions 1 to 5 were `src/features/articles/VOICE.md`.
+
+### 6 (2026-11-27)
+
+- `VOICE.md` becomes the `article-voice` skill. It says it is the second voice, on top of teaching-voice: an article's exercises are teaching-voice text, the prose around them is this voice. "What every article has" names "Make it your own". New "Course sections in this voice": a section opens from the one before it, has no join card, and uses explained words without defining them.

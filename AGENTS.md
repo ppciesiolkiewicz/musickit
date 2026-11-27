@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Version
 
-Version: 2
+Version: 3
 
 This file and the teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`, one shared `version:` in their frontmatter) each carry a version. Every seed file in `src/features/library/seed` (plans and blocks) records the versions it was written to (`"versions": { "prompt": 5, "agents": 2, "teaching": 5 }`), so a file written to older rules can be found and rewritten. The AI plan prompt and its authoring guide carry a third, `PROMPT_VERSION` in `src/features/plan/model/prompt.ts`, which a seed file records as `prompt`.
 
@@ -40,13 +40,14 @@ Every word a player reads is written with a skill, loaded before the first word 
 
 | What you are writing | Skill |
 | --- | --- |
-| A course section (`src/features/course/stages`) | `course-article` |
+| A course section (`src/features/course/stages`, `src/features/course/lessons`) | `course-article` |
+| A /learn article (`src/features/articles`) | `article-voice` |
 | A seed exercise or plan (`src/features/library/seed`) | `exercise-example` |
 | Any other text that teaches music: a glossary meaning, an about line, a caption, the lesson text on a tool page, the writing rules in the AI plan prompt | `teaching-voice` |
 | Interface copy: buttons, labels, tour steps, notices, errors, empty states, modal and flow text | `design:ux-copy`, with "Words about the app" in `teaching-voice` |
-| Checking any music text, and before finishing the first two | `review-teaching-text` |
+| Checking any music text, and before finishing the first three | `review-teaching-text` |
 
-`course-article`, `exercise-example` and `review-teaching-text` all read `teaching-voice` first. Text that does both jobs (an exercise step that says what to press and what to play) is teaching text.
+There are two voices. `teaching-voice` is the plan and block voice (exercises, plans, glossary, captions). `article-voice` is the voice of /learn articles and course sections, and reads `teaching-voice` first: an article's exercises are block text. `course-article` reads `article-voice`; `exercise-example` and `review-teaching-text` read `teaching-voice`. Text that does both jobs (an exercise step that says what to press and what to play) is teaching text.
 
 For interface copy, `design:ux-copy` gives the shape (what an error, an empty state or a confirmation has to say) and "Words about the app" gives the wording. Where the two disagree, the app's wording wins:
 

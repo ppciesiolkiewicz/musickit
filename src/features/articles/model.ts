@@ -1,7 +1,7 @@
 import type { LabelSystem } from "@/features/theory/labels";
 
-/** The version of `VOICE.md`, the articles' voice; a seed file records the one it was written to. */
-export const ARTICLE_VOICE_VERSION = 5;
+/** The version of the `article-voice` skill (.claude/skills), the articles' voice; a seed file records the one it was written to. */
+export const ARTICLE_VOICE_VERSION = 6;
 
 /**
  * One block of a public article. Text takes two inline marks: `**bold**` and `[label](href)` links (one to another `/learn` guide opens in place, any other in a new tab), and notes written as plan
@@ -98,7 +98,7 @@ export interface ArticleSeed {
   persona: "guitarist" | "singer" | "teacher";
   written: string;
   model: string;
-  /** the versions it was written to: the teaching documents' (DOC_VERSIONS) and the articles' voice (`VOICE.md`) */
+  /** the versions it was written to: the teaching documents' (DOC_VERSIONS) and the articles' voice (the `article-voice` skill) */
   versions: { agents: number; teaching: number; voice: number };
   /** the author's own words that set what goes in, verbatim */
   notes: string[];

@@ -1,12 +1,14 @@
 ---
 name: teaching-voice
-version: 13
-description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
+version: 14
+description: How musickit plan and block text sounds - plain, short, practical English for seed exercises and plans, the AI plan prompt's writing rules, glossary meanings, about lines and captions, and the exercises inside articles. Use whenever writing or editing that text, alone or from the exercise-example, course-article and review-teaching-text skills; the prose of a /learn article or a course section is article-voice, which loads this first. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
 # Teaching voice
 
 The learner reads this text with a guitar in hand or the mic on. Each sentence either says what something is, or what to do next.
+
+musickit has two voices. This is the first, the plan and block voice: seed exercises and plans, the AI plan prompt, glossary meanings, about lines, captions, and every exercise (title, lines, between, after) inside an article. The second, **article-voice**, is the voice of the pages read through: the /learn articles and the course sections written in their style. It sits on top of this one, so everything here holds there too.
 
 The sections, in the order to use them: what the text is for, where its facts come from, how its sentences and words go, how it names the app, and the last read before you hand it over. Writing interface copy with no music in it (a button, a notice, a tour step)? "Words about the app" and "Sentences" are the parts that apply.
 

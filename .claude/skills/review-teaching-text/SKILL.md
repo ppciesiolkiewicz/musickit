@@ -1,6 +1,6 @@
 ---
 name: review-teaching-text
-version: 13
+version: 14
 description: Audit learner-facing music text in musickit - a course section, a stage, a seed exercise or plan, glossary meanings - for wrong music facts, text that disagrees with its picture or tool, and breaks from the teaching voice. Reports findings, does not rewrite unless asked. Use when asked to review, check, proofread or audit lessons, articles, exercises or examples, and before finishing course-article or exercise-example work.
 ---
 
@@ -24,6 +24,7 @@ This skill is for text that teaches music. Interface copy with no music in it (a
    - Seed exercises and plans: the `rules`, `mistakes` and `writing` parts of `src/features/plan/model/prompt.ts`, and `src/features/library/seed/README.md` ("Writing rules").
    - Seed exercises: an exercise that names another day or week in its title, headings, text or why ("day 2", "yesterday", "this week"). The app hands a block out alone, so it must read on any day.
    - Course sections: `src/features/course/content.test.ts` and the course-article skill.
+   - /learn articles and course sections written in their style: the **article-voice** skill for the prose; their exercises are held to teaching-voice like a seed exercise.
 5. **Practice and understanding.** The page is reading with no drill. Or there's a drill with no why, or a why the learner couldn't use to make up their own. Or "done" is a count or a score instead of a feel.
 6. **App words.** "Words about the app" in the **teaching-voice** skill. Open the tool's component and compare:
    - A control named differently from its label on the screen, or a game answer named differently from its button.
