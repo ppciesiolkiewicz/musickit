@@ -170,6 +170,27 @@ ${chordBox(760, 125, G, true)}`,
     grad("chord", ["sky", "violet"], 1, 1));
 }
 
+// 10. CAGED: the notes of C up the neck, under five coloured bands, one per shape (C 1-3, A 3-5, G 5-8, E 8-10, D 10-12).
+function caged() {
+  const n = neck({ x0: 110, y0: 150, w: 980, gap: 36 });
+  const bands = [[1, 3, "sky"], [3, 5, "violet"], [5, 8, "teal"], [8, 10, "amber"], [10, 12, "rose"]];
+  const band = ([f1, f2, c]) => {
+    const [xa] = n.at(0, f1), [xb] = n.at(0, f2);
+    return `<rect x="${r(xa - n.fw * 0.45)}" y="110" width="${r(xb - xa + n.fw * 0.9)}" height="260" rx="18" fill="${C[c]}" fill-opacity=".1" stroke="${C[c]}" stroke-opacity=".7" stroke-width="3"/>`;
+  };
+  const colourAt = (f) => C[[...bands].reverse().find(([a]) => f >= a)?.[2] ?? "sky"];
+  let dots = "";
+  for (let s = 0; s < 6; s++) for (let f = 1; f <= 12; f++) {
+    const pc = (OPEN[s] + f) % 12;
+    if (![0, 4, 7].includes(pc)) continue;
+    const [x, y] = n.at(s, f);
+    dots += `<circle cx="${r(x)}" cy="${y}" r="11" fill="${colourAt(f)}" filter="url(#glow)"/>`;
+    if (pc === 0) dots += `<circle cx="${r(x)}" cy="${y}" r="16" fill="none" stroke="#e2e8f0" stroke-width="3"/>`;
+  }
+  return base([[220, 120, 200, "sky", 0.24], [640, 400, 200, "teal", 0.18], [1020, 120, 200, "rose", 0.22]],
+    `${n.board}${bands.map(band).join("")}${dots}`);
+}
+
 // 8. Microphone and audio interface: a mic, its cable and a two-knob box, sound coming in.
 function mic() {
   const mesh = [];
@@ -206,6 +227,7 @@ const ART = {
   "barre-chord-alternatives": barre,
   "microphone-and-audio-interface-for-singing": mic,
   "movable-chord-shapes": movable,
+  "caged-system-guitar": caged,
 };
 for (const [slug, draw] of Object.entries(ART)) writeFileSync(`${OUT}/${slug}.svg`, draw());
 console.log(Object.keys(ART).length, "written");

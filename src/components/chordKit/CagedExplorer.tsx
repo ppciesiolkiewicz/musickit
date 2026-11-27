@@ -190,13 +190,13 @@ export function CagedBoxPanels({ rootPc, quality, letter }: { rootPc: number; qu
   const box = boxes[index];
   if (!box) return null;
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-950 p-3">
+    <section className="@container rounded-2xl border border-slate-800 bg-slate-950 p-3">
       <h2 className="mb-2 flex items-center gap-2 text-base font-medium text-slate-100">
         <span className="inline-block rounded px-1.5" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>
         {box.letter} shape · root on {STRING_PLAIN[box.shape.rs]}
         <span className="ml-auto text-sm font-normal text-slate-400">{box.chordName} · frets {box.from}–{box.to}</span>
       </h2>
-      <BoxPanels box={box} rootPc={rootPc} quality={quality} arpKind="triad" labelSystem={labelSystem} badges notes={notes} className="grid grid-cols-4 gap-3" />
+      <BoxPanels box={box} rootPc={rootPc} quality={quality} arpKind="triad" labelSystem={labelSystem} badges notes={notes} className="grid grid-cols-2 gap-3 @4xl:grid-cols-4" />
     </section>
   );
 }
@@ -228,7 +228,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
   });
   const COL0 = 2; // grid column 1 holds the string names
   return (
-    <section data-tour="caged-map" className={`rounded-2xl border border-slate-800 p-2.5 ${embedded ? "bg-slate-950" : "bleed bg-slate-900/40"}`}>
+    <section data-tour="caged-map" className={`@container rounded-2xl border border-slate-800 p-2.5 ${embedded ? "bg-slate-950" : "bleed bg-slate-900/40"}`}>
       <h2 className="mb-2 flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
         <span>
           {keyName} {quality}: the five boxes up the neck
@@ -244,7 +244,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
         >
           {labelSpans.map(({ k, from, to }) => (
             <div key={k} className={`flex whitespace-nowrap px-1 pb-1.5 text-[10px] font-semibold sm:text-xs ${k === SECTIONS - 1 ? "justify-end" : "justify-center"}`} style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
-              {sorted[k].letter}<span className="hidden sm:inline">&nbsp;shape · Position {k + 1}</span>
+              {sorted[k].letter}<span className="hidden @4xl:inline">&nbsp;shape · Position {k + 1}</span>
             </div>
           ))}
           {[5, 4, 3, 2, 1, 0].map((s, r) => (

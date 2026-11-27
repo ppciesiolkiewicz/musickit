@@ -1,0 +1,38 @@
+{
+  "slug": "caged-system-guitar",
+  "query": "caged system guitar for beginners",
+  "persona": "guitarist",
+  "written": "2026-11-27",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "another article about CAGED in a single scale. These are like 2 articles -> one focuses on learning CAGED position by position with interactive diagrams and second one answers \"How to find chords for a song\" with both minor and major caged and relations between open chords.",
+    "add words like visual and interactive",
+    "So let's just give me basic CAGED learning article. (2026-11-27)",
+    "I also want to have an idea of relative chord and another in this chord series about CAGED would be \"How to find chords for the scale using CAGED\" (2026-11-27)"
+  ],
+  "blocks": [
+    "guitar-intermediate-caged-a-shape",
+    "guitar-advanced-caged-five-shapes-one-chord"
+  ],
+  "calculator": [
+    "npm run -s theory -- boxes C major (C x-3-2-0-1-0 frets 1-3; A x-3-5-5-5-3 frets 3-5; G 8-7-5-5-5-8 frets 5-8; E 8-10-10-9-8-8 frets 8-10; D x-x-10-12-13-12 frets 10-13)",
+    "npm run -s theory -- box C major C|A|G|E|D (C and A shapes share the root on the A string, fret 3; E and D shapes share the root on the D string, fret 10)",
+    "npm run -s theory -- boxes G major (order G, E, D, C, A)",
+    "npm run -s theory -- boxes A minor (A x-0-2-2-1-0 frets 0-3; G 5-3-2-2-5-5 frets 1-6; E 5-7-7-5-5-5 frets 4-8; D x-x-7-9-10-8 frets 6-11; C x-12-10-9-10-x frets 8-13: each Am shape is the next CAGED letter in a C major shape's frets)",
+    "npm run -s theory -- scale C major; npm run -s theory -- scale A minor (C D E F G A B; A B C D E F G)",
+    "npm run -s theory -- neighbours C C; npm run -s theory -- neighbours C E (vi: Am in the A shape, open; Am in the D shape, x-x-7-9-10-8)"
+  ],
+  "sources": [
+    "/admin/dev/search"
+  ],
+  "open": [
+    "Next in the series: \"How to find chords for the scale using CAGED\" (the chords of the key inside each shape: npm run -s theory -- neighbours, and the CAGED explorer's \"Chords inside this box\"). Link it from the end of this article once it exists.",
+    "The caged-neck shape panels draw four necks in one row: check they read on a phone.",
+    "Search volume for the query not checked yet."
+  ]
+}
