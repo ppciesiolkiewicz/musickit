@@ -22,7 +22,6 @@ export const scaleDegreesGuitarAnyKey: Article = {
       "Each island has a frame and a number. Press its button under the neck, Island 1 for the first, to hear it.",
     ] },
     { type: "p", text: "Use the Labels selector at the bottom of this page to switch every dot between intervals and solfège." },
-    { type: "care", text: "Stop if your hand or wrist aches: shake it out and come back later." },
 
     { type: "exercise", title: "1. Do Re Do in A minor", lines: [
       "This is the A minor scale on the whole neck. Each island is {{1}} and {{2}}: A and B, Do and Re. The red circles mark every A.",

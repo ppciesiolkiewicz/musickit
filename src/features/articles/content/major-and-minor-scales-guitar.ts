@@ -31,7 +31,6 @@ export const majorAndMinorScalesGuitar: Article = {
       "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
       "Play slowly and lightly. Ten easy minutes beat an hour of tired hands.",
     ] },
-    { type: "care", text: "Stop if your hand or wrist aches: shake it out and come back later." },
 
     { type: "h2", text: "Four intervals from Do" },
     { type: "p", text: "An interval is how far one note is from another, and every label on these necks counts from A. Here are four, each from the same open A. Press Island 1 under a neck to hear it, then play it on your guitar." },

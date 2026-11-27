@@ -22,7 +22,6 @@ export const barreChordAlternatives: Article = {
       "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
       "Press Play under a chord box to hear it strummed.",
     ] },
-    { type: "care", text: "Stop if your hand or wrist aches: shake it out and come back later." },
 
     { type: "exercise", title: "1. Fmaj7 for F", lines: [
       "Fmaj7 is F with one more note: E, the 7th, on the open high e string. No barre, and it sounds softer and dreamier than F.",
