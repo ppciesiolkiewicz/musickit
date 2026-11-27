@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-barre-shapes-anywhere",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track barre (guitar-barre-chords), step 5: major, minor and 7 from one root on string 6 and on string 5, one chord in both places, then a four-chord song with no open chords in three keys. missing: chord-shapes with \"voicing\": \"barre\" draws the 7 as a four-string shape and not the full barre 7, and takes no root string, so one chord can't be shown on both roots (caged-neck does it, for a major chord only).",
+  "note": "Barre chords from either root string: major, minor and 7 on one root with the root on the low E string, then on the A string, one chord in both places on a caged-neck, then a four-chord song with no open chords on a strum-along. The old Key choice is now moves (any key): the first two blocks pin their key, since which string the lowest barre shape takes its root from changes with the key, and the caged-neck gives the key the rest moves from, and the song's chords are tokens counted the long way once. missing: chord-shapes with \"voicing\": \"barre\" draws the 7 as a four-string shape and not the full barre 7, and takes no root string, so one chord can't be shown on both roots (caged-neck does it, for a major chord only).",
   "exercise": {
     "title": "Any chord, two places",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Fret G, then Gm and G7: the root stays under finger 1 on the low E string for all three.\nPick the strings of each one a string at a time, and fix only the one that buzzes."
+            "text": "Below are three barre chords on one root: major, minor and 7. Press a chord box below to hear it. Fret the three in turn: the root stays under finger 1 on the low E string for all of them.\nPick the strings of each chord one at a time, and fix only the one that buzzes."
           },
           {
             "type": "tool",
@@ -41,7 +41,10 @@
                 "Gm",
                 "G7"
               ],
-              "voicing": "barre"
+              "voicing": "barre",
+              "pinned": [
+                "key"
+              ]
             }
           }
         ]
@@ -53,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Fret C, then Cm and C7: now the root is under finger 1 on the A string, and the low E string stays out of the strum.\nPractice until you can go round the three without looking at the chord boxes."
+            "text": "Below are major, minor and 7 on a new root. Press a chord box below to hear it. Fret the three in turn: now the root is under finger 1 on the A string, and the low E string stays out of the strum.\nPractice until you can go round the three without looking at the chord boxes."
           },
           {
             "type": "tool",
@@ -64,7 +67,10 @@
                 "Cm",
                 "C7"
               ],
-              "voicing": "barre"
+              "voicing": "barre",
+              "pinned": [
+                "key"
+              ]
             }
           }
         ]
@@ -76,7 +82,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The panels below show G twice: the shape with the root on the low E string, and the shape with the root on the A string, further up the neck. Strum G in the first place, then in the second.\nThen find A and C in both places the same way: look for the root under finger 1 first.\n_Stop and shake out your hand when it aches._"
+            "text": "The neck below shows one major chord twice: the shape with the root on the low E string, and the shape with the root on the A string, further up the neck. Strum it in the first place, then in the second.\nThen move both shapes to new roots: find the root on the low E string or the A string first, and put finger 1 on it.\n_Stop and shake out your hand when it aches._"
           },
           {
             "type": "tool",
@@ -96,23 +102,10 @@
         "type": "section",
         "heading": "No open chords",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to see the four shapes. Then press Play under them to start the metronome, and strum the chord in the lit box.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the roots move along the two strings, and a chord may take its other shape where that one sits lower."
+            "text": "The song has four chords. {{chord:I}} is the 1st chord of the key, built on {{1}}. {{chord:vi}} is the 6th chord, built on {{6}}. {{chord:IV}} is the 4th chord, built on {{4}}. {{chord:V7}} is the 5th chord with a 7th, built on {{5}}.\nPress a chord box below to see its barre shape. Then press Play under them to start the metronome at {{=bpm}}, and strum the chord in the lit box.\nIf a change comes late, keep your strumming hand going and catch the next beat 1.\n{{?key}}In another key the roots move along the two strings, and a chord may take its other shape where that one sits lower."
           },
           {
             "type": "tool",
@@ -155,6 +148,14 @@
       "steps": [
         "barre:5"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

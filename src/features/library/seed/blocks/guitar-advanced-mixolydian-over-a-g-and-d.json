@@ -1,14 +1,14 @@
 {
   "id": "guitar-advanced-mixolydian-over-a-g-and-d",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 4.",
+  "note": "Mixolydian over its own three chords: targets on a solo-over, the ♭7 landed as the ♭7th chord arrives, then free phrases over the full backing track with two positions framed. The chords are tokens counted the long way once, the key is moves (any key) and named only as {{=key}}, the text no longer points at another exercise, and the {{?key}} line says what stays the same.",
   "exercise": {
-    "title": "Mixolydian over A, G and D",
+    "title": "Mixolydian over its three chords",
     "area": "guitar",
     "tags": [
       "improv"
@@ -17,7 +17,7 @@
     "concepts": [
       "major-on-neck"
     ],
-    "why": "G, the ♭7 of A Mixolydian, is the root of the G chord, so landing on it as G comes round puts the mode's one changed note where it sounds most at home.",
+    "why": "The ♭7 of Mixolydian is the root of the chord built on it, so landing on it as that chord comes round puts the mode's one changed note where it sounds most at home.",
     "learnBefore": [
       "/course/9/modes",
       "/course/5/soloing"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: A, G, D and A, two bars each. Improvise in A Mixolydian and land on the ringed note as each chord arrives.\nThe one to listen for is {{g}} over the G chord: it is the note you found in the last exercise."
+            "text": "The backing track plays three chords of {{=key}} Mixolydian, two bars each. {{chord:I}} is the 1st chord, built on {{1}}. {{chord:bVII}} is built on {{b7}}, the note that makes the mode Mixolydian. {{chord:IV}} is the 4th chord, built on {{4}}.\nPress Play below to start the backing track. Improvise in {{=key}} Mixolydian and land on the ringed note as each chord arrives.\nThe one to listen for is {{b7}} as {{chord:bVII}} arrives: it is that chord's root."
           },
           {
             "type": "tool",
@@ -52,7 +52,7 @@
                     "target": [
                       "1"
                     ],
-                    "approach": "land on G on beat 1"
+                    "approach": "land on its root on beat 1"
                   },
                   {
                     "chord": "D",
@@ -82,7 +82,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: A, G, D and A with drums, bass and keys. Play phrases that end on a ringed note, and try one that holds {{b7}} right through the G bar.\nIf you lose your place, stop on a ringed {{1}} and wait for the first bar to come round."
+            "text": "Press Play below to start the backing track with drums, bass and keys. Under it are positions 1 and 2 of the {{=key}} Mixolydian scale, with {{1}} and {{b7}} ringed. Play phrases that end on a ringed note, and try one that holds {{b7}} right through the {{chord:bVII}} bar.\nIf you lose your place, stop on a ringed {{1}} and wait for {{chord:I}} to come round.\n{{?key}}In another key the positions sit on other frets, and {{b7}} is still the root of {{chord:bVII}}."
           },
           {
             "type": "tool",
@@ -121,6 +121,9 @@
       "steps": [
         "major-on-neck:4"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

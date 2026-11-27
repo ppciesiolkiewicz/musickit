@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-seventh-arpeggios",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track arpeggios (guitar-caged), step 3: the A minor arpeggio with its 7th added, then A7 and Amaj7 from the same root, then Am7, D7 and Gmaj7 played through in one area of the neck. missing: an arpeggio's boxes are numbered per chord, so a chord-steps or arpeggio-neck set by box can't follow a key choice; the block stays in one key.",
+  "note": "Track arpeggios (guitar-caged), step 3: the A minor arpeggio with its 7th added, then A7 and Amaj7 from the same root, then Am7, D7 and Gmaj7 played through in one area of the neck. Each block has a feel to reach, the arpeggio says where it starts and turns, and the tempo is moves (66 to 86 bpm). The chords keep their letters: a chord token counts from the first chord's root (A), so it would number this ii–V–I of G as if it were in A. missing: an arpeggio's boxes are numbered per chord, so a chord-steps or arpeggio-neck set by box can't follow a key move; the block stays in one key.",
   "exercise": {
     "title": "7th arpeggios: one more note",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows the A minor arpeggio with one note added, the ringed {{b7}}. Press Play below to hear the arpeggio run up and back down, then play it yourself.\nPractice until your fingers pass through {{b7}} on the way to each {{1}} without stopping."
+            "text": "The neck below shows the A minor arpeggio with one note added, the ringed {{b7}}. Press Play below to hear the arpeggio run up and back down, then play it yourself: start on the lowest {{1}}, play up to the highest note and come back down the same way.\nPractice until your fingers pass through {{b7}} on the way to each {{1}} without stopping."
           },
           {
             "type": "tool",
@@ -56,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Two more 7th arpeggios from the same root. In A7, on the first neck below, the ringed {{3}} takes the place of the minor 3rd. In Amaj7, on the second, the ringed {{7}} sits one fret under each {{1}}.\nPlay each arpeggio up and back down, and say the name of the ringed note as you pass it."
+            "text": "Two more 7th arpeggios from the same root. In A7, on the first neck below, the ringed {{3}} takes the place of the minor 3rd. In Amaj7, on the second, the ringed {{7}} sits one fret under each {{1}}.\nPlay each arpeggio up and back down, and say the name of the ringed note as you pass it.\nPractice until you can name the ringed note before you reach it."
           },
           {
             "type": "tool",
@@ -95,7 +95,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: Am7, D7, then two bars of Gmaj7. Play each arpeggio from the tab, one note per beat: up through the first three bars and down in the last.\nListen for the last note of the first two bars: it is the chord's 7th, and it sits one fret from a note of the chord that follows."
+            "text": "Press Play below to start the backing track at {{=bpm}}: Am7, D7, then two bars of Gmaj7, with the chords held under the notes. Play each arpeggio from the tab, one note per beat: up through the first three bars and down in the last.\nListen for the last note of the first two bars: it is the chord's 7th, and it sits one fret from a note of the chord that follows."
           },
           {
             "type": "tool",
@@ -172,7 +172,14 @@
       "steps": [
         "arpeggios:3"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 66,
+          "to": 86,
+          "step": 10
+        }
+      }
     }
   ]
 }

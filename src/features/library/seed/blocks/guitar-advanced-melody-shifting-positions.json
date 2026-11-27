@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-melody-shifting-positions",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track guitar-melodies (guitar-scales), step 4: a tune that leaves one position and shifts to the next, then the same tune in other keys and a tune that comes down the whole neck. missing: the melody shape takes no position, so the tab decides where the shift falls and nothing marks it on the neck.",
+  "note": "Track guitar-melodies (guitar-scales), step 4: two positions of a major scale side by side, a tune that shifts from one to the next from the tab, the same tune on the neck view so the shift shows, then a tune that comes down the whole neck. The old tempo stages and Key choice are now moves (any key, 60 to 84 bpm), named only as {{=key}} and {{=bpm}}, so the third block is a new view of the tune in place of a key change. missing: the melody shape takes no position, so the tab decides where the shift falls and nothing marks it on the neck.",
   "exercise": {
     "title": "A tune that shifts position",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below frames two positions of A major that sit side by side. Press Play below to hear the framed notes run up and back down, then play them yourself.\nPractice until you can see where the lower position ends and the upper one starts."
+            "text": "The neck below frames two positions of the {{=key}} major scale that sit side by side, with the {{1}} notes ringed. Press Play below to hear the framed notes run up and back down, then play them yourself, from the lowest note up to the highest and back.\nPractice until you can see where the lower position ends and the upper one starts."
           },
           {
             "type": "tool",
@@ -53,24 +53,10 @@
         "type": "section",
         "heading": "The tune with a shift",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 84
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, and play the tune from the tab. Most of it sits in the lower position: where the tab climbs the high e string, move your whole hand up and keep one finger to a fret.\nOnce the shift lands on the beat, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the backing track again.\nIf the shift comes late, go back a stage and play the tune there."
+            "text": "Press Play below to start the backing track at {{=bpm}}, and play the tune from the tab. Most of it sits in the lower position: where the tab jumps up the neck, move your whole hand up and keep one finger to a fret.\nIf the shift comes late, play only the bar with the shift until your hand moves on time.\n{{?bpm}}At a faster tempo the shift is still one move of the whole hand, on the same note."
           },
           {
             "type": "tool",
@@ -89,25 +75,12 @@
       },
       {
         "type": "section",
-        "heading": "The same tune elsewhere",
+        "heading": "The shift on the neck",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "c"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, and play the same tune again.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the tune keeps its shape, but the shift can fall on another note: find it in the tab before you play."
+            "text": "Press Play below to start the backing track, and play the same tune again. This time it is drawn on the neck, so you can watch the note where the hand moves to the next position.\nPractice until you move your hand before you look at the neck.\n{{?key}}In another key the tune keeps its shape, but the shift can fall on another note: watch for it on the neck before you play."
           },
           {
             "type": "tool",
@@ -119,7 +92,7 @@
                 "key": "a"
               },
               "bpm": 66,
-              "view": "tab"
+              "view": "neck"
             }
           }
         ]
@@ -160,7 +133,15 @@
       "steps": [
         "guitar-melodies:4"
       ],
-      "minutes": 11
+      "minutes": 11,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 84,
+          "step": 12
+        }
+      }
     }
   ]
 }

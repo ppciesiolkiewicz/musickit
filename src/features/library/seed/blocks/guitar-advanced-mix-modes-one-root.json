@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-mix-modes-one-root",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track major-on-neck (guitar-scales), step 8: the modes together from the root A, in one position over a drone: Lydian, major, Mixolydian and Dorian, then Dorian, natural minor, Phrygian and Locrian, one note lowered at each change, then Mixolydian into Dorian while improvising. missing: a highlight that follows the Scale selector, so the rings are set once per block as the notes that differ from the major (or natural minor) scale.",
+  "note": "Track major-on-neck (guitar-scales), step 8: the modes together from the root A, in one position over a drone: Lydian, major, Mixolydian and Dorian, then Dorian, natural minor, Phrygian and Locrian, one note lowered at each change, then Mixolydian into Dorian while improvising. The Scale selector is invited with a feel first and what to listen for after; the position is described before it is played. It has no key move, since a block with moves may not name its Scale selector. missing: a highlight that follows the Scale selector, so the rings are set once per block as the notes that differ from the major (or natural minor) scale.",
   "exercise": {
     "title": "The modes from one root",
     "area": "guitar",
@@ -47,7 +47,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone on A. Play the scale on the neck below up and back down, and hold each ringed note for a moment against the drone.\nThen go on to the next scale. Use the Scale selector below to change the scale, then press Play to start the drone again.\nWhen you change the scale, one note drops by a fret and the rest stay. The ringed notes are the ones that differ from the major scale: {{#4}} in Lydian, {{b7}} in Mixolydian, {{b7}} and {{b3}} in Dorian."
+            "text": "Press Play below to start the drone on A. Under it is the neck with the position of the scale that has {{1}} on the low E string. Start on {{1}} on the low E string, play up to the high e string and back down, and hold each ringed note for a moment against the drone.\nOnce the ringed note sounds clear to you against the drone, try the next scale. Use the Scale selector below to change the scale, then press Play to start the drone again.\nWhen you change the scale, one note drops by a fret and the rest stay. The ringed notes are the ones that differ from the major scale: {{#4}} in Lydian, {{b7}} in Mixolydian, {{b7}} and {{b3}} in Dorian."
           },
           {
             "type": "tool",
@@ -103,7 +103,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone on A. Play each scale up and back down as before, and say the name of the ringed note as you hold it.\nUse the Scale selector below to change the scale, then press Play to start the drone again.\nWhen you change the scale, one note drops by a fret again. The ringed notes are now the ones that differ from the natural minor scale: {{6}} in Dorian, {{b2}} in Phrygian, {{b2}} and {{b5}} in Locrian."
+            "text": "Press Play below to start the drone on A. Play each scale up and back down in the same way, and say the name of the ringed note as you hold it.\nOnce you can name the ringed note before you play it, try the next scale. Use the Scale selector below to change the scale, then press Play to start the drone again.\nWhen you change the scale, one note drops by a fret again. The ringed notes are now the ones that differ from the natural minor scale: {{6}} in Dorian, {{b2}} in Phrygian, {{b2}} and {{b5}} in Locrian."
           },
           {
             "type": "tool",
@@ -143,7 +143,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Improvise in A Mixolydian for four bars, then in A Dorian for four, and play the note that changes as soon as the scale does.\nWhen the scale changes, only {{3}} moves, down to {{b3}}."
+            "text": "Press Play below to start the backing track: a drone on A, with four bars of A Mixolydian and then four bars of A Dorian. Improvise in each, and play the note that changes as soon as the scale does.\nWhen the scale changes, only {{3}} moves, down to {{b3}}."
           },
           {
             "type": "tool",

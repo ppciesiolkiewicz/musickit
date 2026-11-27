@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-am-and-d-on-four-string-sets",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 2.",
+  "note": "One triad pair on every set of three neighbouring strings, a chord-steps play-along per string set, from the top three strings down to the low three, then all four in a row and a chord of the learner's own. The chords are tokens counted the long way once, the tempo is moves (60 to 80 bpm), and each block has one extra line. No key move: a chord-steps shape with no key gives the block no written key, and a shape key would change what its degrees count from.",
   "exercise": {
     "title": "Am and D on four string sets",
     "area": "guitar",
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Strings G, B and E",
+        "heading": "Strings G, B and high e",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track and follow the tab: the Am triad on the top three strings, struck once per beat for a bar, then D for a bar. Practice until the change from Am to D takes no thought."
+            "text": "This drill uses two chords. {{chord:i}} is a minor chord built on {{1}}. {{chord:IV}} is the 4th chord, built on {{4}}.\nPress Play below to start the backing track at {{=bpm}} and follow the tab: the {{chord:i}} triad on the G, B and high e strings, struck once per beat for a bar, then {{chord:IV}} for a bar.\nPractice until the change from {{chord:i}} to {{chord:IV}} takes no thought."
           },
           {
             "type": "tool",
@@ -128,7 +128,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the same two chords one set of strings lower. The shapes are new, so let the tab lead for the first few rounds."
+            "text": "Press Play below to start the backing track: the same two chords on the D, G and B strings, one set lower. The shapes are new, so let the tab lead for the first few rounds.\nIf a change comes late, keep striking the chord you have and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -226,7 +226,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the same chords on the A, D and G strings. Say the name of each chord as you strike it."
+            "text": "Press Play below to start the backing track: the same chords on the A, D and G strings. Say the name of each chord as you strike it.\nPractice until the name comes before the chord."
           },
           {
             "type": "tool",
@@ -319,12 +319,12 @@
       },
       {
         "type": "section",
-        "heading": "Strings E, A and D",
+        "heading": "Strings low E, A and D",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the low three strings.\nThen stop the backing track and play Am on all four sets in a row, low to high, and D on the way back down. Same chord, four places: now try it with a chord you choose."
+            "text": "Press Play below to start the backing track: the same chords on the low E, A and D strings.\nThen stop the backing track and play {{chord:i}} on all four string sets in a row, from the low strings to the high ones, and {{chord:IV}} on the way back down.\nNow pick a chord of your own and find it on the four string sets the same way."
           },
           {
             "type": "tool",
@@ -424,7 +424,14 @@
       "steps": [
         "triads:9"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      }
     }
   ]
 }

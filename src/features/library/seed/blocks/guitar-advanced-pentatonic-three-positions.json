@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-pentatonic-three-positions",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track pentatonic-positions (guitar-scales), step 7: a run through positions 1, 2 and 3 with two slides, each crossing on its own first, then the run against a metronome and in a solo in a second key. missing: position-neck's cross shows one crossing between two positions, so the three-position run is told in the text over a plain three-position neck.",
+  "note": "Track pentatonic-positions (guitar-scales), step 7: a run through three positions of the minor pentatonic scale with two slides, each crossing on its own first with its slide notes ringed, then the run to the metronome and in a solo over the 1st and 4th chords. The old tempo stages and the second key are now moves (any key, 60 to 92 bpm), named only as {{=key}} and {{=bpm}}; the chords are tokens counted the long way once, and the {{?key}} line says what stays the same. missing: position-neck's cross shows one crossing between two positions, so the three-position run is told in the text over a plain three-position neck.",
   "exercise": {
     "title": "A run across three positions",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows only the crossing from position 1 to position 2 of A minor pentatonic. Climb position 1 from the low {{1}}, slide from {{4}} up to {{5}} on the G string, and finish the climb in position 2.\nCome back down the same way."
+            "text": "The neck below shows only the crossing from position 1 to position 2 of the {{=key}} minor pentatonic scale: position 1 on the low strings, position 2 on the high strings. Start on {{1}} on the low E string and climb position 1. On the G string, slide from the ringed {{4}} up to the ringed {{5}} and finish the climb in position 2.\nCome back down the same way, sliding from {{5}} down to {{4}}."
           },
           {
             "type": "tool",
@@ -44,7 +44,8 @@
                 "to": 2
               },
               "highlight": [
-                "1"
+                "4",
+                "5"
               ]
             }
           }
@@ -57,7 +58,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Now the crossing from position 2 to position 3. Climb position 2, slide from {{5}} up to {{b7}} on the G string, and finish the climb in position 3.\nThis slide is one fret longer than the first, so listen for {{b7}} and stop the slide there."
+            "text": "The neck below shows the crossing from position 2 to position 3. Climb position 2, slide from the ringed {{5}} up to the ringed {{b7}} on the G string, and finish the climb in position 3.\nThis slide is one fret longer than the first, so listen for {{b7}} and stop the slide there."
           },
           {
             "type": "tool",
@@ -70,7 +71,8 @@
                 "to": 3
               },
               "highlight": [
-                "1"
+                "5",
+                "b7"
               ]
             }
           }
@@ -80,24 +82,10 @@
         "type": "section",
         "heading": "One run, three positions",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 76
-            },
-            {
-              "bpm": 92
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Climb position 1 from the low {{1}}, slide from {{4}} to {{5}} on the G string, then from {{1}} to {{b3}} on the B string, and finish at the top of position 3. Come back down the same way, one note per beat.\nOnce every note lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the slides smear at a stage, go back one and play only the two slides there."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Under it are positions 1, 2 and 3 together. Climb position 1 from the low {{1}}, slide from {{4}} to {{5}} on the G string, then from {{1}} to {{b3}} on the B string, and finish at the top of position 3. Come back down the same way, one note per beat.\nPractice until the run is in your muscle memory: both slides land on the click without you looking."
           },
           {
             "type": "tool",
@@ -122,7 +110,10 @@
                 3
               ],
               "highlight": [
-                "1"
+                "1",
+                "4",
+                "5",
+                "b3"
               ]
             }
           }
@@ -135,7 +126,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, which switches between Gm7 and Cm7. This is G minor pentatonic, two frets lower: improvise, and take the run across all three positions in the middle of a phrase.\nWhen you change the key, the frets are new, but the slides are still {{4}} to {{5}} and {{1}} to {{b3}}."
+            "text": "The backing track switches between two chords. {{chord:i7}} is the 1st chord of the key, built on {{1}}. {{chord:iv7}} is the 4th chord, built on {{4}}.\nPress Play below to start the backing track. Improvise in {{=key}} minor pentatonic, and take the run across all three positions in the middle of a phrase.\n{{?key}}In another key the frets are new, but the slides are still {{4}} to {{5}} and {{1}} to {{b3}}."
           },
           {
             "type": "tool",
@@ -143,21 +134,21 @@
               "type": "guitar-play-along",
               "shape": {
                 "shape": "solo-over",
-                "key": "g",
+                "key": "a",
                 "scale": "minor-pentatonic",
                 "chords": [
                   {
-                    "chord": "Gm7",
+                    "chord": "Am7",
                     "target": [
                       "1"
                     ]
                   },
                   {
-                    "chord": "Cm7",
+                    "chord": "Dm7",
                     "target": [
                       "1"
                     ],
-                    "approach": "land on C on beat 1"
+                    "approach": "land on its root on beat 1"
                   }
                 ],
                 "bars": 2
@@ -177,7 +168,15 @@
       "steps": [
         "pentatonic-positions:7"
       ],
-      "minutes": 11
+      "minutes": 11,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 92,
+          "step": 16
+        }
+      }
     }
   ]
 }

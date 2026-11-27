@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-caged-d-shape",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track caged (guitar-caged), step 7: the D shape, from the open D chord moved up the neck, to where it sits between the E and C shapes, to its top three strings over D, G and A.",
+  "note": "Track caged (guitar-caged), step 7: the D shape, from the open D chord moved up the neck, to where it sits between the E and C shapes, to its top three strings in a chord-steps play-along. The old Key choice (it set a key) is now two caged-necks, the shape where it starts and moved up; the play-along's chords are tokens counted the long way once, the tempo is moves (66 to 86 bpm), and every block has a feel to reach. It has no key move: the play-along's grips are written at frets that sit well in D.",
   "exercise": {
     "title": "The D shape",
     "area": "guitar",
@@ -27,29 +27,31 @@
         "type": "section",
         "heading": "Open D, moved up",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "e"
-            },
-            {
-              "key": "g"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "The panels below show the D shape: in the key of D it is the open D chord you know. Play the chord, then its arpeggio from the lowest {{1}} to the highest.\nThen move it up the neck. Use the Key selector below to change the key.\nWhen you change the key, the shape keeps its outline, and finger 1 frets the note the open D string gave you."
+            "text": "The first neck below shows the D shape where it starts, as the open D chord. Play the chord, then its arpeggio from the lowest {{1}} to the highest and back down."
           },
           {
             "type": "tool",
             "tool": {
               "type": "caged-neck",
               "key": "d",
+              "scale": "major-ionian",
+              "shapes": [
+                "D"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "The second neck shows the same shape moved up the neck. Play it the same way: the chord, then its arpeggio.\nWhen the shape moves up, it keeps its outline, and finger 1 frets the note the open D string gave you."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "g",
               "scale": "major-ionian",
               "shapes": [
                 "D"
@@ -65,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The panels below show G in three shapes, in the order they sit up the neck: E, D, then C. Play the E shape, then the D shape, and find the {{1}} on the D string that both hold.\nThen go on to the C shape: it shares the {{1}} on the B string with the D shape."
+            "text": "The neck below shows {{chord:I}} in three shapes, in the order they sit up the neck: E, D, then C. Play the E shape, then the D shape, and find the {{1}} on the D string that both hold.\nThen go on to the C shape: it shares the {{1}} on the B string with the D shape.\nPractice until you can go from shape to shape through the shared {{1}} without stopping."
           },
           {
             "type": "tool",
@@ -89,7 +91,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: D, G, A and G again, each one the top three strings of the D shape. Strike the three strings together on beat 1, then pick the chord's notes one per beat.\nPractice until your hand lands on each new chord as one shape, not finger by finger."
+            "text": "This drill uses four chords. {{chord:I}} is the 1st chord of the key, built on {{1}}. {{chord:IV}} is the 4th chord, built on {{4}}. {{chord:V}} is the 5th chord, built on {{5}}.\nPress Play below to start the metronome at {{=bpm}}: {{chord:I}}, {{chord:IV}}, {{chord:V}} and {{chord:IV}} again, each one the top three strings of the D shape. Strike the three strings together on beat 1, then pick the chord's notes one per beat.\nPractice until your hand lands on each new chord as one shape, not finger by finger."
           },
           {
             "type": "tool",
@@ -186,7 +188,14 @@
       "steps": [
         "caged:7"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "bpm": {
+          "from": 66,
+          "to": 86,
+          "step": 10
+        }
+      }
     }
   ]
 }

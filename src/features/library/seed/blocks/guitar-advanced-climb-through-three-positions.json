@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-climb-through-three-positions",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 3.",
+  "note": "A Dorian solo that climbs through three positions and comes back down, aiming at {{6}} over the 4th chord the whole way. The positions are now on a position-neck beside the solo-over, so the text names no fret and no crossing string; the chords are tokens counted the long way once, the key is moves (any key) and named only as {{=key}}, and the last line says what stays the same in another key.",
   "exercise": {
     "title": "Climb through three positions",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "major-on-neck"
     ],
-    "why": "The 6th is in every position, so a solo can move up the neck and still land on it each time D7 comes round.",
+    "why": "The 6th of Dorian is the 3rd of the 4th chord and sits in every position, so a solo can move up the neck and still land on it each time that chord comes round.",
     "learnBefore": [
       "/course/6/joining",
       "/course/9/modes"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Start in position 1 and move up a position every few bars, crossing on the G string, until you are in position 3. Land on {{f-sharp}} when D7 comes round, wherever you are."
+            "text": "The backing track loops two chords of {{=key}} Dorian. {{chord:i7}} is the 1st chord of the key, built on {{1}}. {{chord:IV7}} is the 4th chord, built on {{4}}, and its 3rd is {{6}}, the note that makes the mode Dorian.\nPress Play below to start the backing track. Under it is the neck with positions 1, 2 and 3 of the {{=key}} Dorian scale framed, {{1}} and {{6}} ringed. Start in position 1 and move up a position every few bars, sliding along a string into the next one, until you are in position 3. Land on a ringed {{6}} each time {{chord:IV7}} comes round, wherever you are.\nPractice until you find {{6}} before the chord changes, in every position."
           },
           {
             "type": "tool",
@@ -52,13 +52,30 @@
                     "target": [
                       "3"
                     ],
-                    "approach": "land on F♯ on beat 1"
+                    "approach": "land on its 3rd on beat 1"
                   }
                 ],
                 "bars": 2
               },
               "bpm": 90,
               "view": "neck"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3
+              ],
+              "highlight": [
+                "1",
+                "6"
+              ]
             }
           }
         ]
@@ -70,7 +87,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track on Am7 and D7. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}."
+            "text": "Press Play below to start the backing track on {{chord:i7}} and {{chord:IV7}} again, now with drums, bass and keys. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}.\n{{?key}}In another key the three positions sit on other frets, and {{6}} keeps its place inside each one."
           },
           {
             "type": "tool",
@@ -109,6 +126,9 @@
       "steps": [
         "major-on-neck:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 9
     }
   ]

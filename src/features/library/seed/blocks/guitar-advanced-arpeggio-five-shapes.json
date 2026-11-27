@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-arpeggio-five-shapes",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track arpeggios (guitar-caged), step 4: the C arpeggio through all five shapes, crossing from each shape to the next on the notes they share, then the same on D with nothing marked. missing: arpeggio-neck numbers a chord's boxes in its own order (not up the neck, and not the same for every chord), and reads only boxes 1 to 5 (G, A, D, E and B have six), so the seams can't follow a key choice and the course's own G can't be used; arpeggio-part can't play one run through five boxes.",
+  "note": "Track arpeggios (guitar-caged), step 4: the C arpeggio through all five shapes, crossing from each shape to the next on the notes they share, then the same on D with nothing marked. Each block now says where a shape starts and turns, has one extra line (what to do when stuck, muscle memory, what stays the same on D), and the seams keep one name. It has no key move: the seams are written as box numbers of C. missing: arpeggio-neck numbers a chord's boxes in its own order (not up the neck, and not the same for every chord), and reads only boxes 1 to 5 (G, A, D, E and B have six), so the seams can't follow a key move and the course's own G can't be used; arpeggio-part can't play one run through five boxes.",
   "exercise": {
     "title": "One arpeggio up the whole neck",
     "area": "guitar",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows every {{1}}, {{3}} and {{5}} of C, and under it the shapes those notes fall into. Play the shapes one at a time, from the lowest on the neck to the highest.\nSay the CAGED letter of each shape as you play it."
+            "text": "The neck below shows every {{1}}, {{3}} and {{5}} of the C major chord, and under it the shapes those notes fall into. Play the shapes one at a time, from the lowest on the neck to the highest: in each, start on its lowest note, play up to its highest and come back down.\nSay the CAGED letter of each shape as you play it."
           },
           {
             "type": "tool",
@@ -51,7 +51,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Each neck below shows two neighbouring shapes as one, and the notes both shapes hold have a dashed ring. On the first neck, climb the lower shape, step onto a note with a dashed ring and carry on up the higher shape.\nDo the same on the second neck, then come back down through both."
+            "text": "Each neck below shows two neighbouring shapes as one, and the notes both shapes hold have a dashed ring. On the first neck, climb the lower shape, step onto a note with a dashed ring and carry on up the higher shape.\nDo the same on the second neck, then come back down through both.\nIf you stop at a dashed ring, play only the notes around it until the step across feels like one move."
           },
           {
             "type": "tool",
@@ -84,7 +84,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Two more seams, further up the neck. Some pairs of shapes share three notes and some only one, so find the dashed rings before you play.\nPractice until you cross each seam without stopping on it."
+            "text": "Two more seams, further up the neck. Some pairs of shapes share three notes and some only one, so find the dashed rings before you play.\nPractice until the arpeggio is in your muscle memory: your hand crosses each seam without stopping on it."
           },
           {
             "type": "tool",
@@ -117,7 +117,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Now the D arpeggio, with no seams marked. Play it from the lowest shape to the highest and back, and cross where two shapes share a note.\nWhen you change the chord, the shapes follow each other in the same order up the neck, and each seam is in the same place inside its two shapes."
+            "text": "The neck below shows the D major arpeggio, with no seams marked. Play it from the lowest shape to the highest and back, and cross where two shapes share a note.\nOn D the shapes follow each other in the same order up the neck as on C, and each seam is in the same place inside its two shapes."
           },
           {
             "type": "tool",

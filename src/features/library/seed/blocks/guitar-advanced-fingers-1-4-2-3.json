@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-fingers-1-4-2-3",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 4.",
+  "note": "A finger permutation that sends finger 4 straight after finger 1, so the hand opens and closes on every string. The text is about fingers, so the tool leaves `show` out and the row under the tab starts on the fingers; no fret is named, since the tab shows them. The old tempo stages are now moves (80 to 104 bpm), named only as {{=bpm}}, and the feel to reach names muscle memory.",
   "exercise": {
     "title": "Fingers 1, 4, 2, 3",
     "area": "guitar",
@@ -17,19 +17,19 @@
     "concepts": [
       "spider"
     ],
-    "why": "A pattern that sends finger 4 straight after finger 1 makes the hand open and close on every string, which is the move wide scale positions ask for.",
+    "why": "A pattern that sends finger 4 straight after finger 1 makes the hand open and close on every string, which is the stretch the wide scale positions ask for.",
     "learnBefore": [
       "/course/1/spider"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "One stage at a time",
+        "heading": "Open and close the hand",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome and follow the tab: frets 5, 8, 6 and 7 with fingers 1, 4, 2 and 3, on every string and back. The row under the tab shows the pick stroke for each note.\nWhen the order needs no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a finger lands late at a new stage, go back one stage and stay there a little longer."
+            "text": "Press Play below to start the metronome at {{=bpm}}. The notes of the drill play with it, one note per beat, and the note playing is lit on the tab.\nOn each string, play the four frets with one finger each, in the order 1, 4, 2 and 3, then move to the next string as the tab shows. The row under the tab shows which finger plays each note.\nPractice until the order is in your muscle memory: finger 4 reaches out straight after finger 1 without you thinking."
           },
           {
             "type": "tool",
@@ -37,25 +37,10 @@
               "type": "finger-pattern",
               "level": "advanced",
               "fret": 5,
-              "show": "pick",
               "bpm": 80
             }
           }
-        ],
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 80
-            },
-            {
-              "bpm": 92
-            },
-            {
-              "bpm": 104
-            }
-          ]
-        }
+        ]
       }
     ]
   },
@@ -66,6 +51,13 @@
       "steps": [
         "spider:4"
       ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 104,
+          "step": 12
+        }
+      },
       "minutes": 4
     }
   ]

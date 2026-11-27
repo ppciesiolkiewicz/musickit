@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-key-chords-one-area",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track caged (guitar-caged), step 9: the chords of G major inside one area of the neck: 1, 4 and 5 as the E, A and C shapes, the three minor chords as triads there, then all six in time. missing: no tool draws the six chords of a key as CAGED shapes in one area (the Shape neighbours view of /theory/caged as a tool); three caged-necks and scale-neck's chord chips stand in, so the minor chords show as triads only and there is no second key.",
+  "note": "Track caged (guitar-caged), step 9: the chords of a major key inside one area of the neck: the three major chords as the E, A and C shapes, the three minor chords as triads there, then all six in time. The chords are tokens counted the long way once (in a heading too, which the key move fills in), and the key and tempo are moves (any key, 70 to 90 bpm). missing: no tool draws the six chords of a key as CAGED shapes in one area (the Shape neighbours view of /theory/caged as a tool); three caged-necks and scale-neck's chord chips stand in, so the minor chords show as triads only.",
   "exercise": {
     "title": "A whole key in one place",
     "area": "guitar",
@@ -26,12 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "1, 4 and 5 side by side",
+        "heading": "{{chord:I}}, {{chord:IV}} and {{chord:V}} together",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "The panels below show the 1st, 4th and 5th chords of G major where they meet on the neck: G in the E shape, C in the A shape and D in the C shape. Play each chord, and check that your hand stays over the same frets.\nGo round G, C, D and back to G until each change is a new shape and not a move along the neck."
+            "text": "The three major chords of {{=key}} major meet in one area of the neck. {{chord:I}} is the 1st chord of the key, built on {{1}}, here in the E shape. {{chord:IV}} is the 4th chord, built on {{4}}, in the A shape. {{chord:V}} is the 5th chord, built on {{5}}, in the C shape.\nThe necks below show the three in that order. Play each chord, and check that your hand stays over the same frets.\nPractice until each change is a new shape and not a move along the neck."
           },
           {
             "type": "tool",
@@ -75,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord in the Chords row below to ring its notes in the position and hear it. These are the three minor chords of G major, as three-note shapes on the G, B and high e strings in the same area.\nPlay each one straight after the G chord, until you can find all three without pressing the row."
+            "text": "Press a chord in the Chords row below to ring its notes in the position and hear it. These are the three minor chords of {{=key}} major, {{chord:ii}}, {{chord:iii}} and {{chord:vi}}, as three-note shapes on the G, B and high e strings in the same area.\nPlay each one straight after {{chord:I}}.\nPractice until you can find all three without pressing the row."
           },
           {
             "type": "tool",
@@ -106,7 +106,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome, and strum the chord in the lit box, every one inside the same area of the neck.\nIf a chord sends your hand up the neck, stop and find its shape in the area before you go on."
+            "text": "Press Play below to start the metronome at {{=bpm}}, and strum the chord in the lit box, every one inside the same area of the neck.\nIf a chord sends your hand up the neck, stop and find its shape in the area before you go on.\n{{?key}}In another key the area sits on other frets, and each chord keeps its shape inside it."
           },
           {
             "type": "tool",
@@ -140,7 +140,15 @@
       "steps": [
         "caged:9"
       ],
-      "minutes": 12
+      "minutes": 12,
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      }
     }
   ]
 }

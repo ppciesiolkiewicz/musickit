@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-dorian-tune",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track guitar-melodies (guitar-scales), step 5: a tune in D Dorian made from a four-note motive, ended on the root over a drone, then played over a Dm7 to G7 backing track. missing: the tune book behind the melody shape is major only, so there is no written modal tune to play from tab; the player makes one up.",
+  "note": "Track guitar-melodies (guitar-scales), step 5: a tune in Dorian made from a four-note motive on the improvisation panel, ended on the root over a drone, then played over the 1st and 4th chords on a backing track. The key is now moves (any key), named only as {{=key}}; the chords are tokens counted the long way once, the position is described before it is played, and each block has one feel to reach. missing: the tune book behind the melody shape is major only, so there is no written modal tune to play from tab; the player makes one up.",
   "exercise": {
     "title": "Make up a Dorian tune",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The panel below spells a short motive in D Dorian, then the same four notes reversed, mirrored and rotated. Play the Motive row on the neck under the panel, in the position with {{1}} on the A string.\nThen play the Reversed row and the Mirrored row, until you can play each one straight after reading it."
+            "text": "The panel below spells a short motive in {{=key}} Dorian, then the same four notes reversed, mirrored and rotated. Under it is the neck with the position of {{=key}} Dorian that has {{1}} on the A string: each dot is a note to play. Play the Motive row on the neck.\nThen play the Reversed row and the Mirrored row.\nPractice until you can play each row straight after reading it."
           },
           {
             "type": "tool",
@@ -65,7 +65,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone. On the neck below, make up a two-bar tune that passes through the ringed {{6}} and ends on {{1}}.\nPlay it until it comes out the same twice, then change one note."
+            "text": "Press Play below to start the drone on {{=key}}. On the neck below, make up a two-bar tune that passes through the ringed {{6}} and ends on {{1}}.\nPractice until the tune comes out the same each time, then change one note."
           },
           {
             "type": "tool",
@@ -104,7 +104,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, which moves between Dm7 and G7. Play your tune over it, then answer it with a second tune that starts on another note.\nWhen G7 comes round, try holding the ringed {{6}}: it is the 3rd of G7, so the Dorian note is the chord's own note there."
+            "text": "The backing track moves between two chords of {{=key}} Dorian. {{chord:i7}} is the 1st chord of the key, built on {{1}}. {{chord:IV7}} is the 4th chord, built on {{4}}.\nPress Play below to start the backing track. Play your tune over it, then answer it with a second tune that starts on another note.\nWhen {{chord:IV7}} comes round, try holding the ringed {{6}}: it is the 3rd of {{chord:IV7}}, so the Dorian note is the chord's own note there.\n{{?key}}In another key the position sits on other frets, and {{6}} is still the 3rd of {{chord:IV7}}."
           },
           {
             "type": "tool",
@@ -144,7 +144,10 @@
       "steps": [
         "guitar-melodies:5"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

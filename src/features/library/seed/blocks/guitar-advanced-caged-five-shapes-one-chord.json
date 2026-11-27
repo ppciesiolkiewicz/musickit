@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-caged-five-shapes-one-chord",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track caged (guitar-caged), step 8: one chord in all five shapes up the neck, the roots that join each shape to the next, then a new shape every bar in three keys.",
+  "note": "One major chord in all five CAGED shapes up the neck on a caged-neck, the roots that join each shape to the next on an arpeggio-neck of the whole neck, then a new shape every bar on a strum-along. The old Key choice is now moves (any key), so the title, headings and text name the chord only as {{=key}}, and the {{?key}} line says what stays the same: the order of the shapes.",
   "exercise": {
     "title": "One chord, five shapes",
     "area": "guitar",
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "C in five places",
+        "heading": "{{=key}} in five places",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows the chord C in all five shapes, from the open C chord up to the D shape. Play each shape as a chord, from the lowest to the highest, and say its letter as you play it.\nPractice until you can go up and back down without stopping to look for the next shape."
+            "text": "The neck below shows the {{=key}} major chord in all five shapes, from the lowest on the neck to the highest. Play each shape as a chord, from the lowest to the highest, and say its letter as you play it.\nPractice until you can go up and back down without stopping to look for the next shape."
           },
           {
             "type": "tool",
@@ -49,7 +49,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows every note of the C chord along the neck. Find each {{1}}: it belongs to two shapes, the one below it and the one above.\nPlay from one {{1}} to the next up the neck, and name the shape you pass through each time."
+            "text": "The neck below shows every note of the {{=key}} major chord along the neck. Find each {{1}}: it belongs to two shapes, the one below it and the one above.\nPlay from one {{1}} to the next up the neck, and name the shape you pass through each time."
           },
           {
             "type": "tool",
@@ -67,23 +67,10 @@
         "type": "section",
         "heading": "A new shape every bar",
         "minutes": 4,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, strum the chord in the lit box once on beat 1, each bar in the next shape up the neck, and use the rest of the bar to move.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the lowest shape is a new one, but the shapes still follow each other in the order C, A, G, E, D."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, strum the chord once on beat 1, each bar in the next shape up the neck, and use the rest of the bar to move.\nIf a shape comes late, skip it and strum the next one on its beat 1.\n{{?key}}In another key the lowest shape is a new one, but the shapes still follow each other in the order C, A, G, E, D."
           },
           {
             "type": "tool",
@@ -123,6 +110,14 @@
       "steps": [
         "caged:8"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

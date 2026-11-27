@@ -1,12 +1,12 @@
 {
   "id": "guitar-advanced-the-jam",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-advanced.json, day 7.",
+  "note": "A jam in three aims: {{6}} of Dorian over the 4th chord on a solo-over, {{b7}} of Mixolydian over the ♭7th chord, then one long Dorian solo across three framed positions. The chords are tokens counted the long way once, the key is moves (any key) and named only as {{=key}}, the last block now has the positions on a position-neck, and it ends with the variation that makes the solo the learner's own.",
   "exercise": {
     "title": "The jam",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "major-on-neck"
     ],
-    "why": "A phrase can aim at the 6th, a triad note, the ♭7 or a crossing, so a solo is choosing which one each phrase goes for.",
+    "why": "A phrase can aim at the 6th, the ♭7 or a root after a crossing, so a solo is choosing which one each phrase goes for.",
     "learnBefore": [
       "/course/9/modes",
       "/course/5/soloing",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track on Am7 and D7. Land on {{f-sharp}} when D7 comes round, in any position you like. Practice until your fingers find it before the chord changes."
+            "text": "The backing track loops two chords of {{=key}} Dorian. {{chord:i7}} is the 1st chord of the key, built on {{1}}. {{chord:IV7}} is the 4th chord, built on {{4}}.\nPress Play below to start the backing track. Improvise in {{=key}} Dorian, in any position you like, and land on {{6}} each time {{chord:IV7}} comes round.\nPractice until your fingers find {{6}} before the chord changes."
           },
           {
             "type": "tool",
@@ -53,7 +53,7 @@
                     "target": [
                       "3"
                     ],
-                    "approach": "land on F♯ on beat 1"
+                    "approach": "land on its 3rd on beat 1"
                   }
                 ],
                 "bars": 2
@@ -71,7 +71,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track on A, G and D. Improvise in A Mixolydian and hold the ringed {{b7}} through the G bar."
+            "text": "Press Play below to start the backing track in {{=key}} Mixolydian: {{chord:I}}, then {{chord:bVII}}, the chord built on {{b7}}, then {{chord:IV}} and {{chord:I}} again. Under it are positions 1 and 2 of the {{=key}} Mixolydian scale, with {{1}} and {{b7}} ringed.\nImprovise in the two positions, and hold a ringed {{b7}} through the {{chord:bVII}} bar.\nIf the bar passes before you find {{b7}}, play only the ringed notes for a few rounds."
           },
           {
             "type": "tool",
@@ -108,7 +108,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, back on Am7 and D7. Play one long solo in A Dorian that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: the 6th, a triad note or a crossing. Keep the one phrase you like best, and start your next solo from it."
+            "text": "Press Play below to start the backing track on {{chord:i7}} and {{chord:IV7}} again. Under it are positions 1, 2 and 3 of the {{=key}} Dorian scale. Play one long solo that climbs from position 1 to position 3 and comes back down, and choose what each phrase aims for: {{6}}, a ringed {{1}} or the slide into the next position.\nKeep the one phrase you like best, and start your next solo from it.\n{{?key}}In another key the positions sit on other frets, and {{6}} is still the 3rd of {{chord:IV7}}."
           },
           {
             "type": "tool",
@@ -117,6 +117,23 @@
               "progression": "dorian",
               "key": "a",
               "bpm": 95
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3
+              ],
+              "highlight": [
+                "1",
+                "6"
+              ]
             }
           }
         ]
@@ -134,6 +151,9 @@
         "major-on-neck:3",
         "major-on-neck:4"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 12
     }
   ]
