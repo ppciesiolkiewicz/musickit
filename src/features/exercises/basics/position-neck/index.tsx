@@ -130,8 +130,9 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
           <button type="button" data-tour="position-neck-play" onClick={running ? stop : run} disabled={!playable.size} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500 disabled:opacity-40">{running ? "■ Stop" : "▶ Play"}</button>
         </Hint>
       </div>
-      <div data-tour="position-neck-neck" className="min-w-0 overflow-x-auto">
-        <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" style={{ minWidth: phone ? 480 : undefined }} role="img" aria-label={`${title}, ${caption}`}>
+      {/* a phone fits the whole neck on screen, like ScaleNeck: narrower frets, so the dots come out bigger once it is scaled down */}
+      <div data-tour="position-neck-neck" className="min-w-0">
+        <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={`${title}, ${caption}`}>
           <FretboardBase g={g} markerSize={phone ? 4 : 6} />
           {merged(framed).map((group) => (
             <Frame key={`f${group.map((p) => `${p.number}@${p.from}`).join("-")}`} g={g} notes={group.flatMap((p) => p.notes)} r={r} stroke={FRAME} fill="rgb(56 189 248 / 0.06)" dashed={!!path} />
