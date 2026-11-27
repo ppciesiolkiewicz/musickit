@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-comp-the-ii-v-i",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 24,
+    "agents": 2,
+    "teaching": 12
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 1.",
+  "note": "Comping a ii–V–I in C with shell voicings: the shells drawn in a chord-shapes from the app's own shell shapes, then a strum-along with short chords on beats 2 and 4, then the root alone on 1 and 3 under them. Shows the chords counted the long way once, a pattern on every strum-along, and one extra line per block.",
   "exercise": {
-    "title": "Comp the ii-V-I",
+    "title": "Comp the ii–V–I with shells",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,19 +17,41 @@
     "concepts": [
       "shells"
     ],
-    "why": "Comping means playing the chords in rhythm under a melody, and short, light strums leave room for it.",
+    "why": "A shell is only the root, 3rd and 7th, so it is light enough to stop short, and short chords on beats 2 and 4 leave the gaps a melody needs.",
     "learnBefore": [
-      "/course/11/comping"
+      "/course/11/shells",
+      "/course/11/comping",
+      "/course/11/ii-v-i"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "Two strums a bar",
+        "heading": "Short chords on 2 and 4",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below; the lit block shows the chord. Strum short chords on beats 2 and 4, one bar each."
+            "text": "Dm7 is the 2nd chord in the key of C, G7 is the 5th and Cmaj7 is the 1st: in that order they make the ii–V–I. Below are their shell voicings, which leave out the 5th. Press a chord box below to hear one."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Dm7",
+                "G7",
+                "Cmaj7"
+              ],
+              "frets": [
+                "x 5 x 5 6 x",
+                "3 x 3 4 x x",
+                "x 3 x 4 5 x"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play. Strum each shell on beats 2 and 4, and lift your fretting fingers a little to stop the sound short.\nPractice until the next shell is under your fingers before its beat 2 comes."
           },
           {
             "type": "tool",
@@ -49,12 +71,12 @@
       },
       {
         "type": "section",
-        "heading": "Bass and chord",
+        "heading": "Root, then 3rd and 7th",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below and now pick each chord's root on beats 1 and 3. Strum the top strings on beats 2 and 4."
+            "text": "Press Play below to start the metronome again. Pick the root, the lowest note of the shell, alone on beats 1 and 3, then strum the 3rd and 7th together on beats 2 and 4.\nPractice until it is in your muscle memory: your picking hand finds the string of each root without you looking."
           },
           {
             "type": "tool",
@@ -66,7 +88,8 @@
                 "Cmaj7",
                 "Cmaj7"
               ],
-              "bpm": 80
+              "bpm": 80,
+              "pattern": "D D D D"
             }
           }
         ]
@@ -80,6 +103,13 @@
       "steps": [
         "shells:4"
       ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

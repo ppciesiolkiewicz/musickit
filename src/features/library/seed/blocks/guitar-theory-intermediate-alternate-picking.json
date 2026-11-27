@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-alternate-picking",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 24,
+    "agents": 2,
+    "teaching": 12
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 2.",
+  "note": "Alternate picking with three notes a string, so each string starts on the other stroke. The picking-drill sounds its own metronome, so no backing-band sits beside it; the text is about pick strokes, which is the only row the drill has. The why is the mechanism (an odd number of notes flips the stroke at each string), the feel to reach starts \"Practice until\" and names muscle memory, and the tempo is moves (80 to 120 bpm), named only as a param.",
   "exercise": {
-    "title": "Alternate picking",
+    "title": "Alternate picking, three notes a string",
     "area": "guitar",
     "tags": [
       "technique"
@@ -17,33 +17,29 @@
     "concepts": [
       "picking"
     ],
-    "why": "Three notes per string puts the pick on alternating strokes at each string crossing.",
+    "why": "With three notes on a string the strokes go down, up, down, so the next string starts on an up stroke, and the hand learns to cross strings on either stroke without breaking its down-up swing.",
     "learnBefore": [
       "/course/1/spider"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Pick three notes per string, down-up, across all six strings and back."
-      },
-      {
-        "type": "tool",
-        "tool": {
-          "type": "backing-band",
-          "bpm": 90,
-          "key": "a",
-          "parts": {
-            "click": "on"
+        "type": "section",
+        "heading": "Down and up across strings",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at {{=bpm}}. The drill plays with it, one note per beat, and the note playing is lit on the tab.\nPick three notes on each open string, starting on the low E string, up to the high e string and back down. Follow the arrows under the tab, down and up without a break, even where the string changes.\nPractice until the strokes are in your muscle memory: your hand keeps its down-up swing through every string change without you thinking."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "intermediate",
+              "bpm": 80
+            }
           }
-        }
-      },
-      {
-        "type": "tool",
-        "tool": {
-          "type": "picking-drill",
-          "level": "intermediate",
-          "bpm": 90
-        }
+        ]
       }
     ]
   },
@@ -54,7 +50,14 @@
       "steps": [
         "picking:3"
       ],
-      "minutes": 5
+      "minutes": 5,
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 120,
+          "step": 10
+        }
+      }
     }
   ]
 }
