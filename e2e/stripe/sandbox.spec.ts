@@ -31,7 +31,7 @@ async function setUpToCheckout(page: Page) {
   await page.goto("/account/setup");
   // settled first: a reload while Continue to payment waits on Stripe would cut its request off
   await page.waitForLoadState("networkidle");
-  await page.getByLabel("Your name").fill("Test Payer");
+  await page.getByLabel("First name or nickname").fill("Test Payer");
   await page.locator('input[name="plan"][value="student"]').check();
   await page.getByRole("checkbox", { name: /terms of use/ }).check();
   await page.getByRole("checkbox", { name: /look after my voice/ }).check();

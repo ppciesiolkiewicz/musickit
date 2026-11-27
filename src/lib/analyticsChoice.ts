@@ -56,6 +56,9 @@ export const scrubUrl = (url: string): string =>
     .replace(/\/notes\/shared\/[^/?#\s]+/g, "/notes/shared/[id]")
     .replace(/([?&](?:token|code)=)[^&#\s]*/g, "$1[removed]");
 
+/** A text with every email address in it replaced by "***": what a session recording would show (instrumentation-client.ts). */
+export const maskEmails = (text: string): string => text.replace(/[^\s@<>()[\],;:"']+@[^\s@<>()[\],;:"']+\.[^\s@<>()[\],;:"']+/g, "***");
+
 /* ---- in the browser ---- */
 
 const readRegion = (): Region => {

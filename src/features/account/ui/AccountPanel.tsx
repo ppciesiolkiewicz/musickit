@@ -85,8 +85,8 @@ export default function AccountPanel({ start, payments = false }: { /** the plan
 
               <form noValidate onSubmit={(e) => void save(e)} className="flex flex-col gap-2">
                 <label>
-                  <span className={LABEL}>Name</span>
-                  <input className={FIELD} value={shown} onChange={(e) => { setName(e.target.value); setSaved(false); }} autoComplete="name" maxLength={80} />
+                  <span className={LABEL}>First name or nickname</span>
+                  <input className={FIELD} value={shown} onChange={(e) => { setName(e.target.value); setSaved(false); }} autoComplete="given-name" maxLength={80} />
                 </label>
                 <button type="submit" disabled={busy || shown.trim() === account.name} className={SECONDARY}>Save name</button>
                 {saved && <p role="status" className="text-xs text-emerald-300">Name saved.</p>}

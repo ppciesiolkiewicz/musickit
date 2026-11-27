@@ -132,15 +132,14 @@ export default function SetupForm({ next, start, boxes, extra, payments = false 
     <Card wide>
       <form noValidate onSubmit={(e) => void save(e)} className="flex flex-col gap-5">
         <div className="flex w-full flex-col sm:max-w-sm [&>p]:mt-1.5">
-          <label htmlFor="setup-name" className={LABEL}>Your name</label>
+          <label htmlFor="setup-name" className={LABEL}>First name or nickname</label>
           <input
             id="setup-name"
             ref={nameRef}
             className={`${FIELD} scroll-mt-24`}
             value={shown}
             onChange={(e) => { setName(e.target.value); setNameError(null); }}
-            placeholder={askName ? "First name, or what students call you" : undefined}
-            autoComplete="name"
+            autoComplete="given-name"
             autoFocus={askName}
             maxLength={80}
             aria-invalid={!!nameError}

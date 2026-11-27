@@ -58,7 +58,7 @@ export function WhoStep({ draft, onName, onEmail, error }: { draft: AddDraft; on
   return (
     <div className="flex flex-col gap-4">
       <label className="text-sm text-slate-300">
-        Name
+        First name or nickname
         <input className={`${input} mt-1`} value={draft.name} onChange={(e) => onName(e.target.value)} autoComplete="off" aria-invalid={error?.field === "name" || undefined} />
         {error?.field === "name" && <p className={errorLine}>{error.text}</p>}
       </label>

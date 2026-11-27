@@ -38,14 +38,14 @@ export default function JoinSetup({ startName, busy, error, onSave }: {
   return (
     <form noValidate onSubmit={save} className="flex flex-col gap-5">
       <div className="flex flex-col">
-        <label htmlFor="join-name" className={LABEL}>Your name</label>
+        <label htmlFor="join-name" className={LABEL}>First name or nickname</label>
         <input
           id="join-name"
           ref={nameRef}
           className={FIELD}
           value={name}
           onChange={(e) => { setName(e.target.value); setNameError(null); }}
-          autoComplete="name"
+          autoComplete="given-name"
           autoFocus={!startName}
           maxLength={80}
           aria-invalid={!!nameError}

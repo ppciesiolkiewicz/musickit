@@ -1,5 +1,5 @@
 import posthog from "posthog-js";
-import { countingNow, scrubUrl } from "@/lib/analyticsChoice";
+import { countingNow, maskEmails, scrubUrl } from "@/lib/analyticsChoice";
 
 const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
@@ -27,6 +27,18 @@ if (posthogKey && posthogHost) {
         return event;
       },
       capture_exceptions: true,
+      // Session recording is off here, whatever the PostHog project's switch says. Before turning it on, /privacy
+      // ("How we count use") must say so, with PRIVACY_UPDATED raised.
+      disable_session_recording: true,
+      // What a recording would keep, once on: no typed value (every input masked) and no email address anywhere on the
+      // page (every text node goes through maskEmails; other text is left as it is), and no request headers or bodies.
+      session_recording: {
+        maskAllInputs: true,
+        maskTextSelector: "*",
+        maskTextFn: maskEmails,
+        recordHeaders: false,
+        recordBody: false,
+      },
       // no surveys are used; skipping them saves loading surveys.js (~36 KiB) on every page
       disable_surveys: true,
       debug: process.env.NODE_ENV === "development",
