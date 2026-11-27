@@ -64,17 +64,28 @@ export const barreChordAlternatives: Article = {
       ], tool: { type: "chord-shapes", chords: ["Bm", "Cm", "C♯m"], frets: ["x x 4 4 3 2", "x x 5 5 4 3", "x x 6 6 5 4"] } },
     ] },
 
-    { type: "exercise", title: "4. A fill on the free strings", lines: [
-      "The free low E string and A string have a second job: a short bass fill between strums.",
-      "Here it is on Cm, the four-string shape one fret up. Press Play below to hear Cm for two beats and three bass notes before the next Cm, and watch the lit dots on the neck.",
+    { type: "exercise", title: "4. A fill between strums", lines: [
+      "The four-string shape leaves your hand free for a short fill between strums: a few single notes on the same four strings.",
+      "Here it is on Cm, the four-string shape one fret up. Press Play below to hear Cm for two beats and a short fill before the next Cm, and watch the lit dots on the neck.",
     ], tool: { type: "guitar-play-along", view: "neck", bpm: 60, under: "none", shape: { shape: "riff", key: "c", scale: "Aeolian", notes: [
       { frets: [{ string: 4, fret: 5, beats: 2 }, { string: 3, fret: 5, beats: 2 }, { string: 2, fret: 4, beats: 2 }, { string: 1, fret: 3, beats: 2 }], beats: 2 },
-      { string: 6, fret: 3, beats: 1 }, { string: 6, fret: 6, beats: 0.5 }, { string: 5, fret: 3, beats: 0.5 },
+      { string: 2, fret: 6, beats: 0.5 }, { string: 2, fret: 4, beats: 0.5 }, { string: 3, fret: 5, beats: 1 },
       { frets: [{ string: 4, fret: 5, beats: 2 }, { string: 3, fret: 5, beats: 2 }, { string: 2, fret: 4, beats: 2 }, { string: 1, fret: 3, beats: 2 }], beats: 2 },
-      { string: 5, fret: 6, beats: 1 }, { string: 5, fret: 3, beats: 1 },
+      { string: 3, fret: 3, beats: 0.5 }, { string: 4, fret: 3, beats: 0.5 }, { string: 3, fret: 3, beats: 0.5 }, { string: 3, fret: 5, beats: 0.5 },
     ] } }, between: [
-      "The bass notes come from the C minor pentatonic scale, whose dots sit right under your hand. Make up your own fill from the dots on the two low strings below.",
-    ], beside: { type: "position-neck", scale: "minor-pentatonic", key: "c", positions: [4] } },
+      "The fill uses four notes of the C minor pentatonic scale: {{b3}}, {{4}}, {{b7}} and {{1}}. Make up your own fill from the dots on the top four strings below.",
+    ], beside: { type: "position-neck", scale: "minor-pentatonic", key: "c", positions: [4], enable: ["1", "b3", "4", "b7"] }, parts: [
+      { title: "Add the bass", lines: [
+        "Now give each chord a bass note first: pick the low C on the A string, then strum Cm on the next beat.",
+        "Press Play below to hear the bass, the strum and the fill together.",
+        "Practice until the fill lands you back on the next bass note without a gap.",
+      ], tool: { type: "guitar-play-along", view: "neck", bpm: 60, under: "none", shape: { shape: "riff", key: "c", scale: "Aeolian", notes: [
+        { string: 5, fret: 3, beats: 1 }, { frets: [{ string: 4, fret: 5, beats: 1 }, { string: 3, fret: 5, beats: 1 }, { string: 2, fret: 4, beats: 1 }, { string: 1, fret: 3, beats: 1 }], beats: 1 },
+        { string: 2, fret: 6, beats: 0.5 }, { string: 2, fret: 4, beats: 0.5 }, { string: 3, fret: 5, beats: 1 },
+        { string: 5, fret: 3, beats: 1 }, { frets: [{ string: 4, fret: 5, beats: 1 }, { string: 3, fret: 5, beats: 1 }, { string: 2, fret: 4, beats: 1 }, { string: 1, fret: 3, beats: 1 }], beats: 1 },
+        { string: 3, fret: 3, beats: 0.5 }, { string: 4, fret: 3, beats: 0.5 }, { string: 3, fret: 3, beats: 0.5 }, { string: 3, fret: 5, beats: 0.5 },
+      ] } } },
+    ] },
 
     { type: "exercise", title: "5. Triads for major barres", lines: [
       "Major barres have their own way out: play only the top three strings. That's a triad, the chord's three notes and nothing else.",

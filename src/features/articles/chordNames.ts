@@ -8,13 +8,14 @@ const QUALITY = "(?:maj7|maj9|m7♭5|m7|m9|m6|m|7|9|6|5|sus2|sus4|dim7|dim|aug|a
 const NAME = new RegExp(`(?<![\\w♯♭#{-])[A-G][♯♭#]?${QUALITY}(?![\\w♯♭#])`, "g");
 
 /**
- * Whether a letter at `at` names something other than a chord: a string ("the A string", "the low E"), a note being
- * named ("E, the 7th"), or "A" the word ("A fill", "A 9 chord").
+ * Whether a letter at `at` names something other than a chord: a string ("the A string", "the low E"), a key or scale
+ * ("the C minor pentatonic scale"), a note being named ("E, the 7th"), or "A" the word ("A fill", "A 9 chord").
  */
 const notChord = (text: string, found: string, at: number) => {
   const after = text.slice(at + found.length);
   if (/\b(?:low|high)\s+$/i.test(text.slice(0, at))) return true;
   if (/^\s+strings?\b/.test(after)) return true;
+  if (/^\s+(?:major|minor|pentatonic|blues|scale|key|dorian|mixolydian)\b/i.test(after)) return true;
   if (/^[A-G][♯♭#]?$/.test(found) && /^,\s+the\b/.test(after)) return true;
   return found === "A" && /^\s+[a-z0-9]/.test(after);
 };

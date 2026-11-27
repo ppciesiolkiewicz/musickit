@@ -38,7 +38,8 @@
     "This FMaj7 should not be barre at all we can fret if with 4 fingers with index on top string",
     "Remove this but replace this with some Summary (Make it your own). Also give more space to labels",
     "\"high/low e string\"  etc should be a special word with graphic",
-    "Let's make \"Movable shapes\" \"Movable chord shapes\" etc. a special word or maybe article? which we link in"
+    "Let's make \"Movable shapes\" \"Movable chord shapes\" etc. a special word or maybe article? which we link in",
+    "4. A fill on the free strings: This melody should use only string e b g D first and then we can also add a base of the chord. So the solo should use b3 b7 R 4"
   ],
   "blocks": [
     "guitar-advanced-barre-shapes-anywhere"
@@ -55,7 +56,7 @@
     "C7 x 3 2 3 1 x = C E B♭ C (B7 x 2 1 2 0 2 one fret up, the open B string pressed at the 1st fret, high e left out), checked by shapeFromFrets",
     "npm run -s theory -- triads A --group 432 --chords I --frets 4-8 (A 7-6-5: the F triad slid four frets)",
     "D shape moved: E x x 2 4 5 4, F♯ x x 4 6 7 6; Dm shape moved: Em x x 2 4 5 3, F♯m x x 4 6 7 5; Fmaj7 1 x 2 2 1 x fingered 1 x 3 4 2 x, Gmaj7 and Amaj7 two and four frets up; all checked by shapeFromFrets",
-    "The example fill under Cm (x x 5 5 4 3): G (E 3), B♭ (E 6), C (A 3), then E♭ (A 6), C (A 3), all in C minor pentatonic position 4"
+    "The fill under Cm (x x 5 5 4 3), top four strings only, C minor pentatonic position 4 without the 5: F (B 6), E♭ (B 4), C (G 5); then B♭ (G 3), F (D 3), B♭ (G 3), C (G 5). Bass: C (A 3)"
   ],
   "sources": [],
   "open": [
