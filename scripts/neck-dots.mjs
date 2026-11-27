@@ -193,12 +193,12 @@ function line(hexes, len) {
 
 // Fret covers, for testing: one sticker filling a whole fret space (wire to wire, edge to edge), cut into colour zones
 // across the board, each zone a band running along the neck under one string (low E on the left). Two sets, every cover in
-// a set the same: cyan at both edges like the edge dots, and green at both edges, the one the other's mirror. No white or
+// a set the same: cyan at both edges like the edge dots, and magenta at both edges, the inner bands kept off a colour near their own. No white or
 // black: the guitar is white and light brown, and the background green and bright.
 const COVERS = [1, 3, 5, 7, 12];
 const COVER_SETS = [
   ["cyan", ["Cyan", "Magenta", "Blue", "Green", "Violet", "Cyan"]],
-  ["green", ["Green", "Magenta", "Blue", "Cyan", "Violet", "Green"]],
+  ["magenta", ["Magenta", "Cyan", "Violet", "Green", "Blue", "Magenta"]],
 ];
 const WIRE_W = 2.5; // mm of fret wire taken off the space's length
 /** Fret n's cover, lying as on the neck seen from the player (across the board left to right, nut at the top): the board's
@@ -283,7 +283,7 @@ ${spares}` : `<h1>Neck dots · Strat kit (25.5″) · A3</h1>
 ${lineSet(GREEN)}
 <h2>Bridge <span>level with the saddles, ${SCALE_MM} mm from the nut</span></h2>
 <div class="line"><span class="g"><b>${BRIDGE_DOT} mm</b>${strip(BRIDGE_DOT, across(BRIDGE_DOT), byName.Blue.hex)}</span></div>
-<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge, one colour band per string; a set with cyan at both edges, a set with green; low E side on the left, nut end at the top</span></h2>
+<h2>Fret covers <span>for testing · each fills one fret space, wire to wire and edge to edge, one colour band per string; a set with cyan at both edges, a set with magenta; low E side on the left, nut end at the top</span></h2>
 ${COVER_SETS.map(([, colours]) => `<div class="covers">${COVERS.map((n) => { const c = cover(n, colours); return `<div class="cv">${c.svg}<b>fret ${n}</b><span>${c.w} × ${c.h} mm</span></div>`; }).join("")}</div>`).join("")}
 ${spares ? `<h2>Spares</h2>${spares}` : ""}
 `}</body></html>`;
