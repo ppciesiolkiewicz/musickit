@@ -3,7 +3,7 @@ import type { Article } from "./model";
 /** Every line of text a reader reads in an article, block by block (a photo gives its caption; the player block's words are in its component). */
 export function articleTexts(article: Article): string[] {
   return article.blocks.flatMap((b) =>
-    b.type === "list" ? b.items : b.type === "exercise" ? [b.title, ...b.lines, ...(b.between ?? []), ...(b.after ?? []), ...(b.parts ?? []).flatMap((p) => [p.title, ...p.lines])] : b.type === "figure" ? [b.caption] : b.type === "player" || b.type === "row" || b.type === "names" || b.type === "chord-finder" ? [] : [b.text],
+    b.type === "list" ? b.items : b.type === "exercise" ? [b.title, ...b.lines, ...(b.between ?? []), ...(b.after ?? []), ...(b.parts ?? []).flatMap((p) => [p.title, ...p.lines])] : b.type === "figure" ? [b.caption] : b.type === "chord-chain" ? b.chords.map((c) => c.caption) : b.type === "player" || b.type === "row" || b.type === "names" || b.type === "chord-finder" ? [] : [b.text],
   );
 }
 

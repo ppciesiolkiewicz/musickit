@@ -16,6 +16,7 @@ import { AUTHOR } from "../author";
 import { blockRoots, markArticle, markTitle, type Mark } from "../marks";
 import { articleLabels, type Article, type ArticleBlock } from "../model";
 import ArticleCard from "./ArticleCard";
+import ChordChain from "./ChordChain";
 import ChordFinder from "./ChordFinder";
 import { ArticleLabels, LabelSwitch } from "./ArticleLabels";
 import NamesChart from "./NamesChart";
@@ -29,6 +30,9 @@ import TempoTool from "./TempoTool";
  */
 const BIG_CHORDS =
   "[&_[data-tour=chord-shapes-chords]]:justify-center [&_[data-tour=chord-shapes-chords]>div]:w-[calc((100%-0.75rem)/2)] sm:[&_[data-tour=chord-shapes-chords]>div]:w-[calc((100%-1.5rem)/3)]";
+
+/** Tools as long as the neck: on a wide screen they reach out past the column into the spare room (`bleed`), none on a phone. */
+const WIDE = new Set<string>(["caged-neck"]);
 
 /** A link to another guide opens in place; any other (a tool like the tuner, the voice-care notes) opens in a new tab, so the reader keeps their place. */
 const opensNewTab = (href: string) => !(href === "/learn" || href.startsWith("/learn/") || href.startsWith("#"));
@@ -88,6 +92,8 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
     }
     case "chord-finder":
       return <ChordFinder />;
+    case "chord-chain":
+      return <ChordChain chords={block.chords} />;
     case "figure":
       return (
         <figure className="flex flex-col gap-2">
@@ -103,7 +109,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
       );
     case "row": {
       const tools = block.tools.map((t) => parseTool(t)).filter((t) => t !== null);
-      return <div className={`grid gap-4 ${tools.length > 1 ? "sm:grid-cols-2" : ""}`}>{tools.map((tool, i) => <div key={i} className="min-w-0"><Tool tool={tool} /></div>)}</div>;
+      return <div className={`grid gap-4 ${tools.length > 1 ? "sm:grid-cols-2" : ""}`}>{tools.map((tool, i) => <div key={i} className={`min-w-0 ${WIDE.has(tool.type) && tools.length === 1 ? "bleed" : ""}`}><Tool tool={tool} /></div>)}</div>;
     }
     case "exercise": {
       const tools = [block.tool, ...(block.beside ? [block.beside] : [])].map((t) => parseTool(t)).filter((t) => t !== null);
@@ -118,7 +124,7 @@ function Block({ block, lines, root }: { block: ArticleBlock; /** the block's li
               {tools.map((tool, i) => (
                 <Fragment key={i}>
                   {i === 1 && between.map((t, j) => <p key={t} className="text-slate-300"><Inline runs={lines[at + j]} root={root} /></p>)}
-                  <div className={`my-2 min-w-0 ${BIG_CHORDS}`}>{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>
+                  <div className={`my-2 min-w-0 ${BIG_CHORDS} ${WIDE.has(tool.type) ? "bleed" : ""}`}>{tool.type === "melody-singer" || tool.type === "run-singer" ? <TempoTool tool={tool} /> : <Tool tool={tool} />}</div>
                 </Fragment>
               ))}
             </div>

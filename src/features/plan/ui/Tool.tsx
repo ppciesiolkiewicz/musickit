@@ -138,7 +138,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "chord-circle":
       return <ChordCircle pc={tool.key} scale={tool.scale} degree={tool.degree} />;
     case "caged-neck":
-      return <CagedNeck pc={tool.key} scale={tool.scale} shapes={tool.shapes} />;
+      return <CagedNeck pc={tool.key} scale={tool.scale} shapes={tool.shapes} islands={tool.islands} />;
     case "double-stops-neck":
       return <DoubleStopsNeck pc={tool.key} scale={tool.scale} interval={tool.interval} strings={tool.strings} from={tool.from} to={tool.to} />;
     case "legato-trill":

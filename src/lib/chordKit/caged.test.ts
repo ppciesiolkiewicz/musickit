@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { laneAt, laneStarts } from "./caged";
+import { cagedBoxes, islandStrings, laneAt, laneStarts } from "./caged";
 
 describe("laneAt: each string's colour runs from one of its notes to the next", () => {
   const notes = [1, 4, 9, 13, 16];
@@ -25,5 +25,13 @@ describe("laneStarts: where each lane begins, for the labels above the neck", ()
   });
   it("a lane no string reaches starts at the end of the neck", () => {
     assert.deepEqual(laneStarts([[2, 6]], 3, 17), [0, 6, 17]);
+  });
+});
+
+describe("islandStrings: the strings the open chord's fingers press, moved up with the shape", () => {
+  it("C major: three strings in every shape, the ones the article's chord boxes use", () => {
+    const got = Object.fromEntries(cagedBoxes(0, "major").map((b) => [b.letter, islandStrings(b)]));
+    // low E = 0 … high e = 5: C x-3-2-0-1-0, A x-3-5-5-5-3, G 8-7-5-5-5-8, E 8-10-10-9-8-8, D x-x-10-12-13-12
+    assert.deepEqual(got, { C: [1, 2, 4], A: [2, 3, 4], G: [0, 1, 5], E: [1, 2, 3], D: [3, 4, 5] });
   });
 });

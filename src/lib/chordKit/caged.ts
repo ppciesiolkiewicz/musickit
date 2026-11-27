@@ -64,6 +64,15 @@ export interface CagedBox {
   chordName: string;
 }
 
+/**
+ * A shape's island: the strings the open chord's fingers press, moved up with the shape (every played string above the
+ * shape's lowest fret, where the nut or the barre was). The C chord's A shape x-3-5-5-5-3 gives the D, G and B strings.
+ */
+export const islandStrings = (box: Pick<CagedBox, "frets">): number[] => {
+  const lo = Math.min(...box.frets.filter((f): f is number => f !== null));
+  return box.frets.flatMap((f, i) => (f !== null && f > lo ? [i] : []));
+};
+
 /** The five boxes for a root, ordered from the nut upwards. */
 export function cagedBoxes(rootPc: number, quality: CagedQuality): CagedBox[] {
   const ctx = cagedContext(rootPc, quality);

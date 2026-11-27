@@ -35,7 +35,12 @@ export type ArticleBlock =
   /** small tools side by side (two to a row on a wide screen, one under the other on a phone), with no text: a row of charts */
   | { type: "row"; tools: Record<string, unknown>[] }
   /** a search box: type a major or minor barre chord, see easier chords for it as chord boxes (`ui/ChordFinder.tsx`, `alternatives.ts`) */
-  | { type: "chord-finder" };
+  | { type: "chord-finder" }
+  /**
+   * chord boxes in a row with an arrow between each, for one chord moving up the neck through its shapes (`ui/ChordChain.tsx`):
+   * each with its exact frets, as `chord-shapes` writes them, and a caption under it ("A shape")
+   */
+  | { type: "chord-chain"; chords: { chord: string; frets: string; caption: string }[] };
 
 /**
  * A smaller step at the end of an exercise, under its own subheading: the same shape moved to another chord ("Move it: B7 to

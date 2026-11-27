@@ -116,7 +116,7 @@ type PlanToolProps =
   /** the chord on `degree` (1-7) of the scale, with its sus and extended chords around it */
   | { type: "chord-circle"; key: number; scale: string; degree: number }
   /** the CAGED shapes of the key's major or minor chord: `shapes` stacked in CAGED order; absent: all five on the whole neck */
-  | { type: "caged-neck"; key: number; scale: string; shapes?: CagedLetter[] }
+  | { type: "caged-neck"; key: number; scale: string; shapes?: CagedLetter[]; /** frame each shape's island on the whole neck; written by a person, never offered to the AI */ islands?: true }
   /** the key's 3rds or 6ths on one pair of strings (`strings`: guitar numbers, the lower string first), from fret `from` (absent: 0) to fret `to` (absent: the last fret drawn, 17) */
   | { type: "double-stops-neck"; key: number; scale: string; interval: DyadName; strings: string; level?: ToolLevel; from?: number; to?: number }
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing; /** per chord, exact frets written by a person ("5 7 7 5 x x"); never offered to the AI */ frets?: (string | null)[] }
@@ -514,7 +514,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   "caged-neck": {
     parse(t, d) {
       const sk = scaleKey(t, d);
-      return sk && { type: "caged-neck", ...sk, ...opt("shapes", shapesOf(t.shapes, d)) };
+      return sk && { type: "caged-neck", ...sk, ...opt("shapes", shapesOf(t.shapes, d)), ...(t.islands === true ? { islands: true as const } : {}) };
     },
   },
   "double-stops-neck": {
@@ -1291,8 +1291,8 @@ const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p
 // the video tool is offered only while the library has a video to watch
 /** Tools the parser reads but the AI plan is not offered (the user, 2026-11-13: no videos in the plan for now). */
 export const PROMPT_HIDDEN: ToolName[] = ["video"];
-/** Props the parser reads but the AI plan is not offered: frets are written by a person, never the AI (`exercises/CLAUDE.md`). */
-export const PROMPT_HIDDEN_PROPS: Partial<Record<ToolName, string[]>> = { "chord-shapes": ["frets"] };
+/** Props the parser reads but the AI plan is not offered: frets and islands are written by a person, never the AI (`exercises/CLAUDE.md`). */
+export const PROMPT_HIDDEN_PROPS: Partial<Record<ToolName, string[]>> = { "chord-shapes": ["frets"], "caged-neck": ["islands"] };
 const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name) && !PROMPT_HIDDEN.includes(d.name as ToolName))
   .map((d) => ({ ...d, props: d.props.filter((p) => !PROMPT_HIDDEN_PROPS[d.name as ToolName]?.includes(p.name)) }));
 /** Shapes the parser reads but the AI plan is not offered: a riff is written by hand in the riff maker, and a block that plays one comes from the library. */

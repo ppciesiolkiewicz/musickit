@@ -9,4 +9,9 @@ export interface CagedNeckProps {
   scale: string;
   /** the shapes to show, from "C", "A", "G", "E", "D"; absent: all five on the whole neck */
   shapes?: string[];
+  /**
+   * on the whole neck (no `shapes`): frame each shape's island, the notes the open chord's fingers press, moved up. Written by
+   * a person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)
+   */
+  islands?: boolean;
 }

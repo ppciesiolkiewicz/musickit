@@ -8,7 +8,7 @@ import ChordDiagram from "./ChordDiagram";
 import { fretWidthFactor } from "./Fretboard";
 import { DOT_INK, degreeColour } from "@/features/theory/scales";
 import {
-  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, boxScaleChords, cagedBoxes, cagedContext, ladderMidi, laneAt, laneStarts, layerNotes,
+  CAGED_THEORY, NECK_END, boxArpeggio, boxCells, boxChords, boxScaleChords, cagedBoxes, cagedContext, islandStrings, ladderMidi, laneAt, laneStarts, layerNotes,
   type ArpKind, type CagedBox, type CagedCell, type CagedQuality,
 } from "@/lib/chordKit/caged";
 import { STRING_PLAIN, STRING_SHORT } from "@/lib/chordKit/shapeTools";
@@ -174,11 +174,11 @@ const notesTitle = (kind: ArpKind, q: CagedQuality) => (kind === "triad" ? (q ==
 const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 
 /** The neck map on its own, for the teacher studio: the five boxes of a key up the whole neck. */
-export function CagedNeckMap({ rootPc, quality }: { rootPc: number; quality: CagedQuality }) {
+export function CagedNeckMap({ rootPc, quality, islands = false }: { rootPc: number; quality: CagedQuality; /** frame each shape's island (`islandStrings`) */ islands?: boolean }) {
   const [labelSystem] = useLabelSystem();
   const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
   const keyName = useMemo(() => cagedContext(rootPc, quality).names[0], [rootPc, quality]);
-  return <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind="triad" labelSystem={labelSystem} selected={null} embedded />;
+  return <Overview boxes={boxes} keyName={keyName} quality={quality} rootPc={rootPc} arpKind="triad" labelSystem={labelSystem} selected={null} embedded islands={islands} />;
 }
 
 /** One box on its own, for the teacher studio: its title, then the chord, arpeggio, pentatonic and scale in one row. */
@@ -202,10 +202,12 @@ export function CagedBoxPanels({ rootPc, quality, letter }: { rootPc: number; qu
 }
 
 /** The whole neck at a glance: a CSS grid with one column per fret and one row per string. Each CAGED box is a run of columns with its own colour. */
-function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selected, embedded = false }: {
+function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selected, embedded = false, islands = false }: {
   boxes: CagedBox[]; keyName: string; quality: CagedQuality; rootPc: number; arpKind: ArpKind; labelSystem: LabelSystem; selected: number | null;
   /** in the teacher studio: no label picker, and no bleed past the page margins */
   embedded?: boolean;
+  /** a frame in its shape's colour round each shape's island: the notes the open chord's fingers press, moved up */
+  islands?: boolean;
 }) {
   const cells = useMemo(() => boxCells(rootPc, quality, { ...boxes[0], from: 0, to: NECK_END }, arpKind).filter((c) => c.arpRole), [boxes, rootPc, quality, arpKind]);
   const lab = (c: CagedCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText, role: c.arpRole });
@@ -244,7 +246,7 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
         >
           {labelSpans.map(({ k, from, to }) => (
             <div key={k} className={`flex whitespace-nowrap px-1 pb-1.5 text-[10px] font-semibold sm:text-xs ${k === SECTIONS - 1 ? "justify-end" : "justify-center"}`} style={{ gridRow: 1, gridColumn: `${from + COL0} / ${to + COL0}`, color: colour(k) }}>
-              {sorted[k].letter}<span className="hidden @4xl:inline">&nbsp;shape · Position {k + 1}</span>
+              {sorted[k].letter}<span className="hidden @6xl:inline">&nbsp;shape · Position {k + 1}</span>
             </div>
           ))}
           {[5, 4, 3, 2, 1, 0].map((s, r) => (
@@ -291,6 +293,20 @@ function Overview({ boxes, keyName, quality, rootPc, arpKind, labelSystem, selec
               );
             }),
           )}
+          {islands && sorted.flatMap((b, k) => {
+            // one frame per run of neighbouring strings: the G shape's island is the two low strings and the high e
+            const runs = islandStrings(b).reduce<number[][]>((rs, i) => (rs.length && rs[rs.length - 1].at(-1) === i - 1 ? (rs[rs.length - 1].push(i), rs) : [...rs, [i]]), []);
+            return runs.map((ss) => {
+              const fs = ss.map((i) => b.frets[i] as number);
+              if (Math.max(...fs) > NECK_END) return null;
+              return (
+                <div key={`isl${k}-${ss[0]}`} aria-hidden className="pointer-events-none rounded-xl border-2" style={{
+                  gridRow: `${5 - Math.max(...ss) + 2} / ${5 - Math.min(...ss) + 3}`, gridColumn: `${Math.min(...fs) + COL0} / ${Math.max(...fs) + COL0 + 1}`,
+                  borderColor: colour(k), boxShadow: `0 0 10px color-mix(in srgb, ${colour(k)} 60%, transparent)`,
+                }} />
+              );
+            });
+          })}
           {frets.map((f) => (
             <div key={`fn${f}`} className="pt-1.5 text-center text-slate-500" style={{ gridRow: 8, gridColumn: f + COL0 }}>{f === 0 ? <><span className="sm:hidden">0</span><span className="hidden sm:inline">open</span></> : f}</div>
           ))}

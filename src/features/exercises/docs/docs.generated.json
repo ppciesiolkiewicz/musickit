@@ -266,6 +266,12 @@
         "type": "string[]",
         "required": false,
         "description": "the shapes to show, from \"C\", \"A\", \"G\", \"E\", \"D\"; absent: all five on the whole neck"
+      },
+      {
+        "name": "islands",
+        "type": "boolean",
+        "required": false,
+        "description": "on the whole neck (no `shapes`): frame each shape's island, the notes the open chord's fingers press, moved up. Written by\na person in an article or a seed block, never offered to the AI (`PROMPT_HIDDEN_PROPS`)"
       }
     ]
   },
