@@ -185,7 +185,9 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
                 </div>
               );
             })}
-            {higher && !path && upper.map((p) => {
+            {/* the copies higher up sit after a rule, so the five positions keep their places */}
+            {upper.length > 0 && <span aria-hidden className="mx-1 h-12 w-px self-center bg-slate-700" />}
+            {higher && upper.map((p) => {
               const on = pickedUpper.includes(placeKey(p));
               return (
                 <Hint key={placeKey(p)} title={`Position ${p.number}, higher up`} description="The same position an octave up. Tap it to frame it on the neck.">
@@ -200,7 +202,7 @@ function Neck({ slug, pc, positions: wanted, placement, cross: crossProp, add, e
                 </Hint>
               );
             })}
-            {upper.length > 0 && !path && (
+            {upper.length > 0 && (
               <Hint title="Higher up the neck" description="Adds the positions that fit again an octave up to this row.">
               <button
                 type="button" data-tour="position-neck-higher" aria-pressed={higher}
