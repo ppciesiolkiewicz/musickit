@@ -4,8 +4,14 @@ Public articles at `/learn/<slug>`, each written for one search a persona makes 
 what is on `/admin/dev/search`). Anyone can read them without logging in (`/learn` is in `MARKETING`, `src/lib/publicPaths.ts`),
 and they are in the sitemap (`src/app/sitemap.ts`, dated by each article's `updated`). They are linked as **Learn** in the site
 footer, as cards in the home page's **Try it now** section (`PlayersEnding`), from the FAQ ("Can I try attunr before I sign up?")
-and from `/voice-care`. `/learn` lists them as cards, then the
-join card.
+and from `/voice-care`, and the open tool pages link the guide on the same thing (`ui/GuideLink.tsx`, "Free guide: <title> →":
+the `guide` prop of the lesson card, `src/components/theory/Lesson.tsx`, on /theory/chords, /theory/caged, /theory/scales and
+/theory/metronome-drone, and over the major, natural minor and pentatonic scale pages in every key, `GUIDES` in
+`src/app/theory/scales/[slug]/[key]/page.tsx`). `/learn` lists them as cards, then the join card. Each topic has its own page,
+`/learn/guitar`, `/learn/singing` and `/learn/theory` (`topics.ts`, `TOPIC_PAGES`: its title, intro and search title, written
+for a broader search than one article; the pages are `src/app/learn/<topic>/` over `src/app/learn/_topic.tsx`), listing the
+topic's articles, with its own link preview and JSON-LD (`topicJsonLd`: a CollectionPage and the breadcrumb Home › Learn ›
+the topic), and in the sitemap, dated by the newest of its articles.
 
 An article does what the app's pages do: it ends in something to sing or play. Its exercises are the plan's own tools (`Tool`
 from `features/plan/ui/Tool`), set up in the article the way a seed exercise sets them up, drawn on the page with the mic and
@@ -32,7 +38,7 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - Tools as long as the neck (`WIDE` in `ui/ArticleView.tsx`, today `caged-neck`) reach out past the column into the spare room on a wide screen (`bleed`), on their own in an exercise or a one-tool `row`; none on a phone.
 - `ui/PlayerControls.tsx`: the `player` block: the sing-along player's controls (Staff or Piano roll, Tune, Chords and Click, the loop, Full screen, Accuracy under the settings button), each drawn inline as it looks on the screen. Written once here, placed by a singing article before its first run.
 - `author.ts`: `AUTHOR`, Pio's name, photo and note, shown in the join card and on `/about` (`src/app/about/page.tsx`, a ProfilePage), and `authorJsonLd`, the Person every article's structured data names as its author (`jsonLd.ts`).
-- `ui/LearnList.tsx`: /learn's cards with the topic buttons over them (All, Singing, Guitar, Theory); each card (`ui/ArticleCard.tsx`) shows its topic tags.
+- `ui/LearnList.tsx`: the cards with the topic links over them (All to /learn, #Singing, #Guitar, #Theory to each topic's page, the page's own one lit): links, not a filter, so a search engine finds the topic pages. Each card (`ui/ArticleCard.tsx`) shows its topic tags.
 - `ui/TempoTool.tsx`: a sung tune or run (melody-singer, run-singer) with a Tempo selector over it, 40, 60, 80 or 90 bpm (`ARTICLE_TEMPOS`), starting on the tempo the article wrote (40).
 - `art.ts`: `articleArt(slug)`, the article's picture, `public/images/learn/art/<slug>.svg` (1200 × 480, no words in it), drawn by
   `scripts/learn-art.mjs` (`node scripts/learn-art.mjs public/images/learn/art`), one function per slug; a new article needs one

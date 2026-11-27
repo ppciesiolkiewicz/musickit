@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { ARTICLES } from "@/features/articles";
+import { TOPIC_SLUGS, topicUpdated } from "@/features/articles/topics";
 import { SITE_URL } from "@/lib/site";
 import { OPEN_TOOLS } from "@/lib/publicPaths";
 import { MODE_PAGES } from "@/features/theory/scales";
@@ -9,7 +10,7 @@ import { scaleHref } from "@/features/theory/keySlug";
 /**
  * The day each page's words last changed, YYYY-MM-DD. Change it in the same commit as a real change to what the page says,
  * and not for anything else: a date that moves on every build tells search engines nothing, and they learn to ignore it.
- * An article's date is its own `updated`; /learn's is the newest of them.
+ * An article's date is its own `updated`; /learn's is the newest of them, and a topic page's (/learn/guitar) the newest of its own.
  */
 const CHANGED = {
   "/": "2026-11-26",
@@ -48,6 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/learn`, lastModified: day(learn), changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/about`, lastModified: day(CHANGED["/about"]), changeFrequency: "yearly", priority: 0.4 },
     { url: `${SITE_URL}/kickstarter`, lastModified: day(CHANGED["/kickstarter"]), changeFrequency: "monthly", priority: 0.5 },
+    ...TOPIC_SLUGS.map((t) => ({ url: `${SITE_URL}/learn/${t}`, lastModified: day(topicUpdated(t)), changeFrequency: "weekly" as const, priority: 0.7 })),
     ...ARTICLES.map((a) => ({ url: `${SITE_URL}/learn/${a.slug}`, lastModified: day(a.updated), changeFrequency: "monthly" as const, priority: 0.7 })),
     { url: `${SITE_URL}/explore`, lastModified: day(CHANGED["/explore"]), changeFrequency: "monthly", priority: 0.7 },
     ...OPEN_TOOLS.map((t) => ({ url: `${SITE_URL}${t}`, lastModified: day(toolDay(t)), changeFrequency: "monthly" as const, priority: 0.8 })),

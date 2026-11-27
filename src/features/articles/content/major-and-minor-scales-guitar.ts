@@ -3,7 +3,7 @@ import type { Article } from "../model";
 export const majorAndMinorScalesGuitar: Article = {
   slug: "major-and-minor-scales-guitar",
   title: "Major and minor scales side by side on the guitar neck",
-  metaTitle: "Major vs Minor Scale on Guitar: A Visual, Interactive Neck · attunr",
+  metaTitle: "Major vs Minor Scale on the Guitar Fretboard, Interactive · attunr",
   description: "A minor and A major side by side on an interactive guitar neck. Tap a note to hear it and play small islands of notes that come back all over the neck.",
   intro: "A visual, interactive look at A major and A minor on the whole neck, with a few small islands of notes to play and hear. Part 1 of a series on knowing one key all over the neck.",
   updated: "2026-11-27",

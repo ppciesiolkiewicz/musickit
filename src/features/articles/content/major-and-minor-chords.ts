@@ -3,7 +3,7 @@ import type { Article } from "../model";
 export const majorAndMinorChords: Article = {
   slug: "major-and-minor-chords",
   title: "Major and minor: what's the difference?",
-  metaTitle: "Major vs Minor Chords and Scales: A Visual, Interactive Guide · attunr",
+  metaTitle: "Major vs Minor Chords: Hear and See the Difference · attunr",
   description: "What makes a chord major or minor? One note, the 3rd. See it on interactive chord boxes, hear it, and learn to tell major from minor by ear.",
   intro: "A visual, interactive look at what makes a chord or a scale major or minor: one note, the 3rd. Play the pairs, then learn to hear the difference.",
   updated: "2026-11-27",

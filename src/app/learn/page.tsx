@@ -7,16 +7,16 @@ import LearnList from "@/features/articles/ui/LearnList";
 import { JoinCard } from "@/features/articles/ui/ArticleView";
 
 export const metadata: Metadata = {
-  title: "Learn: singing and guitar practice guides · attunr",
-  description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live.",
+  title: "Guitar Theory and Singing Lessons, Free and Interactive · attunr",
+  description: "Free guitar theory and singing guides with exercises on the page: chords, scales, CAGED, pitch matching and vocal warm-ups. Sing and see your pitch live.",
   alternates: { canonical: "/learn" },
-  ...shareMeta({ path: "/learn", title: "Learn: singing and guitar practice guides", description: "Short singing and guitar guides with exercises you do right on the page. Sing into your mic and see your pitch live." }),
+  ...shareMeta({ path: "/learn", title: "Guitar theory and singing guides", description: "Free guitar theory and singing guides with exercises on the page: chords, scales, CAGED, pitch matching and vocal warm-ups. Sing and see your pitch live." }),
 };
 
 /** The public articles (`features/articles`), one card each, with the topic filter over them (`LearnList`). */
 export default function LearnIndex() {
   return (
-    <PageShell active="/learn" column title="Learn" intro="Short guides with exercises you can do right on the page." decor={<GlassShapes />}>
+    <PageShell active="/learn" column title="Learn" intro="Short guitar theory and singing guides with exercises you can do right on the page." decor={<GlassShapes />}>
       <LearnList articles={ARTICLES} />
       <JoinCard />
     </PageShell>

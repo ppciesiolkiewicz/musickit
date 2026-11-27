@@ -4,12 +4,21 @@ import PageShell from "@/components/PageShell";
 import { SignUpCorner, SignUpEnd } from "@/features/explore";
 import ScalePage from "@/components/chordKit/ScalePage";
 import PentatonicPage from "@/components/chordKit/PentatonicPage";
+import GuideLink from "@/features/articles/ui/GuideLink";
 import { MODE_PAGES, findModePage } from "@/features/theory/scales";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { PENTATONICS, findPentatonic, pentatonicContext } from "@/features/theory/pentatonics";
 import { keySlug, parseKeySlug, scaleHref } from "@/features/theory/keySlug";
 
 type Params = { slug: string; key: string };
+
+/** The public article on a scale, linked over its page in every key (`GuideLink`). */
+const GUIDES: Record<string, string> = {
+  "major-ionian": "major-and-minor-scales-guitar",
+  "natural-minor-aeolian": "major-and-minor-scales-guitar",
+  "major-pentatonic": "major-and-minor-scales-guitar",
+  "minor-pentatonic": "major-and-minor-scales-guitar",
+};
 
 /** Every mode and pentatonic in every key is its own page, so each one can be found by search: /theory/scales/dorian/f-sharp */
 export function generateStaticParams(): Params[] {
@@ -54,6 +63,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   if (key !== keySlug(pc)) permanentRedirect(scaleHref(slug, pc));
   return (
     <PageShell action={<SignUpCorner />} end={<SignUpEnd />} active="/theory/scales" title="Scales and modes" full devices>
+      {GUIDES[slug] && <p className="mb-3 text-sm"><GuideLink slug={GUIDES[slug]} className="text-sky-300 hover:underline" /></p>}
       {page ? <ScalePage familyIndex={page.familyIndex} modeIndex={page.modeIndex} initialKey={pc} /> : <PentatonicPage slug={slug} initialKey={pc} />}
     </PageShell>
   );

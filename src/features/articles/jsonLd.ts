@@ -36,3 +36,37 @@ export function articleJsonLd(a: Article, site: string) {
     ],
   };
 }
+
+/**
+ * The structured data for a topic's page at /learn/<topic>: a CollectionPage listing its articles, published by the site's
+ * Organization, and its breadcrumb, Home › Learn › the topic.
+ */
+export function topicJsonLd(t: { topic: string; title: string; description: string }, articles: Pick<Article, "slug" | "title">[], site: string) {
+  const url = `${site}/learn/${t.topic}`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${url}#page`,
+        name: t.title,
+        description: t.description,
+        url,
+        inLanguage: "en",
+        publisher: { "@id": `${site}/#organization` },
+        mainEntity: {
+          "@type": "ItemList",
+          itemListElement: articles.map((a, i) => ({ "@type": "ListItem", position: i + 1, url: `${site}/learn/${a.slug}`, name: a.title })),
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${site}/` },
+          { "@type": "ListItem", position: 2, name: "Learn", item: `${site}/learn` },
+          { "@type": "ListItem", position: 3, name: t.title, item: url },
+        ],
+      },
+    ],
+  };
+}

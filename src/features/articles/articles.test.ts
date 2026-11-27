@@ -9,6 +9,7 @@ import { blockRoots, markArticle, markTitle, runsOf } from "./marks";
 import { GLOSSARY } from "@/features/course/glossary";
 import { ARTICLE_VOICE_VERSION, type ArticleSeed } from "./model";
 import { articleStats, articleTexts } from "./stats";
+import { TOPIC_PAGES, TOPIC_SLUGS, articlesOf } from "./topics";
 
 const seedOf = (slug: string): ArticleSeed => JSON.parse(readFileSync(new URL(`./seeds/${slug}.json`, import.meta.url), "utf8"));
 const texts = articleTexts;
@@ -52,6 +53,15 @@ describe("articles", () => {
     for (const a of ARTICLES) {
       assert.ok(a.topics.length > 0, a.slug);
       assert.equal(new Set(a.topics).size, a.topics.length, a.slug);
+    }
+  });
+
+  it("give every topic a page at /learn/<topic> that no article's slug takes, with a search description short enough and articles to list", () => {
+    for (const t of TOPIC_SLUGS) {
+      assert.equal(TOPIC_PAGES[t].topic, t);
+      assert.ok(!ARTICLES.some((a) => a.slug === t), t);
+      assert.ok(TOPIC_PAGES[t].description.length <= 160, t);
+      assert.ok(articlesOf(t).length > 0, t);
     }
   });
 

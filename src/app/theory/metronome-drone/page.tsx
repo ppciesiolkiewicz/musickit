@@ -27,7 +27,7 @@ export default function MetronomeDronePage() {
     >
       {/* the tool keeps its own tempo, key and style: the panel holds the app's volume */}
       <SettingsPanel settings={<SettingsSection first><VolumeRow /></SettingsSection>}>
-      <Lesson course="9/modes-over-drone" why="A drone fixes the root so you can hear how every other note relates to it; it is the quickest way to feel the colour of a mode." tryThis="Start the drone on D and play D Dorian slowly. Stop on the 6th (B) and listen to how it brightens the minor sound." />
+      <Lesson course="9/modes-over-drone" guide="scale-degree-feelings" why="A drone fixes the root so you can hear how every other note relates to it; it is the quickest way to feel the colour of a mode." tryThis="Start the drone on D and play D Dorian slowly. Stop on the 6th (B) and listen to how it brightens the minor sound." />
       <WireNam />
       <JamPage />
       </SettingsPanel>

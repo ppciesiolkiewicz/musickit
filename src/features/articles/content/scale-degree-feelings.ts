@@ -3,7 +3,7 @@ import type { Article } from "../model";
 export const scaleDegreeFeelings: Article = {
   slug: "scale-degree-feelings",
   title: "Learning music theory as a way of naming feelings",
-  metaTitle: "Scale Degrees by Ear: Name How Each Note Feels, Interactive · attunr",
+  metaTitle: "Scale Degrees Ear Training: Name How Each Note Feels · attunr",
   description: "Each note of the scale has a feeling that comes back in any key. Sing it over a drone and name it by scale degree or interval, in interactive exercises.",
   intro: "Every note of a scale has its own feeling, and it's the same in any key. Theory gives that feeling a name. Four interactive exercises to hear it and sing it on this page.",
   updated: "2026-11-27",

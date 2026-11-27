@@ -1,25 +1,25 @@
-"use client";
-
-import { useState } from "react";
+import Link from "next/link";
 import { TOPICS, type Article, type Topic } from "../model";
 import ArticleCard from "./ArticleCard";
 import { TOPIC_STYLE, tagOf } from "./topicTags";
 
-/** /learn's list of articles with a row of topic buttons over it: All, #Singing, #Guitar, #Theory, each topic in its colour. Every card is in the page's HTML; the filter only hides cards. */
-export default function LearnList({ articles }: { articles: Article[] }) {
-  const [topic, setTopic] = useState<Topic | null>(null);
+/**
+ * A list of articles with a row of topic links over it: All (/learn), #Singing, #Guitar, #Theory (/learn/<topic>), each topic in
+ * its colour, the page's own one lit. Links, not a filter, so a search engine finds each topic's page.
+ */
+export default function LearnList({ articles, topic = null }: { articles: Article[]; topic?: Topic | null }) {
   const chip = (on: boolean, t?: Topic) =>
     `rounded-full border px-3.5 py-1.5 text-sm font-medium transition ${t ? TOPIC_STYLE[t][on ? "on" : "off"] : on ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-950/40 text-slate-300 hover:border-slate-500"}`;
   return (
     <>
-      <div role="group" aria-label="Show guides about" className="mb-4 flex flex-wrap gap-2">
-        <button type="button" aria-pressed={topic === null} className={chip(topic === null)} onClick={() => setTopic(null)}>All</button>
+      <nav aria-label="Guides by topic" className="mb-4 flex flex-wrap gap-2">
+        <Link href="/learn" aria-current={topic === null ? "page" : undefined} className={chip(topic === null)}>All</Link>
         {(Object.keys(TOPICS) as Topic[]).map((t) => (
-          <button key={t} type="button" aria-pressed={topic === t} className={chip(topic === t, t)} onClick={() => setTopic(t)}>{tagOf(t)}</button>
+          <Link key={t} href={`/learn/${t}`} aria-current={topic === t ? "page" : undefined} className={chip(topic === t, t)}>{tagOf(t)}</Link>
         ))}
-      </div>
+      </nav>
       <ul className="flex flex-col gap-4">
-        {articles.map((a) => <li key={a.slug} hidden={topic !== null && !a.topics.includes(topic)}><ArticleCard article={a} /></li>)}
+        {articles.map((a) => <li key={a.slug}><ArticleCard article={a} /></li>)}
       </ul>
     </>
   );

@@ -3,7 +3,7 @@ import type { Article } from "../model";
 export const scaleDegreesGuitarAnyKey: Article = {
   slug: "scale-degrees-guitar-any-key",
   title: "Scale degrees on the guitar: Do Re Do in any key",
-  metaTitle: "Scale Degrees on Guitar: One Shape, Any Key, Interactive · attunr",
+  metaTitle: "Scale Degrees on the Guitar Fretboard in Any Key, Interactive · attunr",
   description: "Play Do Re Do in A minor, then in E minor, on a visual, interactive guitar neck. The same small shape, the same feeling, all over the neck and in any key.",
   intro: "A visual, interactive drill: one small island of notes, Do Re Do, found all over the neck in A minor and then in E minor. Part 2 of a series on knowing one key all over the neck.",
   updated: "2026-11-27",
