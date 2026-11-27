@@ -2,6 +2,7 @@ import type { Article } from "./model";
 import { barreChordAlternatives } from "./content/barre-chord-alternatives";
 import { cagedSystemGuitar } from "./content/caged-system-guitar";
 import { intervalsAndSolfege } from "./content/intervals-and-solfege";
+import { majorAndMinorChords } from "./content/major-and-minor-chords";
 import { majorAndMinorScalesGuitar } from "./content/major-and-minor-scales-guitar";
 import { movableChordShapes } from "./content/movable-chord-shapes";
 import { microphoneAndAudioInterface } from "./content/microphone-and-audio-interface";
@@ -13,6 +14,6 @@ import { vocalWarmUps } from "./content/vocal-warm-ups";
 export type { Article, ArticleBlock, ArticleSeed } from "./model";
 
 /** Every public article, in the order /learn lists them. A new one is a file in content/, its seed in seeds/, and an entry here. */
-export const ARTICLES: Article[] = [pitchMatchingExercises, vocalWarmUps, scaleDegreeFeelings, intervalsAndSolfege, majorAndMinorScalesGuitar, scaleDegreesGuitarAnyKey, cagedSystemGuitar, barreChordAlternatives, movableChordShapes, microphoneAndAudioInterface];
+export const ARTICLES: Article[] = [pitchMatchingExercises, vocalWarmUps, scaleDegreeFeelings, intervalsAndSolfege, majorAndMinorChords, majorAndMinorScalesGuitar, scaleDegreesGuitarAnyKey, cagedSystemGuitar, barreChordAlternatives, movableChordShapes, microphoneAndAudioInterface];
 
 export const articleOf = (slug: string): Article | undefined => ARTICLES.find((a) => a.slug === slug);

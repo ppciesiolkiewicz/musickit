@@ -116,5 +116,6 @@ export const movableChordShapes: Article = {
       "Pick an open chord you know and look for its open strings. Give each one a finger, then slide the shape up and see if it still fits your hand.",
     ] },
     { type: "p", text: "You'll notice finding the root on the low E and A strings getting quicker first. Then a shape you know turns into the chord you need, wherever the song is, and that's half of every barre chord already." },
+    { type: "p", text: "Next: [the CAGED system](/learn/caged-system-guitar), five movable shapes of one chord that join up the whole neck." },
   ],
 };

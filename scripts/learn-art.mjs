@@ -191,6 +191,18 @@ function caged() {
     `${n.board}${bands.map(band).join("")}${dots}`);
 }
 
+// 11. Major and minor: E, then Em with the one finger lifted, a glowing ring where the 3rd was.
+function majorMinor() {
+  const E = { dots: [[1, 2], [2, 2], [3, 1]], open: [0, 4, 5] };
+  const Em = { dots: [[1, 2], [2, 2]], open: [0, 3, 4, 5] };
+  return base([[260, 260, 200, "amber", 0.24], [940, 220, 220, "violet", 0.26], [600, 440, 180, "sky", 0.14]],
+    `${chordBox(250, 125, E, false)}
+<path d="M540 250h120m-26-26 26 26-26 26" fill="none" stroke="#e2e8f0" stroke-opacity=".7" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+${chordBox(760, 125, Em, true)}
+<circle cx="880" cy="150" r="22" fill="none" stroke="${C.rose}" stroke-width="4" stroke-dasharray="6 6" filter="url(#glow)"/>`,
+    grad("chord", ["violet", "sky"], 1, 1));
+}
+
 // 8. Microphone and audio interface: a mic, its cable and a two-knob box, sound coming in.
 function mic() {
   const mesh = [];
@@ -228,6 +240,7 @@ const ART = {
   "microphone-and-audio-interface-for-singing": mic,
   "movable-chord-shapes": movable,
   "caged-system-guitar": caged,
+  "major-and-minor-chords": majorMinor,
 };
 for (const [slug, draw] of Object.entries(ART)) writeFileSync(`${OUT}/${slug}.svg`, draw());
 console.log(Object.keys(ART).length, "written");

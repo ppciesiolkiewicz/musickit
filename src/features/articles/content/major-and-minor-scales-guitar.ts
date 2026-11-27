@@ -104,5 +104,6 @@ export const majorAndMinorScalesGuitar: Article = {
     ] },
     { type: "p", text: "Before long you'll spot an A anywhere on the neck and know which notes sit around it." },
     { type: "p", text: "Next in this series: [Do Re Do in any key](/learn/scale-degrees-guitar-any-key), the smallest island, moved to E minor." },
+    { type: "p", text: "New to what makes a scale or chord major or minor? Start with [Major and minor: what's the difference?](/learn/major-and-minor-chords). For the chords that sit on these notes up the neck, see [the CAGED system](/learn/caged-system-guitar)." },
   ],
 };

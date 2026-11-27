@@ -1,0 +1,34 @@
+{
+  "slug": "major-and-minor-chords",
+  "query": "difference between major and minor chords",
+  "persona": "guitarist",
+  "written": "2026-11-27",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "agents": 2,
+    "teaching": 12,
+    "voice": 4
+  },
+  "notes": [
+    "Let's cross link some articles and add basic articles like Minor and Major, (2026-11-27)"
+  ],
+  "blocks": [
+    "theory-only-first-week-major-and-minor-chords-one-note-apart",
+    "theory-only-first-week-major-3rd-or-minor-3rd",
+    "theory-beginner-major-minor-one-root",
+    "theory-only-first-week-major-key-or-minor-key-by-ear"
+  ],
+  "calculator": [
+    "npm run -s theory -- scale E major / E minor (G♯ against G), A major / A minor (C♯ against C), D major / D minor (F♯ against F): open E 0-2-2-1-0-0 / Em 0-2-2-0-0-0, A x-0-2-2-2-0 / Am x-0-2-2-1-0, D x-x-0-2-3-2 / Dm x-x-0-2-3-1",
+    "npm run -s theory -- scale C major / C minor (C D E F G A B; C D E♭ F G A♭ B♭: the 3rd, 6th and 7th a fret lower)",
+    "npm run -s theory -- scale G major; npm run -s theory -- scale E minor (G A B C D E F♯ = E F♯ G A B C D)",
+    "npm run -s theory -- boxes G major (E shape 3-5-5-4-3-3; Gm in the E shape 3-5-5-3-3-3: the G string's 3rd lifts off)"
+  ],
+  "sources": [
+    "/admin/dev/search"
+  ],
+  "open": [
+    "Search volume for the query not checked yet.",
+    "Other basic articles the author asked for (\"basic articles like Minor and Major\") not chosen yet."
+  ]
+}

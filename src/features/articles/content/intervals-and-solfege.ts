@@ -67,5 +67,6 @@ export const intervalsAndSolfege: Article = {
       "Find Do, Fa and Sol on your guitar from any A, with the [guitar neck guide](/learn/major-and-minor-scales-guitar).",
     ] },
     { type: "p", text: "Before long one name will bring up the other, and you won't mind which one a page uses." },
+    { type: "p", text: "The two 3rds, m3 and M3, are what make a chord minor or major. [Major and minor: what's the difference?](/learn/major-and-minor-chords) shows it on the guitar." },
   ],
 };

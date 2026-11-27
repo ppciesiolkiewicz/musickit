@@ -51,5 +51,6 @@ export const scaleDegreesGuitarAnyKey: Article = {
     ] },
     { type: "p", text: "Before long you'll hear Do Re Do in songs and know where to find it on the neck." },
     { type: "p", text: "That's how it went for me. Once I could sing short tunes like this, I heard them better in songs, and then I could play them on the guitar." },
+    { type: "p", text: "Want the chords around these notes too? [The CAGED system](/learn/caged-system-guitar) shows one chord in five shapes up the neck." },
   ],
 };

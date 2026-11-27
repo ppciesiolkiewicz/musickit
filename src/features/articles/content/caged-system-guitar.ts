@@ -12,6 +12,8 @@ export const cagedSystemGuitar: Article = {
   blocks: [
     { type: "p", text: "You probably know the open chords C, A, G, E and D. Here's the surprise: those five shapes are all you need to play any chord anywhere on the neck." },
     { type: "p", text: "Take the shape of an open chord, slide it up and press the open strings with a finger, and you get the same chord higher up. Do it with all five and they join end to end along the neck, always in the same order: C, A, G, E, D. That order is where the name CAGED comes from." },
+    { type: "p", text: "Each shape you slide up this way is a movable shape: with no open strings left, your hand carries the whole chord to any fret. CAGED is five movable shapes for one chord, joined end to end." },
+    { type: "guide", slug: "movable-chord-shapes", text: "Never slid a chord shape up the neck? This guide starts with one shape and two chords." },
     { type: "p", text: "In this guide you'll play C in all five shapes, then find A minor hiding in the same frets." },
 
     { type: "h2", text: "How to read the necks" },
@@ -72,6 +74,7 @@ export const cagedSystemGuitar: Article = {
 
     { type: "h2", text: "The relative minor chord" },
     { type: "p", text: "Every major key has a relative minor: a minor key with exactly the same notes. C major is C, D, E, F, G, A and B. A minor is A, B, C, D, E, F and G. Same seven notes, a different home note." },
+    { type: "guide", slug: "major-and-minor-chords", text: "Not sure what makes a chord minor? This guide shows the one note that changes, and how to hear it." },
     { type: "p", text: "So Am, the relative minor chord of C, lives in the same frets as C, all the way up the neck. Its root, A, is three frets below C on the same string. And its shape is always the next letter of CAGED: where C is in the C shape, Am is in the A shape." },
 
     { type: "exercise", title: "6. C and Am in the same frets", lines: [
@@ -99,6 +102,6 @@ export const cagedSystemGuitar: Article = {
       "Strum a slow C, Am, C, Am in one shape, then move the same change to the next shape up.",
     ] },
     { type: "p", text: "Before long, any chord you know will have five places on the neck, and its relative minor right beside each one." },
-    { type: "p", text: "To see the scale around these shapes, try [Major and minor scales side by side on the guitar neck](/learn/major-and-minor-scales-guitar)." },
+    { type: "p", text: "To see the scale around these shapes, try [Major and minor scales side by side on the guitar neck](/learn/major-and-minor-scales-guitar). For easier versions of the barre shapes, see [Barre chord alternatives](/learn/barre-chord-alternatives)." },
   ],
 };
