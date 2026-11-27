@@ -72,6 +72,7 @@ export function barreAlternatives(query: string): AlternativesResult {
 
   if (minor) {
     if (a >= 1) items.push({ title: "Four strings", text: "The open Am shape moved up, on the top four strings. Nothing added, only the low root left out, so it fits almost anywhere the barre does.", chord: name, frets: fretsOf([null, null, a + 2, a + 2, a + 1, a]) });
+    if (e >= 1) items.push({ title: "m7, root on the low E", text: "Adds the ♭7. Softer and jazzier than the barre: four fingers, no barre.", chord: `${root}m7`, frets: fretsOf([e, null, e, e, e, null]) });
   } else {
     if (R === 11) items.push({ title: "B7", text: "Adds the ♭7. Fits where B goes to E or Em.", chord: "B7", frets: "x 2 1 2 0 2" });
     const mid = lowestTriad(R, false, "432");

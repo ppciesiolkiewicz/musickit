@@ -4,9 +4,9 @@ export const barreChordAlternatives: Article = {
   slug: "barre-chord-alternatives",
   title: "Easy alternatives to barre chords",
   metaTitle: "Easy Barre Chord Alternatives for F, B and Minor Chords · attunr",
-  description: "Can't play F or B yet? Fmaj7, B7, four-string minor chords, triads and two no-barre shapes, with audio for each.",
+  description: "Can't play F or B yet? Fmaj7, B7, four-string minor chords, triads and three no-barre shapes, with audio for each.",
   intro: "Easier chords that do a barre chord's job while the barre comes along, to hear and play right on the page.",
-  updated: "2026-11-26",
+  updated: "2026-11-27",
   sings: false,
   topics: ["guitar"],
   blocks: [
@@ -126,11 +126,21 @@ export const barreChordAlternatives: Article = {
       ], tool: { type: "chord-shapes", chords: ["Fmaj7", "Gmaj7", "Amaj7"], frets: ["1 x 2 2 1 x | 1 x 3 4 2 x", "3 x 4 4 3 x | 1 x 3 4 2 x", "5 x 6 6 5 x | 1 x 3 4 2 x"] } },
     ] },
 
+    { type: "exercise", title: "8. The m7 shape on the low E", lines: [
+      "Minor barres with their root on the low E string have a jazz shape of their own: the m7 chord, the minor chord with the ♭7 added. Jazz players call this kind of chord a drop 3 chord.",
+      "Four fingers, one on each note, no barre: your first finger takes the root on the low E. Skip the A string: your other three fingers sit side by side on the next three strings, all on the same fret. Your first finger touches the A string lightly to keep it quiet, and the high e stays quiet too.",
+      "The ♭7 makes it softer and jazzier than the plain minor chord. Press Play under Fm below, then under Fm7.",
+    ], tool: { type: "chord-shapes", chords: ["Fm", "Fm7"], frets: ["1 3 3 1 1 1", "1 x 1 1 1 x | 1 x 2 3 4 x"] }, parts: [
+      { title: "Movable shapes", lines: [
+        "Slide it up two frets for Gm7, and two more for Am7.",
+      ], tool: { type: "chord-shapes", chords: ["Fm7", "Gm7", "Am7"], frets: ["1 x 1 1 1 x | 1 x 2 3 4 x", "3 x 3 3 3 x | 1 x 2 3 4 x", "5 x 5 5 5 x | 1 x 2 3 4 x"] } },
+    ] },
+
     { type: "h2", text: "Summary" },
     { type: "list", items: [
       "**F:** Fmaj7, softer, so try it in the song first. Leave out the high e and it's plain F.",
       "**B:** B7, where the song goes on to E or Em.",
-      "**A minor barre:** the open Am shape moved up, on the top four strings, or the open Dm shape moved up (Fm, Gm).",
+      "**A minor barre:** the open Am shape moved up, on the top four strings, or the open Dm shape moved up (Fm, Gm). For a jazzier sound, the m7 shape on the low E.",
       "**A major barre:** a triad on the top three strings (B♭ is the B triad one fret down), or the open D shape moved up.",
       "**A blues or funk song:** the 9 chord.",
       "**Moving a shape:** with no open strings it moves as it is. With open strings, a finger has to take their place.",
