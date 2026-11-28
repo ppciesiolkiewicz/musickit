@@ -22,10 +22,10 @@ function VersionBadge({ name, v, now, what }: { name: string; v: number | null; 
   );
 }
 
-/** The three versions as badges, prompt first. */
-export default function VersionBadges({ v }: { v: WrittenTo }) {
+/** The three versions as badges, prompt first: in a row, or one per line (`stacked`, for a table cell). */
+export default function VersionBadges({ v, stacked = false }: { v: WrittenTo; stacked?: boolean }) {
   return (
-    <span className="inline-flex flex-wrap gap-1">
+    <span className={stacked ? "inline-flex flex-col items-start gap-1 whitespace-nowrap" : "inline-flex flex-wrap gap-1"}>
       {DOCS.map((d) => <VersionBadge key={d.key} name={d.key} v={v[d.key]} now={d.now} what={d.what} />)}
     </span>
   );

@@ -199,7 +199,7 @@ export function PlansTable({ plans = SEED_PLANS, params, open }: { plans?: SeedP
               <tr key={f.id} className={ROW}>
                 <td className="p-2"><ItemLink tab="plans" id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} open={isOpen} params={params} /><Tags tags={demo ? ["seed", "demo"] : ["seed"]} demo={demo} /></td>
                 <td className="p-2">{f.model}</td>
-                <td className="p-2"><VersionBadges v={f.versions} /></td>
+                <td className="p-2"><VersionBadges v={f.versions} stacked /></td>
                 <td className="p-2">{Array.isArray(f.plan.days) ? f.plan.days.length : 0}</td>
               </tr>,
               isOpen && open ? <OpenRow key={`${f.id}:open`} cols={PLAN_COLS.length}>{open}</OpenRow> : null,
@@ -276,7 +276,7 @@ export function BlocksTable({ blocks, params, open, riffEdited = [] }: { blocks:
                 <td className="p-2">{orDash(b.level)}</td>
                 <td className="p-2">{b.concepts.join(", ") || "–"}</td>
                 <td className="p-2">{orDash(b.provenance.model)}</td>
-                <td className="p-2"><VersionBadges v={{ prompt: b.provenance.promptVersion, agents: b.provenance.docsAgents, teaching: b.provenance.docsTeaching }} /></td>
+                <td className="p-2"><VersionBadges v={{ prompt: b.provenance.promptVersion, agents: b.provenance.docsAgents, teaching: b.provenance.docsTeaching }} stacked /></td>
                 <td className="p-2">{b.use.times}</td>
                 <td className="p-2">{minutes(b.use.seconds)}</td>
                 {b.use.stars.map((n, i) => <td key={i} className="p-2">{n}</td>)}
