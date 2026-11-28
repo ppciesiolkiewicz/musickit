@@ -1,14 +1,14 @@
 {
   "id": "theory-intermediate-seventh-chords",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 1
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Three 7th chords on one root, each a neck with only its root and the notes that make it different ringed, one view per chord, then named by ear on any root. The why gives the learner the way to tell them apart (which note moved), each step is a tap on the neck instead of a description of the sound, and the game's answers are named as its buttons show them.",
+  "note": "Three 7th chords on one root (sevenths-up:5), each on a staff of only its four notes with the root and the note that moved ringed, then named by ear in the game, its answers named as its buttons show them. The guitar arpeggio necks became staffs, so the drill works for any instrument; the root is moves (any key), named as {{=key}} and the chords as chord tokens (Imaj7, I7, i7), with a {{?key}} line on what stays the same.",
   "exercise": {
-    "title": "Three 7th chords on C",
+    "title": "Three 7th chords on {{=key}}",
     "area": "theory",
     "tags": [
       "theory",
@@ -30,32 +30,50 @@
         "cells": [
           {
             "type": "text",
-            "text": "Cmaj7 has a major 7th, {{7}}, a half step under the root. Tap {{1}} then {{7}} on the neck below, then tap through the whole chord."
+            "text": "{{chord:Imaj7}} has a major 7th, {{7}}, a half step under the root. Tap {{1}}, then {{7}}, on the staff below, then tap up the whole chord."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "arpeggio-neck",
-              "chord": "Cmaj7",
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "3",
+                "5",
+                "7"
+              ],
               "highlight": [
                 "1",
                 "7"
-              ]
+              ],
+              "mic": false
             }
           },
           {
             "type": "text",
-            "text": "C7 lowers that one note to {{b7}}, a whole step under the root. Tap {{1}} then {{b7}}, then the whole chord, and go back to Cmaj7 above to compare."
+            "text": "{{chord:I7}} lowers that one note to {{b7}}, a whole step under the root. Tap {{1}}, then {{b7}}, then the whole chord, and go back to the staff above to compare.\nListen for the top note: a half step under the octave, or a whole step."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "arpeggio-neck",
-              "chord": "C7",
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "3",
+                "5",
+                "b7"
+              ],
               "highlight": [
                 "1",
                 "b7"
-              ]
+              ],
+              "mic": false
             }
           }
         ]
@@ -67,18 +85,27 @@
         "cells": [
           {
             "type": "text",
-            "text": "Cm7 keeps {{b7}} and lowers the 3rd a half step to {{b3}}. Tap {{1}} {{b3}} {{b7}}, then the whole chord. Go between the three necks until you can say which note moved."
+            "text": "{{chord:i7}} keeps {{b7}} and lowers the 3rd a half step, to {{b3}}. Tap {{1}}, {{b3}} and {{b7}}, then the whole chord.\nGo between the three staffs. Practice until you can say which note moved before you look.\n{{?key}}On another root the notes are new, and each chord still differs from the next by the same one note."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "arpeggio-neck",
-              "chord": "Cm7",
+              "type": "staff",
+              "scale": "dorian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "b3",
+                "5",
+                "b7"
+              ],
               "highlight": [
                 "1",
                 "b3",
                 "b7"
-              ]
+              ],
+              "mic": false
             }
           }
         ]
@@ -90,7 +117,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays a chord on a new root each time, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7. Listen to the top note first: a half step under the octave means Major 7. Practice until the name comes before you work it out."
+            "text": "Press Start in the game below to hear a chord on a new root each time. Pick Major, Minor, Dominant 7, Major 7 or Minor 7: Dominant 7 is the chord written 7.\nPractice until the name comes before you work it out."
           },
           {
             "type": "tool",
@@ -113,6 +140,9 @@
       "steps": [
         "sevenths-up:5"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 9
     }
   ]

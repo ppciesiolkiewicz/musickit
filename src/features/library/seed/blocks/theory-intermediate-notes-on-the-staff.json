@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-notes-on-the-staff",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track note-names (theory-basics), step 3: reading the treble clef, lines, spaces and the notes under the lines. The staffs use the mezzo voice because the tenor staff is drawn in the treble clef with an 8. Missing: a note-reading game (a note shown on the staff, the player names it); staff cannot hide its labels, fix its clef, or light only the notes on the lines, so the player has to check against labels that are always in view, and they are letters only while the player's label setting is note names.",
+  "note": "Reading the treble clef (note-names:3): the letters tapped up a staff from the G line, then the staff-reading game for the lines, the spaces and the notes on ledger lines, its letter buttons named as they show. The game replaces the old staffs with labels always in view, so the player names a note before seeing its name. The first staff uses the mezzo voice, since the tenor staff is drawn in the treble clef with an 8.",
   "exercise": {
     "title": "Reading notes in the treble clef",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below is in the treble clef, which curls around the second line from the bottom: that line is {{g}}, ringed here. Tap up from the ringed {{g}} and say each letter: the notes go line, space, line, space."
+            "text": "The staff below is in the treble clef, which curls around the second line from the bottom: that line is {{g}}, ringed here. Tap up from the ringed {{g}} and say each letter: the notes go line, space, line, space.\nPractice until the letters come in order without looking at the labels."
           },
           {
             "type": "tool",
@@ -53,19 +53,13 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap only the notes that sit on the five lines, from the bottom line up, and say each letter. Then tap them in any order.\nPractice until you can name a line without counting up from {{g}}."
+            "text": "The game below draws one note on a line of the staff, with \"?\" under it. Name it by pressing its letter, C to B, under the staff: the game says the note and where it sits, then asks the next one.\nPractice until you can name a line without counting up from the G line."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "staff",
-              "scale": "major-ionian",
-              "key": "c",
-              "voice": "mezzo",
-              "highlight": [
-                "5"
-              ],
-              "mic": false
+              "type": "staff-reading",
+              "notes": "lines"
             }
           }
         ]
@@ -77,37 +71,31 @@
         "cells": [
           {
             "type": "text",
-            "text": "Now tap only the notes in the four spaces between the lines, from the bottom up, and say each letter.\nThen point at any note, line or space, say its letter, and tap it to check against its label."
+            "text": "Now the game below asks the notes in the four spaces between the lines. Press the letter of each note as it comes.\nIf you get one wrong, count up from the bottom space, one letter for each space and line, before you answer the next."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "staff",
-              "scale": "major-ionian",
-              "key": "c",
-              "voice": "mezzo",
-              "mic": false
+              "type": "staff-reading",
+              "notes": "spaces"
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "Under the lines",
+        "heading": "Ledger lines",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "This staff starts lower, on {{a}}, so its first notes sit under the five lines, on short lines of their own. Tap up from the lowest note and say each letter.\nIf you get lost, count down from the bottom line, one letter for each line or space."
+            "text": "This game asks the notes just under and just above the five lines, some on short lines of their own, the ledger lines. Press the letter of each note as it comes.\nIf you get lost, count from the nearest line of the staff, one letter for each line or space."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "staff",
-              "scale": "natural-minor-aeolian",
-              "key": "a",
-              "voice": "mezzo",
-              "mic": false
+              "type": "staff-reading",
+              "notes": "ledger"
             }
           }
         ]

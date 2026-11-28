@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-sus4-the-4th-in-place-of-the-3rd",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 6.",
+  "note": "Sus4 heard against the plain chord (sus:1) on the chord circle: C and Csus4 tapped in turn until the 4th is heard falling to the 3rd, then G and Gsus4, the second key, with the fall heard ahead and a line on what stays the same. Chord tokens have no sus chords, so the chord names stay letters, the keys are fixed and there are no moves.",
   "exercise": {
     "title": "Sus4: the 4th in place of the 3rd",
     "area": "theory",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The diagram below has the C chord in the middle and, around it, the chords it can turn into. Tap the middle to hear C. Then tap Csus4, out to the right: the panel next to the diagram shows its notes, with F in place of E.\nGo from Csus4 back to C until you hear {{4}} falling to {{3}}."
+            "text": "The chord circle below has the C chord in the middle and, around it, the chords it can turn into. Tap the middle to hear C. Then tap Csus4: it has {{4}} in place of {{3}}.\nGo from Csus4 back to C. Practice until you hear {{4}} falling to {{3}} each time."
           },
           {
             "type": "tool",
@@ -50,7 +50,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The same diagram for the G chord of G major. Tap the middle, then Gsus4, then the middle again.\nThe notes are new, but it is again {{4}} standing in for {{3}} and falling back to it. Then tap Gsus4 and wait. Hear in your head the note it will fall to, then tap the middle to check."
+            "text": "The chord circle below has the G chord in the middle. Tap the middle, then Gsus4, then the middle again.\nThen tap Gsus4 and wait: hear in your head the note it will fall to, then tap the middle to check.\nIn G the notes are new, and the sus4 chord still has {{4}} standing in for {{3}} and falling back to it."
           },
           {
             "type": "tool",

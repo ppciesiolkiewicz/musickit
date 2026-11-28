@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-f-major-its-scale-its-chords-its-7th",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 7.",
+  "note": "Opening a new key, F major (keys:1, scales:3): its half steps and its one flat on the piano, its three major chords read off the circle and counted the long way once as chord tokens, then their numbers called out over a backing track. F is the lesson (one flat), so there are no moves; the chords are tokens, named in F by the tools.",
   "exercise": {
     "title": "F major: its scale, its chords, its 7th",
     "area": "theory",
@@ -19,7 +19,7 @@
       "keys",
       "scales"
     ],
-    "why": "A key is one scale and the chords built on it, so the same three moves open any new key: find the scale, find its 1, 4 and 5, then hear them.",
+    "why": "A key is one scale and the chords built on it, so the same three moves open any new key: find the scale, find the chords on its 1st, 4th and 5th notes, then hear them.",
     "learnBefore": [
       "/course/10/moving-keys",
       "/course/5/one-four-five"
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The piano below shows F major. Before you tap, say where its two half steps fall. Then tap from {{1}} up to the next {{1}} to check: they sit between {{3}} and {{4}}, and between {{7}} and {{1}}, as in every major scale.\nThe one black key is {{b-flat}}, the 4th note."
+            "text": "The piano below shows F major. Say where its two half steps fall, then tap from {{1}} up to the next {{1}} to check: they sit between {{3}} and {{4}}, and between {{7}} and {{1}}, as in every major scale.\nThe one black key is {{b-flat}}, the 4th note: it is the key's one flat."
           },
           {
             "type": "tool",
@@ -51,7 +51,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The circle below is on F major. Read the 1, 4 and 5 off the marked keys on its outer ring: F, B♭ and C. Tap B♭ to hear the 4, then C to hear the 5, and tap F to come home."
+            "text": "{{chord:I}} is the 1st chord of the key, built on {{1}}. {{chord:IV}} is the 4th chord, built on {{4}}. {{chord:V}} is the 5th chord, built on {{5}}.\nThe circle of fifths below is on F major, and the three keys marked next to it on the outer ring are those three chords. Tap {{chord:IV}} to hear it, then {{chord:V}}, and tap {{chord:I}} to come home.\nPractice until you can say the three chords before you look at the circle."
           },
           {
             "type": "tool",
@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track in F: the 1, the 4, the 5 with its 7th, and the 1 again. Look away and call out the numbers, then look back at the chord boxes to check.\nNotice how often your ear gets there before the chord boxes."
+            "text": "Press Play below to start the backing track: {{chord:I}}, {{chord:IV}}, {{chord:V7}} and back to {{chord:I}}, one bar each. {{chord:V7}} is the 5th chord with its 7th added. Look away and say the number of each chord as it arrives, 1, 4 or 5, then look back at the lit chord box to check.\nIf you lose your place, wait for {{chord:I}}: it sounds like home, and the order starts again from there."
           },
           {
             "type": "tool",

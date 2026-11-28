@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-the-dominant-7-the-5-chord-with-one-more-note",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 5.",
+  "note": "The dominant 7 as the 5th chord with one more note (sevenths-up:2): found among the 7th chords of the key, then heard arriving over a backing track of {{chord:V}}, {{chord:V7}} and {{chord:I}}. The old Key choice is moves (any key): chords are tokens counted the long way once, the key is {{=key}}, and a {{?key}} line says what stays the same.",
   "exercise": {
     "title": "The dominant 7: the 5th chord with one more note",
     "area": "theory",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The panel below shows the chord on every note of C major, each with four notes: root, 3rd, 5th and 7th. Tap a row to hear its chord.\nFind the V row, G7. It is the only row with a major 3rd and a ♭7: that pair makes a dominant 7. Tap G7, then the I row, Cmaj7, and go between the two until you hear G7 leaning towards the I chord."
+            "text": "The panel below shows the chord on every note of {{=key}} major, each with four notes: root, 3rd, 5th and 7th. Tap a chord to hear it.\n{{chord:I}} is the 1st chord of the key, built on {{1}}, and {{chord:V}} is the 5th chord, built on {{5}}. With its 7th, the 5th chord is {{chord:V7}}: the only chord in the key with a major 3rd and a ♭7, the pair that makes a dominant 7.\nTap {{chord:V7}}, then {{chord:Imaj7}}, the 1st chord with its 7th. Practice until you hear {{chord:V7}} leaning towards the 1st chord."
           },
           {
             "type": "tool",
@@ -46,23 +46,10 @@
         "type": "section",
         "heading": "Hear the 7th arrive",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "f"
-            },
-            {
-              "key": "g"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the 5th chord for a bar, the same chord with its 7th for a bar, then two bars of the 1st chord. Listen for the bar where one note joins the 5th chord, and call out \"seven\" when you hear it.\nOnce you hear the 7th before the box lights, try it in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the 7th still arrives in the second bar and leans to the 1st chord."
+            "text": "Press Play below to start the backing track: {{chord:V}} for a bar, {{chord:V7}} for a bar, then two bars of {{chord:I}}. Say \"seven\" when you hear the note that joins the 5th chord in the second bar.\nPractice until you hear the 7th arrive before the chord box lights.\n{{?key}}In another key the chords are new, and the 7th still arrives in the second bar and leans to the 1st chord."
           },
           {
             "type": "tool",
@@ -93,7 +80,10 @@
       "steps": [
         "sevenths-up:2"
       ],
-      "minutes": 6
+      "minutes": 6,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

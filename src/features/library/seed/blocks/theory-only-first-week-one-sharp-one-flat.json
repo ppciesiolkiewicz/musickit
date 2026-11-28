@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-one-sharp-one-flat",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 3.",
+  "note": "C's two neighbours on the circle of fifths (keys:1): G and F read off the middle of the circle as 1♯ and 1♭, then the one changed note found on the piano in each key. The keys are the lesson, so there are no moves; each section has one feel to reach or one thing to listen for.",
   "exercise": {
     "title": "One sharp, one flat",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The circle of fifths below starts on C major, which has no sharps or flats: the middle of the circle says so. Tap G on the outer ring, one place to the right of C. The circle moves to G, and the middle now shows 1♯.\nTap C to come back, then tap F on its other side to see 1♭.\nThen go a few places further each way, and watch the number in the middle as you move away from C."
+            "text": "The circle of fifths below starts on C major, and its middle says \"no ♯ ♭\". Tap G on the outer ring, one place clockwise from C: the circle moves to G, and the middle now shows 1♯.\nTap C to come back, then tap F, one place the other way, to see 1♭. Then go a few places further each way, and watch the number in the middle.\nEach place you move away from C adds one sharp or one flat."
           },
           {
             "type": "tool",
@@ -48,7 +48,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}}: every key is white but one, {{f-sharp}}. That is the one sharp."
+            "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}}: every key is white but one, {{f-sharp}}, the key's one sharp."
           },
           {
             "type": "tool",
@@ -60,7 +60,7 @@
           },
           {
             "type": "text",
-            "text": "This piano shows F major, with its one flat, {{b-flat}}. Tap up the scale from {{1}}. Then tap {{b-flat}} and the white key just to its right, the B that C major has in its place, to hear what the flat changed."
+            "text": "This piano shows F major, with its one flat, {{b-flat}}. Tap up the scale from {{1}}. Then tap {{b-flat}} and the white key just to its right, the B that C major has in its place.\nListen for the one note the flat changed: the rest of the scale is the white keys of C major."
           },
           {
             "type": "tool",

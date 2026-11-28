@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-major-and-minor-chords-one-note-apart",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 2.",
+  "note": "Major and minor triads on one root (sevenths-up:1): built note by note on two staffs, then called out over a backing track of the two chords, written as chord tokens ({{chord:I}}, {{chord:i}}). The old Key choice is moves (any key), so the text names no selector and a {{?key}} line says the two chords still differ by one note.",
   "exercise": {
     "title": "Major and minor chords: one note apart",
     "area": "theory",
@@ -28,23 +28,10 @@
         "type": "section",
         "heading": "Move the 3rd",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Tap {{1}} {{3}} {{5}} on the first staff below: a major chord, one note at a time. The second staff holds the minor chord on the same root.\nOnce you can tell the two apart without looking, build both on another root. Use the Key selector below to change the key.\nWhen you change the key, the notes are new but the two chords still differ by one note."
+            "text": "Tap {{1}} {{3}} {{5}} on the staff below: a major chord on {{=key}}, one note at a time."
           },
           {
             "type": "tool",
@@ -63,7 +50,7 @@
           },
           {
             "type": "text",
-            "text": "Now tap {{1}} {{b3}} {{5}} on this staff: the minor chord. Only the 3rd moved, down a half step. Go back and forth between the two staffs and listen for that one note."
+            "text": "Now tap {{1}} {{b3}} {{5}} on this staff: the minor chord on the same root. Only the 3rd moved, down a half step.\nGo back and forth between the two staffs. Practice until you can tell the two chords apart with your eyes closed.\n{{?key}}In another key the notes are new, and the two chords still differ by that one note."
           },
           {
             "type": "tool",
@@ -89,22 +76,22 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. It plays C and Cm, the two chords you just built, and each stays for one, two or three bars. Look away from the chord boxes and call out major or minor each time the chord changes, then look back to check.\nIf you lose your place, wait for the next change and start again from there."
+            "text": "Press Play below to start the backing track: {{chord:I}} and {{chord:i}}, the two chords you just built, each lasting one, two or three bars. Look away from the chord boxes and say major or minor each time the chord changes, then look back to check.\nIf you lose your place, wait for the next change and start again from there."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-track",
               "key": "c",
-              "chords": [
-                "C",
-                "C",
-                "Cm",
-                "Cm",
-                "C",
-                "Cm",
-                "Cm",
-                "C"
+              "numerals": [
+                "I",
+                "I",
+                "i",
+                "i",
+                "I",
+                "i",
+                "i",
+                "I"
               ],
               "style": "ballad",
               "bpm": 70
@@ -121,7 +108,10 @@
       "steps": [
         "sevenths-up:1"
       ],
-      "minutes": 6
+      "minutes": 6,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-sixteenths-and-rests",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track beat (theory-basics), step 4: sixteenths counted \"1 e and a\", then a rest on the number and a rest on the \"and\", against the click and over drums. Missing: a rhythm tool that shows a written rhythm with its rests and listens to the claps; backing-band's click sounds only the beat.",
+  "note": "Sixteenths counted \"1 e & a\" in the rhythm game at \"level\": \"intermediate\" (the beat:4 ladder), then a rest on the number and a rest on the \"&\" against the metronome, then both swapped over drums. The old Stage choice of tempos is moves (50 to 70), the drums section keeps its distance above it, and every section has one feel to reach or one thing to do when it goes wrong.",
   "exercise": {
     "title": "Sixteenths and rests",
     "area": "theory",
@@ -17,29 +17,26 @@
     "concepts": [
       "beat"
     ],
-    "why": "A sixteenth is a quarter of a beat, so counting \"1 e and a\" gives every clap a word, and a rest is a word you say without clapping.",
+    "why": "A sixteenth is a quarter of a beat, so counting \"1 e & a\" gives every clap a word, and a rest is a word you say without clapping.",
     "learnBefore": [
       "/course/1/steady-beat"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "Count 1 e and a",
+        "heading": "Count 1 e & a",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Count \"1 e and a, 2 e and a\" aloud, each number on a click, and clap on every word.\nPractice until the four claps are even and the next number lands on the click."
+            "text": "Press Start in the game below. After a bar of count-in, four notes move to the line on every beat: count \"1 e & a, 2 e & a\" aloud, and press Space or tap the lane as each note reaches it.\nPractice until the four hits are even and the next number lands on the beat."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "backing-band",
-              "bpm": 50,
-              "key": "c",
-              "parts": {
-                "click": "always"
-              }
+              "type": "clap-along",
+              "level": "intermediate",
+              "bpm": 50
             }
           }
         ]
@@ -51,7 +48,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Keep saying the whole count, and clap only on \"e and a\": the click sounds where your clap is missing.\nIf the claps drift, clap every word again for a bar."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Keep saying the whole count, and clap only on \"e & a\": the click sounds where your clap is missing.\nIf the claps drift, clap every word again for a bar."
           },
           {
             "type": "tool",
@@ -68,26 +65,12 @@
       },
       {
         "type": "section",
-        "heading": "Rest on the and",
+        "heading": "Rest on the &",
         "minutes": 2,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 50
-            },
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 70
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Clap on each number, on \"e\" and on \"a\", and say \"and\" without a clap.\nWhen the silent \"and\" takes as long as a clap, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a stage is too fast, go back one and count aloud again."
+            "text": "Press Play below to start the metronome. Clap on each number, on \"e\" and on \"a\", and say \"&\" without a clap.\nPractice until the silent \"&\" takes as long as a clap."
           },
           {
             "type": "tool",
@@ -109,7 +92,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drums. Clap a bar of sixteenths, then a bar with a rest on every number, and keep swapping.\nThen press Click below to switch the metronome on, and check that the numbers of your count land on it."
+            "text": "Press Play below to start the drums. Clap a bar of sixteenths, then a bar with a rest on every number, and keep swapping.\nThen press Click below to switch the metronome on, and check that the numbers of your count land on it.\n{{?bpm}}At a faster tempo the rests get shorter, and each one still takes the time of one word of the count."
           },
           {
             "type": "tool",
@@ -138,6 +121,13 @@
       "steps": [
         "beat:4"
       ],
+      "moves": {
+        "bpm": {
+          "from": 50,
+          "to": 70,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-mix-quarters-to-sixteenths",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track beat (theory-basics), step 5: quarters, eighths and sixteenths mixed, a bar of each, then a change on every beat of one bar, then a new order over drums. Missing: a rhythm tool that shows a written bar and listens to the claps; backing-band's click sounds only the beat, so each bar is given as a count in the text.",
+  "note": "Quarters, eighths and sixteenths mixed (beat:5): a bar of each against the metronome, a change on every beat of one bar, then the bar the other way round and one of the player's own over drums. The old Stage choice of tempos is moves (50 to 70). The clap-along has one rhythm per round, so the mixed bars are counted aloud in the text over a backing-band click; a rhythm tool that plays a written mixed bar would carry them better.",
   "exercise": {
     "title": "Quarters, eighths and sixteenths in one bar",
     "area": "theory",
@@ -33,13 +33,13 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Clap a bar of quarters, a bar of eighths and a bar of sixteenths, round and round, and count aloud: \"1 2 3 4\", then \"1 and 2 and\", then \"1 e and a\".\nListen for the numbers of your count: they land on the click in all three bars."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Clap a bar of quarters, a bar of eighths and a bar of sixteenths, round and round, and count aloud: \"1 2 3 4\", then \"1 & 2 &\", then \"1 e & a\".\nListen for the numbers of your count: they land on the click in all three bars."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-band",
-              "bpm": 60,
+              "bpm": 50,
               "key": "c",
               "parts": {
                 "click": "always"
@@ -52,24 +52,10 @@
         "type": "section",
         "heading": "Change on every beat",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 50
-            },
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 70
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Clap one bar that goes quarter, two eighths, four sixteenths, quarter, and count it aloud: \"1, 2 and, 3 e and a, 4\".\nWhen you can change from beat to beat without slowing down or rushing, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the sixteenths run past the next click, go back a stage and say the count for a bar before you clap it."
+            "text": "Press Play below to start the metronome. Clap one bar that goes quarter, two eighths, four sixteenths, quarter, and count it aloud: \"1, 2 &, 3 e & a, 4\".\nPractice until you change from beat to beat without slowing down or rushing.\nIf the sixteenths run past the next click, say the count for a bar before you clap it."
           },
           {
             "type": "tool",
@@ -91,13 +77,13 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drums. Clap the bar the other way round: four sixteenths, two eighths, quarter, quarter, counting \"1 e and a, 2 and, 3, 4\".\nThen make up a bar of your own from the three, and clap it until it comes round the same every time.\nIf you lose the beat, press Click below to switch the metronome on and clap quarters for a bar."
+            "text": "Press Play below to start the drums. Clap the bar the other way round, four sixteenths, two eighths, quarter, quarter, counting \"1 e & a, 2 &, 3, 4\".\nThen make up a bar of your own from the three, and clap it until it comes round the same every time.\nIf you lose the beat, press Click below to switch the metronome on and clap quarters for a bar."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-band",
-              "bpm": 60,
+              "bpm": 50,
               "key": "c",
               "parts": {
                 "drums": "always",
@@ -116,6 +102,13 @@
       "steps": [
         "beat:5"
       ],
+      "moves": {
+        "bpm": {
+          "from": 50,
+          "to": 70,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

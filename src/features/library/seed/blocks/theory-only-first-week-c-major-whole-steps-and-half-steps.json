@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-c-major-whole-steps-and-half-steps",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 1.",
+  "note": "The major scale's steps (scales:3): the W and H steps of C major on the scale panel and the white keys of the piano, the same steps from G with the one black key that keeps them in place, then made-up tunes tapped on the staff that end on Do. C is the lesson (its half steps are the white keys with no black key between), so there are no moves; G is the second key, with a line on what stays the same.",
   "exercise": {
     "title": "C major: whole steps and half steps",
     "area": "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "scales"
     ],
-    "why": "A major scale is the same row of whole steps and half steps from any note, so once you see and hear where its two half steps fall, you can build the scale in any key.",
+    "why": "A major scale is the same row of whole steps and half steps from any note, so once you know where its two half steps fall, you can build the scale in any key.",
     "learnBefore": [
       "/course/3/piano-and-guitar"
     ],
@@ -57,7 +57,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}} and listen for the same two half steps.\nTo keep the steps in the same places, one white key gives way to a black one: {{f-sharp}}, the 7th note. Tap {{7}}, then {{1}}, until you hear how close the two are."
+            "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}}: the two half steps fall between {{3}} and {{4}} and between {{7}} and {{1}}, as in C.\nTo keep them there, one white key gives way to a black one, {{f-sharp}}, the 7th note. Tap {{7}}, then {{1}}.\nPractice until you hear the half step from {{7}} to {{1}} before you tap it."
           },
           {
             "type": "tool",
@@ -76,7 +76,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows C major: tap a note to hear it. Make up short tunes by tapping, moving mostly by step, and end each one on a ringed {{1}}.\nThen end a tune on {{7}} and stop. Listen for how it leans up the half step to {{1}}, then tap {{1}} to finish it."
+            "text": "The staff below shows C major: tap a note to hear it. Make up short tunes by tapping, moving mostly by step, and end each one on a ringed {{1}}.\nThen end a tune on {{7}} and wait, before you tap {{1}} to finish it.\nPractice until you can hear where a tune wants to end before you tap the last note."
           },
           {
             "type": "tool",

@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-sus2",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track sus (theory-building-chords), step 2: sus2, 1 2 5, heard against the major chord and against sus4 from the step before, in D and then in A. Missing: backing-track cannot play sus chords (its numerals read triads, diminished and 7ths only) and interval-ears has no sus answer, so the chords are pressed one at a time on chord-shapes.",
+  "note": "Sus2 heard against the plain chord and against sus4 (sus:2): the 2nd in place of the 3rd tapped on the staff in D, the D chord boxes pressed in pairs, then the same pairs in A, with one line on what stays the same in the second key. The chord names stay letters, as on the chord boxes: chord tokens have no sus chords, so the keys are fixed and there are no moves.",
   "exercise": {
     "title": "Sus2: the 2nd in place of the 3rd",
     "area": "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "sus"
     ],
-    "why": "A sus2 chord swaps the 3rd for the 2nd, so it is neither major nor minor until the 3rd comes back.",
+    "why": "A sus2 chord swaps the 3rd for the 2nd, so it is neither major nor minor until the 2nd rises back to the 3rd.",
     "learnBefore": [
       "/course/7/sus-add9"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap {{1}} {{3}} {{5}} on the staff below: a D major chord, one note at a time. Now tap {{1}} {{2}} {{5}}: Dsus2, with the ringed {{2}} in place of {{3}}.\nGo between the two until you can hum the note that moves."
+            "text": "Tap {{1}} {{3}} {{5}} on the staff below: a D major chord, one note at a time. Now tap {{1}} {{2}} {{5}}: Dsus2, with the ringed {{2}} in place of {{3}}.\nPractice until you hear which note moved before you tap it."
           },
           {
             "type": "tool",
@@ -82,7 +82,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press the chord boxes of A below in the same way: Asus2 to A, then Asus4 to A.\nWhen you change the key, the notes are new but sus2 still rises to the 3rd and sus4 still falls to it."
+            "text": "Press the chord boxes below in the same way: Asus2 to A, then Asus4 to A.\nIn A the notes are new, and sus2 still rises to the 3rd while sus4 still falls to it."
           },
           {
             "type": "tool",

@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-major-pentatonic-five-notes-of-the-major-scale",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 6.",
+  "note": "The major pentatonic as the major scale less two notes (scales:2): C major on a staff with the 4th and 7th faded and the two half steps they make tapped from the text, then tunes made up over a drone on G major pentatonic, the second key, with a line on what stays the same. The keys are fixed (C, then G a 5th up), so there are no moves.",
   "exercise": {
     "title": "Major pentatonic: five notes of the major scale",
     "area": "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "scales"
     ],
-    "why": "The major pentatonic is the major scale without its 4th and 7th, the two notes that sit a half step from a neighbour, so no two of its five notes are a half step apart and any order of them makes a tune.",
+    "why": "The major pentatonic is the major scale without its 4th and 7th, the two notes a half step from a neighbour, so no two of its five notes are a half step apart and almost any order of them makes a tune.",
     "learnBefore": [
       "/course/5/major-pentatonic"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows C major with two notes faded, the 4th and the 7th. Tap up the five notes that are left, from {{1}} to the next {{1}}: that is C major pentatonic.\nThe dots in this text play the notes left out. Tap {{3}} then {{4}}, and {{7}} then {{1}}, to hear the two half steps the pentatonic does without."
+            "text": "The staff below shows the C major scale with two notes faded, the 4th and the 7th. Tap up the five notes that are left, from {{1}} to the next {{1}}: that is the C major pentatonic scale.\nThen tap {{3}} and {{4}}, and {{7}} and {{1}}, to hear the two half steps the pentatonic scale does without.\nPractice until you can say which notes are faded before you look."
           },
           {
             "type": "tool",
@@ -61,7 +61,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone on G. The staff under it holds G major pentatonic: the same five steps of the scale from a new home note. Make up short tunes by tapping, and end each one on a ringed {{1}}.\nTry leaps as well as steps: with no half steps in the scale, any order of these notes fits over the drone."
+            "text": "Press Play below to start the drone on G. The staff under it holds the G major pentatonic scale: the same five notes of the scale, from a new home note. Make up short tunes by tapping, with leaps as well as steps, and end each one on a ringed {{1}}.\nIn G the notes are new, and the two gaps are still where the 4th and the 7th would be."
           },
           {
             "type": "tool",

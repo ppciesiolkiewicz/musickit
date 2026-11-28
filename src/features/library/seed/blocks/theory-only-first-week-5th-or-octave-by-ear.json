@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-5th-or-octave-by-ear",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 1.",
+  "note": "The 5th and the octave by ear (intervals:1), in one ear game at \"level\": \"new\" with a Stage choice whose next stage adds the two 3rds: the text says what comfortable is before the next stage, names the Stage selector and what Start begins again, and what to do when a stage is too hard. Answers are named as the game's buttons show them, with the plain word beside each.",
   "exercise": {
     "title": "5th or octave, by ear",
     "area": "theory",
@@ -17,7 +17,7 @@
     "concepts": [
       "intervals"
     ],
-    "why": "The octave is the same note again, higher, and the 5th is the outside of a chord, so these two wide gaps are the easiest to tell apart and the ones to measure every other interval against.",
+    "why": "The octave is the same note again, higher, and the 5th is the widest gap inside a chord, so these two are the easiest to tell apart and the ones to measure every other interval against.",
     "learnBefore": [
       "/course/3/intervals"
     ],
@@ -39,7 +39,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5 for a 5th or P8 for an octave. Press Replay to hear them again before you answer.\nWhen the name comes before you think about it, try the next stage: it adds the two 3rds, M3 for a major 3rd and m3 for a minor 3rd. Use the Stage selector below to change the stage, then press Start to hear the first pair.\nIf the 3rds get mixed up, go back a stage and stay with the 5th and the octave for now."
+            "text": "Press Start in the game below to hear two notes, one after the other. Pick P5 for a 5th or P8 for an octave. Press Replay in the game to hear them again before you answer.\nWhen the name comes before you think about it, try the next stage: it adds the two 3rds, M3 for a major 3rd and m3 for a minor 3rd. Use the Stage selector below to change the stage, then press Start to hear the first pair.\nIf the 3rds get mixed up, go back a stage and listen only for the 5th and the octave again."
           },
           {
             "type": "tool",

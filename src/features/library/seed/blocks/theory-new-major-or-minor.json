@@ -1,12 +1,12 @@
 {
   "id": "theory-new-major-or-minor",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 1
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "A listening exercise for someone new: tap a note and then Do to hear home, tap the two chords that differ by one note, then name major or minor by ear and try it on a song. One staff per step, each showing only the notes that step names; the staff is explained the first time, and the game's answers are named as the buttons show them (M3, m3).",
+  "note": "A first listening exercise (home-and-colour:1 and 2): tap a note and then Do to hear home, tap the major and the minor chord that differ by one note, then name major or minor 3rds in the ear game by its buttons (M3, m3) and try it on a song. One staff per step, each showing only the notes that step names; the key is moves (any key), named as {{=key}}, with a {{?key}} line on what stays the same.",
   "exercise": {
     "title": "Home, and the note that makes major or minor",
     "area": "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "home-and-colour"
     ],
-    "why": "Do is the note a tune comes to rest on, and the 3rd above it decides major or minor, so these two sounds are the ones to learn by ear first.",
+    "why": "A tune comes to rest on Do, and the 3rd above Do is the one note that differs between major and minor, so hearing those two notes tells you where home is and what colour it has.",
     "learnBefore": [
       "/course/3/major-or-minor"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows the C major scale with its solfège names: tap a note to hear it. Tap {{1}}, then {{7}}, and stop: it sounds unfinished. Tap {{1}} again and it comes home. Now try the other notes the same way: tap one, wait, then tap {{1}}."
+            "text": "The staff below shows the {{=key}} major scale with its solfège names: tap a note to hear it. Tap {{1}}, then {{7}}, and wait. Then tap {{1}} again to come home.\nTry the other notes the same way: tap one, wait, then tap {{1}}.\nPractice until you hear {{1}} coming before you tap it."
           },
           {
             "type": "tool",
@@ -40,6 +40,9 @@
               "key": "c",
               "voice": "tenor",
               "labels": "solfege",
+              "highlight": [
+                "1"
+              ],
               "mic": false
             }
           }
@@ -52,7 +55,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap {{1}} {{3}} {{5}} below: that's a C major chord, one note at a time."
+            "text": "Tap {{1}} {{3}} {{5}} on the staff below: a major chord, one note at a time."
           },
           {
             "type": "tool",
@@ -71,7 +74,7 @@
           },
           {
             "type": "text",
-            "text": "Now tap {{1}} {{b3}} {{5}}: C minor. Only the middle note moved, down a half step. Go back and forth between the two staffs until you can tell them apart with your eyes closed."
+            "text": "Now tap {{1}} {{b3}} {{5}} on this staff: the minor chord on the same note. Only the middle note moved, down a half step.\nGo back and forth between the two staffs. Practice until you can tell them apart with your eyes closed.\n{{?key}}In another key the notes are new, and the two chords still differ by that one middle note."
           },
           {
             "type": "tool",
@@ -97,7 +100,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below. It plays two notes together: pick M3 for a major 3rd or m3 for a minor 3rd. Then put on a song you like and guess whether it is major or minor."
+            "text": "Press Start in the game below to hear two notes together. Pick M3 for a major 3rd, the bottom of a major chord, or m3 for a minor 3rd, the bottom of a minor chord.\nThen put on a song you like, and say whether it is major or minor."
           },
           {
             "type": "tool",
@@ -125,6 +128,9 @@
         "home-and-colour:1",
         "home-and-colour:2"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 6
     }
   ]

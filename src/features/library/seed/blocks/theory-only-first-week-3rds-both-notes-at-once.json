@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-3rds-both-notes-at-once",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 4.",
+  "note": "Intervals with both notes sounding at once (intervals:2): one ear game at \"level\": \"beginner\" with \"dir\": \"together\", every answer named as its button shows it with its meaning beside it, the 3rds heard as the start of a major or a minor chord, and one thing to do when the two notes blur.",
   "exercise": {
     "title": "3rds, both notes at once",
     "area": "theory",
@@ -17,14 +17,14 @@
     "concepts": [
       "intervals"
     ],
-    "why": "A chord is notes sounding together, so naming an interval with both notes at once is the step from hearing intervals to hearing chords.",
+    "why": "A major chord starts with a major 3rd and a minor chord with a minor 3rd, so two notes sounding together can be heard as the start of a chord, and the chord's colour names the 3rd.",
     "learnBefore": [
       "/course/3/intervals"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the game below. Now the game plays both notes at once: pick M3, m3, P5 or P8.\nTwo notes together sound like part of a chord, so ask whether it is major or minor: that names the 3rd.\nIf the two notes blur into one sound, press Replay and listen for the lower note, then for the higher one."
+        "text": "Press Start in the game below to hear two notes at once. Pick P5 for a 5th, P8 for an octave, M3 for a major 3rd or m3 for a minor 3rd.\nFor a 3rd, hear the two notes as part of a chord: pick M3 if it sounds major and m3 if it sounds minor.\nIf the two notes blur into one sound, press Replay in the game and listen for the lower note, then for the higher one."
       },
       {
         "type": "tool",

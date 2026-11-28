@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-3rds-to-6ths-falling",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 3.",
+  "note": "Falling intervals from the 3rds to the 6ths (intervals:5), in one ear game with \"dir\": \"down\" and a set of exactly the six intervals the text names, each answer named as its button shows it with its meaning beside it, and one thing to do when two answers sound alike.",
   "exercise": {
     "title": "3rds to 6ths, falling",
     "area": "theory",
@@ -17,14 +17,14 @@
     "concepts": [
       "intervals"
     ],
-    "why": "In a falling leap the top note comes first with no Do under it, so your ear has to measure down, and minor is one half step away from major each time.",
+    "why": "In a falling interval the top note comes first with no home note under it, so your ear has to measure down from it, and each minor interval is one half step smaller than the major one.",
     "learnBefore": [
       "/course/6/every-interval"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below. The game plays a note and then one a 3rd, a 4th, a 5th or a 6th below it. Hum the lower note back, then pick its name: m3 or M3 for a minor or major 3rd, m6 or M6 for a minor or major 6th."
+        "text": "Press Start in the game below to hear a note and then one a 3rd, a 4th, a 5th or a 6th below it. Pick m3 or M3 for a minor or major 3rd, P4 for a 4th, P5 for a 5th, or m6 or M6 for a minor or major 6th.\nIf two answers sound alike, press Replay in the game and decide first whether the gap is a 3rd, a 4th, a 5th or a 6th, then whether it is minor or major."
       },
       {
         "type": "tool",

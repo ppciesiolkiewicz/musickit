@@ -1,12 +1,12 @@
 {
   "id": "theory-new-note-names-a-to-g",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track note-names (theory-basics), step 1: the seven letters A to G, said up and down from any letter. Missing: staff and piano-keys cannot be told to label notes by name (\"labels\" takes only degree or solfege), so the letters show only while the player's label setting is note names, the default.",
+  "note": "The seven letters A to G (note-names:1): said up the white keys of a piano, up and down a staff that starts on A, then guessed one step above and below and checked by tapping. Each section has one feel to reach or one thing to do when it goes wrong. Staff and piano-keys can't be told to label by letter (\"labels\" takes degree or solfege), so the letters show while the player's label setting is note names, the default.",
   "exercise": {
     "title": "The seven letters, A to G",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The piano below marks its white keys with their letters. Tap the white keys from one {{c}} up to the next, and say each letter as you tap.\nAfter {{g}} the letters start again at {{a}}."
+            "text": "The piano below marks its white keys with their letters. Tap the white keys from one {{c}} up to the next, and say each letter as you tap. After {{g}} the letters start again at {{a}}.\nPractice until you say the letters without reading them."
           },
           {
             "type": "tool",
@@ -57,6 +57,9 @@
               "scale": "natural-minor-aeolian",
               "key": "a",
               "voice": "tenor",
+              "highlight": [
+                "1"
+              ],
               "mic": false
             }
           }
@@ -69,7 +72,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This staff starts on {{c}}. Pick any note, say the letter of the note above it, then tap that note and read its label to check.\nThen guess the note below each time, which is the harder way round."
+            "text": "This staff starts on {{c}}. Pick any note and say the letter of the note above it, then tap that note and read its label to check.\nThen guess the note below each time, which is the harder way round."
           },
           {
             "type": "tool",
@@ -78,6 +81,9 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
+              "highlight": [
+                "1"
+              ],
               "mic": false
             }
           }

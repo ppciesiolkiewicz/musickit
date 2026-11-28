@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-mix-seventh-chords-and-triads",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track sevenths-up (theory-building-chords), step 7: the four 7th chords and the two triads, as six chords on G, then named by ear, then the four 7th chords on G in a backing track. Missing: interval-ears \"kind\": \"chord\" has no half-diminished answer, so that chord is heard in the chord boxes and the backing track only.",
+  "note": "The four 7th chords and the two triads on one root (sevenths-up:7): pressed in the chord boxes in pairs, named in the ear game by its button labels, then called out over a backing track that holds all four 7th chords. The root stays on G, since the chord kinds are the lesson; the ear game has no half-diminished answer, so that chord is heard in the chord boxes and the backing track only.",
   "exercise": {
     "title": "Four 7th chords and two triads",
     "area": "theory",
@@ -33,7 +33,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Press G and Gm, the two triads, then Gmaj7 and G7: the major triad with a 7th on top, a half step or a whole step under the octave.\nThen press Gm7 and Gm7♭5: the minor triad with the lower 7th, and the same chord with its 5th lowered a half step.\nGo round the six until you can name each with your eyes closed."
+            "text": "Press a chord box below to hear the chord. Press G and Gm, the two triads, then Gmaj7 and G7: the major triad with a 7th on top, a half step or a whole step under the octave.\nThen press Gm7 and Gm7♭5: the minor triad with the lower 7th, and the same chord with its 5th lowered a half step.\nPractice until you can name each of the six with your eyes closed."
           },
           {
             "type": "tool",
@@ -58,25 +58,32 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays a chord from any root, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7 (Dominant 7 is the chord written 7, as in G7).\nListen to the three notes underneath first, major or minor, then for a 7th on top.\nThe game does not ask the half-diminished chord: the backing track in the next block plays it."
+            "text": "Press Start in the game below to hear a chord on a new root each time. Pick Major, Minor, Dominant 7, Major 7 or Minor 7: Dominant 7 is the chord written 7, as in G7.\nListen to the three notes underneath first, major or minor, then for a 7th on top.\nIf two answers sound alike, press Replay in the game and listen only for the top note."
           },
           {
             "type": "tool",
             "tool": {
               "type": "interval-ears",
-              "kind": "chord"
+              "kind": "chord",
+              "qualities": [
+                "maj",
+                "min",
+                "7",
+                "maj7",
+                "m7"
+              ]
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "Four 7th chords, one backing track",
+        "heading": "All four, eyes away",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the four 7th chords on G, a bar each, in two orders. Look away from the chord boxes and call out the chord on each change, then look to check.\nListen for the bar where the 5th drops: that is Gm7♭5, the half-diminished chord."
+            "text": "Press Play below to start the backing track: the four 7th chords on G, one bar each, in two orders. Look away from the chord boxes and call out the chord at each change, then look back to check.\nListen for the bar where the 5th drops: that is Gm7♭5, the half-diminished chord."
           },
           {
             "type": "tool",

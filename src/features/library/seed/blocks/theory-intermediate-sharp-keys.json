@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-sharp-keys",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track keys (theory-scales-keys), step 2: the sharp keys round the circle, D, A and E after G, each adding one sharp on its 7th note.",
+  "note": "The sharp keys round the circle (keys:2): D, A and E clockwise after G, then the sharp each one adds as the ringed 7th on its own staff, then the four sharps of E counted on the piano. The old Key choice on one staff is now three staffs side by side, since only the sharp keys fit the drill and \"moves\" can only open every key; the key is the lesson, so there are no moves.",
   "exercise": {
     "title": "The sharp keys, round the circle",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The circle below starts on G, the key with one sharp. Press D, the next key clockwise, then A and E after it.\nEach step clockwise is a 5th up, and adds one sharp."
+            "text": "The circle of fifths below starts on G, the key with one sharp. Press D, the next key clockwise, then A and E after it. Read the number of sharps in the middle of the circle each time.\nEach place clockwise is a 5th up, and adds one sharp."
           },
           {
             "type": "tool",
@@ -45,23 +45,10 @@
         "type": "section",
         "heading": "The sharp each key adds",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "a"
-            },
-            {
-              "key": "e"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows a sharp key. Tap up the scale from {{1}} and say each letter: the ringed {{7}} is the sharp this key adds.\nOnce you can name the new sharp before you tap it, try the next key. Use the Key selector below to change the key.\nWhen you change the key, the new sharp is still the {{7}}, a half step under {{1}}."
+            "text": "The three staffs below show D, A and E major, the keys after G. On each one, tap up the scale from {{1}} and say each letter: the ringed {{7}} is the sharp this key adds, a half step under {{1}}.\nPractice until you can name the new sharp before you tap it."
           },
           {
             "type": "tool",
@@ -69,6 +56,32 @@
               "type": "staff",
               "scale": "major-ionian",
               "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "e",
               "voice": "tenor",
               "highlight": [
                 "7"
@@ -85,7 +98,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The piano below shows E major, four steps clockwise from C. Tap up the scale from E and count the black keys: one for each sharp.\nThen say the four sharps in the order the keys added them."
+            "text": "The piano below shows E major, four places clockwise from C. Tap up the scale from {{1}} and count the black keys: one for each sharp.\nThen say the four sharps in the order the keys added them.\nIf the order slips, go back to the staffs above and read the ringed {{7}} of each key in turn."
           },
           {
             "type": "tool",

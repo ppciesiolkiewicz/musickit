@@ -1,12 +1,12 @@
 {
   "id": "theory-only-first-week-major-key-or-minor-key-by-ear",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/theory-only-first-week.json, day 3.",
+  "note": "Major key or minor key by ear (home-and-colour:3): a backing track that rests on the major chord, then one on the same notes that rests on the minor chord, home called out on each. The key is moves (any key); the minor backing track keeps its distance, so it is always the relative minor, and its home chord is the token {{chord:i}}, read in its own key.",
   "exercise": {
     "title": "Major key or minor key, by ear",
     "area": "theory",
@@ -17,7 +17,7 @@
     "concepts": [
       "home-and-colour"
     ],
-    "why": "G major and E minor use the same seven notes, so what tells the two keys apart is the chord the music comes to rest on.",
+    "why": "A major key and its relative minor use the same seven notes, so what tells the two keys apart is the chord the music comes to rest on.",
     "learnBefore": [
       "/course/3/major-or-minor",
       "/course/3/la-minor-home"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Home is G",
+        "heading": "Home is major",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track in G major: two bars of G, then C and D. Listen for the chord where the music comes to rest, and call out \"home\" each time it comes round.\nThe chord boxes show it: home is G, a major chord, so the key is major."
+            "text": "{{chord:I}} is the 1st chord of the key, built on {{1}}: the chord a major key comes to rest on.\nPress Play below to start the backing track in {{=key}} major: two bars of {{chord:I}}, then {{chord:IV}} and {{chord:V}}. Say \"home\" each time {{chord:I}} comes round, with the lit chord box to help.\nPractice until you feel home coming before the box lights."
           },
           {
             "type": "tool",
@@ -46,12 +46,12 @@
       },
       {
         "type": "section",
-        "heading": "Home is E minor",
+        "heading": "Home is minor",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track again. The notes are the ones of G major, with the same one sharp, but now the backing track rests on Em, a minor chord: the key is E minor. Call out \"home\" on each Em.\nThen put on a song you like and listen for the chord it comes to rest on: major or minor?"
+            "text": "Press Play below to start the next backing track. Its notes are the same as the major key's, but it rests on {{chord:i}}, a minor chord, so the key is minor. Say \"home\" on each {{chord:i}}.\nThen put on a song you like and listen for the chord it comes to rest on: major or minor.\n{{?key}}In another key the chords have other names, and the minor key still uses the same notes as the major key."
           },
           {
             "type": "tool",
@@ -74,7 +74,10 @@
       "steps": [
         "home-and-colour:3"
       ],
-      "minutes": 4
+      "minutes": 4,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

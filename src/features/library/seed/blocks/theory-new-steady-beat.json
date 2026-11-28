@@ -1,12 +1,12 @@
 {
   "id": "theory-new-steady-beat",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track beat (theory-basics), step 1: clap on the beat.",
+  "note": "Clapping on the beat three ways: with the metronome, in the rhythm game at \"level\": \"new\" (the beat:1 ladder), then over drums with the click added to check. The tempo is moves (60 to 100), so no section has a Tempo choice and the text names the tempo only as {{=bpm}}; each section has one feel to reach or one thing to do when it goes wrong.",
   "exercise": {
     "title": "Clap on the beat",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Clap once on every click, and listen for the click hiding under your clap.\nPractice until your hands move with the click and no longer after it."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Clap once on every click, and listen for the click hiding under your clap.\nPractice until your hands move with the click and no longer come after it."
           },
           {
             "type": "tool",
@@ -46,35 +46,19 @@
       },
       {
         "type": "section",
-        "heading": "A new tempo",
+        "heading": "Hit the line",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "bpm": 80
-            },
-            {
-              "bpm": 100
-            },
-            {
-              "bpm": 50
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome, and clap on every click again.\nOnce the click hides under your clap, try another tempo. Use the Tempo selector below to change the tempo, then press Play to start the metronome again.\nWhen you change the tempo, the gap between the clicks changes, and your clap still lands on the click."
+            "text": "Press Start in the game below. After a bar of count-in, a note moves to the line on every beat: press Space or tap the lane as each one reaches it.\nIf your hits run early, wait for the click before you move."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "backing-band",
-              "bpm": 80,
-              "key": "c",
-              "parts": {
-                "click": "always"
-              }
+              "type": "clap-along",
+              "level": "new",
+              "bpm": 60
             }
           }
         ]
@@ -86,13 +70,13 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drums. The metronome is off now, so clap where you feel the beat.\nThen press Click below to switch the metronome on, and check that your claps land on it."
+            "text": "Press Play below to start the drums. The metronome is off, so clap where you feel the beat.\nThen press Click below to switch the metronome on, and check that your claps land on it.\n{{?bpm}}At another tempo the gap between the beats changes, and your clap still lands on each one."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-band",
-              "bpm": 80,
+              "bpm": 60,
               "key": "c",
               "parts": {
                 "drums": "always",
@@ -114,6 +98,13 @@
       "steps": [
         "beat:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]
