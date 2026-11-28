@@ -42,7 +42,9 @@ demo plans' **Your voice** picker (`VoicePicker`) over them and the mic note und
 - `ui/TempoTool.tsx`: a sung tune or run (melody-singer, run-singer) with a Tempo selector over it, 40, 60, 80 or 90 bpm (`ARTICLE_TEMPOS`), starting on the tempo the article wrote (40).
 - `art.ts`: `articleArt(slug)`, the article's picture, `public/images/learn/art/<slug>.svg` (1200 × 480, no words in it), drawn by
   `scripts/learn-art.mjs` (`node scripts/learn-art.mjs public/images/learn/art`), one function per slug; a new article needs one
-  there (`art.test.ts` checks). It is the small picture on the article's card, the frameless picture under its title (`ui/ArticleHero.tsx`: wider than the column, pulled up behind the intro, its edges fading into the page; the fade is `.article-hero` in `src/app/decor.css`) and the
+  there (`art.test.ts` checks). Each is drawn twice from the script's palettes: `<slug>.svg` for the dark styles and
+  `<slug>-light.svg` for the bright ones (a style's `bright` in `features/styles/styles.ts`). `ui/ArticleArt.tsx` puts both on the
+  page and `.tone-dark` / `.tone-light` in `src/app/decor.css` show the one for `data-tone` on <html>. It is the small picture on the article's card, the frameless picture under its title (`ui/ArticleHero.tsx`: wider than the column, pulled up behind the intro, its edges fading into the page; the fade is `.article-hero` in `src/app/decor.css`) and the
   top of its link preview.
 - `ui/ArticleCard.tsx`: an article as a card: title, intro, its picture beside them, how many exercises it has (or how many minutes it takes to read, from
   `stats.ts`, `articleStats`), **Uses your mic** when it `sings`, and **Read**. On `/learn` and under each article's **More guides**.

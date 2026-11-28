@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { articleArt } from "../art";
+import ArticleArt from "./ArticleArt";
 
 /**
  * The article's picture (`art.ts`) under its title and intro: no frame, wider than the text column, pulled up so its faded
@@ -8,7 +7,7 @@ import { articleArt } from "../art";
 export default function ArticleHero({ slug }: { slug: string }) {
   return (
     <div aria-hidden className="article-hero pointer-events-none relative -z-10 -mx-3 -mt-10 -mb-5 sm:-mx-24 sm:-mt-20 sm:-mb-10">
-      <Image src={articleArt(slug)} width={1200} height={480} alt="" unoptimized priority className="aspect-2/1 w-full object-cover sm:aspect-5/2" />
+      <ArticleArt slug={slug} priority className="aspect-2/1 w-full object-cover sm:aspect-5/2" />
     </div>
   );
 }

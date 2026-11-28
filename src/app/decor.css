@@ -233,3 +233,7 @@
   mask: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent), linear-gradient(transparent, #000 30%, #000 60%, transparent);
   mask-composite: intersect;
 }
+
+/* pictures drawn twice, for dark and light pages (ArticleArt): show the one for the style's tone (data-tone on <html>) */
+:root:not([data-tone="light"]) .tone-light,
+:root[data-tone="light"] .tone-dark { display: none; }

@@ -18,6 +18,8 @@ export type Style = {
   emoji: string;
   /** its style course is coming sooner than the others */
   courseSoon: boolean;
+  /** a light page (dark text on a pale ground); the rest are dark. Pictures drawn for one or the other follow it (`data-tone` on <html>). */
+  bright: boolean;
   /** landing photos that differ from the defaults */
   photos: Partial<Record<PhotoKey, PhotoRef>>;
   /** the line between the hero and the story; Default has none */
@@ -26,53 +28,56 @@ export type Style = {
 
 export const STYLES: readonly Style[] = [
   {
-    id: "funk", label: "Funk", emoji: "🕺", courseSoon: true, divider: { text: "on the one" },
+    id: "funk", label: "Funk", emoji: "🕺", courseSoon: true, bright: false, divider: { text: "on the one" },
     photos: {
       practising: { id: "1601148072347-4c63fe45bd33", alt: "A hand plucking a bass in warm yellow light" },
       couch: { id: "1602900332980-6e6f13946a3c", alt: "Fingers on the strings of a red electric bass" },
     },
   },
   {
-    id: "rock", label: "Rock", emoji: "⚡", courseSoon: true, divider: { text: "turn it up to 11" },
+    id: "rock", label: "Rock", emoji: "⚡", courseSoon: true, bright: false, divider: { text: "turn it up to 11" },
     photos: {
       practising: { id: "1576416066728-3a83469793b4", alt: "A guitarist playing in orange stage smoke" },
       couch: { id: "1499424017184-418f6808abf9", alt: "A guitarist under a spotlight on stage", by: "bobby hendry", page: "https://unsplash.com/photos/man-playing-guitar-under-spotlight-MD3rdOB5pxk" },
     },
   },
   {
-    id: "blues", label: "Blues", emoji: "🎷", courseSoon: true, divider: { text: "12 bars · I IV V" },
+    id: "blues", label: "Blues", emoji: "🎷", courseSoon: true, bright: false, divider: { text: "12 bars · I IV V" },
     photos: {
       practising: { id: "1510915361894-db8b60106cb1", alt: "Hands on a warm-lit acoustic guitar" },
       couch: { id: "1508186736123-44a5fcb36f9f", alt: "Close-up of a gold-top electric guitar's pickups" },
     },
   },
   {
-    id: "surf", label: "Surf Rock", emoji: "🏄", courseSoon: true, divider: { text: "drenched in spring reverb" },
+    id: "surf", label: "Surf Rock", emoji: "🏄", courseSoon: true, bright: true, divider: { text: "drenched in spring reverb" },
     photos: {
       practising: { id: "1562859921-84bf2f962ad1", alt: "A guitarist sitting on the sand between two surfboards" },
       couch: { id: "1616533719060-a7fc492e9299", alt: "An amp and a guitar on a wooden dock by the sea", by: "Sayla Brown", page: "https://unsplash.com/photos/brown-and-black-guitar-amplifier-on-brown-wooden-dock-during-daytime-H6j0Zsy91WY" },
     },
   },
   {
-    id: "metal", label: "Metal", emoji: "🤘", courseSoon: false, divider: { text: "drop D" },
+    id: "metal", label: "Metal", emoji: "🤘", courseSoon: false, bright: false, divider: { text: "drop D" },
     photos: {
       practising: { id: "1515890326200-a07ce46010a1", alt: "A long-haired guitarist on a dark stage, in black and white" },
       couch: { id: "1751781529625-eb6329e52987", alt: "A guitarist headbanging, in black and white" },
     },
   },
   {
-    id: "jazz", label: "Jazz", emoji: "🎺", courseSoon: false, divider: { text: "ii · V · I" },
+    id: "jazz", label: "Jazz", emoji: "🎺", courseSoon: false, bright: false, divider: { text: "ii · V · I" },
     photos: {
       practising: { id: "1786207469194-56a839006771", alt: "A sunburst hollow-body guitar in a dim, warm room", by: "William Veitch", page: "https://unsplash.com/photos/hollow-body-electric-guitar-in-warm-light-xNoSLw36-lI" },
       couch: { id: "1536047852989-10896cf70749", alt: "A hollow-body guitar played in a dim club" },
     },
   },
-  { id: "plain", label: "Default", emoji: "🙂", courseSoon: false, divider: null, photos: {} },
+  { id: "plain", label: "Default", emoji: "🙂", courseSoon: false, bright: false, divider: null, photos: {} },
 ];
 
 export const DEFAULT_STYLE: StyleId = "plain";
 export const THEME_KEY = "musickit.theme";
 export const SEEN_KEY = "musickit.styleSeen";
+
+export type Tone = "light" | "dark";
+export const toneOf = (id: StyleId): Tone => (styleById(id).bright ? "light" : "dark");
 
 export const isStyle = (v: unknown): v is StyleId => STYLES.some((s) => s.id === v);
 export const resolveStyle = (saved: string | null): StyleId => (isStyle(saved) ? saved : DEFAULT_STYLE);

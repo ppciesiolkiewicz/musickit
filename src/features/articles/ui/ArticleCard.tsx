@@ -1,6 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
-import { articleArt } from "../art";
+import ArticleArt from "./ArticleArt";
 import Icon from "@/components/Icon";
 import type { Article } from "../model";
 import { articleStats } from "../stats";
@@ -19,7 +18,7 @@ export default function ArticleCard({ article, heading: H = "h2" }: { article: A
     >
       <div className="grid grid-cols-1 items-start sm:grid-cols-[1fr_auto] gap-x-4 gap-y-3 sm:gap-x-6">
         <H className="min-w-0 text-lg leading-snug font-semibold text-slate-50 group-hover:text-sky-100">{article.title}</H>
-        <Image src={articleArt(article.slug)} width={1200} height={480} alt="" unoptimized className="order-first aspect-5/2 w-full rounded-lg border border-slate-800 object-cover transition group-hover:border-sky-500/40 sm:order-none sm:row-span-2 sm:w-44" />
+        <ArticleArt slug={article.slug} className="order-first aspect-5/2 w-full rounded-lg border border-slate-800 object-cover transition group-hover:border-sky-500/40 sm:order-none sm:row-span-2 sm:w-44" />
         <p className="text-sm leading-relaxed text-slate-400">{article.intro}</p>
       </div>
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">

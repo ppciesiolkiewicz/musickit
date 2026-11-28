@@ -5,11 +5,12 @@ import Icon from "./Icon";
 import { InfoTip } from "@/components/ui";
 import { LEVELS, type Level } from "@/features/guide/levels";
 import { useLevel } from "@/features/guide/useLevel";
-import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAfterIntroDismiss, styleById, type StyleId } from "@/features/styles/styles";
+import { DEFAULT_STYLE, SEEN_KEY, STYLES, THEME_KEY, isStyle, readSaved, styleAfterIntroDismiss, styleById, toneOf, type StyleId } from "@/features/styles/styles";
 import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscreenChange } from "@/lib/fullscreen";
 
-/** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Default set on <html>. */
-export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
+/** Runs before the first paint (inline in <head>) so a saved style never flashes; anything else keeps the Default set on <html>.
+ *  Also sets `data-tone` (light or dark) for the bright styles. */
+export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0){document.documentElement.dataset.theme=t;if(${JSON.stringify(STYLES.filter((s) => s.bright).map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.tone="light"}}catch(e){}`;
 
 /** The style's own headline face, for its name on the button; Default uses the Fraunces wordmark face. */
 
@@ -25,6 +26,7 @@ function applyStyle(id: StyleId) {
   const html = document.documentElement;
   html.classList.add("theme-fade");
   html.dataset.theme = id;
+  html.dataset.tone = toneOf(id);
   window.setTimeout(() => html.classList.remove("theme-fade"), 250);
   store(THEME_KEY, id);
 }

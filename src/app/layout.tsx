@@ -147,7 +147,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="plain" suppressHydrationWarning>
+    <html lang="en" data-theme="plain" data-tone="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <script dangerouslySetInnerHTML={{ __html: SETTINGS_BOOT }} />

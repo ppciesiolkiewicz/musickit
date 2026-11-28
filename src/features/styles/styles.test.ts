@@ -1,8 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { STYLES, SEEN_KEY, THEME_KEY, courseNote, photoFor, readSaved, resolveStyle, styleAfterIntroDismiss } from "./styles";
+import { STYLES, SEEN_KEY, THEME_KEY, courseNote, photoFor, readSaved, resolveStyle, styleAfterIntroDismiss, toneOf } from "./styles";
 
 test("ids and order", () => assert.deepEqual(STYLES.map((s) => s.id), ["funk", "rock", "blues", "surf", "metal", "jazz", "plain"]));
+
+test("tone: Surf is the one bright style", () => {
+  assert.deepEqual(STYLES.filter((s) => s.bright).map((s) => s.id), ["surf"]);
+  assert.equal(toneOf("surf"), "light");
+  assert.equal(toneOf("plain"), "dark");
+});
 
 test("labels and emoji", () => {
   assert.equal(STYLES.find((s) => s.id === "surf")!.label, "Surf Rock");
