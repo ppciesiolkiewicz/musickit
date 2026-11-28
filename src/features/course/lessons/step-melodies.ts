@@ -6,7 +6,7 @@ export const stepMelodies: CourseArticle = {
   versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
-    { type: "p", text: "In [The major scale as do-re-mi](/course/3/do-re-mi) you sang the whole scale, one note after the next. Most tunes move like that too: a step up, a step down, and home." },
+    { type: "p", text: "Most tunes move one note to the next: a step up, a step down, and home, the way the scale moves in the section [The major scale as do-re-mi](/course/3/do-re-mi)." },
     { type: "p", text: "Here are the first five notes of G major, Do up to Sol, one step at a time. Then short tunes made only of those steps, sung first and played after." },
 
     { type: "h2", text: "Before you start" },

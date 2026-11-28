@@ -21,7 +21,7 @@ export const singThenFind: CourseArticle = {
       "Then press the Tune button below to mute the tune, and sing it over the chords alone. Practice until you can sing it without the tune leading you.",
       "Once that feels easy, press the Chords button to mute the chords too, and sing the tune a cappella.",
     ], tool: { type: "melody-singer", pick: { stage: "mi", index: 1 }, key: "g", voice: "tenor", bpm: 40 }, between: [
-      "Now find it. Every dot on the neck below is a note of G major, and the ringed dots are G, your Do. Play the open G string: that's Do.",
+      "Now find it. Every dot on the fret diagram below is a note of G major, and the ringed dots are G, your Do. Play the open G string: that's Do.",
       "Sing Mi, then climb the G string one dot at a time until the note you play matches your voice. Then find Re the same way, and come home to Do.",
     ], beside: { type: "scale-neck", scale: "major-ionian", key: "g", placement: { by: "open" }, highlight: ["1"] }, parts: [
       { title: "Check it", lines: [

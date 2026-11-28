@@ -17,7 +17,7 @@ export const doMiSolShapes: CourseArticle = {
     { type: "care", text: "_Rest your hand when your fingers or wrist start to ache._" },
 
     { type: "exercise", title: "1. Every Do, Mi and Sol of G", lines: [
-      "Every dot on this neck is a note of the G chord, named Do, Mi or Sol. Each coloured frame is one CAGED shape of the G chord, from the G shape at the nut up the neck. Tap any dot to hear it.",
+      "Every dot on this fret diagram is a note of the G chord, named Do, Mi or Sol. Each coloured frame is one CAGED shape of the G chord, from the G shape at the nut up the neck. Tap any dot to hear it.",
       "Play every Do on the neck, from the nut up to the 12th fret. Then every Mi, then every Sol.",
     ], tool: { type: "caged-neck", key: "g", scale: "major-ionian", islands: true }, after: [
       "Practice until you can point at any Mi without reading its name.",

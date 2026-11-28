@@ -16,7 +16,7 @@ export const steadyBeat: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. Tap on every beat", lines: [
-      "Press the Start button below to begin a round at 60 bpm. The metronome counts one bar in, then a note comes on every beat. Press Space, or tap the lane, as each note reaches the line.",
+      "Press the Start button below to begin a round at 60 bpm. The metronome counts one bar in, then a note comes on every beat. Press the Space key, or tap the lane, as each note reaches the line.",
       "Count \"1 2 3 4\" out loud as you tap, and tap your foot with it.",
       "A note turns green when your tap lands on the beat. Practice until most notes turn green without you trying hard.",
     ], tool: { type: "clap-along", level: "new", bpm: 60 }, after: [

@@ -16,7 +16,7 @@ export const doMiSolNeck: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. G, B and D low on the neck", lines: [
-      "In G major, Do is G, Mi is B and Sol is D. Every dot on this neck is one of the three, and the ringed dots are G, your Do.",
+      "In G major, Do is G, Mi is B and Sol is D. Every dot on this fret diagram is one of the three, and the ringed dots are G, your Do.",
       "Start on the ringed G on the low E string, 3rd fret. Play every dot string by string up to the G on the high e string, 3rd fret, then come back down the same way.",
       "Sing along on the note names: Do, Mi or Sol for each note as you play it.",
     ], tool: { type: "scale-neck", scale: "major-ionian", key: "g", placement: { by: "open" }, enable: ["1", "3", "5"], others: "hidden", highlight: ["1"] }, after: [
@@ -24,7 +24,7 @@ export const doMiSolNeck: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. A tune from three notes", lines: [
-      "On the neck above, three of them sit side by side on the D, G and B strings. Play the D string at the 5th fret, the G string at the 4th fret, then the B string at the 3rd fret: Do, Mi, Sol.",
+      "On the fret diagram above, three of them sit side by side on the D, G and B strings. Play the D string at the 5th fret, the G string at the 4th fret, then the B string at the 3rd fret: Do, Mi, Sol.",
       "Then play it back down, Sol, Mi, Do, and make up a little tune from the three.",
     ] },
 
