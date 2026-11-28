@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-the-set",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 7.",
+  "note": "A set of three backing tracks to improvise over: a ii–V–I where the staff follows the guide tones of the chord playing, four chords with two harmony lines and then a tune of the singer's own, and a Dorian vamp for one long solo. Every chord is a token, counted the long way the first time it comes, and the set moves to any key and from 76 to 92 bpm, each later track keeping its distance.",
   "exercise": {
     "title": "The set",
     "area": "voice",
@@ -29,12 +29,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The ii–V–I in G",
+        "heading": "The ii–V–I",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track: Am7, D7 and Gmaj7. Sing your own line on any vowel. Start each chord on one of its ringed notes, and join them with turns and runs.\nListen for the next ringed note before its chord arrives."
+            "text": "Press Start exercise below: the mic and the backing track start together, at {{=bpm}}. The backing track plays {{chord:ii7}}, {{chord:V7}}, then two bars of {{chord:Imaj7}}.\n{{chord:ii7}} is the 2nd chord of the key, built on {{2}}, {{chord:V7}} is the 5th, built on {{5}}, and {{chord:Imaj7}} is the 1st, built on {{1}}. Sing your own line, and start each chord on one of its ringed notes, joined by turns and runs. Sing it on any vowel you like.\nListen for the next ringed note before its chord arrives."
           },
           {
             "type": "tool",
@@ -44,12 +44,7 @@
               "key": "g",
               "voice": "baritone",
               "under": true,
-              "highlight": [
-                "1",
-                "3",
-                "4",
-                "7"
-              ],
+              "follow": "guide-tones",
               "labels": "degree"
             }
           },
@@ -82,7 +77,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track: G, D, Em and C. Sing two harmony lines once each on \"oo\": {{3}} {{2}} {{1}} {{1}}, then {{5}} {{5}} {{6}} {{6}}. Then leave them and make up a tune of your own around the ringed notes, with a run where a line ends."
+            "text": "Press Start exercise below: the mic and the backing track start together. The backing track plays {{chord:I}}, {{chord:V}}, {{chord:vi}} and {{chord:IV}}: {{chord:vi}} is the 6th chord of the key, built on {{6}}, and {{chord:IV}} is the 4th, built on {{4}}. Sing two harmony lines once each, one note per chord: {{3}}, {{2}}, {{1}}, {{1}}, then {{5}}, {{5}}, {{6}}, {{6}}. Sing them on \"oo\".\nThen leave the lines and make up a tune of your own around the ringed notes, with a run where a line ends."
           },
           {
             "type": "tool",
@@ -125,7 +120,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track on Am7 and D7. Sing one long solo on any vowel, with all of these in it: a falling run into a ringed {{6}}, a turn on a held note, a bar left empty.\nKeep the one phrase you like best and bring it to your next gig."
+            "text": "Press Start exercise below: the mic and the backing track start together. The backing track switches between {{chord:i7}}, the 1st chord of this vamp, built on {{1}}, and {{chord:IV7}}, the 4th, built on {{4}}. Sing one long solo with all of these in it: a falling run into a ringed {{6}}, a turn on a held note, a bar left empty. Sing it on any vowel you like.\nKeep the one phrase you like best, and sing it again until it is yours.\n{{?key}}In another key every track sits higher or lower, and the ringed notes keep their places in each chord."
           },
           {
             "type": "tool",
@@ -134,8 +129,15 @@
               "scale": "dorian",
               "key": "a",
               "voice": "baritone",
-              "highlight": [
+              "notes": [
                 "1",
+                "b3",
+                "4",
+                "5",
+                "6",
+                "b7"
+              ],
+              "highlight": [
                 "6"
               ],
               "labels": "degree"
@@ -170,6 +172,14 @@
         "improvise:2",
         "harmony-line:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 76,
+          "to": 92,
+          "step": 8
+        }
+      },
       "minutes": 16
     }
   ]

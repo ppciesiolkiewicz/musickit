@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-a-few-notes-higher-and-lower",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track range (voice-breath-range), step 3: a few notes lower (voice-hill low, a semitone lower each hold), a few notes higher (voice-hill high, light), then a five-note run that climbs a semitone each pass up to the edge of the range. The five-note runs in the book are all Medium, so the run is picked as medium, not hard.",
+  "note": "Range from its edges: a few notes lower (voice-hill low, a semitone lower each hold), a few notes higher (voice-hill high, light), then a five-note run that climbs a semitone each pass up to the edge of the range. Each block has its feel to reach, the one care line sits on the high holds, and the run step states its range and the semitone climb. The five-note runs in the book are all Medium, so the run is picked as medium, not hard.",
   "exercise": {
     "title": "A few notes lower, a few notes higher",
     "area": "voice",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start below: a note plays first, then the mic starts. Hold that note on \"oo\": the ball rolls down into the hollow as your voice goes low, and the ring fills while you stay there. Each hold is a semitone lower, and the new note plays in the breath between.\nKeep it quiet: a low note pushed for volume goes flat."
+            "text": "Press Start below: a note plays first, then the mic starts. Hold that note on \"oo\": the ball rolls down into the hollow as your voice goes low, and the ring fills while you stay there. Each hold is a semitone lower, and the new note plays in the breath between.\nPractice until the low holds stay quiet and easy: a low note pushed for volume goes flat."
           },
           {
             "type": "tool",
@@ -52,7 +52,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start below: a note plays first, then the mic starts. Hold a light sound on \"oo\" in head voice: the ball climbs to the top as your voice goes up, and the ring fills while you stay there.\n_Don't reach for high notes: keep the high holds quiet, and stop if your throat tightens._"
+            "text": "Press Start below: a note plays first, then the mic starts. Hold a light sound in head voice: the ball climbs to the top as your voice goes up, and the ring fills while you stay there. Sing it on \"oo\".\n_Don't reach for high notes: keep the high holds quiet, and stop if your throat tightens._"
           },
           {
             "type": "tool",
@@ -74,7 +74,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: the mic starts with it. The run goes from Do up to Sol and back, and each pass starts a semitone higher. Sing it lightly on \"ah\", and move to \"oo\" when a pass feels tight.\nStop at the pass that no longer feels easy. That pass is the edge of your range today, and the edge moves up a little at a time."
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to Sol and back, and each pass starts a semitone higher. Sing it lightly on \"ah\", and move to \"oo\" when a pass feels tight.\nStop at the pass that no longer feels easy: that pass is the edge of your range today, and the edge moves up a little at a time."
           },
           {
             "type": "tool",

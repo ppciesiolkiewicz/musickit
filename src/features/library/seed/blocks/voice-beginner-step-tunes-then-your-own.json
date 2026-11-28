@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-step-tunes-then-your-own",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 1.",
+  "note": "Step tunes from Do: a tune up to Mi and home learned in named stages (with the tune, Tune muted, Chords muted), a tune down from Mi, then a tune of the singer's own on the three low notes over a drone, with the care line. The old Key selector is now moves (any key, 40 to 60 bpm), with the line about another key marked {{?key}}; every tune starts at a beginner's 40.",
   "exercise": {
     "title": "Step tunes, then your own",
     "area": "voice",
@@ -17,7 +17,7 @@
     "concepts": [
       "tunes"
     ],
-    "why": "Step tunes use notes right next to each other, so they train your voice to move one note at a time and stay in tune.",
+    "why": "A step tune only moves to the note next door, so each new note is a small, known distance from the last and your voice learns to move one note at a time and stay in tune.",
     "learnBefore": [
       "/course/3/step-melodies"
     ],
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce you can sing it without the tune leading you, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still climbs two steps and comes home."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce you can sing it without the tune leading you, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key the notes change, but the tune still climbs two steps and comes home."
           },
           {
             "type": "tool",
@@ -40,20 +40,11 @@
                 "stage": "mi"
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
@@ -62,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi and steps down to Do. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
+            "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi and steps down to Do. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"oo\"."
           },
           {
             "type": "tool",
@@ -74,7 +65,8 @@
                 "index": 1
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -86,7 +78,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from the low {{1}}, {{2}} and {{3}}, sing it on \"la\", and end it on {{1}}.\nThen make up another that starts on {{3}}."
+            "text": "Press Start exercise below: the drone and the mic start together. Make up a short tune from the low {{1}}, {{2}} and {{3}} that ends on {{1}}. Sing it on \"oo\".\nThen make up another that starts on {{3}}.\n_Don't reach for high notes: keep your tune on the three low notes._"
           },
           {
             "type": "tool",
@@ -115,6 +107,14 @@
       "steps": [
         "tunes:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 9
     }
   ]

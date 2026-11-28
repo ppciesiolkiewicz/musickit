@@ -1,14 +1,14 @@
 {
   "id": "voice-guitar-advanced-first-week-comp-the-ii-v-i-in-g-faster",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 7.",
+  "note": "The ii–V–I with 9ths comped two ways: strummed in sixteenths with misses on a strum-along, then mixed with shells and small triads over drums and bass. The old Stage selector of tempos and the key in the title are now moves (any key, 96 to 112 bpm), so the text names the chords by ordinal, as the boxes carry their names, and the line about another key is marked {{?key}}. Close to guitar-advanced-am9-d9-gmaj7 (same chords, same sixteenths strum); this one adds the comping over the backing track.",
   "exercise": {
-    "title": "Comp the ii–V–I in G, faster",
+    "title": "Comp the ii–V–I in {{=key}}, faster",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,7 +17,7 @@
     "concepts": [
       "shells-comping"
     ],
-    "why": "Raising the tempo a stage at a time shows which change still makes your strumming hand wait, so you know which one to drill.",
+    "why": "A faster tempo leaves less time for each change, so it shows which change still makes your strumming hand wait, and that is the one to drill.",
     "learnBefore": [
       "/course/11/comping",
       "/course/11/extended"
@@ -25,26 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "A stage further",
+        "heading": "Sixteenths with misses",
         "minutes": 4,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 96
-            },
-            {
-              "bpm": 104
-            },
-            {
-              "bpm": 112
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum the pattern in the boxes: a bar of Am9, a bar of D9, two bars of Gmaj7.\nWhen the changes take no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound, go back one stage."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord: a bar of the 2nd chord of the key as a minor 9th, a bar of the 5th chord as a 9th, then two bars of the 1st chord as a major 7th. Strum the pattern in the boxes, and miss the strings where a box shows a dot.\nIf a change comes late, keep your hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -64,12 +50,12 @@
       },
       {
         "type": "section",
-        "heading": "With drums and bass",
+        "heading": "With the backing track",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: drums and bass at 96, with the chord boxes lighting bar by bar. Mix what you have: full 9th shapes, shells, a small triad up high on Gmaj7. Leave strums out, and keep your hand moving through the gaps."
+            "text": "Press Play below to start the backing track: drums and bass, with the chord boxes lit bar by bar. Comp the same changes, and mix what you have: the full 9th shapes, shells, a small triad up high on the 1st chord. Leave strums out, and keep your hand moving through the gaps.\nPractice until the changes take no thought, even with strums left out.\n{{?key}}In another key the shapes sit on other frets, and the 2nd and 5th chords still lead to the 1st."
           },
           {
             "type": "tool",
@@ -101,6 +87,14 @@
       "steps": [
         "shells:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 96,
+          "to": 112,
+          "step": 8
+        }
+      },
       "minutes": 8
     }
   ]

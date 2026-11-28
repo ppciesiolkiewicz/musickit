@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-turns",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "note": "Turns: the turn around the 3rd with the metronome, the same turn inside a short run, then the book's falling pentatonic run, which turns round Mi on its way home. The old Stage selector of tempos and Key selector are now moves (any key, 60 to 80 bpm), every tool written at 60; the run is described as the book writes it, and each block has its feel or fix line.",
   "exercise": {
     "title": "Turns",
     "area": "voice",
@@ -28,24 +28,10 @@
         "type": "section",
         "heading": "The turn on the 3rd",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 56
-            },
-            {
-              "bpm": 63
-            },
-            {
-              "bpm": 70
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the metronome and the mic start together. Sing the turn around {{3}}: {{3}} {{4}} {{3}} {{2}}, four notes in one beat, then hold {{3}} for three beats. Sing it on \"ah\".\nWhen all four notes show as separate steps in your line, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the turn smears into a wobble at a new stage, go back one stage."
+            "text": "Press Start exercise below: the metronome and the mic start together, at {{=bpm}}. Sing the turn around {{3}}: {{3}}, {{4}}, {{3}}, {{2}}, four notes in one beat, then hold {{3}} for three beats. Sing it on \"ah\".\nPractice until all four notes show as separate steps in your line.\n{{?bpm}}At a faster tempo the turn smears into a wobble first, so keep it light."
           },
           {
             "type": "tool",
@@ -61,9 +47,12 @@
                 "4",
                 "5"
               ],
+              "highlight": [
+                "3"
+              ],
               "labels": "degree",
               "click": true,
-              "bpm": 56
+              "bpm": 60
             }
           }
         ]
@@ -72,23 +61,10 @@
         "type": "section",
         "heading": "The turn inside a run",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            },
-            {
-              "key": "e-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the metronome at 60 and the mic. Climb {{1}} {{2}} {{3}}, sing the turn around {{3}} as before, then run down {{3}} {{2}} {{1}}. Sing the climb on \"oo\" and open to \"ah\" on the turn.\nOnce the turn sits inside the run without slowing it, try it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes are new but the turn is the same shape around {{3}}."
+            "text": "Press Start exercise below: the metronome and the mic start together. Climb {{1}}, {{2}}, {{3}}, sing the turn around {{3}}, then run down {{3}}, {{2}}, {{1}}. Sing the climb on \"oo\", and open to \"ah\" on the turn.\nPractice until the turn sits inside the run without slowing it.\n{{?key}}In another key the notes are new, but the turn is the same shape around {{3}}."
           },
           {
             "type": "tool",
@@ -103,6 +79,9 @@
                 "3",
                 "4",
                 "5"
+              ],
+              "highlight": [
+                "3"
               ],
               "labels": "degree",
               "click": true,
@@ -118,7 +97,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the high passes."
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run falls from the high Do through La and Sol to Mi, turns round Mi, and steps down to Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the high passes.\nIf a pass smears, listen to it and come in on the next one."
           },
           {
             "type": "tool",
@@ -128,7 +107,8 @@
                 "difficulty": "hard",
                 "stage": "pentatonic-run"
               },
-              "voice": "baritone"
+              "voice": "baritone",
+              "bpm": 60
             }
           }
         ]
@@ -142,6 +122,14 @@
       "steps": [
         "runs:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

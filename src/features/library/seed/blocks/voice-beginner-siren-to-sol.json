@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-siren-to-sol",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 4.",
+  "note": "A slow siren from the low Do up to Sol over a drone, then the same two notes as a clean skip. The staff is now in D, where a tenor's Do to Sol sits low, and the drill moves to any key, with the line about another key marked {{?key}}; the skip has its feel to reach and the care line, and the slide is sung on \"oo\".",
   "exercise": {
     "title": "Siren to Sol",
     "area": "voice",
@@ -24,14 +24,14 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to {{5}} and back, like a siren.\nThen sing the two as a clean skip, with no slide between them.\n_Don't reach for high notes: turn the siren round at {{5}}._"
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Slide slowly from the low {{1}} up to {{5}} and back, like a siren. Sing it on \"oo\".\nThen sing the two notes as a skip. Practice until your line jumps straight from one to the other, with no slide between.\n_Don't reach for high notes: turn the siren round at {{5}}._\n{{?key}}In another key the drone and both notes sit higher or lower, and the skip is still the same distance."
       },
       {
         "type": "tool",
         "tool": {
           "type": "staff",
           "scale": "major-ionian",
-          "key": "f",
+          "key": "d",
           "voice": "tenor",
           "labels": "solfege",
           "notes": [
@@ -50,6 +50,9 @@
       "steps": [
         "pitch:4"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 3
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-sus-and-add9-on-top",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 4.",
+  "note": "Sus and add9 colours on open chords: the chord circle for what the 1st chord can turn into, the four shapes with the fingers shown, then the four strummed in sixteenths with misses. The old Stage selector of tempos is now moves (80 to 100 bpm); open shapes, so no key move and the chords keep their names. The text no longer asks the player to find the shared fingers, it says the feel to reach. Close in kind to guitar-intermediate-cadd9-g-dsus4-em (other chords, intermediate).",
   "exercise": {
     "title": "Sus and add9 on top",
     "area": "guitar",
@@ -18,7 +18,7 @@
     "concepts": [
       "sus-add9-shapes"
     ],
-    "why": "Sus and add9 chords change one note of a chord you already hold, so the colour moves while the hand barely does: the folk way to enrich a plain I, IV and V.",
+    "why": "A sus or add9 chord changes one note of a chord you already hold, so the colour moves while the hand barely does: the folk way to dress up the 1st, 4th and 5th chords of a key.",
     "learnBefore": [
       "/course/7/sus-add9",
       "/course/7/colour-paths"
@@ -26,12 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "What a chord can turn into",
+        "heading": "The four shapes",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Tap the chords around the circle below to hear what G can turn into while it stays in the key."
+            "text": "Press the chords around the circle below to hear what G can turn into while it stays in the key."
           },
           {
             "type": "tool",
@@ -44,7 +44,7 @@
           },
           {
             "type": "text",
-            "text": "Press each chord box below to hear it, then fret the four shapes in order. Look for the fingers that can stay down from one shape to the next."
+            "text": "Press a chord box below to hear it, then fret G, Cadd9, Dsus4 and D as shown, in that order.\nPractice until each change moves only the fingers that have to."
           },
           {
             "type": "tool",
@@ -64,24 +64,10 @@
         "type": "section",
         "heading": "Sixteenths with misses",
         "minutes": 5,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 80
-            },
-            {
-              "bpm": 90
-            },
-            {
-              "bpm": 100
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord, and listen for Dsus4 letting go into D.\nWhen the pattern runs without you reading it, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound at a new stage, go back one stage."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, one bar per chord, and miss the strings where a box shows a dot. Listen for Dsus4 letting go into D.\nPractice until the pattern runs without you reading it."
           },
           {
             "type": "tool",
@@ -108,6 +94,13 @@
       "steps": [
         "sus-add9:3"
       ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

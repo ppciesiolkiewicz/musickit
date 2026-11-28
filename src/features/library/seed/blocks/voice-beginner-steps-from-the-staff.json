@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-steps-from-the-staff",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track sight-singing (voice-melodies), step 1: three tunes that move by step, each read and sung from the staff before the app plays it. missing: a melody-singer prop that starts the mic without playing the tune, so the first reading is drawn and checked too.",
+  "note": "Reading step tunes from the staff: each tune is read and sung from its first note, then checked by singing along, then read again with the tune muted (Tune), so the bar runs and the mic draws the line with nothing leading. The tunes play at a beginner's 40, and the old Key selector is now moves (any key, 40 to 60 bpm), with the line about another key marked {{?key}}. missing: a melody-singer prop that starts the mic and the bar without playing the tune, so the very first reading is drawn too.",
   "exercise": {
     "title": "Read a tune that moves by step",
     "area": "voice",
@@ -28,20 +28,10 @@
         "type": "section",
         "heading": "Read three notes",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Tap the first note of the tune below to hear it, before you press Play. Each note after it sits one step higher or lower on the staff. Sing the tune from the staff on the note names, at your own pace.\nThen press Play below to hear the tune, and check what you sang against it.\nOnce your reading matches the tune, read it in another key. Use the Key selector below to change the key, then tap the first note again.\nWhen you change the key, the notes sit in new places on the staff but each one is still a step from the last."
+            "text": "Tap the first note of the tune below to hear it. Each note after it sits one step higher or lower on the staff. Sing the tune from the staff on the note names, at your own pace.\nThen press Play below to hear the tune at {{=bpm}}: the mic starts with it. Sing along and check what you read.\nOnce your reading matches the tune, press Tune to mute it, and read it again while your line draws on the staff.\n{{?key}}In another key the notes sit in new places on the staff, but each one is still a step from the last."
           },
           {
             "type": "tool",
@@ -53,7 +43,8 @@
               },
               "key": "c",
               "voice": "tenor",
-              "chords": false
+              "chords": false,
+              "bpm": 40
             }
           }
         ]
@@ -65,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts on Sol and only steps down. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to hear it.\nIf you lose your place, tap the note you stopped on and go on from there."
+            "text": "This tune starts on Sol and only steps down. Tap its first note below to hear it, and sing the tune from the staff on the note names. Then press Play below to hear it: the mic starts with it.\nIf you lose your place, tap the note you stopped on and go on from there."
           },
           {
             "type": "tool",
@@ -77,7 +68,8 @@
               },
               "key": "c",
               "voice": "tenor",
-              "chords": false
+              "chords": false,
+              "bpm": 40
             }
           }
         ]
@@ -89,7 +81,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune is four bars long, and each bar ends on a long note. Tap its first note below to hear it. Sing the tune from the staff on the note names, one bar at a time.\nThen press Play below to hear the tune, and sing along to check each bar.\nOnce you can read it through without stopping, sing it again on \"la\"."
+            "text": "This tune is four bars long, and each bar ends on a long note. Tap its first note below to hear it, and sing the tune from the staff on the note names, one bar at a time.\nThen press Play below to hear the tune, and sing along to check each bar.\nPractice until you can read it through without stopping, then sing it again on \"oo\"."
           },
           {
             "type": "tool",
@@ -102,7 +94,8 @@
               },
               "key": "c",
               "voice": "tenor",
-              "chords": false
+              "chords": false,
+              "bpm": 40
             }
           }
         ]
@@ -119,6 +112,14 @@
       "steps": [
         "sight-singing:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

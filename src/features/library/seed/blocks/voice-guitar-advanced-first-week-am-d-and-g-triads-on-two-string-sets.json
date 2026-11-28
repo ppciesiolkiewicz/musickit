@@ -1,14 +1,14 @@
 {
   "id": "voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "note": "The 2nd, 5th and 1st chords of a key as small triads, one per beat on the top three strings and then one string set lower, in a play-along with the tab. The chords are tokens (in the title too), counted the long way the first time, the shapes carry their key, so the old Am, D and G copy is now moves (any key, 66 to 90 bpm); each block has its feel to reach, the first named as muscle memory.",
   "exercise": {
-    "title": "Am, D and G triads on two string sets",
+    "title": "{{chord:ii}}, {{chord:V}} and {{chord:I}} triads on two string sets",
     "area": "guitar",
     "tags": [
       "theory",
@@ -19,7 +19,7 @@
       "triads-every-set",
       "top-string-triads"
     ],
-    "why": "Three notes high on the neck leave the low register to your voice and the bass, so a small triad often sits better under a singer than a full barre chord.",
+    "why": "Three notes high on the neck leave the low notes to your voice and the bass, so a small triad often sits better under a singer than a full barre chord.",
     "learnBefore": [
       "/course/8/triads-everywhere",
       "/course/5/triads"
@@ -27,12 +27,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Strings G, B and E",
+        "heading": "The top three strings",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track and follow the tab: each triad on the top three strings, struck once per beat for a bar. The chords go Am, D and two bars of G. Practice until the changes take no thought."
+            "text": "Press Play below to start the backing track at {{=bpm}} and follow the tab: each triad on the G, B and high e strings, struck once per beat for a bar. The chords go {{chord:ii}}, {{chord:V}}, then two bars of {{chord:I}}.\n{{chord:ii}} is the 2nd chord of the key, {{chord:V}} the 5th chord and {{chord:I}} the 1st chord, the one the key is named after.\nPractice until the changes are in your muscle memory: your hand moves to the next triad without you reading the tab."
           },
           {
             "type": "tool",
@@ -189,7 +189,8 @@
                       }
                     ]
                   }
-                ]
+                ],
+                "key": "g"
               },
               "bpm": 66,
               "view": "tab"
@@ -199,12 +200,12 @@
       },
       {
         "type": "section",
-        "heading": "Strings D, G and B",
+        "heading": "One string set lower",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the same chords one set of strings lower. The shapes are new, so let the tab lead for the first few rounds, then say each chord's name as you strike it.\nThen stop the backing track and play each chord on both sets, one after the other."
+            "text": "Press Play below to start the backing track: the same chords on the D, G and B strings. The shapes are new, so let the tab lead for the first few rounds, then say each chord's name as you strike it.\nThen stop the backing track and play each chord on both string sets, one after the other.\n{{?key}}In another key the triads sit on other frets, and each keeps its shape on its three strings."
           },
           {
             "type": "tool",
@@ -361,7 +362,8 @@
                       }
                     ]
                   }
-                ]
+                ],
+                "key": "g"
               },
               "bpm": 66,
               "view": "tab"
@@ -379,6 +381,14 @@
         "triads:3",
         "triads:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 66,
+          "to": 90,
+          "step": 8
+        }
+      },
       "minutes": 8
     }
   ]

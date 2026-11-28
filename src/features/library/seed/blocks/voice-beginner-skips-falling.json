@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-skips-falling",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 4.",
+  "note": "Falling skips by ear: the game plays a note and then one a 3rd or a 5th below, the singer hums the lower note back and picks its name. The answers are named as the game's buttons show them (m3, M3, P5) with the plain word beside each, and the block has its feel to reach. The game asks in keys of its own, so no moves.",
   "exercise": {
     "title": "Skips, falling",
     "area": "voice",
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below to hear a note and then a lower one, a 3rd or a 5th below. Hum the lower note back, then answer."
+        "text": "Press Start in the game below: it plays a note, then a lower one, a 3rd or a 5th below. Hum the lower note back. Then pick its name: m3 for a minor 3rd, M3 for a major 3rd, P5 for a 5th.\nPractice until you can hum the lower note before you pick."
       },
       {
         "type": "tool",

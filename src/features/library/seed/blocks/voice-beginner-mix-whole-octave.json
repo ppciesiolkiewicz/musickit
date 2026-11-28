@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-mix-whole-octave",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track steps-to-leaps (voice-intervals), step 12: mix of the whole octave, the scale up by step and the home chord down by skip over a drone (then turned round), then two tunes of the home chord stage that join skips through the chord to steps past La and Ti (one in two keys). The stage's Medium tunes hold only the broken chord, so the two tunes are Hard ones; the keys keep the high Do at D4 or lower for a tenor.",
+  "note": "The whole octave by step and by skip: the scale up by step and the home chord down by skip over a drone (then turned round), then two home-chord tunes that join skips to steps past La and Ti, the first learned in named stages (with the tune, Tune muted, Chords muted). The old Key selector is now moves (any key, 40 to 60 bpm), with the line about another key marked {{?key}}; the second tune keeps its distance a tone higher. The stage's Medium tunes hold only the broken chord, so the two tunes are Hard ones; the high Do is on \"oo\".",
   "exercise": {
     "title": "The whole octave, by step and by skip",
     "area": "voice",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Sing the scale up by step from the low {{1}} to the next {{1}}. Then come down by skips on the ringed notes: {{1}}, {{5}}, {{3}}, {{1}}. Sing them on the note names.\nThen turn it round: up by skips, down by step.\n_Don't reach for high notes: turn back at the {{1}} in the middle of the staff._"
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Sing the scale up by step from the low {{1}} to the next {{1}}. Then come down by skips on the ringed notes: {{1}}, {{5}}, {{3}}, {{1}}. Sing it on the note names, and take the high {{1}} on \"oo\".\nThen turn it round: up by skips, down by step.\n_Don't reach for high notes: turn back at the {{1}} in the middle of the staff._"
           },
           {
             "type": "tool",
@@ -55,20 +55,10 @@
         "type": "section",
         "heading": "Skips up, steps to the top",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It skips up the home chord to the high Do and comes back down to Mi. Then it skips up to Sol again and steps the rest of the way: La, Ti, the high Do. Sing along on the note names.\nOnce the last steps land in time, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still reaches the high Do once by skip and once by step."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. It skips up the home chord to the high Do and back down to Mi, then skips up to Sol again and steps the rest of the way: La, Ti, the high Do. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the last steps land in time, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key the notes change, but the tune still reaches the high Do once by skip and once by step."
           },
           {
             "type": "tool",
@@ -80,7 +70,8 @@
                 "index": 1
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -92,7 +83,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It skips up to Sol, leaps to the high Do and comes down the home chord by skips. Then it skips up to Sol once more and steps down home. Sing along on the note names.\nIf the leap to the high Do lands off, tap that note on the staff to hear it, then sing the bar again.\nOnce the names come without thinking, sing it again on \"la\"."
+            "text": "Press Play below to hear the tune: the mic starts with it. It skips up to Sol, leaps to the high Do and comes down the home chord by skips. Then it skips up to Sol once more and steps down home. Sing along on the note names.\nIf the leap to the high Do lands off, tap that note on the staff to hear it, then sing the bar again."
           },
           {
             "type": "tool",
@@ -104,7 +95,8 @@
                 "index": 3
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -121,6 +113,14 @@
       "steps": [
         "steps-to-leaps:12"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-name-the-interval-you-hear",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 5.",
+  "note": "Naming intervals by ear in two stages of the game: every interval up to the 6ths, then all twelve. The answers are named as the game's buttons show them, with the plain word beside each the first time; the text says what the next stage adds and how a stage feels before the next, and names the Stage selector, never a chip.",
   "exercise": {
     "title": "Name the interval you hear",
     "area": "theory",
@@ -28,6 +28,7 @@
         "heading": "Two stages",
         "minutes": 5,
         "choice": {
+          "label": "stage",
           "options": [
             {
               "level": "intermediate"
@@ -40,7 +41,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays two notes, one after the other, and you pick the interval's name. The first stage leaves out the 7ths and the tritone.\nWhen the name comes before you have to sing it in your head, try the next stage: it adds the 7ths and the tritone, so all twelve are asked. Use the Stage selector below to change the stage, then press Start in the game again.\nIf a stage turns into guessing, go back one stage."
+            "text": "Press Start in the game below: it plays two notes, one after the other. Pick the interval's name from the buttons, such as m3 for a minor 3rd, P5 for a perfect 5th or M6 for a major 6th. Press Next for the next one.\nWhen the name comes before you have to sing the gap in your head, try the next stage: it adds m7, M7 and TT, the tritone, so all twelve are asked. Use the Stage selector below to change the stage, then press Start in the game again.\nIf a stage turns into guessing, go back one stage."
           },
           {
             "type": "tool",

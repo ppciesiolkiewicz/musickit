@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-mix-steps-and-skips",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track steps-to-leaps (voice-intervals), step 8: mix of steps and skips, the five notes up by step and down by skip over a drone (then turned round), a Thirds-stage tune that goes up a skip and back a step (in two keys), and a short one that takes a skip and a step in turn.",
+  "note": "Steps and skips mixed: the five notes up by step and down by skip over a drone (then turned round), a Climbing-in-3rds tune learned in named stages (with the tune, Tune muted, Chords muted), then a short tune that takes a skip and a step in turn. The old Key selector is now moves (any key, 40 to 60 bpm), so the text names no selector and the line about another key is marked {{?key}}; the last tune keeps its distance a tone higher.",
   "exercise": {
     "title": "Steps and skips in one tune",
     "area": "voice",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Sing up by step from the low {{1}} to {{5}}, then come down by skips on the ringed notes: {{5}}, {{3}}, {{1}}. Sing them on the note names.\nThen turn it round: up by skips, down by step.\n_Don't reach for high notes: start from the low {{1}}, so {{5}} stays easy._"
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Sing up by step from the low {{1}} to {{5}}, then come down by skips on the ringed notes: {{5}}, {{3}}, {{1}}. Sing it on the note names.\nThen turn it round: up by skips, down by step.\n_Don't reach for high notes: start from the low {{1}}, so {{5}} stays easy._"
           },
           {
             "type": "tool",
@@ -62,20 +62,10 @@
         "type": "section",
         "heading": "Up a skip, back a step",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It climbs from Do by going up a skip and back a step, then comes down from Sol by a step and a skip in turn. Sing along on the note names.\nOnce you feel each skip coming before you sing it, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still goes up a skip and back a step."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. It climbs from Do by going up a skip and back a step, then comes down from Sol by a step and a skip in turn. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce you feel each skip coming before you sing it, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key the notes change, but the tune still goes up a skip and back a step."
           },
           {
             "type": "tool",
@@ -87,7 +77,8 @@
                 "index": 2
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -99,7 +90,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This short tune starts on Mi: it skips up, steps down, skips down and steps home. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
+            "text": "This short tune starts on Mi: it skips up, steps down, skips down and steps home. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"oo\"."
           },
           {
             "type": "tool",
@@ -111,7 +102,8 @@
                 "index": 1
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -128,6 +120,14 @@
       "steps": [
         "steps-to-leaps:8"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

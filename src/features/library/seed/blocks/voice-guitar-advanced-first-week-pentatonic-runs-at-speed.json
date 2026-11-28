@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-pentatonic-runs-at-speed",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 4.",
+  "note": "Pentatonic runs: the major pentatonic scale up and back four notes per beat with the metronome, the book's pentatonic run climbing a semitone each pass, a falling minor pentatonic run over a drone ending in one of the singer's own, then the five-note run in sixteenths. The old Stage selector of tempos is now moves (any key, 60 to 90 bpm), every tool written at 60; the pentatonic run is described as the book writes it, and each block has its feel or fix line.",
   "exercise": {
     "title": "Pentatonic runs at speed",
     "area": "voice",
@@ -18,7 +18,7 @@
     "concepts": [
       "fast-runs"
     ],
-    "why": "A pentatonic run mixes steps with skips, and the skips are where fast runs go out of tune, so they get drilled slowly before the tempo goes up.",
+    "why": "A pentatonic run mixes steps with skips, and the skips are where fast runs go out of tune, so give each skip its own clear pitch at a slow tempo before the tempo goes up.",
     "learnBefore": [
       "/course/9/fast-runs",
       "/theory/singing/runs"
@@ -26,26 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The run on the click",
+        "heading": "The scale on the click",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 54
-            },
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 66
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the metronome and the mic. Sing the run up the scale from the low {{1}} to the high {{1}} and back down, four notes per beat, on \"ah\". From {{3}} to {{5}} and from {{6}} to the high {{1}} are skips: give each its own clear pitch.\nWhen the skips are as steady as the steps, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf a skip slides at a new stage, go back one stage."
+            "text": "Press Start exercise below: the metronome and the mic start together, at {{=bpm}}. Sing up the scale from the low {{1}} to the high {{1}} and back down, four notes per beat. Sing it on \"ah\".\nFrom {{3}} to {{5}} and from {{6}} to the high {{1}} are skips. Practice until the skips are as steady as the steps."
           },
           {
             "type": "tool",
@@ -55,20 +41,25 @@
               "key": "c",
               "voice": "baritone",
               "labels": "degree",
+              "highlight": [
+                "3",
+                "5",
+                "6"
+              ],
               "click": true,
-              "bpm": 54
+              "bpm": 60
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "The run, a semitone higher each pass",
+        "heading": "A semitone higher each pass",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs from Mi to the high Do, falls back through Sol and Mi, dips to La under Do and lands on Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it lightly on \"ah\", and move to \"oo\" when a pass feels tight.\nIf a skip slides, sing that pass on \"la\" and go back to \"ah\" on the next."
           },
           {
             "type": "tool",
@@ -78,19 +69,20 @@
                 "difficulty": "expert",
                 "stage": "pentatonic-run"
               },
-              "voice": "baritone"
+              "voice": "baritone",
+              "bpm": 60
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "The falling run in A minor",
+        "heading": "The falling run",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone is on A. Start on the high {{1}} and sing the run down, {{1}} {{b7}} {{5}} {{4}} {{b3}} {{1}}, on \"oo\": slowly first, then as one quick gesture. This falling shape is the run heard most in soul and R&B.\nThen make up a falling run of your own that starts on {{5}} or {{b7}}."
+            "text": "Press Start exercise below: the drone and the mic start together. Start on the high {{1}} and sing the run down, {{1}}, {{b7}}, {{5}}, {{4}}, {{b3}}, {{1}}, slowly first and then as one quick gesture. Sing it on \"oo\".\nThen make up a falling run of your own that starts on {{5}} or {{b7}}.\n{{?key}}In another key the drone and the run sit higher or lower, and the run still falls through the same notes."
           },
           {
             "type": "tool",
@@ -100,6 +92,9 @@
               "key": "a",
               "voice": "baritone",
               "labels": "degree",
+              "highlight": [
+                "1"
+              ],
               "drone": true
             }
           }
@@ -107,12 +102,12 @@
       },
       {
         "type": "section",
-        "heading": "The five-note run, a step harder",
+        "heading": "The five-note run, faster",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: the mic starts with it. It is the five-note run at twice the speed: it goes from Do up to Sol and back, twice, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\".\nNotice which passes stay clean at this speed."
+            "text": "Press Play below to hear the run: the mic starts with it. The run goes from Do up to Sol and back twice in each pass, four notes per beat, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\".\nPractice until the high passes stay as clean as the low ones."
           },
           {
             "type": "tool",
@@ -123,7 +118,8 @@
                 "stage": "five",
                 "index": 2
               },
-              "voice": "baritone"
+              "voice": "baritone",
+              "bpm": 60
             }
           }
         ]
@@ -137,6 +133,14 @@
       "steps": [
         "runs:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 12
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-nine-notes-and-the-octave",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 3.",
+  "note": "Long runs heard as groups of four: the nine-note run, the scale up the octave four notes per beat with the metronome, the same run in groups of four, then the book's octave run. The old Stage selector of tempos and Key selector are now moves (any key, 60 to 90 bpm), every tool written at 60, with the tempo and the line about another key as params; each block has its feel to reach and each run step states its range and the semitone climb.",
   "exercise": {
     "title": "Nine notes and the octave",
     "area": "voice",
@@ -19,7 +19,7 @@
       "runs",
       "fast-runs"
     ],
-    "why": "A longer run is short groups joined together, so hearing it in fours keeps every note in its place when the tempo goes up.",
+    "why": "A long run is short groups joined together, so hearing it in fours keeps every note in its place when the tempo goes up.",
     "learnBefore": [
       "/course/9/fast-runs",
       "/theory/singing/runs"
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to Re above the high Do and back down, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to Re above the high Do and back down, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and close towards \"oo\" at the top.\nIf a pass smears, listen to it and come in on the next one."
           },
           {
             "type": "tool",
@@ -42,33 +42,20 @@
                 "difficulty": "hard",
                 "stage": "nine"
               },
-              "voice": "baritone"
+              "voice": "baritone",
+              "bpm": 60
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "The run up the octave, on the click",
+        "heading": "Up the octave",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 54
-            },
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 66
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the metronome and the mic. Sing the run up the scale from the low {{1}}, four notes per beat, and hold the high {{1}} when you reach it. Breathe, then run back down the same way and hold the low {{1}}. Sing it on \"ah\".\nWhen {{4}} and {{7}} are as clear as the notes around them, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the top of the run goes flat at a new stage, go back one stage."
+            "text": "Press Start exercise below: the metronome and the mic start together, at {{=bpm}}. Sing up the scale from the low {{1}}, four notes per beat, and hold the high {{1}} when you reach it. Breathe, then run back down the same way and hold the low {{1}}. Sing it on \"ah\".\nPractice until {{4}} and {{7}} are as clear as the notes around them.\n{{?bpm}}At a faster tempo the top of the run goes flat first, so listen there."
           },
           {
             "type": "tool",
@@ -78,33 +65,24 @@
               "key": "b-flat",
               "voice": "baritone",
               "labels": "degree",
+              "highlight": [
+                "4",
+                "7"
+              ],
               "click": true,
-              "bpm": 54
+              "bpm": 60
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "The run in groups of four",
+        "heading": "In groups of four",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "b-flat"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the metronome at 60 and the mic. Sing the run in groups of four, one group per beat: {{1}} {{2}} {{3}} {{4}}, then {{2}} {{3}} {{4}} {{5}}, each group starting one note higher, up to the high {{1}}. Sing it on \"ah\".\nOnce each group starts on the click, try another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes are new but every group is still four steps up."
+            "text": "Press Start exercise below: the metronome and the mic start together. Sing the run in groups of four, one group per beat: {{1}}, {{2}}, {{3}}, {{4}}, then {{2}}, {{3}}, {{4}}, {{5}}, each group starting one note higher, up to the high {{1}}. Sing it on \"ah\".\nPractice until each group starts on the click.\n{{?key}}In another key the notes are new, but every group is still four steps up."
           },
           {
             "type": "tool",
@@ -127,7 +105,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: the mic starts with it. The run goes from Do up to the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and hear it in the groups of four you just sang."
+            "text": "Press Play below to hear the run: the mic starts with it. The run goes from Do up to the high Do and back, four notes per beat, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and hear it in groups of four.\nPractice until each group of four lands on its beat."
           },
           {
             "type": "tool",
@@ -137,7 +115,8 @@
                 "difficulty": "hard",
                 "stage": "octave-run"
               },
-              "voice": "baritone"
+              "voice": "baritone",
+              "bpm": 60
             }
           }
         ]
@@ -151,6 +130,14 @@
       "steps": [
         "runs:7"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 12
     }
   ]

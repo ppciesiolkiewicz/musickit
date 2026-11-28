@@ -1,12 +1,12 @@
 {
   "id": "voice-guitar-advanced-first-week-runs-over-a-soul-vamp",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 6.",
+  "note": "Runs aimed at the chord change over a Dorian vamp: two long notes that step onto the 6th as the 4th chord arrives, runs that land on the ringed 6th and the root, then whole phrases of the singer's own. The chords are tokens counted the long way in the key of the tools, the staff lights every note the text names, and the vamp moves to any key and from 84 to 100 bpm; the old pointer to another day's run is gone.",
   "exercise": {
     "title": "Runs over a soul vamp",
     "area": "voice",
@@ -19,7 +19,7 @@
     "concepts": [
       "fast-runs"
     ],
-    "why": "Over Am7 and D7 the 6th of the scale is the 3rd of D7, so a run that lands on it as the chord changes sounds like it belongs to the backing track.",
+    "why": "Over this vamp the 6th of the scale is the 3rd of the 4th chord, so a run that lands on it as the chord changes sounds like it belongs to the backing track.",
     "learnBefore": [
       "/course/9/improvising-a-melody",
       "/course/9/modes"
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track, which switches between Am7 and D7. On \"oo\", sing {{5}} over Am7 and step up to {{6}} over D7. Then try {{b7}} over Am7 and step down to {{6}} over D7.\nTap {{6}} on the staff to hear it: it is the note to aim for in the next block."
+            "text": "Press Start exercise below: the mic and the backing track start together, at {{=bpm}}. The backing track switches between {{chord:i7}} and {{chord:IV7}}.\n{{chord:i7}} is the 1st chord of the key, built on {{1}}, and {{chord:IV7}} is the 4th chord, built on {{4}}. Sing {{5}} over {{chord:i7}} and step up to the ringed {{6}} over {{chord:IV7}}. Then sing {{b7}} over {{chord:i7}} and step down to {{6}}. Sing the long notes on \"oo\".\nPractice until {{6}} lands as the chord changes, not after it."
           },
           {
             "type": "tool",
@@ -44,9 +44,13 @@
               "notes": [
                 "1",
                 "b3",
+                "4",
                 "5",
                 "6",
                 "b7"
+              ],
+              "highlight": [
+                "6"
               ],
               "labels": "degree"
             }
@@ -74,7 +78,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track. Start high and sing a run down by step, on \"ah\", so that you land on a ringed {{6}} as D7 arrives. Then run down again and land on a ringed {{1}} when Am7 comes back.\nIf you land early, start the run later, not slower."
+            "text": "Press Start exercise below: the mic and the backing track start together. Start high and sing a run down by step so that you land on a ringed {{6}} as {{chord:IV7}} arrives. Then run down again and land on a ringed {{1}} as {{chord:i7}} comes back. Sing the runs on \"ah\".\nIf you land early, start the run later, not slower.\n{{?key}}In another key the chords are new, but {{6}} is still the 3rd of the 4th chord."
           },
           {
             "type": "tool",
@@ -113,7 +117,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track. Sing whole phrases now, on any vowel: a long note, a turn, the falling run from earlier today, a run of your own. Leave a bar empty after each phrase, as you would between lines of a song."
+            "text": "Press Start exercise below: the mic and the backing track start together. Sing whole phrases now: a long note, a turn, a falling run, a run of your own. Sing them on any vowel you like.\nLeave a bar empty after each phrase, as you would between the lines of a song."
           },
           {
             "type": "tool",
@@ -154,6 +158,14 @@
       "steps": [
         "runs:5"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 84,
+          "to": 100,
+          "step": 8
+        }
+      },
       "minutes": 11
     }
   ]
