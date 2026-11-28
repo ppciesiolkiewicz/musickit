@@ -16,8 +16,7 @@ import type { CourseRating } from "@/features/course/ratings";
 import { PLAN_DAYS, type PlanAnswers, type PlanExercise, type StoredPlan } from "./types";
 
 
-/** The version of the prompt, its authoring guide and the page's tools for the browser's AI: raised with an entry in `CHANGELOG.md` beside this file (see "Version" in AGENTS.md). */
-export const PROMPT_VERSION = 25;
+export { PROMPT_VERSION } from "./promptVersion";
 
 /** The student section's lines: per area a rough level and the line they picked for each topic, then voice, time, notes, styles. */
 function studentLines(a: PlanAnswers): string[] {

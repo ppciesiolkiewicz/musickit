@@ -1,6 +1,4 @@
-import { ARTICLE_VOICE_VERSION } from "@/features/articles/model";
 import type { CourseSection } from "@/features/course/model";
-import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { devUi } from "./gate";
 import VersionLine, { type VersionPart } from "./VersionLine";
 import { RECORDED_IN } from "./versionDocs";
@@ -8,10 +6,11 @@ import { RECORDED_IN } from "./versionDocs";
 /** The versions an article or a course section was written to; `null`: none recorded. */
 export type Written = { agents: number; teaching: number; voice: number } | null;
 
+/** An article's or a course section's versions as a line's parts: agents, teaching, voice. */
 export const articleParts = (v: Written): VersionPart[] => [
-  ["agents", v?.agents ?? null, DOC_VERSIONS.agents],
-  ["teaching", v?.teaching ?? null, DOC_VERSIONS.teaching],
-  ["voice", v?.voice ?? null, ARTICLE_VOICE_VERSION],
+  ["agents", v?.agents ?? null],
+  ["teaching", v?.teaching ?? null],
+  ["voice", v?.voice ?? null],
 ];
 
 /**

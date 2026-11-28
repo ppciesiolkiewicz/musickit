@@ -22,9 +22,9 @@ const load = (): Promise<VersionsMap | null> =>
     }));
 
 /**
- * In development only (`devUi`): the seed block's id and the versions its file was written to, each behind one shown
- * with the version now (`teaching 5 → 12`), in the fuchsia of the other dev marks (`VersionLine`); hovering a label lists
- * the files responsible for that version. Nothing for a block that isn't a seed file.
+ * In development only (`devUi`): the seed block's id and the versions its file was written to, as pills that read the
+ * version now themselves (`teaching 12/13`, amber when behind; `VersionLine`); hovering a pill lists the files responsible
+ * for that version. Nothing for a block that isn't a seed file.
  */
 export default function BlockVersions({ blockId }: { blockId?: string }) {
   const [map, setMap] = useState<VersionsMap | null>(null);
@@ -40,5 +40,5 @@ export default function BlockVersions({ blockId }: { blockId?: string }) {
   const v = on && map ? map.blocks[blockId!] : undefined;
   if (!v || !map) return null;
   const file = RECORDED_IN.block(blockId!);
-  return <VersionLine id={blockId!} idTitle={file} recordedIn={file} parts={[["prompt", v.prompt, map.now.prompt], ["agents", v.agents, map.now.agents], ["teaching", v.teaching, map.now.teaching]]} />;
+  return <VersionLine id={blockId!} idTitle={file} recordedIn={file} parts={[["prompt", v.prompt], ["agents", v.agents], ["teaching", v.teaching]]} />;
 }

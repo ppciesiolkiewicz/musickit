@@ -1,7 +1,7 @@
 /**
  * The files behind each version a seed file, an article or a course section records: where the rules are written, where
  * the number they are at now is kept, and the changelog section that says what each version changed. Shown when a
- * version label is hovered (`VersionLine`, `VersionBadges`). Paths only, no imports, so client code can read it.
+ * version pill is hovered (`VersionPills.tsx`). Paths only, no imports, so client code can read it.
  */
 export type VersionKey = "prompt" | "agents" | "teaching" | "voice";
 
@@ -11,7 +11,7 @@ export const VERSION_DOCS: Record<VersionKey, { what: string; rules: string[]; n
   prompt: {
     what: "The plan prompt",
     rules: ["src/features/plan/model/prompt.ts", "src/features/plan/model/promptCore.ts", "src/features/plan/model/agentBlocks.ts", "src/features/plan/model/agentTools.ts", "src/features/plan/ui/useBlockAgentTools.ts"],
-    now: "PROMPT_VERSION in src/features/plan/model/promptCore.ts",
+    now: "PROMPT_VERSION in src/features/plan/model/promptVersion.ts",
     changelog: "Prompt",
   },
   agents: {
