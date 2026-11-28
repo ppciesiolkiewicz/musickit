@@ -4,11 +4,11 @@
   "versions": {
     "prompt": 25,
     "agents": 3,
-    "teaching": 14
+    "teaching": 15
   },
-  "note": "The C shape of CAGED: open C fretted with fingers 2, 3 and 4 (its chord box pinned, so it stays the open shape), the same shape two frets up with its arpeggio, major pentatonic and major scale, then joined to the A shape on the A string root. The old Key selector is now moves (any key), so the text names the key only as {{=key}} and a {{?key}} line says what stays the same; each block has one feel to reach.",
+  "note": "Two CAGED shapes as one drill, a choice each (folds guitar-intermediate-caged-g-shape into this file): an open chord fretted with fingers 2, 3 and 4 (its chord box pinned, so it stays the open shape), the same shape moved up the neck with its arpeggio and scales, then joined to the next shape on its root string. Each choice sets the chord box and the two necks' shapes and fills the shape names and the root string as params; the key is a move, named only as {{=key}}.",
   "exercise": {
-    "title": "CAGED: the C shape",
+    "title": "CAGED: the {{=shape}} shape",
     "area": "guitar",
     "tags": [
       "theory",
@@ -18,19 +18,19 @@
     "concepts": [
       "caged"
     ],
-    "why": "The open C chord moves up the neck like E and A do, with finger 1 across the top three strings in place of the nut, and it ends on the A string where the A shape of the same chord begins.",
+    "why": "An open chord shape moved up the neck, with finger 1 in place of the nut, plays the same chord higher up, and its root on the lowest string it uses is where the next CAGED shape begins.",
     "learnBefore": [
       "/course/8/d-c-a-shapes"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "C, moved up",
+        "heading": "{{=shape}}, moved up",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press the chord box below to hear C. Fret it as shown, but with fingers 2, 3 and 4, so finger 1 is free."
+            "text": "Press the chord box below to hear {{=shape}}. Fret it as shown, but with fingers 2, 3 and 4, so finger 1 is free."
           },
           {
             "type": "tool",
@@ -46,7 +46,7 @@
           },
           {
             "type": "text",
-            "text": "Press Play on the chord panel below to hear {{=key}} in the C shape: the open C shape moved up the neck, with finger 1 lying across the top three strings in place of the nut. Then press Play on the other three panels: the arpeggio, the {{=key}} major pentatonic scale and the {{=key}} major scale sit in the same frets.\nPlay each one on your guitar, starting and ending on a root.\nPractice until you can see the chord inside the scale."
+            "text": "Press Play on the chord panel below to hear {{=key}} in the {{=shape}} shape: the open {{=shape}} shape moved up the neck, {{=barre}}. Then press Play on the other three panels: the arpeggio, the {{=key}} major pentatonic scale and the {{=key}} major scale sit in the same frets.\nPlay each one on your guitar, starting and ending on a root.\nPractice until you can see the chord inside the scale."
           },
           {
             "type": "tool",
@@ -63,12 +63,12 @@
       },
       {
         "type": "section",
-        "heading": "Where C meets A",
+        "heading": "Where {{=shape}} meets {{=next}}",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on the two chord panels below to hear {{=key}} in the C shape, then in the A shape just above it. Play one, then the other, on your guitar: the root on the A string is the same note in both, and that is where the two shapes join.\nPractice until your hand finds that root from either shape.\n{{?key}}In another key both shapes move along the neck and still join on the A string."
+            "text": "Press Play on the two chord panels below to hear {{=key}} in the {{=shape}} shape, then in the {{=next}} shape just above it. Play one, then the other, on your guitar: the root on the {{=string}} is the same note in both, and that is where the two shapes join.\nPractice until your hand finds that root from either shape.\n{{?key}}In another key both shapes move along the neck and still join on the {{=string}}."
           },
           {
             "type": "tool",
@@ -99,6 +99,47 @@
       "minutes": 9,
       "moves": {
         "key": "any"
+      },
+      "params": {
+        "shape": "C",
+        "next": "A",
+        "string": "A string",
+        "barre": "with finger 1 lying across the top three strings in place of the nut"
+      }
+    },
+    {
+      "name": "g-shape",
+      "level": "intermediate",
+      "steps": [
+        "caged:5"
+      ],
+      "minutes": 9,
+      "moves": {
+        "key": "any"
+      },
+      "set": {
+        "chord-shapes": {
+          "chords": [
+            "G"
+          ]
+        },
+        "#1": {
+          "shapes": [
+            "G"
+          ]
+        },
+        "#2": {
+          "shapes": [
+            "G",
+            "E"
+          ]
+        }
+      },
+      "params": {
+        "shape": "G",
+        "next": "E",
+        "string": "low E string",
+        "barre": "with finger 1 in place of the nut and a wide reach, so play the part of it your hand can hold"
       }
     }
   ]

@@ -31,7 +31,7 @@
         "theme": "Either side of Sol",
         "exercises": [
           {
-            "block": "voice-advanced-in-hold-out-to-11",
+            "block": "voice-intermediate-in-hold-out",
             "choice": "advanced"
           },
           {
@@ -77,7 +77,7 @@
         "theme": "Chords by ear, and leaps you can't see",
         "exercises": [
           {
-            "block": "voice-advanced-hiss-then-buzz-for-longer",
+            "block": "voice-intermediate-hiss-then-buzz",
             "choice": "advanced"
           },
           {

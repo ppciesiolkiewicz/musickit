@@ -4,11 +4,11 @@
   "versions": {
     "prompt": 25,
     "agents": 3,
-    "teaching": 14
+    "teaching": 15
   },
-  "note": "Track legato (guitar-techniques), step 3: the trill with fingers 2 and 4 on the B string (legato-trill at level intermediate, fingers 24). The old Stage selector of tempos is now moves (60 to 84 bpm), and the fingers 2-4 legato copy is folded in. One block of 4 minutes: the drill, the goal, and a care line.",
+  "note": "One legato trill, one pick and then the fretting hand alone, on three pairs of fingers: a choice per pair (intermediate 2 and 4, advanced 2 and 3, advanced 3 and 4), each with its legato-trill props in `set`, its tempo in moves and the two fingers as the {{=lower}} and {{=upper}} params. Folds in guitar-advanced-hammer-and-pull-fingers-2-and-3 and guitar-advanced-hammer-and-pull-fingers-3-and-4. One block: the drill, the goal, and a care line.",
   "exercise": {
-    "title": "Hammer and pull, fingers 2 and 4",
+    "title": "Hammer and pull, fingers {{=lower}} and {{=upper}}",
     "area": "guitar",
     "tags": [
       "technique"
@@ -17,19 +17,19 @@
     "concepts": [
       "legato"
     ],
-    "why": "Fingers 2 and 4 have a fret between them and finger 4 is the weakest, so a trill on that pair alone trains finger 4 to land on its fret and pull off cleanly.",
+    "why": "A pulled-off note is sounded by the finger leaving the string, so a trill on two fingers with no picking trains the finger that hammers on to pull off as firmly as it lands.",
     "learnBefore": [
       "/course/4/legato"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "Fingers 2 and 4",
+        "heading": "An even trill",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}} and follow the tab. Pick once, then hammer finger 4 on and pull it off to finger 2, one note per beat, with no more picking.\nPractice until the pulled-off note is as loud as the hammered one.\n_Rest your hand when it gets tired, then go again._"
+            "text": "Press Play below to start the metronome at {{=bpm}}, and follow the tab. Pick the first note once, then hammer finger {{=upper}} on and pull it off to finger {{=lower}}, one note per beat, with no more picking.\nPractice until the pulled-off note sounds as loud as the hammered one.\n_Rest your hand when it gets tired, then go again._"
           },
           {
             "type": "tool",
@@ -53,10 +53,69 @@
       "steps": [
         "legato:3"
       ],
+      "params": {
+        "lower": "2",
+        "upper": "4"
+      },
       "moves": {
         "bpm": {
           "from": 60,
           "to": 84,
+          "step": 12
+        }
+      },
+      "minutes": 4
+    },
+    {
+      "name": "fingers-2-and-3",
+      "level": "advanced",
+      "steps": [
+        "legato:3"
+      ],
+      "set": {
+        "legato-trill": {
+          "fingers": "23",
+          "string": 3,
+          "fret": 6,
+          "bpm": 80
+        }
+      },
+      "params": {
+        "lower": "2",
+        "upper": "3"
+      },
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 104,
+          "step": 12
+        }
+      },
+      "minutes": 4
+    },
+    {
+      "name": "fingers-3-and-4",
+      "level": "advanced",
+      "steps": [
+        "legato:4"
+      ],
+      "set": {
+        "legato-trill": {
+          "level": "advanced",
+          "fingers": "34",
+          "string": 2,
+          "fret": 7,
+          "bpm": 72
+        }
+      },
+      "params": {
+        "lower": "3",
+        "upper": "4"
+      },
+      "moves": {
+        "bpm": {
+          "from": 72,
+          "to": 96,
           "step": 12
         }
       },

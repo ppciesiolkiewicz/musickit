@@ -4,11 +4,11 @@
   "versions": {
     "prompt": 25,
     "agents": 3,
-    "teaching": 14
+    "teaching": 15
   },
-  "note": "Track breath, step 6 (a long breath out): one breathwork circle with the \"long-exhale\" drill at its own lengths (in for 4, out for 8); the text follows the circle, names the control that runs it again, and the feel to reach is an even flow to the end of the breath. The advanced block of this drill stays separate, because its breathwork is set longer and a choice can't change a tool's seconds.",
+  "note": "Track breath, steps 6 and 8 (a long breath out): one breathwork circle with the \"long-exhale\" drill, at its own lengths (in for 4, out for 8) for intermediate and set to its longest breath out (\"seconds\": 16, six rounds) for advanced; the title's length param says which. The text follows the circle and names the control that runs it again, and the feel to reach is an even flow to the end of the breath. Folds in voice-advanced-a-long-breath-out as the advanced choice.",
   "exercise": {
-    "title": "A long breath out",
+    "title": "A long breath out, {{=length}}",
     "area": "voice",
     "tags": [
       "sing"
@@ -17,14 +17,14 @@
     "concepts": [
       "breath"
     ],
-    "why": "A long phrase is one slow breath out, so a breath out twice as long as the breath in is the phrase without its notes.",
+    "why": "A long phrase is one slow breath out, so a breath out much longer than the breath in is the phrase without its notes.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the circle below. Breathe in while the circle grows, then let the air out slowly until it is small again.\nWhen the rounds are done, press Again in the circle to run them once more.\nPractice until the air flows as evenly at the end of the breath out as at the start."
+        "text": "Press Start in the circle below. Breathe in while the circle grows, then let the air out slowly until it is small again.\nWhen the rounds are done, press Again in the circle to run them once more.\nSpend the air slowly from the very start of the breath out, so some is left for the end.\nPractice until the air flows as evenly at the end of the breath out as at the start."
       },
       {
         "type": "tool",
@@ -42,7 +42,27 @@
       "steps": [
         "breath:6"
       ],
-      "minutes": 3
+      "minutes": 3,
+      "params": {
+        "length": "twice as long"
+      }
+    },
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:8"
+      ],
+      "minutes": 3,
+      "set": {
+        "breathwork": {
+          "seconds": 16,
+          "rounds": 6
+        }
+      },
+      "params": {
+        "length": "four times as long"
+      }
     }
   ]
 }

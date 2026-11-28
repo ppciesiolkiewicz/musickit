@@ -4,9 +4,9 @@
   "versions": {
     "prompt": 25,
     "agents": 3,
-    "teaching": 14
+    "teaching": 15
   },
-  "note": "Track breath, step 4 (farinelli:intermediate): one breathwork circle at \"level\": \"intermediate\", the count growing by one each round; the text says how full to breathe and names the feel to reach in the long rounds at the end. Folds in the filled-to-80% and long-rounds copies, whose fill and last-rounds lines are here.",
+  "note": "Track breath, steps 4 and 7 (farinelli): one breathwork circle, the count growing by one each round; the advanced choice sets the circle past the easy rounds (\"from\" 7, \"to\" 12) so its minutes go to the long counts. The text says how full to breathe and the feel to reach is a long round as easy as a short one. Folds in voice-advanced-in-hold-out-to-11 as the advanced choice.",
   "exercise": {
     "title": "In, hold, out",
     "area": "voice",
@@ -17,14 +17,14 @@
     "concepts": [
       "breath"
     ],
-    "why": "The count grows by one each round, so your breath gets longer in steps too small to strain, and filling to about 80% leaves room to hold in the long rounds.",
+    "why": "Each round is one count longer than the last, so your breath grows in steps too small to strain, and filling to about 80% leaves room to hold in the long rounds.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the circle below. Breathe in as it grows, hold while it stays and breathe out as it shrinks, each for the count shown in the middle.\nKeep your shoulders still and let your belly do the moving. Fill to about 80%, not to the top.\nPractice until the last two rounds feel as easy as the first."
+        "text": "Press Start in the circle below. Breathe in as it grows, hold while it stays and breathe out as it shrinks, each for the count shown in the middle.\nFill to about 80%, not to the top, and keep your shoulders still, so the hold stays easy in the {{=rounds}} rounds.\nPractice until the last round feels as easy as the first."
       },
       {
         "type": "tool",
@@ -43,7 +43,28 @@
       "steps": [
         "breath:4"
       ],
-      "minutes": 3
+      "minutes": 3,
+      "params": {
+        "rounds": "long"
+      }
+    },
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:7"
+      ],
+      "minutes": 3,
+      "set": {
+        "breathwork": {
+          "level": "advanced",
+          "from": 7,
+          "to": 12
+        }
+      },
+      "params": {
+        "rounds": "longest"
+      }
     }
   ]
 }

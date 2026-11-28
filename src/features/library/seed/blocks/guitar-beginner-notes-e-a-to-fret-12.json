@@ -4,11 +4,11 @@
   "versions": {
     "prompt": 25,
     "agents": 3,
-    "teaching": 14
+    "teaching": 15
   },
-  "note": "The note game on the low E and A strings up to fret 12 (note-finder at level beginner, path step notes-on-neck:2), turned three ways: find and play the named note, say the lit note's name before pressing it, tap every place one note sits. One choice per level that comes to this step (beginner, and intermediate and advanced players filling the gap), all with the same words and tools. Each block has one extra line: a feel to reach, the sense it trains, or what to practice next.",
+  "note": "The note game on the low E and A strings turned three ways: find and play the named note, say the lit note's name before pressing it, tap every place one note sits. One choice per level: beginner, intermediate and advanced up to fret 12 (note-finder level beginner, step notes-on-neck:2), and new up to fret 5 (note-finder level new, step notes-on-neck:1), the fret range a {{=fret}} param in the title. Folds in guitar-new-notes-on-e-and-a.",
   "exercise": {
-    "title": "Notes on the low E and A strings, up to fret 12",
+    "title": "Notes on the low E and A strings, up to fret {{=fret}}",
     "area": "guitar",
     "tags": [
       "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "notes-on-neck"
     ],
-    "why": "A barre chord or a scale position is named by the note under it on the low E or the A string, so knowing these two strings up to the 12th fret names every shape you move.",
+    "why": "A chord shape or a scale position moved up the neck is named by the note under it on the low E or the A string, so knowing the notes on these two strings names every shape you move.",
     "learnBefore": [
       "/course/1/notes-on-e-and-a"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Playing it (mic) under the neck below. Then press Start above the neck.\nThe game names a note and a string: find it on your guitar and play it, saying its name out loud. The game hears your answer.\nPractice until the high frets come as quickly as the low ones, without counting up from the open string."
+            "text": "Press Playing it (mic) under the neck below. Then press Start above the neck.\nThe game names a note and a string: find it on your guitar and play it, saying its name out loud. The game hears your answer.\nPractice until your finger goes to the note without counting frets up from the open string."
           },
           {
             "type": "tool",
@@ -92,7 +92,10 @@
       "steps": [
         "notes-on-neck:2"
       ],
-      "minutes": 6
+      "minutes": 6,
+      "params": {
+        "fret": "12"
+      }
     },
     {
       "name": "intermediate",
@@ -100,7 +103,10 @@
       "steps": [
         "notes-on-neck:2"
       ],
-      "minutes": 6
+      "minutes": 6,
+      "params": {
+        "fret": "12"
+      }
     },
     {
       "name": "advanced",
@@ -108,6 +114,25 @@
       "steps": [
         "notes-on-neck:2"
       ],
+      "minutes": 6,
+      "params": {
+        "fret": "12"
+      }
+    },
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "notes-on-neck:1"
+      ],
+      "set": {
+        "note-finder": {
+          "level": "new"
+        }
+      },
+      "params": {
+        "fret": "5"
+      },
       "minutes": 6
     }
   ]

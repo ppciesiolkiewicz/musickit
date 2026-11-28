@@ -4,11 +4,11 @@
   "versions": {
     "prompt": 25,
     "agents": 3,
-    "teaching": 14
+    "teaching": 15
   },
-  "note": "Track breath, step 5 (hiss, then buzz): one breathwork circle with the \"sss-zzz\" drill at its own lengths; each sound gets its own sound clause, and the feel to reach is air at one speed as the voice comes in and goes out. The advanced block of this drill stays separate, because its breathwork is set longer and a choice can't change a tool's seconds.",
+  "note": "Track breath, steps 5 and 8 (hiss, then buzz): one breathwork circle with the \"sss-zzz\" drill, at its own lengths for intermediate and twice as long (\"seconds\": 6, six rounds) for advanced, the title's length param saying which; each sound gets its own sound clause, and the feel to reach is air at one speed as the voice comes in and goes out. Folds in voice-advanced-hiss-then-buzz-for-longer as the advanced choice.",
   "exercise": {
-    "title": "Hiss, then buzz",
+    "title": "Hiss, then buzz, {{=length}}",
     "area": "voice",
     "tags": [
       "sing"
@@ -17,14 +17,14 @@
     "concepts": [
       "breath"
     ],
-    "why": "A hiss is air alone and a buzz is the same air with your voice added, so going from one to the other shows how little extra push a note needs.",
+    "why": "A hiss is air alone and a buzz is the same air with your voice added, so going from one to the other shows whether the air keeps its speed when the voice comes in.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the circle below. Hiss on \"sss\" as the circle shows, then add your voice and buzz on \"zzz\", then hiss again.\nWhen the rounds are done, press Again in the circle to run them once more.\nPractice until the air moves at the same speed through all three sounds."
+        "text": "Press Start in the circle below. Hiss on \"sss\" as the circle shows, then add your voice and buzz on \"zzz\", then hiss again.\nWhen the rounds are done, press Again in the circle to run them once more.\nTake in a little less air than you can hold, and spend it slowly so the buzz lasts until the circle moves on.\nPractice until the air moves at the same speed through all three sounds, right to the end of each."
       },
       {
         "type": "tool",
@@ -42,7 +42,27 @@
       "steps": [
         "breath:5"
       ],
-      "minutes": 3
+      "minutes": 3,
+      "params": {
+        "length": "three seconds a sound"
+      }
+    },
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:8"
+      ],
+      "minutes": 3,
+      "set": {
+        "breathwork": {
+          "seconds": 6,
+          "rounds": 6
+        }
+      },
+      "params": {
+        "length": "six seconds a sound"
+      }
     }
   ]
 }
