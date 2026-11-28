@@ -2,13 +2,12 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { BlockChoice, BlockSummary, ConceptCoverage, CoverageRow } from "@/features/library/server/types";
 import type { BlocksData, CoverageData, ItemResult, Loaded, TopicCount } from "./load";
-import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { SEED_BLOCKS, SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
-import { PROMPT_VERSION } from "@/features/plan/model/prompt";
 import { blockOfChoice } from "@/features/plan/model/blockId";
 import { blockTags, demoSlugOf, seedBlocksById, type LibraryTag } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
 import ScrollToItem from "./ScrollToItem";
+import VersionBadges from "./VersionBadges";
 import { libraryHref, minutes, orDash, type LibraryParams, type LibraryTab } from "./params";
 
 const TH = "p-2";
@@ -23,27 +22,6 @@ const Head = ({ cols }: { cols: string[] }) => (
 );
 /** A table that scrolls sideways on its own; an open row's content stays the width of the screen (`100cqw`). */
 const Scroll = ({ children }: { children: ReactNode }) => <div className="@container overflow-x-auto">{children}</div>;
-
-/** Each version the row was written to; one older than the current one is amber, one not recorded is grey. */
-function Versions({ p }: { p: { promptVersion: number | null; docsAgents: number | null; docsTeaching: number | null } }) {
-  const parts: [string, number | null, number][] = [
-    ["prompt", p.promptVersion, PROMPT_VERSION],
-    ["agents", p.docsAgents, DOC_VERSIONS.agents],
-    ["teaching", p.docsTeaching, DOC_VERSIONS.teaching],
-  ];
-  return (
-    <span className="whitespace-nowrap">
-      {parts.map(([name, v, now], i) => (
-        <span key={name}>
-          {i > 0 && ", "}
-          <span className={v === null ? "text-slate-500" : v < now ? "text-amber-300" : undefined} title={v !== null && v < now ? `behind: now ${now}` : undefined}>
-            {name} {orDash(v)}{v !== null && v < now ? ` → ${now}` : ""}
-          </span>
-        </span>
-      ))}
-    </span>
-  );
-}
 
 const TAG_STYLE: Record<LibraryTag, { label: string; cls: string }> = {
   seed: { label: "Seed", cls: "border-sky-500/40 bg-sky-500/10 text-sky-200" },
@@ -221,7 +199,7 @@ export function PlansTable({ plans = SEED_PLANS, params, open }: { plans?: SeedP
               <tr key={f.id} className={ROW}>
                 <td className="p-2"><ItemLink tab="plans" id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} open={isOpen} params={params} /><Tags tags={demo ? ["seed", "demo"] : ["seed"]} demo={demo} /></td>
                 <td className="p-2">{f.model}</td>
-                <td className="p-2"><Versions p={{ promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching }} /></td>
+                <td className="p-2"><VersionBadges v={f.versions} /></td>
                 <td className="p-2">{Array.isArray(f.plan.days) ? f.plan.days.length : 0}</td>
               </tr>,
               isOpen && open ? <OpenRow key={`${f.id}:open`} cols={PLAN_COLS.length}>{open}</OpenRow> : null,
@@ -298,7 +276,7 @@ export function BlocksTable({ blocks, params, open, riffEdited = [] }: { blocks:
                 <td className="p-2">{orDash(b.level)}</td>
                 <td className="p-2">{b.concepts.join(", ") || "–"}</td>
                 <td className="p-2">{orDash(b.provenance.model)}</td>
-                <td className="p-2"><Versions p={b.provenance} /></td>
+                <td className="p-2"><VersionBadges v={{ prompt: b.provenance.promptVersion, agents: b.provenance.docsAgents, teaching: b.provenance.docsTeaching }} /></td>
                 <td className="p-2">{b.use.times}</td>
                 <td className="p-2">{minutes(b.use.seconds)}</td>
                 {b.use.stars.map((n, i) => <td key={i} className="p-2">{n}</td>)}

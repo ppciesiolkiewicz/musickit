@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useMemo, type ReactNode } from "react";
 import { SEED_BLOCKS, SEED_PLANS, seedExercise, seedPlan } from "@/features/library/seed";
-import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
-import { PROMPT_VERSION } from "@/features/plan/model/prompt";
 import ExamplePreview from "../prompt/ExamplePreview";
 import { parsePreview } from "../model/preview";
 import { exerciseSteps, planSteps, type ConceptAt } from "../model/exampleSteps";
@@ -15,6 +13,7 @@ import { useShowSections } from "../copy/store";
 import { CommentCount, CommentsFor } from "./Comments";
 import { useMounted } from "../prompt/storage";
 import type { DrawnItem } from "./item";
+import VersionBadges from "./VersionBadges";
 
 /** Every seed plan and block as section comments are kept: by the seed file's id. */
 const SEED_JSON: { id: string; json: string }[] = [
@@ -130,11 +129,6 @@ export function SeedSections() {
   return null;
 }
 
-/** A version against the current one: `v—` when it was not recorded, warm when it is older. */
-function VersionPill({ name, v, current, title }: { name: string; v: number | null; current: number; title: string }) {
-  return <Pill tone={v === current ? "lime" : v === null ? "slate" : "amber"} title={`${title}; now v${current}`}>{name} v{v ?? "—"}{v !== current ? ` → v${current}` : ""}</Pill>;
-}
-
 /** One plan or block drawn as the player sees it, with the versions it was written to and, for a seed file, its section comments. */
 export default function LibraryItem({ item }: { item: DrawnItem }) {
   const mounted = useMounted();
@@ -149,9 +143,7 @@ export default function LibraryItem({ item }: { item: DrawnItem }) {
           <span className="font-mono text-sm text-sky-200">{item.seedId ?? item.id}</span>
           <Pill tone={KIND_TONE[item.kind]}>{item.seedId ? `seed ${item.kind}` : item.kind}</Pill>
           {item.choiceId && <Pill tone="slate" title="The choice drawn">choice {item.choiceId.slice(item.choiceId.indexOf("/") + 1)}</Pill>}
-          <VersionPill name="teaching" v={item.versions.teaching} current={DOC_VERSIONS.teaching} title="The teaching skills' version it was written to" />
-          <VersionPill name="agents" v={item.versions.agents} current={DOC_VERSIONS.agents} title="The AGENTS.md version it was written to" />
-          <VersionPill name="prompt" v={item.versions.prompt} current={PROMPT_VERSION} title="The plan prompt's version it was written to" />
+          <VersionBadges v={item.versions} />
           {item.model ? <Pill tone="indigo" title={item.model}>{modelLabel(item.model)}</Pill> : <Pill tone="slate">model not recorded</Pill>}
           {item.seedId && <CommentCount example={item.seedId} />}
         </span>
