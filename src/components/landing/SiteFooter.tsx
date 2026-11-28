@@ -8,7 +8,7 @@ type Column = { title: string; links: { href: string; label: string }[] };
 const COLUMNS: Column[] = [
   { title: "attunr for", links: [{ href: "/", label: "Solo musicians" }, { href: "/schools", label: "Music schools" }] },
   { title: "The app", links: [{ href: "/plan", label: "Your practice plan" }, { href: "/practice", label: "Practice tools" }] },
-  { title: "See it first", links: [{ href: "/demo", label: "Demos" }, { href: "/explore", label: "Explore" }, { href: "/learn", label: "Learn" }, { href: "/about", label: "About" }] },
+  { title: "See it first", links: [{ href: "/demo", label: "Demos" }, { href: "/explore", label: "Explore" }, { href: "/online-looper", label: "Looper" }, { href: "/learn", label: "Learn" }, { href: "/about", label: "About" }] },
   { title: "Help", links: [{ href: "/faq", label: "FAQ" }, { href: "/terms", label: "Terms of use" }, { href: "/privacy", label: "Privacy policy" }] },
 ];
 

@@ -5,10 +5,10 @@
  */
 
 /**
- * The pages a visitor reads: the two home pages, the FAQ, the terms, the privacy policy, the voice-care notes, the articles (`/learn`) and their author's page (`/about`), the demo plans, the open tools' list (`/explore`), logging in (and a teacher's student's
+ * The pages a visitor reads: the two home pages, the FAQ, the terms, the privacy policy, the voice-care notes, the articles (`/learn`) and their author's page (`/about`), the demo plans, the looper's product page (`/online-looper`; the looper itself needs a login), the open tools' list (`/explore`), logging in (and a teacher's student's
  * claim link, `/claim`, opened before their first log-in), and pages left as they were.
  */
-const MARKETING = ["/", "/schools", "/faq", "/terms", "/privacy", "/voice-care", "/learn", "/about", "/demo", "/explore", "/login", "/claim", "/kickstarter", "/landing-1", "/intro", "/reminders/off"];
+const MARKETING = ["/", "/schools", "/faq", "/terms", "/privacy", "/voice-care", "/learn", "/about", "/demo", "/explore", "/login", "/claim", "/kickstarter", "/landing-1", "/intro", "/reminders/off", "/online-looper"];
 
 /**
  * The app's tools a visitor may use without logging in, so a search can land on them: the scale pages (every mode in every
