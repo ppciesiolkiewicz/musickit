@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import { isUnder, placeFor } from "./appPlaces";
 
 test("placeFor finds the place of a path, ignoring its query and hash", () => {
-  assert.equal(placeFor("/plan")?.label, "Practice plan");
+  assert.equal(placeFor("/plan")?.label, "Your practice plan");
   assert.equal(placeFor("/teachers/studio?notes=1#n=abc")?.label, "Interactive notes");
   assert.equal(placeFor("/note/abc")?.label, "Interactive notes");
-  assert.equal(placeFor("/theory/scales?key=G")?.label, "Practice");
+  assert.equal(placeFor("/theory/scales?key=G")?.label, "Practice tools");
 });
 
 test("placeFor is null outside the three places", () => {

@@ -22,7 +22,7 @@ function NavLink({ href, label, current, icon, foldIcon }: { href: string; label
       href={href}
       aria-current={current ? "page" : undefined}
       aria-label={icon || foldIcon ? label : undefined}
-      className={`flex flex-1 items-center justify-center whitespace-nowrap rounded-lg px-2.5 py-2 text-sm sm:block sm:flex-none transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+      className={`flex flex-1 items-center justify-center whitespace-nowrap rounded-lg px-1.5 py-2 text-sm sm:block sm:flex-none transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
     >
       {icon ? <><Icon name={icon} size={16} className="sm:hidden" /><span className="hidden sm:inline">{label}</span></>
         : foldIcon ? <><Icon name={foldIcon} size={16} className="nav-fold-icon" /><span className="nav-fold-label">{label}</span></>

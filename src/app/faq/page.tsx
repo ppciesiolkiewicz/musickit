@@ -119,7 +119,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
       { q: "Is attunr free?", a: <>{FREE_LINE} You need an account: <A href="/login">log in</A> with your email or Google, and a new account is made the first time.</> },
       { q: "Can I try attunr before I sign up?", a: <>Yes. The <A href="/learn">guides</A> have exercises you do right on the page, with no account: <A href="/learn/vocal-warm-ups">vocal warm-ups</A> and <A href="/learn/pitch-matching-exercises">pitch matching exercises</A>. Start the mic and your voice is drawn over the note as you sing.</> },
       { q: "Where is my practice saved?", a: <>{SAVED_LINE}</> },
-      { q: "Where do I start?", a: <>Open the <A href="/plan">Practice plan</A>: it makes a new set of exercises each day. Every other tool and lesson is in <A href="/practice">Practice</A>. Tune up first with the <A href="/tuner">tuner</A>.</> },
+      { q: "Where do I start?", a: <>Open the <A href="/plan">Practice plan</A>: it makes a new set of exercises each day. Every other tool and lesson is in <A href="/practice">Practice tools</A>. Tune up first with the <A href="/tuner">tuner</A>.</> },
       { q: "I teach guitar or voice. Can I use attunr?", a: <>Yes. A teacher gets the same app as a student, and a Students page: add a student, and attunr makes them a week of practice that you steer before each new week. Notes is made for lessons: lay out what you taught on one page and send it to the student as a link.</> },
     ],
   },

@@ -7,9 +7,9 @@
 export type AppPlace = { href: string; label: string; /** the paths that count as being there */ under: string[]; /** kept out of the nav for now; its pages still open by URL */ hidden?: boolean };
 
 export const APP_PLACES: AppPlace[] = [
-  { href: "/plan", label: "Practice plan", under: ["/plan"] },
+  { href: "/plan", label: "Your practice plan", under: ["/plan"] },
   { href: "/teachers/studio?notes=1", label: "Interactive notes", under: ["/teachers/studio", "/note", "/creator"], hidden: true }, // NOTES-HIDDEN
-  { href: "/practice", label: "Practice", under: ["/practice", "/theory", "/course", "/tuner", "/looper", "/cheatsheet"] },
+  { href: "/practice", label: "Practice tools", under: ["/practice", "/theory", "/course", "/tuner", "/looper", "/cheatsheet"] },
 ];
 
 /** The places the top nav and footer show. */

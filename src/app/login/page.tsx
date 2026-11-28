@@ -10,7 +10,7 @@ import { databaseUrl } from "@/lib/db/client";
 
 export const metadata: Metadata = { title: "Log in · attunr", robots: { index: false } };
 
-/** What the visitor was on the way to, in the intro's words: "your Practice plan", "Interactive notes", "Practice". */
+/** What the visitor was on the way to, in the intro's words: "your Practice plan", "Interactive notes", "Practice tools". */
 function goingTo(next: string | null): string {
   const place = next ? placeFor(next) : null;
   if (!place) return "your practice plan";
