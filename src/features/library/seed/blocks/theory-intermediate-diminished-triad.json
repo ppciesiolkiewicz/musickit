@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-diminished-triad",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track dim-aug (theory-building-chords), step 1: the diminished triad, 1 b3 b5, heard against the minor triad and found on the 7th note of a major key. Missing: interval-ears with kind \"chord\" has no diminished answer, so there is no game to name it by ear.",
+  "note": "Track dim-aug, step 1: the diminished triad, 1 ♭3 ♭5, built on two staffs against the minor triad, heard whole on the chord boxes and checked in the ear game (\"qualities\": min and dim, named as its buttons show them), then found on the 7th note of a major key, named as chord tokens counted the long way. The root is fixed (no moves), and each section has a feel to reach.",
   "exercise": {
     "title": "The diminished triad",
     "area": "theory",
@@ -22,6 +22,9 @@
     "learnBefore": [
       "/course/7/diminished-chords"
     ],
+    "exploreMore": [
+      "/theory/chords"
+    ],
     "cells": [
       {
         "type": "section",
@@ -30,7 +33,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap {{1}} {{b3}} {{5}} on the staff below: C minor, one note at a time."
+            "text": "Tap {{1}}, {{b3}} and {{5}} on the staff below: C minor, one note at a time."
           },
           {
             "type": "tool",
@@ -49,7 +52,7 @@
           },
           {
             "type": "text",
-            "text": "Now tap {{1}} {{b3}} {{b5}} on this staff: C diminished. Only the top note moved, down a half step to the ringed {{b5}}.\nGo between the two staffs until you can hum the lowered note before you tap it."
+            "text": "Now tap {{1}}, {{b3}} and the ringed {{b5}} on this staff: C diminished. Only the top note moved, down a half step.\nPractice until you can hum the lowered note before you tap it."
           },
           {
             "type": "tool",
@@ -78,7 +81,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Go from Cm to Cdim and back, and listen for the one note that drops.\nPractice until you can tell them apart with your eyes closed."
+            "text": "Press a chord box below to hear the chord. Go from Cm to Cdim and back, and listen for the one note that drops."
           },
           {
             "type": "tool",
@@ -87,6 +90,21 @@
               "chords": [
                 "Cm",
                 "Cdim"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Then press Start in the game below: it plays a minor or a diminished triad from any root, and you pick Minor or Diminished.\nPractice until you can tell them apart before the chord has faded."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "kind": "chord",
+              "qualities": [
+                "min",
+                "dim"
               ]
             }
           }
@@ -99,7 +117,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The panel below shows the chord on every note of C major. Press each chord in turn: the diminished one is built on the 7th note, and it is the only one of its kind in the key.\nThen press it and the 1st chord after it, and listen for the diminished chord leading home."
+            "text": "The panel below shows the chord on every note of C major. Press each chord in turn: {{chord:vii°}}, the 7th chord of the key, built on {{7}}, is the only diminished one.\nThen press {{chord:vii°}} and {{chord:I}}, the 1st chord, after it, and listen for the diminished chord leading home.\nPractice until you can hum the home note as soon as {{chord:vii°}} sounds."
           },
           {
             "type": "tool",
@@ -111,9 +129,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/chords"
     ]
   },
   "choices": [

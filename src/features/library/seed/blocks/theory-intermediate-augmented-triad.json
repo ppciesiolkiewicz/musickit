@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-augmented-triad",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track dim-aug (theory-building-chords), step 2: the augmented triad, 1 3 #5, heard against the major triad and the diminished one, then leading on to the next chord in two keys. Missing: interval-ears with kind \"chord\" has no augmented answer, and backing-track cannot play an augmented chord (its numerals read triads, diminished and 7ths only), so the chords are pressed one at a time on chord-shapes.",
+  "note": "Track dim-aug, step 2: the augmented triad, 1 3 ♯5, built on two staffs against the major triad, named by ear among the four triads in the ear game (\"qualities\": maj, min, dim, aug, its answers named as the buttons show them), then leading on to the next chord on two roots, with a line that says what stays. The roots are fixed (no moves): the chord boxes name the chords, and a chord token can't name an augmented chord. Each section has a feel to reach.",
   "exercise": {
     "title": "The augmented triad",
     "area": "theory",
@@ -22,6 +22,9 @@
     "learnBefore": [
       "/course/7/augmented-chords"
     ],
+    "exploreMore": [
+      "/theory/chords"
+    ],
     "cells": [
       {
         "type": "section",
@@ -30,7 +33,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap {{1}} {{3}} {{5}} on the staff below: C major, one note at a time."
+            "text": "Tap {{1}}, {{3}} and {{5}} on the staff below: C major, one note at a time."
           },
           {
             "type": "tool",
@@ -49,7 +52,7 @@
           },
           {
             "type": "text",
-            "text": "Now tap {{1}} {{3}} {{#5}} on this staff: C augmented. Only the top note moved, up a half step to the ringed {{#5}}.\nGo between the two staffs until you can hum the raised note before you tap it."
+            "text": "Now tap {{1}}, {{3}} and the ringed {{#5}} on this staff: C augmented. Only the top note moved, up a half step.\nPractice until you can hum the raised note before you tap it."
           },
           {
             "type": "tool",
@@ -78,17 +81,18 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Go from C to Caug, then from Cm to Cdim: in the first pair the 5th goes up a half step, in the second it goes down.\nPractice until you can name all four with your eyes closed."
+            "text": "Press Start in the game below: it plays a triad from any root, and you pick Major, Minor, Diminished or Augmented.\nListen to the 5th: in Augmented it is raised a half step, in Diminished it is lowered.\nPress Replay to hear the chord again before you pick. Practice until the augmented chord stands out the moment it sounds."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "chord-shapes",
-              "chords": [
-                "C",
-                "Caug",
-                "Cm",
-                "Cdim"
+              "type": "interval-ears",
+              "kind": "chord",
+              "qualities": [
+                "maj",
+                "min",
+                "dim",
+                "aug"
               ]
             }
           }
@@ -101,7 +105,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press C, Caug and F below, in that order and in a slow, even count. The raised note of Caug sits a half step under a note of F, so it leads there."
+            "text": "Press the chord boxes below one at a time, in a slow, even count: C, Caug, then F. The raised note of Caug sits a half step under a note of F, so it leads there."
           },
           {
             "type": "tool",
@@ -116,7 +120,7 @@
           },
           {
             "type": "text",
-            "text": "Then press G, Gaug and C here in the same way.\nWhen you change the key, the chords are new but the raised 5th still leads up a half step into the next chord."
+            "text": "Then press G, Gaug and C below in the same way.\nPractice until you hear the raised note pull before the last chord comes.\nOn G the chords are new, and the raised 5th still leads up a half step into the next chord."
           },
           {
             "type": "tool",
@@ -131,9 +135,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/chords"
     ]
   },
   "choices": [

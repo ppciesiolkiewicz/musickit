@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-modes-by-ear",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 1
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Each mode is heard against its parent, then its one changed note is tapped on a staff beside the root; three modes, three keys, and the last block ends on a line the learner makes up. The why is the method (a mode is major or minor with one note changed), every Play says what it starts, and each step says where the changed note shows.",
+  "note": "Three modes, each heard against its parent and then found by its one changed note: Mixolydian against major, Dorian against natural minor, Phrygian over a drone, each section with its own feel to reach and the last ending on a line the learner makes up. The text names the changed note as a dot the staff rings, never the letter the tool already shows. Missing: a listening tool that plays two scales one after the other for any instrument (the guitar-play-along's two-scales stands in, listened to only).",
   "exercise": {
     "title": "Modes by the one note that changes",
     "area": "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "modes"
     ],
-    "why": "Each mode is plain major or minor with one note changed, so learning to hear that one note is learning to hear the mode.",
+    "why": "Each mode is plain major or minor with one note changed, so once you hear that one note against the root, you hear the mode.",
     "learnBefore": [
       "/course/9/modes-over-drone"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: a G chord for eight bars, four in G major, then four in G Mixolydian. Follow the notes view and listen for the bar where one note changes. The faded note is the one left out: F in the first half, F♯ in the second."
+            "text": "Press Play below to start the backing track: {{chord:I}} for eight bars, four in G major, then four in G Mixolydian. Follow the notes view and listen for the bar where one note changes."
           },
           {
             "type": "tool",
@@ -55,7 +55,7 @@
           },
           {
             "type": "text",
-            "text": "The note that changed is {{b7}} (F). Tap {{1}}, then {{b7}}, then {{1}} again on the staff below."
+            "text": "The note that changed is {{b7}}, a half step under the {{7}} of major. Tap {{1}}, then the ringed {{b7}}, then {{1}} again on the staff below.\nPractice until you can hum {{b7}} before you tap it."
           },
           {
             "type": "tool",
@@ -80,7 +80,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: D natural minor, then D Dorian, over Dm. This time the note that changes is {{6}} (B)."
+            "text": "Press Play below to start the backing track: {{chord:i}} for eight bars, four in D natural minor, then four in D Dorian. This time the note that changes is {{6}}, a half step over the {{b6}} of natural minor."
           },
           {
             "type": "tool",
@@ -105,7 +105,7 @@
           },
           {
             "type": "text",
-            "text": "Tap {{1}} then {{6}} on the staff below, then tap up the scale from {{1}} and stop on {{6}}."
+            "text": "Tap {{1}}, then the ringed {{6}} on the staff below. Then tap up the scale from {{1}} and stop on {{6}}.\nPractice until the stop on {{6}} sounds bright to you, not dark."
           },
           {
             "type": "tool",
@@ -130,7 +130,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone on E. Phrygian is natural minor with a lowered 2nd, {{b2}} (F), a half step above the root. Tap {{1}} {{b2}} {{1}} on the staff against the drone. Then tap a line of your own that keeps coming back to {{b2}}."
+            "text": "Phrygian is natural minor with a lowered 2nd, {{b2}}, a half step above the root.\nPress Play below to start the drone on E. Tap {{1}}, the ringed {{b2}} and {{1}} again on the staff under it. Then tap a line of your own that keeps coming back to {{b2}}.\nPractice until you hear the half step from {{b2}} down to {{1}} as soon as it comes."
           },
           {
             "type": "tool",

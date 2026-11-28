@@ -1,12 +1,12 @@
 {
   "id": "theory-beginner-sharps-and-flats",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track note-names (theory-basics), step 2: sharps and flats, as the black key beside a white one, then one sharp (F♯ in G) and one flat (B♭ in F) on the staff. Missing: piano-keys labels only the notes of its scale, so the black keys carry no names, and no tool shows one black key under both of its names.",
+  "note": "Track note-names, step 2: sharps and flats as the black key beside a white one, then one sharp in G major and one flat in F major on the staff, each ringed where the text names it. The keys are the lesson, so there are no moves, and each section has a feel to reach. Missing: piano-keys marks only the notes of its scale, so the black keys carry no names and the C♯ / D♭ the text names is not lit; no tool shows one black key under both of its names.",
   "exercise": {
     "title": "Sharps and flats",
     "area": "theory",
@@ -21,6 +21,9 @@
     "learnBefore": [
       "/course/3/piano-and-guitar"
     ],
+    "exploreMore": [
+      "/theory/piano"
+    ],
     "cells": [
       {
         "type": "section",
@@ -29,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "On the piano below, tap {{c}}, then the black key just to its right: that is {{c-sharp}}, a half step higher. Now tap {{d}}, then the same black key: from this side it is {{d-flat}}, a half step lower.\nGo along the other black keys the same way, and say both names of each."
+            "text": "On the piano below, tap {{c}}, then the black key just to its right: that is {{c-sharp}}, a half step higher. Now tap {{d}}, then the same black key: from this side it is {{d-flat}}, a half step lower.\nGo along the other black keys the same way, and say both names of each.\nPractice until both names of a black key come without counting from C."
           },
           {
             "type": "tool",
@@ -48,7 +51,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows G major, a scale that needs one sharp. Tap up from {{1}} and say each letter: the ringed note is {{f-sharp}}, not F.\nThen tap {{f-sharp}} and the {{1}} above it: they are a half step apart."
+            "text": "The staff below shows G major, a scale that needs one sharp. Tap up from {{1}} and say each letter: the ringed note is {{f-sharp}}, not F.\nThen tap {{f-sharp}} and the {{1}} above it: they are a half step apart.\nPractice until you say F♯ as you tap it, not after."
           },
           {
             "type": "tool",
@@ -58,7 +61,7 @@
               "key": "g",
               "voice": "tenor",
               "highlight": [
-                "7"
+                "f-sharp"
               ],
               "mic": false
             }
@@ -72,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This staff shows F major, a scale that needs one flat. Tap up from {{1}} and say each letter: the ringed note is {{b-flat}}, not B.\nThen tap {{3}} and {{b-flat}}: they are a half step apart too."
+            "text": "The staff below shows F major, a scale that needs one flat. Tap up from {{1}} and say each letter: the ringed note is {{b-flat}}, not B.\nThen tap {{3}} and {{b-flat}}: they are a half step apart too.\nPractice until you say B♭ as you tap it, not after."
           },
           {
             "type": "tool",
@@ -82,16 +85,13 @@
               "key": "f",
               "voice": "tenor",
               "highlight": [
-                "4"
+                "b-flat"
               ],
               "mic": false
             }
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/piano"
     ]
   },
   "choices": [

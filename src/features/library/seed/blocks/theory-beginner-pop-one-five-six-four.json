@@ -1,12 +1,12 @@
 {
   "id": "theory-beginner-pop-one-five-six-four",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track styles (theory-progressions), step 1: the pop loop 1 5 6 4, its chords found in the key, then followed by ear and in other keys.",
+  "note": "Track styles, step 1: the pop loop, its four chords counted the long way once as chord tokens on the key-chords panel, then followed by ear with the chord boxes, then in a second key without looking. The key is moves (any key): the old Key selector is gone, the first key is named only as {{=key}}, and the last section's line says what stays the same in the new key.",
   "exercise": {
     "title": "The pop loop: 1 5 6 4",
     "area": "theory",
@@ -18,9 +18,13 @@
     "concepts": [
       "styles"
     ],
-    "why": "A great many pop songs loop the 1, 5, 6 and 4 chords in that order, and the 6 is the only minor chord of the four, so the minor chord tells you where you are in the loop.",
+    "why": "A great many pop songs loop the 1st, 5th, 6th and 4th chords in that order, and the 6th chord is the only minor chord of the four, so the minor chord tells you where you are in the loop.",
     "learnBefore": [
       "/course/7/chords-in-pop-rock"
+    ],
+    "exploreMore": [
+      "/course/5/one-four-five",
+      "/theory/backing"
     ],
     "cells": [
       {
@@ -30,7 +34,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The panel below shows the chord on every note of C major. Press C, G, Am and F in that order: they are the 1, 5, 6 and 4 of the key.\nPress them round a few times, and listen for the one minor chord."
+            "text": "The panel below shows the chord on every note of {{=key}} major. {{chord:I}} is the 1st chord of the key, built on {{1}}. {{chord:V}} is the 5th chord, built on {{5}}, {{chord:vi}} the 6th chord, built on {{6}}, and {{chord:IV}} the 4th chord, built on {{4}}.\nPress those four in that order, round a few times, and listen for the one minor chord.\nPractice until you can hum the minor chord's root before you press it."
           },
           {
             "type": "tool",
@@ -49,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the same four chords, one bar each, round and round. Call out 1, 5, 6 or 4 as each chord arrives, with the chord boxes to help.\nPractice until you hear the minor chord coming before its box lights."
+            "text": "Press Play below to start the backing track: the same four chords, one bar each, round and round. Say each chord's number as it arrives, 1, 5, 6 or 4, with the lit chord box to help.\nPractice until you hear {{chord:vi}} coming before its box lights."
           },
           {
             "type": "tool",
@@ -65,25 +69,12 @@
       },
       {
         "type": "section",
-        "heading": "The loop in another key",
+        "heading": "The loop in a new key",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "d"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, then look away from the screen and call out the numbers.\nOnce the numbers come without looking, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the 6 is still the one minor chord."
+            "text": "Press Play below to start the backing track: the same loop in a new key. Look away from the screen and say the numbers, then look back to check.\nIf you lose your place, wait for the minor chord: it is always the 6th, and the 4th chord comes next.\nIn the new key the chords have other names, and the 6th chord is still the one minor chord."
           },
           {
             "type": "tool",
@@ -97,10 +88,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/course/5/one-four-five",
-      "/theory/backing"
     ]
   },
   "choices": [
@@ -110,6 +97,9 @@
       "steps": [
         "styles:1"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 8
     }
   ]

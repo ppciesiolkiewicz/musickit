@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-five-chord-in-minor",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track minor-colours (theory-modes), step 2: the 5 chord in minor, minor in natural minor and major with the raised 7th, heard as two chords, then in a backing track that plays one and then the other, then with its 7th in two more keys.",
+  "note": "Track minor-colours, step 2: the 5th chord in minor, minor in natural minor and major with the raised 7th, heard on the chord boxes and tapped on the staff, then in a backing track that plays one and then the other, then with its 7th in a second key. Chords are chord tokens counted the long way once; the key is moves (any key), the old Key selector is gone, and the last section's line says what stays the same in the new key.",
   "exercise": {
     "title": "The 5th chord in minor",
     "area": "theory",
@@ -18,9 +18,12 @@
     "concepts": [
       "minor-colours"
     ],
-    "why": "The raised 7th of harmonic minor is the 3rd of the 5th chord, so it turns that chord from minor to major and makes it lead back to the 1.",
+    "why": "The raised 7th of harmonic minor is the 3rd of the 5th chord, so it turns that chord from minor to major and makes it lead back to the 1st chord.",
     "learnBefore": [
       "/course/9/harmonic-minor"
+    ],
+    "exploreMore": [
+      "/theory/scales/harmonic-minor/a"
     ],
     "cells": [
       {
@@ -30,22 +33,22 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. In A minor the 5th chord is Em in natural minor and E in harmonic minor: press Em, then E, and listen for the one note that rises.\nThen press each of them with Am after it."
+            "text": "{{chord:i}} is the 1st chord of {{=key}} minor, built on {{1}}. The 5th chord is built on {{5}}: {{chord:v}} in natural minor and {{chord:V}} in harmonic minor.\nPress a chord box below to hear the chord. Press {{chord:v}}, then {{chord:V}}, and listen for the one note that rises. Then press each of them with {{chord:i}} after it."
           },
           {
             "type": "tool",
             "tool": {
               "type": "chord-shapes",
               "chords": [
+                "Am",
                 "Em",
-                "E",
-                "Am"
+                "E"
               ]
             }
           },
           {
             "type": "text",
-            "text": "The note that rose is the ringed {{7}} of the key. Tap {{5}}, {{7}} and {{2}} on the staff below: the E chord, one note at a time. Then tap {{1}}."
+            "text": "The note that rose is the ringed {{7}} of the key. Tap {{5}}, {{7}} and {{2}} on the staff below: {{chord:V}}, one note at a time. Then tap {{1}}.\nPractice until you can hum {{7}} rising to {{1}} before you tap it."
           },
           {
             "type": "tool",
@@ -70,12 +73,12 @@
       },
       {
         "type": "section",
-        "heading": "Minor 5, then major 5",
+        "heading": "Minor 5th, then major 5th",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: four bars with the minor 5th chord, then four with the major one, round and round. Listen to the bar before home in each half.\nPractice until you can say which 5th chord is playing without the chord boxes."
+            "text": "Press Play below to start the backing track: four bars with {{chord:v}}, then four with {{chord:V}}, round and round. Listen to the bar before home in each half.\nPractice until you can say which 5th chord is playing without the chord boxes."
           },
           {
             "type": "tool",
@@ -100,25 +103,12 @@
       },
       {
         "type": "section",
-        "heading": "The 5 with its 7th",
+        "heading": "The 5th chord with its 7th",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "e"
-            },
-            {
-              "key": "d"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the 1, the 4, the major 5 with its 7th, and home. Call out \"five\" when the 5th chord arrives and \"one\" when the backing track comes home.\nOnce you hear the 5th chord coming before its box lights, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the major 5 still leads to the 1."
+            "text": "Press Play below to start the backing track in a new key, a 5th higher: {{chord:i}}, {{chord:iv}}, the major 5th chord with its 7th, {{chord:V7}}, and home. Call out \"five\" when {{chord:V7}} arrives and \"one\" when the backing track comes home.\nPractice until you hear {{chord:V7}} coming before its box lights.\nIn the new key the chords have other names, and the major 5th chord still leads home to the 1st chord."
           },
           {
             "type": "tool",
@@ -137,9 +127,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/scales/harmonic-minor/a"
     ]
   },
   "choices": [
@@ -149,6 +136,9 @@
       "steps": [
         "minor-colours:2"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 8
     }
   ]

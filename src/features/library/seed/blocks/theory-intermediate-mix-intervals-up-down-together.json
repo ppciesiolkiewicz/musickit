@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-mix-intervals-up-down-together",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track intervals (theory-ear), step 5 (ladder interval-ears:4): every interval up to the minor 2nd and the 6ths, going up, going down and sounded together, three games at \"level\": \"intermediate\". Missing: interval-ears has no \"dir\" that mixes up, down and together from one question to the next, so each direction is its own game.",
+  "note": "Track intervals, mix step 5 (ladder interval-ears:4): the nine intervals up to the minor 2nd and the 6ths, going up, going down and sounded together, three games at \"level\": \"intermediate\" that each change one thing, their answers named as the buttons show them, each section with its own feel to reach. Missing: interval-ears has no \"dir\" that mixes up, down and together from one question to the next, so each direction is its own game.",
   "exercise": {
     "title": "Nine intervals: up, down and together",
     "area": "theory",
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays two notes, the lower one first, and you pick the interval from the nine you know (m3 for a minor 3rd, M3 for a major 3rd, P5 for a 5th).\nPractice until the names come without counting the steps."
+            "text": "Press Start in the game below: it plays two notes, the lower one first, and you pick the interval from the nine on its buttons, from m2 for a minor 2nd up to P8 for an octave.\nPractice until the names come without counting the steps."
           },
           {
             "type": "tool",
@@ -50,7 +50,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: the same nine intervals, with the upper note first.\nIf you can't place one, press Replay in the game and hum the two notes from the lower one up.\nWhen you change the direction, the notes come in a new order but the distance between them is the same."
+            "text": "Press Start in the game below: the same nine intervals, with the upper note first.\nIf you can't place one, press Replay in the game and hum the two notes from the lower one up.\nGoing down, the notes come in a new order, and the distance between them is the same."
           },
           {
             "type": "tool",

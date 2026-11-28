@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-flat-keys",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track keys (theory-scales-keys), step 3: the flat keys, B♭, E♭ and A♭ after F, each adding one flat on its 4th note.",
+  "note": "Track keys, step 3: the flat keys after F, found anticlockwise on the circle, each one's new flat ringed on its 4th note on three staffs side by side (the keys are the lesson, so they are written out, not a Key selector or moves), then all four flats counted on the piano in A♭ major. Each section has a feel to reach.",
   "exercise": {
     "title": "The flat keys, the other way round",
     "area": "theory",
@@ -21,6 +21,9 @@
     "learnBefore": [
       "/course/10/circle-map"
     ],
+    "exploreMore": [
+      "/theory/circle"
+    ],
     "cells": [
       {
         "type": "section",
@@ -29,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The circle below starts on F, the key with one flat. Press B♭, the next key anticlockwise, then E♭ and A♭ after it.\nEach step anticlockwise is a 5th down, and adds one flat."
+            "text": "The circle below starts on F, the key with one flat. Press B♭, the next key anticlockwise, then E♭ and A♭ after it.\nEach step anticlockwise is a 5th down, and adds one flat.\nPractice until you can say the four keys in order without looking at the circle."
           },
           {
             "type": "tool",
@@ -45,23 +48,10 @@
         "type": "section",
         "heading": "The flat each key adds",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "b-flat"
-            },
-            {
-              "key": "e-flat"
-            },
-            {
-              "key": "a-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows a flat key. Tap up the scale from {{1}} and say each letter: the ringed {{4}} is the flat this key adds.\nOnce you can name the new flat before you tap it, try the next key. Use the Key selector below to change the key.\nWhen you change the key, the new flat is still the {{4}}, and it is the note the next flat key starts on."
+            "text": "The three staffs below show B♭, E♭ and A♭ major. On each one, tap up the scale from {{1}} and say each letter: the ringed {{4}} is the flat that key adds.\nPractice until you can name the new flat before you tap it.\nFrom one staff to the next the new flat is still the {{4}}, and it is the note the next flat key starts on."
           },
           {
             "type": "tool",
@@ -69,6 +59,32 @@
               "type": "staff",
               "scale": "major-ionian",
               "key": "b-flat",
+              "voice": "tenor",
+              "highlight": [
+                "4"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "e-flat",
+              "voice": "tenor",
+              "highlight": [
+                "4"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a-flat",
               "voice": "tenor",
               "highlight": [
                 "4"
@@ -85,7 +101,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The piano below shows A♭ major, four steps anticlockwise from C. Tap up the scale from A♭ and count the black keys: one for each flat.\nThen say the four flats in the order the keys added them."
+            "text": "The piano below shows A♭ major, four steps anticlockwise from C. Tap up the scale from {{1}} and count the black keys: one for each flat.\nThen say the four flats in the order the keys added them.\nPractice until the four come in order without counting round the circle."
           },
           {
             "type": "tool",
@@ -97,9 +113,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/circle"
     ]
   },
   "choices": [

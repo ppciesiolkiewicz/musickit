@@ -1,14 +1,14 @@
 {
   "id": "theory-beginner-eighths",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track beat (theory-basics), step 3: eighths, counted \"1 and 2 and\" and clapped against the click, then over drums. Missing: a rhythm tool that shows the eighths and listens to the claps; backing-band's click sounds only the beat, so nothing sounds or checks the \"and\".",
+  "note": "Track beat, step 3 (ladder clap-along:beginner): eighths counted \"1 & 2 &\" the way the clap-along writes them, first on the clap-along, which marks each hit against the beat, then swapping beats and eighths on the metronome, then over drums with the click to check. The old Tempo selector is now moves (tempo), the later section keeping its distance, and the text names no selector.",
   "exercise": {
-    "title": "Eighths: 1 and 2 and",
+    "title": "Eighths: 1 & 2 &",
     "area": "theory",
     "tags": [
       "rhythm"
@@ -17,29 +17,29 @@
     "concepts": [
       "beat"
     ],
-    "why": "An eighth is half a beat, so when you count \"1 and 2 and\" the numbers land on the click and each \"and\" lands halfway to the next one.",
+    "why": "An eighth is half a beat, so when you count \"1 & 2 &\" the numbers land on the click and each \"&\" lands halfway to the next one.",
     "learnBefore": [
       "/course/1/steady-beat"
+    ],
+    "exploreMore": [
+      "/theory/rhythm"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "Count 1 and 2 and",
+        "heading": "Count 1 & 2 &",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Count \"1 and 2 and 3 and 4 and\" aloud, each number on a click, and clap on every word.\nPractice until the claps on \"and\" sit halfway between two clicks, not rushed towards the next one."
+            "text": "Press Start below. After a bar of count-in clicks, count \"1 & 2 & 3 & 4 &\" aloud and tap Space on every note as it reaches the line: one on each number, one on each \"&\".\nPractice until the hits on \"&\" sit halfway between two clicks, not rushed towards the next one."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "backing-band",
-              "bpm": 60,
-              "key": "c",
-              "parts": {
-                "click": "always"
-              }
+              "type": "clap-along",
+              "level": "beginner",
+              "bpm": 60
             }
           }
         ]
@@ -48,23 +48,10 @@
         "type": "section",
         "heading": "Beats, then eighths",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 84
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Clap one bar on the clicks only, then one bar of eighths, and keep swapping.\nOnce the swap comes without a stumble, try another tempo. Use the Tempo selector below to change the tempo, then press Play to start the metronome again.\nWhen you change the tempo, the eighths are still two even claps to a click."
+            "text": "Press Play below to start the metronome. Clap one bar on the clicks only, then one bar of eighths, and keep swapping.\nPractice until the swap comes without a stumble.\n{{?bpm}}At a faster tempo the eighths are still two even claps to a click."
           },
           {
             "type": "tool",
@@ -86,7 +73,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drums. Clap eighths over them, and keep the count in your head.\nThen press Click below to switch the metronome on, and check that every second clap lands on it."
+            "text": "Press Play below to start the drums. Clap eighths over them, and keep the count in your head.\nThen press Click below to switch the metronome on, and check that every second clap lands on it.\nPractice until the eighths stay even with the metronome off."
           },
           {
             "type": "tool",
@@ -102,9 +89,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/rhythm"
     ]
   },
   "choices": [
@@ -114,6 +98,13 @@
       "steps": [
         "beat:3"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 84,
+          "step": 12
+        }
+      },
       "minutes": 6
     }
   ]

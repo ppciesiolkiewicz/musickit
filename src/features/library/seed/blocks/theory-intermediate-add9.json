@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-add9",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track sus (theory-building-chords), step 3: add9, 1 3 5 9, built on the staff, heard against the plain chord and against sus2 in C, then built from three more roots. Missing: staff \"notes\" does not read \"9\", so the 9 is shown as the 2 an octave up; chord-shapes has an add9 shape for C only (Gadd9, Dadd9, Aadd9 and Eadd9 draw nothing), so the other keys are tapped on the staff; backing-track cannot play add9 or sus chords and interval-ears has no answer for them.",
+  "note": "Track sus, step 3: add9, 1 3 5 9, built on the staff, heard against the plain chord and the sus2 chord over a backing track that plays them in turn (its numerals take add9 and sus2, so it follows any key, where chord-shapes drew an add9 on C only), then built again from a new root with a line that says what stays. The key is moves (any key), the chord named as {{=key}}add9, and the old Key selector is gone. Missing: staff \"notes\" does not read \"9\", so the 9 is shown as the 2 an octave up.",
   "exercise": {
     "title": "Add9: the 2nd on top of the chord",
     "area": "theory",
@@ -22,6 +22,9 @@
     "learnBefore": [
       "/course/7/sus-add9"
     ],
+    "exploreMore": [
+      "/theory/chords"
+    ],
     "cells": [
       {
         "type": "section",
@@ -30,7 +33,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap {{1}} {{3}} {{5}} on the staff below: a C major chord, one note at a time. Tap them again and add the ringed {{2}} from the octave above: that is Cadd9.\nThe added note is called the 9 because it is the 2nd counted on past the octave."
+            "text": "Tap {{1}}, {{3}} and {{5}} on the staff below: the {{=key}} major chord, one note at a time. Tap them again and add the ringed {{2}} from the octave above: that is {{=key}}add9.\nThe added note is called the 9 because it is the 2nd counted on past the octave.\nPractice until you can hum the added note before you tap it."
           },
           {
             "type": "tool",
@@ -60,42 +63,33 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Go from C to Cadd9, then from C to Csus2: in add9 the 3rd is still there, in sus2 it is gone.\nPractice until you can tell which of the two still sounds major."
+            "text": "Press Play below to start the backing track: the plain chord, then {{=key}}add9, the plain chord again, then {{=key}}sus2, one bar each. In add9 the 3rd is still there; in sus2 it is gone.\nSay \"add9\" or \"sus2\" as each one arrives, with the lit chord box to help.\nPractice until you can tell which of the two still sounds major without looking."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "chord-shapes",
-              "chords": [
-                "C",
-                "Cadd9",
-                "Csus2"
-              ]
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "I",
+                "Iadd9",
+                "I",
+                "Isus2"
+              ],
+              "style": "ballad",
+              "bpm": 60
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "From another root",
+        "heading": "From a new root",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "d"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "This staff builds the same chord from another root. Tap {{1}} {{3}} {{5}}, then add the ringed {{2}} from the octave above.\nOnce you can hum the added note before you tap it, try another key. Use the Key selector below to change the key.\nWhen you change the key, the notes are new but the added note is still the {{2}}, an octave up."
+            "text": "The staff below builds the same chord from a new root, a 5th higher. Tap {{1}}, {{3}} and {{5}}, then add the ringed {{2}} from the octave above.\nPractice until you can hum the added note before you tap it.\nOn the new root the notes are new, and the added note is still the {{2}}, an octave up."
           },
           {
             "type": "tool",
@@ -118,9 +112,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/chords"
     ]
   },
   "choices": [
@@ -130,6 +121,9 @@
       "steps": [
         "sus:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 6
     }
   ]

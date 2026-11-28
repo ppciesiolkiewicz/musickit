@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-la-as-home",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track home-and-colour (theory-ear), step 4: La as the minor home, heard on one major scale's notes: a tune that rests on Do and one that rests on La, La over its own drone, then a backing track whose chords come home to Do and then to La.",
+  "note": "Track home-and-colour, step 4: La as the minor home on one major scale's notes: a line that rests on Do and one that rests on La, a line against a drone on La, then a backing track whose chords come home to Do and then to La. The staffs carry solfège labels, the key is moves (any key) with a {{?key}} line, and each section has a feel to reach.",
   "exercise": {
     "title": "La as home: the minor home",
     "area": "theory",
@@ -22,6 +22,9 @@
     "learnBefore": [
       "/course/3/la-minor-home"
     ],
+    "exploreMore": [
+      "/course/3/major-or-minor"
+    ],
     "cells": [
       {
         "type": "section",
@@ -30,7 +33,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows F major with its solfège names, and the notes under the lowest Do as well. Tap {{3}}, {{2}} and {{1}}, and stop: the tune rests on Do.\nNow tap {{1}}, {{7}} and {{6}} downward from that Do, and stop: the tune rests on the ringed La."
+            "text": "The staff below shows {{=key}} major with its solfège names, and the notes under the lowest Do as well. Tap {{3}}, {{2}} and {{1}}, and stop: the line rests on Do.\nNow tap {{1}}, {{7}} and the ringed {{6}} downward from that Do, and stop: the line rests on La.\nPractice until you hear which of the two stops sounds major and which sounds minor."
           },
           {
             "type": "tool",
@@ -93,7 +96,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play under the staff below to start the backing track: four bars that come home to Do, then four that come home to La, round and round. Hum the home note of each half, then tap {{1}} or {{6}} on the staff to check.\nPractice until you can say \"Do\" or \"La\" as each half begins."
+            "text": "Press Play under the staff below to start the backing track: four bars that come home to Do, then four that come home to La, round and round. Hum the home note of each half, then tap {{1}} or {{6}} on the staff to check.\nPractice until you can say \"Do\" or \"La\" as each half begins.\n{{?key}}In another key the notes have other names, and the same seven notes still sound major when they rest on Do and minor when they rest on La."
           },
           {
             "type": "tool",
@@ -132,9 +135,6 @@
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/course/3/major-or-minor"
     ]
   },
   "choices": [
@@ -144,6 +144,9 @@
       "steps": [
         "home-and-colour:4"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 8
     }
   ]

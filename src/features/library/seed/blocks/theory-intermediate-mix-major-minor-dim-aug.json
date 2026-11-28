@@ -1,12 +1,12 @@
 {
   "id": "theory-intermediate-mix-major-minor-dim-aug",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track dim-aug (theory-building-chords), step 3: major, minor, diminished and augmented triads on one root, built on D on the staff, heard as four chords on D, then named with eyes closed on A and on E. Missing: interval-ears \"kind\": \"chord\" has no diminished or augmented answer and backing-track cannot play an augmented chord, so the player presses chord boxes without looking.",
+  "note": "Track dim-aug, mix step 3: major, minor, diminished and augmented triads on one root, built on the staff, heard on four chord boxes, then named by ear from any root in the chord game (\"qualities\": maj, min, dim, aug), which now asks all four, in place of pressing chord boxes without looking. The root is moves (any key), named as {{=key}}, with a {{?key}} line, and each section has a feel to reach.",
   "exercise": {
     "title": "Major, minor, diminished or augmented",
     "area": "theory",
@@ -34,7 +34,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap {{1}} {{3}} {{5}} on the staff below, then {{1}} {{b3}} {{5}}: D major and D minor, and only the 3rd moved.\nNow tap {{1}}, {{b3}} and the ringed {{b5}} for D diminished, then {{1}}, {{3}} and the ringed {{#5}} for D augmented: the minor triad with its 5th lowered, and the major triad with its 5th raised."
+            "text": "Tap {{1}}, {{3}} and {{5}} on the staff below, then {{1}}, {{b3}} and {{5}}: {{=key}} major and {{=key}} minor, and only the 3rd moved.\nNow tap {{1}}, {{b3}} and the ringed {{b5}} for {{=key}} diminished, then {{1}}, {{3}} and the ringed {{#5}} for {{=key}} augmented: the minor triad with its 5th lowered, and the major triad with its 5th raised.\nPractice until you can hum each 5th before you tap it."
           },
           {
             "type": "tool",
@@ -62,12 +62,12 @@
       },
       {
         "type": "section",
-        "heading": "Four triads on D",
+        "heading": "Four triads on one root",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Go from D to Daug and from Dm to Ddim, then press the four in any order.\nPractice until you can hear which way the 5th moved."
+            "text": "Press a chord box below to hear the chord. Go from {{=key}} to {{=key}}aug and from {{=key}}m to {{=key}}dim, then press the four in any order.\nPractice until you can hear which way the 5th moved.\n{{?key}}On another root the chords have other names, and the 3rd and the 5th still name the triad."
           },
           {
             "type": "tool",
@@ -85,38 +85,23 @@
       },
       {
         "type": "section",
-        "heading": "From another root",
+        "heading": "Name it by ear",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord: the four triads on A, in a new order. Then look away, press a box without choosing, and name the triad before you look.\nListen to the 3rd first, then to the 5th."
+            "text": "Press Start in the game below: it plays a triad from any root, and you pick Major, Minor, Diminished or Augmented.\nListen to the 3rd first, then to the 5th. If you can't tell, press Replay in the game.\nPractice until you name the triad before the chord has faded."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "chord-shapes",
-              "chords": [
-                "Aaug",
-                "Am",
-                "Adim",
-                "A"
-              ]
-            }
-          },
-          {
-            "type": "text",
-            "text": "Then do the same with the four triads on E here.\nWhen you change the root, the notes are new but the 3rd and the 5th still name the triad."
-          },
-          {
-            "type": "tool",
-            "tool": {
-              "type": "chord-shapes",
-              "chords": [
-                "Edim",
-                "E",
-                "Eaug",
-                "Em"
+              "type": "interval-ears",
+              "kind": "chord",
+              "qualities": [
+                "maj",
+                "min",
+                "dim",
+                "aug"
               ]
             }
           }
@@ -131,6 +116,9 @@
       "steps": [
         "dim-aug:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 7
     }
   ]

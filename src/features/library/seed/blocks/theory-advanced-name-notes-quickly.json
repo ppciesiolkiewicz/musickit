@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-name-notes-quickly",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track note-names (theory-basics), step 4: naming notes fast, on the neck game and aloud from the staff in time. Missing: a note-naming game that is not the guitar neck (a note shown on the staff or a piano key to name against the clock); the staff has no way to check a name the player says, and note-finder \"mode\": \"name\" needs the guitar neck.",
+  "note": "Track note-names, step 4: naming notes fast, first on the neck game with no clock, then from the staff-reading game one note per click, then the neck game with its sharps and flats on a faster click. The staff-reading game takes the place of a plain staff, which never asks for a note's name, and the old Key selector of the last section is gone: the tempo is moves, the faster section keeping its distance. Missing: staff-reading asks natural notes only, so the sharps and flats are named on the neck.",
   "exercise": {
     "title": "Note names without stopping to think",
     "area": "theory",
@@ -23,6 +23,9 @@
       "/course/3/staff",
       "/course/8/every-note"
     ],
+    "exploreMore": [
+      "/theory/notes"
+    ],
     "cells": [
       {
         "type": "section",
@@ -31,7 +34,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it lights one spot on the guitar neck, and you pick its note name from the buttons under it.\nAnswer as fast as you can read the spot, and practice until most names come before you count frets."
+            "text": "Press Start in the game below: it lights one spot on the guitar neck, and you pick its note name from the buttons under it.\nAnswer as fast as you can read the spot.\nPractice until most names come before you count frets."
           },
           {
             "type": "tool",
@@ -50,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Look at any note on the staff under it and say its letter name aloud on the next click, then jump to a note that is not next to it.\nIf a name comes late, let that click go and say it on the next one."
+            "text": "Press Play below to start the metronome. Then press Start in the game under it: it draws one note on the staff, and you press its letter.\nPress one letter on each click, every note in time.\nIf a name comes late, let that click go and answer on the next one."
           },
           {
             "type": "tool",
@@ -66,12 +69,8 @@
           {
             "type": "tool",
             "tool": {
-              "type": "staff",
-              "scale": "major-ionian",
-              "key": "c",
-              "voice": "tenor",
-              "labels": "degree",
-              "mic": false
+              "type": "staff-reading",
+              "level": "advanced"
             }
           }
         ]
@@ -80,30 +79,17 @@
         "type": "section",
         "heading": "Sharps and flats in time",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "e-flat"
-            },
-            {
-              "key": "e"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome, a little faster now. Say one name per click again, and say the whole name: the sharp or the flat is part of it.\nOnce the names keep up with the click, try another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the same lines and spaces get new sharps or flats, and the letters stay where they were."
+            "text": "Press Play below to start the metronome, a little faster now. Then press Start in the game under it: the lit spots on the neck are sharps and flats too.\nPick one name on each click, and pick the whole name: the sharp or the flat is part of it.\nPractice until the sharps and flats come as quickly as the plain letters."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-band",
               "bpm": 72,
-              "key": "a",
+              "key": "c",
               "parts": {
                 "click": "always"
               }
@@ -112,19 +98,13 @@
           {
             "type": "tool",
             "tool": {
-              "type": "staff",
-              "scale": "major-ionian",
-              "key": "a",
-              "voice": "tenor",
-              "labels": "degree",
-              "mic": false
+              "type": "note-finder",
+              "level": "advanced",
+              "mode": "name"
             }
           }
         ]
       }
-    ],
-    "exploreMore": [
-      "/theory/notes"
     ]
   },
   "choices": [
@@ -134,6 +114,13 @@
       "steps": [
         "note-names:4"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

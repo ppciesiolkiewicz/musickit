@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-mix-three-minor-scales",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track minor-colours (theory-modes), step 4: natural, harmonic and melodic minor told apart by the 6th and 7th, the top of the scale tapped in all three on A, harmonic against melodic over an Am chord, then lines that climb in D melodic minor and fall in D natural minor over a drone. Missing: guitar-play-along's two-scales takes two scales, not three, and no game plays a minor scale to name.",
+  "note": "Track minor-colours, mix step 4: natural, harmonic and melodic minor told apart by their 6th and 7th. One staff with a Variant selector over the three scales (no copy of the tool per scale), harmonic against melodic over the A minor chord, then lines that climb in melodic minor and fall in natural minor in a second key, with a line that says what stays. No moves, since the variant section names its selector. Missing: a listening tool that plays two scales one after the other for any instrument (the guitar-play-along's two-scales stands in, listened to only), and no game plays a minor scale to name.",
   "exercise": {
     "title": "Natural, harmonic or melodic minor",
     "area": "theory",
@@ -32,6 +32,7 @@
         "heading": "The top of each scale",
         "minutes": 3,
         "choice": {
+          "label": "variant",
           "options": [
             {
               "scale": "natural-minor-aeolian"
@@ -47,7 +48,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below shows a minor scale on A, with its 6th and 7th ringed. Tap from {{5}} up to the {{1}} above it, through the two ringed notes.\nThen tap the same climb in the other two minor scales. Use the Scale selector below to change the scale.\nWhen you change the scale, the notes up to {{5}} stay and only the ringed ones move: {{b6}} and {{b7}} in natural minor, {{b6}} and {{7}} in harmonic, {{6}} and {{7}} in melodic."
+            "text": "The staff below shows a minor scale on A, with its 6th and 7th ringed. Tap from {{5}} up to the {{1}} above it, through the two ringed notes.\nOnce you can hum the two ringed notes before you tap them, try the other two minor scales. Use the Variant selector below to change the scale.\nWhen you change the scale, the notes up to {{5}} stay and only the ringed notes move: {{b6}} and {{b7}} in natural minor, {{b6}} and {{7}} in harmonic minor, {{6}} and {{7}} in melodic minor."
           },
           {
             "type": "tool",
@@ -74,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: an Am chord for eight bars, four in A harmonic minor, then four in A melodic minor. Follow the notes view and listen for the bar where one note changes: the 6th goes up a half step.\nPractice until you can say \"harmonic\" or \"melodic\" without looking."
+            "text": "Press Play below to start the backing track: the A minor chord for eight bars, four in A harmonic minor, then four in A melodic minor. Follow the notes view and listen for the bar where one note changes: {{b6}} goes up a half step to {{6}}.\nPractice until you can say \"harmonic\" or \"melodic\" without looking at the notes."
           },
           {
             "type": "tool",
@@ -106,7 +107,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone, on D now. On the first staff under the drone, D melodic minor, tap up from {{5}} through the ringed {{6}} and {{7}} to {{1}}.\nThen come down on the second staff, D natural minor: from {{1}} through the ringed {{b7}} and {{b6}} to {{5}}.\nMake up lines of your own that climb on one staff and fall on the other, until you can tell a line's scale from its top notes.\nWhen you change the key, the notes are new but the three scales still differ only in the 6th and the 7th."
+            "text": "Press Play below to start the drone on D. On the first staff under it, D melodic minor, tap up from {{5}} through the ringed {{6}} and {{7}} to {{1}}. Then on the second staff, D natural minor, tap down from {{1}} through the ringed {{b7}} and {{b6}} to {{5}}.\nNow make up lines of your own that climb on one staff and fall on the other.\nPractice until you can tell a line's scale from its top notes alone.\nOn D the notes are new, and the three scales still differ only in the 6th and the 7th."
           },
           {
             "type": "tool",
