@@ -2,8 +2,9 @@ import { degreeColour } from "../../theory/scales";
 import type { Dot } from "../visuals";
 import { section, type CourseStage } from "../model";
 import { chordsFromScale } from "../lessons/chords-from-scale";
+import { oneFourFive } from "../lessons/one-four-five";
 import { hearingChanges } from "../lessons/hearing-changes";
-import { A, C, D, E, G, MINOR_SEMIS, PATH, chords, links, neck, path, task, text, toneDot, toneDots, visual } from "../build";
+import { A, C, D, E, G, MINOR_SEMIS, PATH, chords, links, neck, path, task, text, toneDot, toneDots } from "../build";
 
 const MAJOR_TRIAD = [0, 4, 7], MINOR_TRIAD = [0, 3, 7], PENT = [0, 3, 5, 7, 10];
 /** Dots for given string/fret pairs, named from `root`. */
@@ -83,27 +84,7 @@ export const STAGE_1: CourseStage = {
       links([{ href: "/theory/arpeggios", label: "Arpeggios explorer", note: "every chord's arpeggio, anywhere on the neck" }]),
     ]),
     section("chords-from-scale", "Chords from the scale", "paths", "Stacking every other note of G major makes its seven chords: Do–Mi–Sol is the G chord, Fa–La–Do the C chord and Sol–Ti–Re the D chord.", chordsFromScale),
-    section("one-four-five", ["1 → 4 → 5 → 1 & the circle of fifths", "1 → 4 → 5 → 1"], "paths", "The 1, 4 and 5 chords most songs use, and how the circle of fifths shows them.", [
-      text(
-        "Most songs are built on three chords: the one on the home note (1, Do), the one a 4th up (4, Fa), and the one a 5th up (5, Sol). In G major that's G → C → D → G. Here are their roots in position 1, and they're all under your hand.",
-        "The 4 feels like a step away from home. The 5 feels like it has to come back. Play the roots on their own and you can already hear the story.",
-      ),
-      neck("G → C → D → G: the roots of 1, 4, 5 and back to 1 in G major.", 0, 3, at(G, [[0, 3], [1, 3], [2, 0], [3, 0]]).map((d) => toneDot(d.string, d.fret, G, { style: "number", solfege: true })), {
-        paths: [path(PATH.amber, [0, 3], [1, 3], [2, 0], [3, 0])],
-      }),
-      text(
-        "The same in E minor: Em → Am → Bm → Em. The 5 of E minor is B, and the chord on it is Bm, the first chord in this course that needs a barre (that's stage 6). Until then, play B7: open, easy, and it pulls home to Em even harder.",
-      ),
-      neck("E → A → B → E: 1, 4, 5, 1 in E minor.", 0, 3, [[0, 0], [1, 0], [1, 2], [2, 2]].map(([s, f]) => toneDot(s, f, E, { style: "number", solfege: true })), {
-        paths: [path(PATH.sky, [0, 0], [1, 0], [1, 2], [2, 2])],
-      }),
-      chords("The minor loop with B7 standing in for Bm.", ["Em", "Am", "B7"]),
-      text(
-        "Why 4 and 5? Put the twelve notes in a circle, each a 5th above the last: C G D A E B… Every key's 1 sits between its 4 (one step anticlockwise) and its 5 (one step clockwise). Pick G on the circle below: C and D are its neighbours. That's the circle of fifths, and it's the map for the rest of this course.",
-      ),
-      visual({ kind: "circle", caption: "Pick a key: its 4 and 5 are its neighbours on the circle; its relative minor sits inside." }),
-      task("Play G C D G and Em Am B7 Em, four strums each, saying Do Fa Sol Do as you change."),
-    ]),
+    section("one-four-five", ["1 → 4 → 5 → 1 & the circle of fifths", "1 → 4 → 5 → 1"], "paths", "The 1st, 4th and 5th chords of a key, the three most songs use, in G major and E minor, and how the circle of fifths shows them.", oneFourFive),
     section("hearing-changes", "Hearing chord changes", "three-views", "Hearing when the chord changes over a backing track, then whether it moved to the 4th or the 5th chord of the key, so you can follow a song's chords by ear.", hearingChanges),
     section("pentatonic", "E minor pentatonic", "soloing", "The E minor pentatonic in position 1: five notes that fit every chord of the key.", [
       text(

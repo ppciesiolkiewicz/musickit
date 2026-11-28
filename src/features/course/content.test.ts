@@ -148,14 +148,11 @@ describe("course content: stage 0", () => {
 const pathPcs = (pts: { string: number; fret: number }[]) => pts.map((p) => pcAt(p.string, p.fret));
 
 describe("course content: stage 1", () => {
-  it("1 → 4 → 5 → 1 starts with the G C D G roots in position 1", () => {
-    const first = necks(sec("5", "one-four-five"))[0].paths![0].points;
-    assert.deepEqual(first, [{ string: 0, fret: 3 }, { string: 1, fret: 3 }, { string: 2, fret: 0 }, { string: 3, fret: 0 }]);
-    assert.deepEqual(pathPcs(first), [7, 0, 2, 7]);
-  });
-  it("then the same idea in E minor: E A B E", () => {
-    const second = necks(sec("5", "one-four-five"))[1].paths![0].points;
-    assert.deepEqual(second, [{ string: 0, fret: 0 }, { string: 1, fret: 0 }, { string: 1, fret: 2 }, { string: 2, fret: 2 }]);
+  it("1 → 4 → 5 → 1 strums G C D G, then the same path in E minor with B7 for Bm", () => {
+    const tools = sec("5", "one-four-five").article!.blocks.flatMap(toolsOf);
+    const strums = tools.filter((t) => t.type === "strum-along").map((t) => t.chords);
+    assert.deepEqual(strums, [["G", "C", "D", "G"], ["Em", "Am", "B7", "Em"]]);
+    assert.ok(tools.some((t) => t.type === "circle-of-fifths" && t.key === "g"));
   });
   it("the Em arpeggio path climbs E G B E G B E, all chord tones", () => {
     const em = necks(sec("5", "arpeggios"))[0].paths![0].points;
