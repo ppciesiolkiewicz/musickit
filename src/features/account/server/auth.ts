@@ -149,21 +149,6 @@ export async function requestEmailLink(deps: AuthDeps, input: { email: unknown; 
   return { ok: true, email, token, code, expiresAt };
 }
 
-/**
- * UNSAFE PLAY HACK (user, 2026-11-19): any `ppciesiolkiewicz+<anything>@gmail.com` logs in straight from the email
- * box, with no email, code or limits, as if the site were public. Anyone who knows the pattern can be those accounts.
- * Remove before real launch.
- */
-export const INSTANT_LOGIN = /^ppciesiolkiewicz\+[^@\s]+@gmail\.com$/;
-
-/** Signs in an `INSTANT_LOGIN` email at once, making the account when it has none. Null for any other email. */
-export async function instantSignIn(deps: AuthDeps, input: { email: unknown; next?: unknown }, userAgent: string | null): Promise<SignedIn | null> {
-  const email = typeof input.email === "string" ? cleanEmail(input.email) : "";
-  if (!INSTANT_LOGIN.test(email)) return null;
-  const { user, created } = await userFor(deps, email, startName(email));
-  return startSession(deps, user, safeNext(input.next), userAgent, created);
-}
-
 /** The mailed link was opened. Signs in, making the account when the email has none. */
 export async function openEmailLink(deps: AuthDeps, token: unknown, userAgent: string | null): Promise<SignedIn | null> {
   if (typeof token !== "string" || !token) return null;

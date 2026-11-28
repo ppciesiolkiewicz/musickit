@@ -5,8 +5,6 @@ Who is using the app, and what their role and permissions let them use: students
 person with no account yet gets one straight away, with no plan, and is held on `/account/setup` until they give their
 name (Google's is filled in) and choose a plan, with no payment; the three main sections send them there until then. Both are changed later on `/account`.
 
-**Unsafe play hack (2026-11-19):** any `ppciesiolkiewicz+<anything>@gmail.com` typed into the email box on `/login` is signed in at once, with no email, code or limits (`INSTANT_LOGIN` and `instantSignIn` in `server/auth.ts`, used by `POST /api/auth/email-link`). Anyone who knows the pattern can be those accounts. Remove before real launch.
-
 ## Parts
 
 - `model.ts`: `Role` (student, teacher, owner: the role the plan gives, `roleOnPlan`; an owner runs a school, can do all a teacher can and keeps the role on any plan), `Permission` (`dev`, `content`, `admin`: which pages for building and running the app a person may open in production, `users.permissions`, none implying another; `hasPermission`, checked by `features/devtools/server/access.ts`; `cleanPermissions`; set per person on /admin/admin/users; migration `0044_permissions` moved the old `admin` role to all three), `NEW_ACCOUNT_ROLE`

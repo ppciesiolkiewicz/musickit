@@ -15,7 +15,6 @@ import {
   googleSignIn,
   hashToken,
   openEmailCode,
-  instantSignIn,
   openEmailLink,
   rename,
   requestEmailLink,
@@ -548,15 +547,3 @@ test("a teacher's student who logs in the normal way, by the email link or Googl
   assert.equal((await repo.studentLink(teacher.id, byGoogle.id))?.claimedAt?.getTime(), deps.now().getTime());
 });
 
-test("UNSAFE PLAY HACK: a ppciesiolkiewicz+… gmail signs in at once, any other email doesn't", async () => {
-  const { deps } = setup();
-  const first = await instantSignIn(deps, { email: "PPciesiolkiewicz+t1@gmail.com", next: "/plan" }, null);
-  assert.ok(first?.kind === "session" && first.created);
-  assert.equal(first.next, "/plan");
-  const again = await instantSignIn(deps, { email: "ppciesiolkiewicz+t1@gmail.com" }, null);
-  assert.ok(again && !again.created && again.account.id === first.account.id, "the same account, again and again");
-  assert.equal(await instantSignIn(deps, { email: "ppciesiolkiewicz@gmail.com" }, null), null, "the bare address still needs the email");
-  assert.equal(await instantSignIn(deps, { email: "ann+x@gmail.com" }, null), null);
-  assert.equal(await instantSignIn(deps, { email: "ppciesiolkiewicz+x@gmail.com.evil.com" }, null), null);
-  assert.equal((await instantSignIn(deps, { email: "ppciesiolkiewicz+x@gmail.com", next: "https://evil.com" }, null))?.next !== "https://evil.com", true);
-});
