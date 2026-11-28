@@ -1,29 +1,29 @@
 /* Music style palettes. Each style remaps the Tailwind colour scales the app uses (slate is the neutral, sky the accent), so every utility follows it.
-   Set by data-theme on <html> (ThemeSwitcher); the style list is src/features/styles/styles.ts. Default (id "plain") is the deep navy and soft gold palette; Surf and Jazz are the light styles. */
+   Set by data-theme on <html> (ThemeSwitcher); the style list is src/features/styles/styles.ts. Default (id "plain") is the original dark palette. */
 
 :root, :root[data-theme="plain"] {
-  --color-slate-50: oklch(98.4% 0.035 85);
-  --color-slate-100: oklch(96.8% 0.037 102.7);
-  --color-slate-200: oklch(92.9% 0.038 120.4);
-  --color-slate-300: oklch(86.9% 0.040 138.1);
-  --color-slate-400: oklch(75.4% 0.041 155.8);
-  --color-slate-500: oklch(68% 0.043 173.5);
-  --color-slate-600: oklch(59% 0.044 191.2);
-  --color-slate-700: oklch(43.2% 0.045 208.9);
-  --color-slate-800: oklch(31.4% 0.047 226.6);
-  --color-slate-900: oklch(20.8% 0.049 244.3);
-  --color-slate-950: oklch(12.9% 0.050 262);
-  --color-sky-50: oklch(97.7% 0.009 85);
-  --color-sky-100: oklch(95.1% 0.018 85);
-  --color-sky-200: oklch(90.1% 0.039 85);
-  --color-sky-300: oklch(82.8% 0.075 85);
-  --color-sky-400: oklch(74.6% 0.109 85);
-  --color-sky-500: oklch(68.5% 0.115 85);
-  --color-sky-600: oklch(58.8% 0.107 85);
-  --color-sky-700: oklch(50% 0.091 85);
-  --color-sky-800: oklch(44.3% 0.075 85);
-  --color-sky-900: oklch(39.1% 0.061 85);
-  --color-sky-950: oklch(29.3% 0.045 85);
+  --color-slate-50: oklch(98.4% 0.003 247.858);
+  --color-slate-100: oklch(96.8% 0.007 247.896);
+  --color-slate-200: oklch(92.9% 0.013 255.508);
+  --color-slate-300: oklch(86.9% 0.022 252.894);
+  --color-slate-400: oklch(75.4% 0.04 256.788);
+  --color-slate-500: oklch(68% 0.046 257.4);
+  --color-slate-600: oklch(59% 0.044 257.3);
+  --color-slate-700: oklch(43.2% 0.044 257.287);
+  --color-slate-800: oklch(31.4% 0.041 260.031);
+  --color-slate-900: oklch(20.8% 0.042 265.755);
+  --color-slate-950: oklch(12.9% 0.042 264.695);
+  --color-sky-50: oklch(97.7% 0.013 236.62);
+  --color-sky-100: oklch(95.1% 0.026 236.824);
+  --color-sky-200: oklch(90.1% 0.058 230.902);
+  --color-sky-300: oklch(82.8% 0.111 230.318);
+  --color-sky-400: oklch(74.6% 0.16 232.661);
+  --color-sky-500: oklch(68.5% 0.169 237.323);
+  --color-sky-600: oklch(58.8% 0.158 241.966);
+  --color-sky-700: oklch(50% 0.134 242.749);
+  --color-sky-800: oklch(44.3% 0.11 240.79);
+  --color-sky-900: oklch(39.1% 0.09 240.876);
+  --color-sky-950: oklch(29.3% 0.066 243.157);
   --color-emerald-50: oklch(97.9% 0.021 166.113);
   --color-emerald-100: oklch(95% 0.052 163.051);
   --color-emerald-200: oklch(90.5% 0.093 164.15);
@@ -125,7 +125,7 @@
   --color-red-950: oklch(25.8% 0.092 26.042);
   color-scheme: dark;
   --color-white: #fff;
-  --app-glow: radial-gradient(30rem 20rem at 18% 0%, oklch(78% 0.11 85 / 0.12), transparent 70%);
+  --app-glow: radial-gradient(60rem 30rem at 85% -10%, oklch(68.5% 0.169 237 / 0.10), transparent 70%);
 }
 
 :root[data-theme="funk"] {
@@ -339,8 +339,35 @@
   --app-glow: radial-gradient(50rem 22rem at 50% -12%, oklch(55% 0.22 25 / 0.20), transparent 70%);
 }
 
-/* the two light styles share the inverted scales (each scale runs dark to light); Jazz then sets its own neutral and accent below */
-:root[data-theme="surf"], :root[data-theme="jazz"] {
+:root[data-theme="jazz"] {
+  --color-slate-50: oklch(98.4% 0.035 85);
+  --color-slate-100: oklch(96.8% 0.037 102.7);
+  --color-slate-200: oklch(92.9% 0.038 120.4);
+  --color-slate-300: oklch(86.9% 0.040 138.1);
+  --color-slate-400: oklch(75.4% 0.041 155.8);
+  --color-slate-500: oklch(68% 0.043 173.5);
+  --color-slate-600: oklch(59% 0.044 191.2);
+  --color-slate-700: oklch(43.2% 0.045 208.9);
+  --color-slate-800: oklch(31.4% 0.047 226.6);
+  --color-slate-900: oklch(20.8% 0.049 244.3);
+  --color-slate-950: oklch(12.9% 0.050 262);
+  --color-sky-50: oklch(97.7% 0.009 85);
+  --color-sky-100: oklch(95.1% 0.018 85);
+  --color-sky-200: oklch(90.1% 0.039 85);
+  --color-sky-300: oklch(82.8% 0.075 85);
+  --color-sky-400: oklch(74.6% 0.109 85);
+  --color-sky-500: oklch(68.5% 0.115 85);
+  --color-sky-600: oklch(58.8% 0.107 85);
+  --color-sky-700: oklch(50% 0.091 85);
+  --color-sky-800: oklch(44.3% 0.075 85);
+  --color-sky-900: oklch(39.1% 0.061 85);
+  --color-sky-950: oklch(29.3% 0.045 85);
+  color-scheme: dark;
+  --color-white: #fff;
+  --app-glow: radial-gradient(30rem 20rem at 18% 0%, oklch(78% 0.11 85 / 0.12), transparent 70%);
+}
+
+:root[data-theme="surf"] {
   --color-slate-50: oklch(15% 0.050 190);
   --color-slate-100: oklch(21% 0.050 179.2);
   --color-slate-200: oklch(28% 0.049 168.4);
@@ -476,34 +503,6 @@
   color-scheme: light;
   --color-white: oklch(20.8% 0.042 265.755);
   --app-glow: radial-gradient(40rem 24rem at 90% -10%, oklch(93% 0.09 90 / 0.8), transparent 70%), radial-gradient(40rem 22rem at 0% 110%, oklch(92% 0.08 185 / 0.7), transparent 70%);
-}
-
-/* Jazz: a light style, ivory paper with navy ink and a deep gold accent */
-:root[data-theme="jazz"] {
-  --color-slate-50: oklch(18% 0.060 262);
-  --color-slate-100: oklch(22% 0.060 260);
-  --color-slate-200: oklch(28% 0.055 258);
-  --color-slate-300: oklch(34% 0.050 255);
-  --color-slate-400: oklch(40% 0.045 250);
-  --color-slate-500: oklch(46% 0.040 245);
-  --color-slate-600: oklch(53% 0.035 240);
-  --color-slate-700: oklch(80% 0.030 90);
-  --color-slate-800: oklch(90.5% 0.030 88);
-  --color-slate-900: oklch(97% 0.022 88);
-  --color-slate-950: oklch(99% 0.015 88);
-  --color-sky-50: oklch(29% 0.060 75);
-  --color-sky-100: oklch(37% 0.080 75);
-  --color-sky-200: oklch(40% 0.090 75);
-  --color-sky-300: oklch(46% 0.105 76);
-  --color-sky-400: oklch(52% 0.120 78);
-  --color-sky-500: oklch(60% 0.135 80);
-  --color-sky-600: oklch(70% 0.150 82);
-  --color-sky-700: oklch(77% 0.150 84);
-  --color-sky-800: oklch(85% 0.110 86);
-  --color-sky-900: oklch(92% 0.060 88);
-  --color-sky-950: oklch(96% 0.030 88);
-  --color-white: oklch(18% 0.060 262);
-  --app-glow: radial-gradient(40rem 24rem at 15% -10%, oklch(90% 0.11 85 / 0.75), transparent 70%), radial-gradient(44rem 26rem at 100% 110%, oklch(90% 0.05 255 / 0.6), transparent 70%);
 }
 
 /* the attunr wordmark (components/Wordmark.tsx) takes each style's headline face; Default keeps Outfit.

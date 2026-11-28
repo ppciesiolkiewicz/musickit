@@ -170,8 +170,8 @@
   --chrome-lo: color-mix(in oklab, var(--color-slate-950) 70%, var(--color-sky-900));
   --chrome-text: linear-gradient(100deg, var(--color-slate-400), var(--chrome-hi) 40%, var(--color-sky-300) 58%, var(--chrome-hi) 76%, var(--color-slate-400));
 }
-/* surf and jazz are light styles: their chrome is a darker steel so it still reads on the light page */
-:root[data-theme="surf"], :root[data-theme="jazz"] {
+/* surf is a light style: its chrome is a darker steel so it still reads on the sand */
+:root[data-theme="surf"] {
   --chrome-hi: color-mix(in oklab, white 70%, var(--color-sky-900));
   --chrome-lo: oklch(40% 0.03 200);
   --chrome-text: linear-gradient(100deg, #3c4850, #6b7780 40%, var(--color-sky-400) 58%, #56626b 76%, #3c4850);

@@ -114,7 +114,7 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 }
 
 /* CAGED neck map lanes: light pages need a stronger tint for each lane to read as its colour. */
-:root[data-theme="surf"], :root[data-theme="jazz"] {
+:root[data-theme="surf"] {
   --lane-alpha: 58%;
 }
 
