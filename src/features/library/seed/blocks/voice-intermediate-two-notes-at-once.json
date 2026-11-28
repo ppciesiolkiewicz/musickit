@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-two-notes-at-once",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 4.",
+  "note": "Harmony-line step 1 as an ear game: two notes at once, a 3rd, a 4th or a 5th apart, each hummed apart before it is named; the answers are named as the game's buttons show them, with their meaning beside them, and the block names its feel to reach.",
   "exercise": {
     "title": "Two notes at once",
     "area": "voice",
@@ -17,14 +17,14 @@
     "concepts": [
       "harmony-line"
     ],
-    "why": "A harmony is two notes heard together, so your ear has to pull them apart before your voice can hold one of them.",
+    "why": "A harmony is two notes heard together, so humming the lower note and then the upper one teaches your ear to pull them apart before your voice holds one of them.",
     "learnBefore": [
       "/course/6/harmony-line"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below. The game plays two notes at the same time, a 3rd, a 4th or a 5th apart. Hum the lower one, then the upper one, then pick its name: m3 or M3 for a minor or major 3rd, P4 or P5."
+        "text": "Press Start below to hear two notes at the same time, a 3rd, a 4th or a 5th apart. Hum the lower note, then the upper one.\nThen pick its name: m3 for a minor 3rd, M3 for a major 3rd, P4 for a 4th, P5 for a 5th.\nPractice until you hear both notes before you hum them."
       },
       {
         "type": "tool",

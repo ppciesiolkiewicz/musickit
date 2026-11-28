@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-tunes-with-leaps",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track tunes (voice-melodies), step 3: three Hard tunes by ear, one that dips under Do (in two keys), one with leaps of a 4th, one from the high Do down to the Sol under Do.",
+  "note": "Tunes step 3: three Hard tunes by ear, one that dips under Do, one with leaps of a 4th (guessed from the staff, then checked), one from the high Do down to the Sol under Do, learned in the named stages. Key and tempo are moves (60 up to 90) in place of the old Key selector and the key named in the text, with a {{?key}} line.",
   "exercise": {
     "title": "Tunes that leap and dip under Do",
     "area": "voice",
@@ -27,20 +27,10 @@
         "type": "section",
         "heading": "Under Do and back",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It starts on the Sol under Do, climbs by step past Do, and goes under Do again before it ends. Listen once, then sing along on \"la\".\nOnce the notes under Do land without a slide, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, Do moves and the tune still starts on the Sol under it."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. It starts on the Sol under Do, climbs by step past Do, and goes under Do again before it ends. Listen once, then sing along on \"la\".\nPractice until the notes under Do land without a slide.\n{{?key}}In another key Do moves, and the tune still starts on the Sol under it."
           },
           {
             "type": "tool",
@@ -51,7 +41,8 @@
                 "stage": "under"
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -63,7 +54,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "A tune in D with three leaps of a 4th: Do up to Fa, Sol down to Re, and Re up to Sol. Look at the staff first and guess how it goes. Press Play below to check your guess, then sing along on \"la\".\nIf a leap lands off the note, sing only its two notes slowly, then put them back in the tune."
+            "text": "This tune has three leaps of a 4th: Do up to Fa, Sol down to Re, and Re up to Sol. Look at the staff below and guess how it goes. Then press Play below to check your guess, and sing along on \"la\".\nIf a leap lands off the note, sing only its two notes slowly, then put them back in the tune."
           },
           {
             "type": "tool",
@@ -75,7 +66,8 @@
                 "index": 1
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -87,7 +79,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It starts on the high Do, comes down by skips to Do, and dips to the Sol under Do before it ends. Sing along on \"oo\", which keeps the high start light.\nOnce you can hear the next note before you sing it, sing the tune first and press Play to check."
+            "text": "Press Play below to hear the tune: the mic starts with it. It starts on the high Do, comes down by skips to Do, and dips to the Sol under Do before it ends. Sing along on \"oo\", which keeps the high start light.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce you hear each next note before you sing it, press Chords to mute the chords too, and sing the tune a cappella."
           },
           {
             "type": "tool",
@@ -99,7 +91,8 @@
                 "index": 1
               },
               "key": "f",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -116,6 +109,14 @@
       "steps": [
         "tunes:3"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 9
     }
   ]

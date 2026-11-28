@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-nine-notes-up-and-back",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 6.",
+  "note": "Runs step 6: the nine-note run (Do up to the Re above the high Do and back, four notes per beat), one 4-minute block that states the run's range and the semitone climb, with the care line where the passes climb. The tempo is moves (50 up to 80) in place of the run-singer's fast default.",
   "exercise": {
     "title": "Nine notes up and back",
     "area": "voice",
@@ -17,14 +17,14 @@
     "concepts": [
       "runs"
     ],
-    "why": "A nine-note run is the five-note run from Do to Sol carried on up the scale, so what kept five notes even keeps nine even: slow first, then quicker.",
+    "why": "A nine-note run is the five-note run from Do to Sol carried on up the scale, so the same even, light notes that kept five in place keep nine in place.",
     "learnBefore": [
       "/course/6/vocal-runs"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to the Re above the high Do and back, four notes per beat. Each pass starts a semitone higher. Change to \"oo\" for the top of the run, and stop where it stops feeling easy."
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to the Re above the high Do and back, four notes per beat, and each pass starts a semitone higher. Sing along on \"ah\", and move to \"oo\" for the top of the run.\nPractice until every note of the run is as clear as the first one.\n_Don't reach for high notes: stop singing at the pass where the run stops feeling easy, and listen to the rest._"
       },
       {
         "type": "tool",
@@ -34,7 +34,8 @@
             "difficulty": "medium",
             "stage": "nine"
           },
-          "voice": "tenor"
+          "voice": "tenor",
+          "bpm": 50
         }
       }
     ]
@@ -46,6 +47,13 @@
       "steps": [
         "runs:6"
       ],
+      "moves": {
+        "bpm": {
+          "from": 50,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 4
     }
   ]

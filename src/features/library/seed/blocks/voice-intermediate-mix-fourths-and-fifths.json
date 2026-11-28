@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-mix-fourths-and-fifths",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track steps-to-leaps (voice-intervals), step 17: mix of 4ths and 5ths, both leaps from one Do up and down over a drone in three keys, a 5ths-stage tune that fills its 5ths with steps and drops under Do (in two keys), then one that starts under Do and holds four 5ths and one 4th. missing: 5ths-stage tunes rated Hard (the stage holds only Medium and Expert tunes, so an intermediate singer gets two Expert ones, both with eighths or a dotted note), and a tune in that stage with as many 4ths as 5ths.",
+  "note": "Steps-to-leaps mix step 17: the 4th and the 5th from one Do, up and down under Do over a drone, then two 5ths-stage tunes in a second key, one that fills its 5ths with steps and one with a single 4th. The tunes start at 60 (tempo is moves, up to 90); the key is not, because the staff's notes under Do only exist in keys from about F up for a tenor, so the second key is written in. missing: 5ths-stage tunes rated Hard (an intermediate singer gets two Expert ones), and a way for moves to keep a block to the keys where notes under Do fit.",
   "exercise": {
     "title": "4ths and 5ths, side by side",
     "area": "voice",
@@ -27,23 +27,10 @@
         "type": "section",
         "heading": "Fa or Sol from Do",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            },
-            {
-              "key": "b-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. From the low {{1}}, leap up to {{4}} and back, then up to {{5}} and back, on \"ah\". Then go under {{1}}: leap down to the {{5}} under it, a 4th, and down to the {{4}} under it, a 5th.\nOnce each leap lands without a slide, sing them in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and {{4}} is still one step under {{5}}."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. From the low {{1}}, leap up to {{4}} and back, then up to {{5}} and back. Sing it on \"ah\".\nThen go under {{1}}: leap down to the {{5}} under it, a 4th, and down to the {{4}} under it, a 5th.\nPractice until you know which leap is coming before you sing it."
           },
           {
             "type": "tool",
@@ -52,7 +39,6 @@
               "scale": "major-ionian",
               "key": "g",
               "voice": "tenor",
-              "labels": "solfege",
               "notes": [
                 "1",
                 "4",
@@ -63,6 +49,7 @@
                 "4",
                 "5"
               ],
+              "labels": "solfege",
               "drone": true
             }
           }
@@ -72,20 +59,10 @@
         "type": "section",
         "heading": "5ths filled with steps",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It leaps a 5th from Do up to Sol and steps down, then does the same from Re up to La. At the end it drops a 5th, from Re to the Sol under Do, and comes home through the Ti under Do. Listen once, then sing along on \"la\".\nOnce the drop under Do lands without a slide, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, Do moves and the three leaps are still 5ths."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. It leaps a 5th from Do up to Sol and steps down, then does the same from Re up to La. At the end it drops a 5th, from Re to the Sol under Do, and comes home through the Ti under Do. Listen once, then sing along on \"la\".\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the drop under Do lands without a slide, press Chords to mute the chords too, and sing the tune a cappella."
           },
           {
             "type": "tool",
@@ -97,7 +74,8 @@
                 "index": 3
               },
               "key": "g",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -109,7 +87,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts on the Sol under Do. Its leaps are all 5ths but one: near the end it leaps a 4th, from Re up to Sol. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Listen once, then sing along on \"la\".\nIf the 4th lands too high, sing Re, Fa, Sol slowly, then put the leap back in the tune."
+            "text": "This tune is in a new key and starts on the Sol under Do. Its leaps are all 5ths but one: near the end it leaps a 4th, from Re up to Sol. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Listen once, then sing along on \"la\".\nIf the 4th lands too high, sing Re, Fa, Sol slowly, then put the leap back in the tune.\nWhen the key changes, Do moves and the leaps are still 5ths and one 4th."
           },
           {
             "type": "tool",
@@ -121,7 +99,8 @@
                 "index": 2
               },
               "key": "b-flat",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -138,6 +117,13 @@
       "steps": [
         "steps-to-leaps:17"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

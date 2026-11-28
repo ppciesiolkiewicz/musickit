@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-slides-across-the-break",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track range (voice-breath-range), step 2: slides across the break, on a lip roll down and as a siren, then the same slide on \"oo\" from a staff. Missing: a tool that draws a sung slide between two notes on an open vowel (lip-roll only asks for a lip roll), so the last block uses a staff with two notes, and its keys put a tenor's first break inside the slide.",
+  "note": "Range step 2: slides across the break, on a lip roll down and as a siren, then the same slide on \"oo\" from a staff, and again on a second staff a step higher so the break sits inside it. The old Stage choice set a key, so the higher slide is now a second staff, written in a key, not moves: it is the key that puts a tenor's break inside the slide. missing: a tool that draws a sung slide between two notes on an open vowel (lip-roll only asks for a lip roll).",
   "exercise": {
     "title": "Slides across the break",
     "area": "voice",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start below to begin the lip roll: a tone slides from head voice down to chest voice, then you make the same slide on your own while the mic draws your line. Keep the buzz loose and quiet.\nOn the way down there is a place where your voice wants to flip: that is the break. Let the buzz stay even through it."
+            "text": "Press Start below to begin the lip roll: a tone slides from head voice down to chest voice, then you make the same slide on your own while the mic draws your line. Keep the buzz loose and quiet.\nOn the way down there is a place where your voice wants to flip: that is the break. Practice until the buzz stays even through it."
           },
           {
             "type": "tool",
@@ -68,24 +68,10 @@
         "type": "section",
         "heading": "The slide on \"oo\"",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "b-flat"
-            },
-            {
-              "key": "b"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Slide from the low {{1}} up to {{5}} and back down, in one unbroken sound like the lip roll. Sing it on \"oo\".\nOnce your line climbs without a jump, try the slide a little higher. Use the Stage selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the slide starts higher and still goes from {{1}} up to {{5}}.\n_Don't reach for high notes: keep the slide quiet, and stop if your throat tightens._"
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Slide from the low {{1}} up to {{5}} and back down, in one unbroken sound like the lip roll. Sing it on \"oo\".\n_Don't reach for high notes: keep the slide quiet, and stop if your throat tightens._"
           },
           {
             "type": "tool",
@@ -97,6 +83,31 @@
               "notes": [
                 "1",
                 "5"
+              ],
+              "highlight": [
+                "1"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "Once your line climbs without a jump, press Play on the second staff below to start its drone. Then press Start microphone.\nSlide from its low {{1}} up to {{5}} the same way. Its {{1}} is a step higher, so the break sits further inside the slide."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "b",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "highlight": [
+                "1"
               ],
               "labels": "degree",
               "drone": true

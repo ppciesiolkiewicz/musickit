@@ -1,12 +1,12 @@
 {
   "id": "voice-new-up-to-sol",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track steps-to-leaps (voice-intervals), step 4: up to Sol, five notes by step over a drone, then two tunes of the Sol stage.",
+  "note": "Track steps-to-leaps, step 4: Do up to Sol by step over a drone, then two Easy Sol-stage tunes at 40 bpm, one starting on Sol, one learned in the named stages down to a cappella. Key and tempo are moves in place of the old Key selector (the second tune sits a step above the others and keeps that distance).",
   "exercise": {
     "title": "Five notes: Do up to Sol",
     "area": "voice",
@@ -39,7 +39,6 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
-              "labels": "solfege",
               "notes": [
                 "1",
                 "2",
@@ -50,6 +49,7 @@
               "highlight": [
                 "5"
               ],
+              "labels": "solfege",
               "drone": true
             }
           }
@@ -59,20 +59,10 @@
         "type": "section",
         "heading": "Down from Sol",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "c"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts on Sol and steps down to Do. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce you can start on Sol without tapping it first, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still steps down from Sol to Do."
+            "text": "This tune starts on Sol and steps down to Do. Tap its first note below to hear it. Then press Play below to hear the tune at {{=bpm}}: the mic starts with it. Sing along on the note names.\nPractice until you can start on Sol without tapping it first.\n{{?key}}In another key the notes are new, and the tune still steps down from Sol to Do."
           },
           {
             "type": "tool",
@@ -83,7 +73,8 @@
                 "stage": "sol"
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -95,7 +86,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi, steps up to Sol and comes home by step, a little lower in each bar. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
+            "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi, steps up to Sol and comes home by step, a little lower in each bar. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the names come without thinking, press Chords to mute the chords too, and sing the tune a cappella."
           },
           {
             "type": "tool",
@@ -107,7 +98,8 @@
                 "index": 1
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -124,6 +116,14 @@
       "steps": [
         "steps-to-leaps:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

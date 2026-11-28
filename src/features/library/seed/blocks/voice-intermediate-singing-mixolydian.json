@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-singing-mixolydian",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track singing-modes (voice-melodies), step 2: Mixolydian over a drone as the major scale with a ♭7, the ♭7 under Do in three keys, then a made-up tune over I ♭VII IV I that lands on the ♭7.",
+  "note": "Singing-modes step 2: Mixolydian as the major scale with a ♭7, the ♭7 sung from under Do and from Sol on two staffs a step and a half apart, then a made-up tune that lands on the ♭7 as {{chord:bVII}} comes round (chords as tokens, counted the long way). The second key is written in, not moves, because the ♭7 under Do only fits a tenor's staff in keys from about D up; the tempo is moves (70 up to 90). missing: a way for moves to keep a block to the keys where notes under Do fit.",
   "exercise": {
     "title": "Mixolydian over a drone",
     "area": "voice",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is the major scale with its 7th note a half step lower: {{b7}}, ringed on the staff. Sing the scale up from the low {{1}} to the next {{1}} and back down, on \"oo\".\nGo slowly past {{b7}}, and listen for it settling against the drone."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. This is the major scale with its 7th note a half step lower: {{b7}}, ringed on the staff. Sing the scale from the low {{1}} up to the next {{1}} and back down. Sing it on \"oo\".\nGo slowly past {{b7}}, and listen for it settling against the drone."
           },
           {
             "type": "tool",
@@ -53,23 +53,10 @@
         "type": "section",
         "heading": "The ♭7 under home",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            },
-            {
-              "key": "b-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing {{1}}, step down to the {{b7}} under it, and come back to {{1}}, on \"ah\". Then sing {{5}}, up to {{b7}}, and on up to {{1}}.\nOnce {{b7}} lands without a slide from both sides, sing it in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and {{b7}} is still a whole step under {{1}}."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Sing {{1}}, step down to the {{b7}} under it, and come back to {{1}}. Then sing {{5}}, up to {{b7}}, and on up to {{1}}. Sing them on \"ah\".\nPractice until {{b7}} lands without a slide from both sides."
           },
           {
             "type": "tool",
@@ -77,6 +64,30 @@
               "type": "staff",
               "scale": "mixolydian",
               "key": "g",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "5",
+                "b7"
+              ],
+              "under": true,
+              "highlight": [
+                "b7"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play on the second staff below to start its drone. Then press Start microphone. Sing the same two moves from its {{1}}.\nWhen the key changes, the drone moves and {{b7}} is still a whole step under {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "b-flat",
               "voice": "tenor",
               "notes": [
                 "1",
@@ -100,7 +111,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track, which plays G, F, C and G again. Make up a short tune from the scale, and sing it on \"la\". Land on {{b7}} when F comes round: it is the root of that chord.\nIf you lose your place, hold {{1}} until G comes back."
+            "text": "Press Start exercise below: the mic and the backing track start together, at {{=bpm}}. The backing track plays {{chord:I}}, {{chord:bVII}}, {{chord:IV}} and {{chord:I}} again.\n{{chord:I}} is the 1st chord of the key, built on {{1}}, {{chord:bVII}} is the chord built on {{b7}}, and {{chord:IV}} is the 4th chord, built on {{4}}. Make up a short tune from the scale, and land on {{b7}} when {{chord:bVII}} comes round. Sing it on \"la\".\nIf you lose your place, hold {{1}} until {{chord:I}} comes back."
           },
           {
             "type": "tool",
@@ -111,6 +122,7 @@
               "voice": "tenor",
               "highlight": [
                 "1",
+                "4",
                 "b7"
               ],
               "labels": "degree"
@@ -128,7 +140,7 @@
                 "bass": "off",
                 "keys": "always"
               },
-              "bpm": 76
+              "bpm": 70
             }
           }
         ]
@@ -145,6 +157,13 @@
       "steps": [
         "singing-modes:2"
       ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 9
     }
   ]

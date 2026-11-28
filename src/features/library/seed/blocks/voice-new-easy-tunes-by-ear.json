@@ -1,12 +1,12 @@
 {
   "id": "voice-new-easy-tunes-by-ear",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track tunes (voice-melodies), step 1: three Easy tunes from the book, all inside Do Re Mi: sung along, sung on \"la\", then sung from memory with the tune stopped.",
+  "note": "Track tunes, step 1: three Easy Do Re Mi tunes at 40 bpm, sung along, sung on \"la\", then sung from memory in the named stages (Tune muted over the chords, then Chords muted for a cappella) in place of the old Stop. Key and tempo are moves in place of the old Key selector.",
   "exercise": {
     "title": "Short tunes on Do, Re and Mi",
     "area": "voice",
@@ -27,20 +27,10 @@
         "type": "section",
         "heading": "Up to Mi and home",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. The tune steps up from Do to Mi and back. Sing along on the note names.\nOnce you can sing it without the tune leading you, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. The tune steps up from Do to Mi and back. Sing along on the note names.\nOnce you can sing it without the tune leading you, press Tune below to mute the tune, and sing it over the chords alone.\n{{?key}}In another key the notes are new, and the tune keeps its shape."
           },
           {
             "type": "tool",
@@ -51,7 +41,8 @@
                 "stage": "mi"
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -75,7 +66,8 @@
                 "index": 4
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -87,7 +79,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune, and only listen the first time. Then press Stop below and sing the tune on \"la\" from memory.\nPress Play again and sing along, to check what you kept.\nIf the middle is gone, listen once more and hum along quietly before you sing it alone."
+            "text": "Press Play below to hear the tune, and only listen the first time. Then press Play again and sing along. Sing it on \"la\".\nPress Tune below to mute the tune, and sing it over the chords from memory. Then press Chords to mute the chords too, and sing it a cappella.\nIf the middle is gone, press Tune to bring the tune back and hum along quietly once."
           },
           {
             "type": "tool",
@@ -99,7 +91,8 @@
                 "index": 3
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -116,6 +109,14 @@
       "steps": [
         "tunes:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

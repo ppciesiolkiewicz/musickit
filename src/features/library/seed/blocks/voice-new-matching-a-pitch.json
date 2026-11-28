@@ -1,12 +1,12 @@
 {
   "id": "voice-new-matching-a-pitch",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "A first singing exercise in three 2-minute blocks, each the same job turned a new way (match, step away and come back, hold), with a drone as the reference instead of an instrument. The why gives the learner a way to check themselves by ear (the blend), the text walks the app once (the drone, the mic, the pitch line on the staff), and every note is the low Do on an easy vowel.",
+  "note": "A first singing exercise in three 2-minute blocks, each the same job turned a new way (match, step away and come back, hold), with the drone as the reference. Every block has its feel to reach, the one care line sits where the singer first leaves Do, and the key is moves with a {{?key}} line in place of the old block that moved the drone by name.",
   "exercise": {
     "title": "Find Do and stay on it",
     "area": "voice",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Hum along with the drone until the two sounds blend into one. Then open the hum to \"oo\" on the low {{1}} and watch your line sit on the note."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Hum along with the drone until the two sounds blend into one.\nThen open the hum to \"oo\" on the low {{1}}, and watch your line sit on the note.\nPractice until you hear the blend before you see your line settle."
           },
           {
             "type": "tool",
@@ -56,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}}, step up to {{2}}, then come back to {{1}}, on the note names. {{2}} doesn't blend with the drone the way {{1}} does, so listen for the blend each time you come home."
+            "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}}, step up to {{2}}, then come back to {{1}}. Sing them on the note names.\n{{2}} doesn't blend with the drone the way {{1}} does, so listen for the blend each time you come home.\n_Don't reach for high notes: the two lowest notes on the staff are the whole drill._"
           },
           {
             "type": "tool",
@@ -68,6 +68,9 @@
               "notes": [
                 "1",
                 "2"
+              ],
+              "highlight": [
+                "1"
               ],
               "labels": "solfege",
               "drone": true
@@ -82,14 +85,14 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone is on D now. The note changes, the job doesn't: sing the low {{1}} on \"oo\" for one easy breath, and see how level you can keep your line to the end. Then close your eyes, find the blend by ear, and open them to check your line."
+            "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}} for one easy breath, and keep your line level to the end. Sing it on \"oo\".\nThen close your eyes, find the blend by ear, and open them to check your line.\n{{?key}}In another key the drone sits higher or lower, and the low {{1}} still blends with it."
           },
           {
             "type": "tool",
             "tool": {
               "type": "staff",
               "scale": "major-ionian",
-              "key": "d",
+              "key": "c",
               "voice": "tenor",
               "enable": [
                 "1"
@@ -110,6 +113,9 @@
       "steps": [
         "pitch:1"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 6
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-new-hold-your-note",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track harmony-line (voice-harmony), step 1: hold Sol, then Mi, while the drone sounds Do, then hold Sol while the backing track changes chord. missing: a tool that sounds a second note or a moving line against the singer's held note (the staff's drone can only sound Do).",
+  "note": "Track harmony-line, step 1: hold Sol, then Mi, against the drone's Do, then hold Sol while the backing track moves between {{chord:I}} and {{chord:V}}, counted the long way. The key and the slow tempo (40 up to 60) are moves, so the old Key selector is gone and the other-key line is marked {{?key}}. missing: a tool that sounds a second note or a moving line against the singer's held note (the staff's drone can only sound Do).",
   "exercise": {
     "title": "Hold your note against another one",
     "area": "voice",
@@ -27,20 +27,10 @@
         "type": "section",
         "heading": "Sol over the drone",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. The drone holds Do. Tap the low {{5}}, the ringed note, to hear it, then sing it on \"oo\" and hold it for one easy breath.\nOnce your line stays level while the drone sounds, try it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, both notes are new but yours is still Sol and the drone's is still Do.\n_Don't reach for high notes: take the low {{5}}, the one nearest the drone._"
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. The drone holds Do. Tap the low {{5}}, the ringed note, to hear it, then hold it for one easy breath. Sing it on \"oo\".\nPractice until your line stays level while the drone sounds.\n_Don't reach for high notes: take the low {{5}}, the one nearest the drone._"
           },
           {
             "type": "tool",
@@ -49,7 +39,6 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
-              "labels": "solfege",
               "notes": [
                 "1",
                 "5"
@@ -57,6 +46,7 @@
               "highlight": [
                 "5"
               ],
+              "labels": "solfege",
               "drone": true
             }
           }
@@ -69,7 +59,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the drone and the mic. Now your note is the low {{3}}, the ringed note, which sits closer to the drone's Do. Tap it to hear it, then sing it on \"oo\" and hold it.\nIf your line slides down towards Do, tap {{3}} again and start the note fresh."
+            "text": "Press Start exercise below to start the drone and the mic. Now your note is the low {{3}}, the ringed note, which sits closer to the drone's Do. Tap it to hear it, then hold it. Sing it on \"oo\".\nIf your line slides down towards Do, tap {{3}} again and start the note fresh.\n{{?key}}In another key both notes are new, and yours is still Sol or Mi against the drone's Do."
           },
           {
             "type": "tool",
@@ -78,7 +68,6 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
-              "labels": "solfege",
               "notes": [
                 "1",
                 "3"
@@ -86,6 +75,7 @@
               "highlight": [
                 "3"
               ],
+              "labels": "solfege",
               "drone": true
             }
           }
@@ -98,7 +88,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track. The backing track moves between two chords, and {{5}} belongs to both. Sing the low {{5}} on \"oo\" and hold it through each change.\nListen for the moment the chord box changes while your line stays level."
+            "text": "Press Start exercise below: the mic and the backing track start together, at {{=bpm}}. The backing track plays {{chord:I}} and {{chord:V}} in turn, one bar each.\n{{chord:I}} is the 1st chord of the key, built on {{1}}, and {{chord:V}} is the 5th chord, built on {{5}}. {{5}} is in both, so sing the low {{5}} and hold it through each change. Sing it on \"oo\".\nPractice until your line stays level when the chord box changes."
           },
           {
             "type": "tool",
@@ -107,14 +97,14 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
-              "labels": "solfege",
               "notes": [
                 "1",
                 "5"
               ],
               "highlight": [
                 "5"
-              ]
+              ],
+              "labels": "solfege"
             }
           },
           {
@@ -132,7 +122,7 @@
                 "bass": "off",
                 "keys": "always"
               },
-              "bpm": 70
+              "bpm": 40
             }
           }
         ]
@@ -146,6 +136,14 @@
       "steps": [
         "harmony-line:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-mix-dorian-or-mixolydian",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track singing-modes (voice-melodies), step 3: mix of Dorian and Mixolydian from one Do over one drone, a Scale choice in every block: the first five notes of each (only the 3rd moves), the chord on Do in each (1 ♭3 5 ♭7 against 1 3 5 ♭7), then one made-up phrase sung in both, in a second key. missing: a staff that draws both 3rds at once, so a phrase could change mode halfway without the selector.",
+  "note": "Singing-modes mix step 3: Dorian and Mixolydian from one Do over one drone, a Scale choice (equals to compare) in every block: the first five notes, the chord on Do, then a made-up phrase in a second key. The scale choice stays (it is not a key or tempo), so the block has no key moves and its second key is written in. missing: a staff that draws both 3rds at once, so a phrase could change mode halfway without the selector.",
   "exercise": {
     "title": "Dorian or Mixolydian, from one Do",
     "area": "voice",
@@ -41,7 +41,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is Dorian. Sing its first five notes up from the low {{1}} and back down, on \"oo\". The ringed note is {{b3}}.\nThen sing the same five notes in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the drone stays and only the ringed note moves: it is {{b3}} in Dorian and {{3}} in Mixolydian."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. This is Dorian. Sing its first five notes up from the low {{1}} and back down. Sing them on \"oo\". The ringed note is {{b3}}.\nOnce those five notes land without a slide, sing them in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the drone stays and only the ringed note moves: it is {{b3}} in Dorian and {{3}} in Mixolydian."
           },
           {
             "type": "tool",
@@ -77,7 +77,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The notes that are not faded are the chord on {{1}} in Dorian: {{1}}, {{b3}}, {{5}} and {{b7}}. Sing them up from the low {{1}} and back down, on \"ah\".\nOnce each note lands without a slide, sing the chord in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, {{1}}, {{5}} and {{b7}} stay where they are, and the ringed note moves up a half step to {{3}}."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. The notes that are not faded are the chord on {{1}}. Sing them up from the low {{1}} and back down. Sing them on \"ah\".\nOnce each note lands without a slide, sing the chord in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, {{1}}, {{5}} and {{b7}} stay where they are, and the ringed note moves up a half step from {{b3}} to {{3}}."
           },
           {
             "type": "tool",
@@ -120,7 +120,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The drone is on a new {{1}} now. Make up a short phrase that passes through the ringed {{b3}} and ends on {{1}}, and sing it on \"la\".\nOnce you can sing the phrase the same way twice, sing it in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the phrase keeps its shape and its ringed note is a half step higher, {{3}}."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. The drone is on a new {{1}} now. Make up a short phrase that passes through the ringed {{b3}} and ends on {{1}}. Sing it on \"la\".\nOnce you can sing the phrase the same way twice, sing it in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the phrase keeps its shape and its ringed note is a half step higher, {{3}}."
           },
           {
             "type": "tool",

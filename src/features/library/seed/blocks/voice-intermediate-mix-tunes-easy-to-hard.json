@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-mix-tunes-easy-to-hard",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track tunes (voice-melodies), step 4: mix of easy to hard, three tunes by ear, one Hard, one Easy and one Medium in that order, with no word on which is which: for each the singer finds the first note against Do (the last note) and the widest move, sings the second before hearing it, and takes the third to a second key.",
+  "note": "Tunes mix step 4: three tunes by ear, Hard, Easy and Medium in that order with no word on which is which; for each the singer hears Do (the last note) and the first note before singing, sings the second from the staff before hearing it, and learns the third in the named stages. Key and tempo are moves (60 up to 90) in place of the old Key selector, with a {{?key}} line.",
   "exercise": {
     "title": "Three tunes, easy to hard, in no order",
     "area": "voice",
@@ -18,7 +18,7 @@
     "concepts": [
       "tunes"
     ],
-    "why": "Every tune in the book ends on Do, so its last note tells you where home is and how far from home it starts, and those two things tell you what to listen for before you sing.",
+    "why": "Every tune in the book ends on Do, so its last note tells you where home is and how far from home the tune starts, and those two things tell you what to listen for before you sing.",
     "learnBefore": [
       "/course/6/singing-leaps",
       "/course/3/step-melodies"
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The three tunes in this exercise are of different difficulty, and nothing says which is which. Before each one, find where it starts and where home is.\nTap the last note of the tune below to hear Do, then tap its first note. Then press Play below to hear the tune: the mic starts with it. Listen once, then sing along on \"la\".\nIf the tune goes where you did not expect, listen once more for its lowest note, then sing along again."
+            "text": "The three tunes here are of different difficulty, and nothing says which is which. Tap the last note of the tune below to hear Do, then tap its first note.\nThen press Play below to hear the tune at {{=bpm}}: the mic starts with it. Listen once, then sing along on \"la\".\nIf the tune goes where you did not expect, listen once more for its lowest note, then sing along again."
           },
           {
             "type": "tool",
@@ -43,7 +43,8 @@
                 "index": 2
               },
               "key": "a",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -55,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap the last note of this tune below to hear Do, then tap its first note. Then sing the tune on \"la\" from the staff, slowly, before you hear it.\nPress Play below to check it against the tune: the mic starts with it, so sing along the second time.\nIf your tune and the tune you hear part ways, tap the note where they did, then sing on from there."
+            "text": "Tap the last note of this tune below to hear Do, then tap its first note. Sing the tune slowly from the staff before you hear it. Sing it on \"la\".\nThen press Play below to check it against the tune: the mic starts with it, so sing along this time.\nIf your tune and the one you hear part ways, tap the note where they did, then sing on from there."
           },
           {
             "type": "tool",
@@ -66,7 +67,8 @@
                 "stage": "fourths"
               },
               "key": "b-flat",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -75,20 +77,10 @@
         "type": "section",
         "heading": "The widest move",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Tap the last note of this tune below to hear Do, then tap its first note. Then press Play below to hear the tune: the mic starts with it. Listen for its widest move, then sing along on \"la\".\nOnce you can start the tune without tapping its first note, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, Do moves and the tune still starts the same distance above it."
+            "text": "Tap the last note of this tune below to hear Do, then tap its first note. Then press Play below to hear the tune: the mic starts with it. Listen for its widest move, then sing along on \"la\".\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce you can start the tune without tapping its first note, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key Do moves, and each tune still starts the same distance from it."
           },
           {
             "type": "tool",
@@ -100,7 +92,8 @@
                 "index": 1
               },
               "key": "g",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 60
             }
           }
         ]
@@ -117,6 +110,14 @@
       "steps": [
         "tunes:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 9
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-slide-to-the-high-do",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-intermediate.json, day 3.",
+  "note": "Pitch step 5: a slow slide on \"oo\" from the low Do to the high Do over a drone, then the same distance as one clean leap, with a feel to reach and a care line. The key is moves, with a {{?key}} line on what stays the same.",
   "exercise": {
     "title": "Slide to the high Do",
     "area": "voice",
@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to the high {{1}} and back, like a siren, and watch your line pass {{5}} on the way. Then sing the two as one clean leap."
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Slide slowly from the low {{1}} up to the high {{1}} and back, like a siren, and watch your line pass {{5}} on the way. Sing it on \"oo\".\nThen sing the two as one clean leap. Practice until the leap lands on the high {{1}} without a slide.\n_Don't reach for high notes: keep the slide quiet, and stop where your throat tightens._\n{{?key}}In another key the drone sits higher or lower, and the slide still spans one octave."
       },
       {
         "type": "tool",
@@ -34,11 +34,14 @@
           "scale": "major-ionian",
           "key": "a",
           "voice": "tenor",
-          "labels": "solfege",
           "notes": [
             "1",
             "5"
           ],
+          "highlight": [
+            "1"
+          ],
+          "labels": "solfege",
           "drone": true
         }
       }
@@ -51,6 +54,9 @@
       "steps": [
         "pitch:5"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 3
     }
   ]

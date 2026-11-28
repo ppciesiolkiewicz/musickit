@@ -1,12 +1,12 @@
 {
   "id": "voice-new-up-to-fa",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track steps-to-leaps (voice-intervals), step 3: up to Fa, by step over a drone, then two tunes of the Fa stage (the book's Fa tunes are all Medium and most hold the skip Re to Fa; these two keep it to one skip).",
+  "note": "Track steps-to-leaps, step 3: up to Fa by step over a drone, then two Fa-stage tunes at 40 bpm (the book's Fa tunes are all Medium; these two keep it to one skip), the longer one learned in the named stages. Key and tempo are moves in place of the old Key selector, and each block carries one extra line.",
   "exercise": {
     "title": "Up to Fa, the small step above Mi",
     "area": "voice",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Fa is the ringed note. Sing {{1}}, {{2}}, {{3}}, {{4}} from the low {{1}}, then step back down. Sing them on the note names.\nListen to the last step up: {{4}} sits closer to {{3}} than {{3}} does to {{2}}.\nIf {{4}} comes out too high, tap {{3}} and {{4}} on the staff to hear the small step, then sing it again."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Fa is the ringed note, a small step above Mi. Sing {{1}}, {{2}}, {{3}}, {{4}} from the low {{1}}, then step back down. Sing them on the note names.\nIf {{4}} comes out too high, tap {{3}} and {{4}} on the staff to hear the small step, then sing the four notes again.\n_Don't reach for high notes: start from the low {{1}}, so {{4}} stays easy._"
           },
           {
             "type": "tool",
@@ -39,7 +39,6 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
-              "labels": "solfege",
               "notes": [
                 "1",
                 "2",
@@ -49,6 +48,7 @@
               "highlight": [
                 "4"
               ],
+              "labels": "solfege",
               "drone": true
             }
           }
@@ -61,7 +61,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts on Fa, steps down to Re and turns back through Mi on its way home. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nPractice until you can start on Fa without tapping it first."
+            "text": "This tune starts on Fa, steps down to Re and turns back through Mi on its way home. Tap its first note below to hear it. Then press Play below to hear the tune at {{=bpm}}: the mic starts with it. Sing along on the note names.\nPractice until you can start on Fa without tapping it first."
           },
           {
             "type": "tool",
@@ -72,7 +72,8 @@
                 "index": 2
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -81,20 +82,10 @@
         "type": "section",
         "heading": "A longer tune",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. The tune climbs from Do to Fa by step, and its third bar skips from Re up to Fa. Sing along on the note names.\nOnce the skip lands on Fa without a slide, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but Fa is still the small step above Mi."
+            "text": "Press Play below to hear the tune: the mic starts with it. The tune climbs from Do to Fa by step, and its third bar skips from Re up to Fa. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the skip lands on Fa without a slide, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key the notes are new, and Fa is still the small step above Mi."
           },
           {
             "type": "tool",
@@ -105,7 +96,8 @@
                 "index": 3
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -122,6 +114,14 @@
       "steps": [
         "steps-to-leaps:3"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

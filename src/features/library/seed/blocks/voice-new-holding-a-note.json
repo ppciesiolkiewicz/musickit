@@ -1,12 +1,12 @@
 {
   "id": "voice-new-holding-a-note",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 2,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track breath (voice-breath-range), step 1: farinelli breathing on counts 2 to 5, then one held note.",
+  "note": "Track breath, step 1: the farinelli breath at the new level, a hum held in the middle of the voice, then one long note over a drone. Each block names one feel to reach (the slow end of the breath, a hum as strong at the end as the start, a level line), and the key of the last staff is moves with a {{?key}} line.",
   "exercise": {
     "title": "A steady breath, then one long note",
     "area": "voice",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start below to begin the breathing: the circle grows as you breathe in, stays while you hold and shrinks as you breathe out.\nKeep your shoulders still, and let the air out as slowly at the end as at the start.\nWhen the circle is done, press Again inside it for one more round."
+            "text": "Press Start below to begin the breathing: the circle grows as you breathe in, stays while you hold and shrinks as you breathe out. Keep your shoulders still.\nPractice until the air goes out as slowly at the end of a breath as at the start.\nWhen the circle is done, press Again inside it for one more round."
           },
           {
             "type": "tool",
@@ -48,7 +48,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start below: a note plays first, then the mic starts. Hum an easy note near it and keep the ball on the green part of the hill until the ring fills, then take a breath before the next hold.\nLet the air out as evenly as you did with the circle, so the hum is as strong at the end of a hold as at the start."
+            "text": "Press Start below: a note plays first, then the mic starts. Hum an easy note near it, and keep the ball resting in the valley until the ring fills. Then take a breath before the next hold.\nPractice until the hum is as strong at the end of a hold as at the start."
           },
           {
             "type": "tool",
@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Sing the low {{1}} on \"oo\" for one easy breath, and see how level you can keep your line to the end.\nThen breathe in the way you did with the circle, and sing it again.\n_Don't reach for high notes: hold the note where your voice feels easy._"
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Breathe in the way you did with the circle, then sing the low {{1}} for one easy breath. Sing it on \"oo\".\nPractice until your line stays level to the end of the breath.\n_Don't reach for high notes: hold the note where your voice feels easy._\n{{?key}}In another key the drone sits higher or lower, and the breath under the note is the same."
           },
           {
             "type": "tool",
@@ -101,6 +101,9 @@
       "steps": [
         "breath:1"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 6
     }
   ]

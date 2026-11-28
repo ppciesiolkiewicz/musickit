@@ -1,12 +1,12 @@
 {
   "id": "voice-new-mix-do-to-sol",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track steps-to-leaps (voice-intervals), step 5: mix of Do to Sol, the five notes in an order the singer makes up over a drone, then two Sol-stage tunes that turn back and skip inside the five notes (one in two keys). The Sol stage's two Easy tunes are in the block for step 4, so these two are the stage's Medium ones.",
+  "note": "Track steps-to-leaps, mix step 5: the five notes from Do to Sol in an order the singer makes up over a drone, then the Sol stage's two Medium tunes at 40 bpm (the Easy ones are in the step-4 block), one learned in the named stages. Key and tempo are moves in place of the old Key selector.",
   "exercise": {
     "title": "Do to Sol in any order",
     "area": "voice",
@@ -18,7 +18,7 @@
     "concepts": [
       "steps-to-leaps"
     ],
-    "why": "The five notes from Do to Sol stay in the same places whatever order they come in, so a tune that turns back or skips over a note is still made of places your voice already knows.",
+    "why": "The five notes from Do to Sol stay in the same places whatever order they come in, so a tune that turns back or skips over a note is still made of places your voice already sings.",
     "learnBefore": [
       "/course/3/step-melodies"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. These are the five notes you know, from the low {{1}} up to {{5}}. Sing them in an order you make up: a few steps up, a turn back, a skip over one note, then home to {{1}}. Sing them on the note names.\nIf the note after a skip lands off, tap it on the staff to hear it, then sing the skip again.\n_Don't reach for high notes: stay on the five notes from the low {{1}}._"
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. The staff shows the five notes from the low {{1}} up to {{5}}. Sing them in an order you make up: a few steps up, a turn back, a skip over one note, then home to {{1}}. Sing them on the note names.\nIf the note after a skip lands off, tap it on the staff to hear it, then sing the skip again.\n_Don't reach for high notes: stay on the five notes from the low {{1}}._"
           },
           {
             "type": "tool",
@@ -39,7 +39,6 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
-              "labels": "solfege",
               "notes": [
                 "1",
                 "2",
@@ -50,6 +49,7 @@
               "highlight": [
                 "1"
               ],
+              "labels": "solfege",
               "drone": true
             }
           }
@@ -59,20 +59,10 @@
         "type": "section",
         "heading": "Up by step, home with a skip",
         "minutes": 2,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It steps up from Do to Sol and starts back down, then skips from Re up to Fa before it steps home. Sing along on the note names.\nOnce the skip up to Fa lands without a slide, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the skip is still from Re up to Fa."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. It steps up from Do to Sol and starts back down, then skips from Re up to Fa before it steps home. Sing along on the note names.\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the skip up to Fa lands without a slide, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key the notes are new, and the skip is still from Re up to Fa."
           },
           {
             "type": "tool",
@@ -84,7 +74,8 @@
                 "index": 1
               },
               "key": "c",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -96,7 +87,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts on Mi, and it mixes steps up with skips down. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nListen for each skip down: the tune jumps over one note, and the next step up fills it in.\nOnce the names come without thinking, sing it again on \"la\"."
+            "text": "This tune starts on Mi, and it mixes steps up with skips down: each skip down jumps over one note, and the next step up fills it in. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the skips land without a slide, sing it again on \"la\"."
           },
           {
             "type": "tool",
@@ -108,7 +99,8 @@
                 "index": 3
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -125,6 +117,14 @@
       "steps": [
         "steps-to-leaps:5"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

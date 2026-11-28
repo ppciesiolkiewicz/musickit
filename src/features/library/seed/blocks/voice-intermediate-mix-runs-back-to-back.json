@@ -1,12 +1,12 @@
 {
   "id": "voice-intermediate-mix-runs-back-to-back",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track runs (voice-runs), step 5: mix of every run so far, one run of each stage back to back: the five notes by step in sixteenths, the home chord by skip, turns, then a pentatonic run with no chords. missing: a run-singer that plays several runs in turn in one tool (a new run each pass), so back to back is four tools the singer starts one after another, and a prop that caps the top pass (each run's last pass reaches the top of the voice's range).",
+  "note": "Runs mix step 5: one run of each kind back to back (five notes by step in sixteenths, the home chord by skip, turns, a pentatonic run with no chords), each step stating the run's range and the semitone climb and naming what changes from the run before. The tempo is moves (50 up to 80; the eighth-note skip run keeps its 20 above). missing: a run-singer that plays several runs in turn in one tool, and a prop that caps the top pass (each run's last pass reaches the top of the voice's range).",
   "exercise": {
     "title": "Four runs, back to back",
     "area": "voice",
@@ -18,7 +18,7 @@
     "concepts": [
       "runs"
     ],
-    "why": "Each run you know moves in its own way, by step, by skip, round a note, or over the five pentatonic notes, so singing them one after another trains your voice to change the move while the beat stays the same.",
+    "why": "Each of the four runs moves in its own way, by step, by skip, round a note or over the five pentatonic notes, so singing them one after another trains your voice to change the move while the beat stays the same.",
     "learnBefore": [
       "/course/6/vocal-runs"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This exercise is the four runs you know, one after another. Go from each run to the next without a break.\nPress Play below to hear the run: two chords set the key, and the mic starts with them. This run goes from Do up to Sol and back by step, four notes per beat. Each pass starts a semitone higher. Sing along lightly on \"ah\", and move to \"oo\" as the passes climb.\nIf the last passes feel tight, listen to them and save your voice for the next run."
+            "text": "Go from each run to the next without a break.\nPress Play below to hear the run: two chords set the key, and the mic starts with them. This run goes from Do up to Sol and back by step, four notes per beat, and each pass starts a semitone higher. Sing along lightly on \"ah\", and move to \"oo\" as the passes climb.\n_Don't reach for high notes: when the last passes feel tight, listen to them and save your voice for the next run._"
           },
           {
             "type": "tool",
@@ -41,7 +41,8 @@
                 "stage": "five",
                 "index": 2
               },
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 50
             }
           }
         ]
@@ -53,7 +54,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. This run skips up the home chord to the high Do and back, two notes per beat. Sing along on \"ah\", and take the high Do on \"oo\".\nWhen the run changes from steps to skips, the beat stays and your voice has further to go between notes: keep each skip as light as the steps were."
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. This run skips up the home chord from Do to the high Do and back, two notes per beat, and each pass starts a semitone higher. Sing along on \"ah\", and take the high Do on \"oo\".\nWhen the run changes from steps to skips, the beat stays and your voice has further to go between notes. Practice until each skip is as light as the steps were."
           },
           {
             "type": "tool",
@@ -63,7 +64,8 @@
                 "difficulty": "hard",
                 "stage": "arpeggio-run"
               },
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 70
             }
           }
         ]
@@ -75,7 +77,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. This run is made of turns: the note above, the note and the note below, round Mi, round Sol, then round Fa and Re on the way down. Sing along on \"ah\".\nWhen the run changes from skips to turns, the notes are close again and there are more of them: if they smear, sing only the first note of each beat for one pass, then put the others back in."
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. This run is made of turns, the note above, the note and the note below: round Mi, round Sol, then round Fa and Re on the way down, and each pass starts a semitone higher. Sing along on \"ah\".\nWhen the run changes from skips to turns, the notes are close again and there are more of them. If they smear, sing only the first note of each beat for one pass, then put the others back in."
           },
           {
             "type": "tool",
@@ -86,7 +88,8 @@
                 "stage": "turns",
                 "index": 1
               },
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 50
             }
           }
         ]
@@ -98,7 +101,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the run alone, with no chords before it: the mic starts with it. This run comes down from the high Do over the five pentatonic notes, Do, Re, Mi, Sol and La, and ends through Re on Do. Sing along on \"oo\".\nWhen the run changes from turns to this one, a skip sits where Fa and Ti are left out: listen to one pass for the skips, then sing along on the next."
+            "text": "Press Play below to hear the run alone, with no chords before it: the mic starts with it. This run comes down from the high Do over the five pentatonic notes, Do, Re, Mi, Sol and La, and ends through Re on Do, and each pass starts a semitone higher. Sing along on \"oo\".\nWhen the run changes from turns to this one, a skip sits where Fa and Ti are left out. Listen to one pass for the skips, then sing along on the next."
           },
           {
             "type": "tool",
@@ -109,7 +112,8 @@
                 "stage": "pentatonic-run"
               },
               "voice": "tenor",
-              "chords": false
+              "chords": false,
+              "bpm": 50
             }
           }
         ]
@@ -126,6 +130,13 @@
       "steps": [
         "runs:5"
       ],
+      "moves": {
+        "bpm": {
+          "from": 50,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]
