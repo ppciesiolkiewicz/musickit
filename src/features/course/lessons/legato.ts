@@ -5,8 +5,8 @@ export const legato: CourseArticle = {
   updated: "2026-11-28T02:31",
   versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
-    { type: "p", text: "In [Do–Mi–Sol on the neck](/course/4/do-mi-sol-neck) you picked every note. Now the fretting hand makes some of the notes on its own, with hammer-ons and pull-offs." },
-    { type: "p", text: "Fewer pick strokes means a smoother line: the notes join up instead of each starting fresh. It's also a strength drill for the fingers the spider woke up." },
+    { type: "p", text: "With hammer-ons and pull-offs the fretting hand makes some of the notes on its own, with no pick stroke." },
+    { type: "p", text: "Fewer pick strokes means a smoother line: the notes join up instead of each starting fresh. It's also a strength drill for the fingers of your fretting hand." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
@@ -16,19 +16,19 @@ export const legato: CourseArticle = {
     { type: "care", text: "_Rest your hand as soon as it gets tired._" },
 
     { type: "exercise", title: "1. Fingers 1 and 2 on the G string", lines: [
-      "Press Play below to start the metronome and follow the tab: the G string, fret 5 with finger 1 and fret 6 with finger 2.",
+      "Press the Play button below to start the metronome and follow the tab: the G string, fret 5 with finger 1 and fret 6 with finger 2.",
       "Pick fret 5 once. Then bring finger 2 down on fret 6 for a hammer-on, and flick it off the string for a pull-off, one note per beat, with no more picking.",
       "This back and forth is a trill. Practice until the hammered note is as loud as the picked one.",
     ], tool: { type: "legato-trill", level: "new", string: 3, fret: 5, bpm: 50 } },
 
     { type: "exercise", title: "2. A thicker string", lines: [
-      "Press Play below to start the metronome. The same trill is now on the A string, which is thicker, so finger 2 has to land harder.",
+      "Press the Play button below to start the metronome. The same trill is now on the A string, which is thicker, so finger 2 has to land harder.",
       "If the pulled-off note is quiet, flick finger 2 a little sideways as it leaves the string.",
     ], tool: { type: "legato-trill", level: "new", string: 5, fret: 5, bpm: 50 } },
 
     { type: "exercise", title: "3. Fingers 1 and 3", lines: [
       "Now there's a fret between the two fingers, so finger 3 has further to fall.",
-      "Press Play below to start the metronome and follow the tab: the G string, fret 7 with finger 1 and fret 9 with finger 3. Pick once, then hammer on and pull off with finger 3.",
+      "Press the Play button below to start the metronome and follow the tab: the G string, fret 7 with finger 1 and fret 9 with finger 3. Pick once, then hammer on and pull off with finger 3.",
       "Finger 1 stays down the whole time. Practice until both notes are equally loud.",
     ], tool: { type: "legato-trill", level: "beginner", string: 3, fret: 7, bpm: 50 } },
 

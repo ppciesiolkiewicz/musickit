@@ -5,7 +5,7 @@ export const whatIsAChord: CourseArticle = {
   updated: "2026-11-27T20:48",
   versions: { agents: 2, teaching: 13, voice: 5 },
   blocks: [
-    { type: "p", text: "You know eight open chords now. Here's what's inside them: a chord is three or more notes played together, and every chord in this stage is built from just three." },
+    { type: "p", text: "Here's what's inside the open chords: a chord is three or more notes played together, and every chord in this stage is built from just three." },
     { type: "p", text: "Once you can see those three notes, a chord stops being a finger shape to remember. You'll know why the Em chord can be played on three open strings, and why one finger turns a major chord into a minor one." },
 
     { type: "h2", text: "Root, 3rd and 5th" },
@@ -14,10 +14,10 @@ export const whatIsAChord: CourseArticle = {
 
     { type: "exercise", title: "1. Three notes on six strings", lines: [
       "Press a chord box below to hear it, then play it on your guitar.",
-      "Then press Intervals under the chord box. The finger numbers turn into R for the root, 3 for the 3rd and 5 for the 5th.",
+      "Then press the Intervals button under the chord box. The finger numbers turn into R for the root, 3 for the 3rd and 5 for the 5th.",
       "The G chord sounds six strings but holds only three notes, so some of them come twice. Count how many times the root turns up.",
     ], tool: { type: "chord-shapes", chords: ["G", "C", "D"] }, after: [
-      "Practice until you can point at the root of each chord before you press Intervals.",
+      "Practice until you can point at the root of each chord before you press the Intervals button.",
     ] },
 
     { type: "exercise", title: "2. The Em chord on three strings", lines: [
@@ -27,15 +27,15 @@ export const whatIsAChord: CourseArticle = {
     ], tool: { type: "chord-shapes", chords: ["Em", "Em"], frets: ["x x x 0 0 0", null] } },
 
     { type: "exercise", title: "3. One note makes it minor", lines: [
-      "In a minor chord the 3rd is one fret lower. Press Intervals under each chord box below: the 3 in E, A and D turns into ♭3 in Em, Am and Dm.",
+      "In a minor chord the 3rd is one fret lower. Press the Intervals button under each chord box below: the 3 in E, A and D turns into ♭3 in Em, Am and Dm.",
       "Play each pair on your guitar, and watch which finger moves or lifts off.",
     ], tool: { type: "chord-shapes", chords: ["E", "Em", "A", "Am", "D", "Dm"] }, after: [
       "Practice until you can switch each pair back and forth without looking at your hand.",
     ] },
 
     { type: "exercise", title: "4. Major or minor, by ear", lines: [
-      "Press Start below to hear a chord. Pick Major or Minor.",
-      "If two answers sound alike, press Replay and listen for the middle note: the 3rd.",
+      "Press the Start button below to hear a chord. Pick Major or Minor.",
+      "If two answers sound alike, press the Replay button and listen for the middle note: the 3rd.",
     ], tool: { type: "interval-ears", kind: "chord", qualities: ["maj", "min"] }, after: [
       "Practice until you can tell them apart before the chord stops ringing.",
     ] },

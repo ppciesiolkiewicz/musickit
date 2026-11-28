@@ -6,12 +6,12 @@ export const doMiSolNeck: CourseArticle = {
   versions: { agents: 2, teaching: 13, voice: 5 },
   labels: "solfege",
   blocks: [
-    { type: "p", text: "In [Do–Mi–Sol](/course/3/do-mi-sol) you sang the three notes of the major chord. Now play them one at a time on the guitar, low on the neck." },
+    { type: "p", text: "Do, Mi and Sol are the three notes of the major chord, the ones the [Do–Mi–Sol](/course/3/do-mi-sol) section sings. This section plays them one at a time on the guitar, low on the neck." },
     { type: "p", text: "It's the same three notes your G and C chords hold, just picked one by one. Once your fingers know where they are, you'll find them under every melody and solo that uses that chord." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
+      "Tune your guitar first — [tuner](/tuner).",
       "Pick one string at a time, slowly. Let each note ring before the next.",
     ] },
 

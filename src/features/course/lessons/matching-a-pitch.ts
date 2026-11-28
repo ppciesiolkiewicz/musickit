@@ -17,13 +17,13 @@ export const matchingAPitch: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. One note, right on it", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear G, your Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear G, your Do.",
       "Hum the low Do, then open it to \"oo\" and hold it. Watch your line: nudge it up or down until it sits on the note.",
       "Practice until you can land on Do and hold it without the line drifting.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", enable: ["1"], others: "hidden", drone: true } },
 
     { type: "exercise", title: "2. Sing your open strings", lines: [
-      "Press Play below to hear the six open strings, low E up to high e and back: the mic starts with it.",
+      "Press the Play button below to hear the six open strings, low E up to high e and back: the mic starts with it.",
       "Sing along on \"oo\", one long note for each string. If a string sits too low or too high for you, hum it quietly or let it go by.",
       "Then play each open string on your guitar and sing it back before the next one.",
     ], tool: { type: "string-singer", drill: "strings" }, after: [
@@ -31,8 +31,8 @@ export const matchingAPitch: CourseArticle = {
     ] },
 
     { type: "exercise", title: "3. Hear two notes, sing them back", lines: [
-      "Press Start below: the piano plays Do and then a second note, and the mic starts.",
-      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press Next below for another one.",
+      "Press the Start button below: the piano plays Do and then a second note, and the mic starts.",
+      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press the Next button below for another one.",
       "If you land under the note, sing Do first and slide up to it slowly.",
     ], tool: { type: "interval-singer", level: "new", key: "g", voice: "tenor", play: "both", picker: false } },
 

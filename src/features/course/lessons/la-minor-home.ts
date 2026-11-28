@@ -23,13 +23,13 @@ export const laMinorHome: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. Rest on Do, rest on La", lines: [
-      "Press Start microphone below to start the mic. The staff shows G major, with the notes under the lowest Do too.",
+      "Press the Start microphone button below to start the mic. The staff shows G major, with the notes under the lowest Do too.",
       "Sing Mi, Re, Do and stop: the line rests on Do. Then sing Do, Ti, La and stop on the ringed La. Sing it on the note names.",
       "Hold each last note for a breath and listen. Do sounds bright and finished. La sounds finished too, but darker.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", under: true, highlight: ["1", "6"], labels: "solfege" } },
 
     { type: "exercise", title: "3. A drone on La", lines: [
-      "Press Play below to start the drone on La. Then press Start microphone on the staff below.",
+      "Press the Play button below to start the drone on La. Then press the Start microphone button on the staff below.",
       "Sing from the low La up to Mi on \"oo\", one note at a time, and come back down to La.",
       "Practice until La sounds like the note the line has to end on.",
     ], tool: { type: "backing-band", bpm: 60, key: "e", parts: { drone: "always" } },

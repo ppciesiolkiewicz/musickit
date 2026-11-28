@@ -5,12 +5,12 @@ export const diminishedChords: CourseArticle = {
   updated: "2026-11-28T02:30",
   versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
-    { type: "p", text: "In [Augmented chords](/course/7/augmented-chords) a major chord raised its 5th. A diminished chord does the opposite to a minor chord: it lowers the 5th by a half step." },
-    { type: "p", text: "The Am chord is A, C and E. Adim is A, C and E♭. Each note sits a minor 3rd above the one under it, so the chord has no steady 5th to stand on. It's tense, and it wants to move. You met one in [Chords from the scale](/course/5/chords-from-scale): F♯dim, the chord on the 7th note of G major." },
+    { type: "p", text: "A diminished chord takes a minor chord and lowers its 5th by a half step. It's the opposite of an augmented chord, which raises the 5th of a major chord (see the [Augmented chords](/course/7/augmented-chords) section)." },
+    { type: "p", text: "The Am chord is A, C and E. Adim is A, C and E♭. Each note sits a minor 3rd above the one under it, so the chord has no steady 5th to stand on. It's tense, and it wants to move. Every major key has one: in G major it's F♯dim, the chord on the 7th note (see the [Chords from the scale](/course/5/chords-from-scale) section)." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
+      "Tune your guitar first — [tuner](/tuner).",
       "Press only as hard as each note needs, and shake your hand loose between tries.",
     ] },
 
@@ -25,7 +25,7 @@ export const diminishedChords: CourseArticle = {
 
     { type: "exercise", title: "2. One fret down", lines: [
       "Press a chord box below to hear it, then play the Am chord and Adim on your guitar. On the D string the E drops one fret to E♭.",
-      "Then press Intervals under the chord boxes. The 5 turns into ♭5.",
+      "Then press the Intervals button under the chord boxes. The 5 turns into ♭5.",
     ], tool: { type: "chord-shapes", chords: ["Am", "Adim"], frets: [null, "x 0 1 2 1 x | x 0 1 3 2 x"] }, after: [
       "Practice until you can tell them apart with your eyes closed: listen for the one note that drops.",
     ] },
@@ -39,7 +39,7 @@ export const diminishedChords: CourseArticle = {
     ] },
 
     { type: "exercise", title: "4. Four triads on D", lines: [
-      "Here are the four kinds of triad on one root: D, Dm, Ddim and Daug. Press Intervals under the chord boxes: the 3 or ♭3 says major or minor, and the 5 stays, drops to ♭5 or rises to ♯5.",
+      "Here are the four kinds of triad on one root: D, Dm, Ddim and Daug. Press the Intervals button under the chord boxes: the 3 or ♭3 says major or minor, and the 5 stays, drops to ♭5 or rises to ♯5.",
       "Press a chord box below to hear it. Go from the D chord to Daug and from Dm to Ddim, then press the four in any order.",
     ], tool: { type: "chord-shapes", chords: ["D", "Dm", "Ddim", "Daug"], frets: [null, null, "x x 0 1 3 1 | x x 0 1 3 2", "x x 0 3 3 2 | x x 0 2 3 1"] }, after: [
       "Then look away, press a box without choosing, and name the triad before you look. Listen to the 3rd first, then to the 5th.",

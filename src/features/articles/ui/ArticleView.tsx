@@ -9,6 +9,7 @@ import { CareLine, NoteText } from "@/features/plan/ui/reader/NoteText";
 import { NeckFrets } from "@/components/chordKit/ScaleNeck";
 import ChordName from "@/components/chordKit/ChordName";
 import Explained from "@/components/course/Explained";
+import Icon from "@/components/Icon";
 import type { Piece } from "@/features/course/glossary";
 import { splitChords } from "../chordNames";
 import { ARTICLES } from "../index";
@@ -60,7 +61,9 @@ function ChordTitle({ text }: { text: string }) {
  */
 export function Inline({ runs, root = null }: { runs: Mark[]; root?: NoteRoot | null }) {
   return runs.map((r, k) =>
-    r.kind === "link" ? <Link key={k} href={r.href} {...(opensNewTab(r.href) ? { target: "_blank", rel: "noopener" } : {})} className="text-sky-300 underline-offset-2 hover:underline">{r.text}</Link>
+    r.kind === "link" ? (opensNewTab(r.href)
+      ? <Link key={k} href={r.href} target="_blank" rel="noopener" className="text-sky-300 underline-offset-2 hover:underline">{r.text}<Icon name="external-link" size={13} className="ml-0.5 inline-block align-[-0.1em]" /><span className="sr-only"> (opens in a new tab)</span></Link>
+      : <Link key={k} href={r.href} className="text-sky-300 underline-offset-2 hover:underline">{r.text}</Link>)
     : r.kind === "bold" ? <strong key={k} className="font-semibold text-slate-50"><ChordText pieces={r.pieces} root={root} /></strong>
     : r.kind === "care" ? <CareLine key={k}><ChordText pieces={r.pieces} root={root} /></CareLine>
     : <Fragment key={k}><ChordText pieces={r.pieces} root={root} /></Fragment>,

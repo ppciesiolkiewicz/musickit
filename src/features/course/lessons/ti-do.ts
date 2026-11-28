@@ -6,7 +6,7 @@ export const tiDo: CourseArticle = {
   versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
-    { type: "p", text: "In [Hearing 7th chords](/course/7/hearing-sevenths) the 7th of a maj7 sat one fret under the root. In the key, that note has a name: Ti, the 7th note of the scale, a half step under Do." },
+    { type: "p", text: "Ti is the 7th note of the scale, a half step under Do. It's the same note as the 7th of a maj7 chord, one fret under the root (see the [Hearing 7th chords](/course/7/hearing-sevenths) section)." },
     { type: "p", text: "Ti is the note that pulls home hardest. Stop on it and you can hear it lean up to Do. That pull is also why the D chord wants to go to the G chord in G major: Ti is inside it." },
 
     { type: "h2", text: "Before you sing" },
@@ -18,7 +18,7 @@ export const tiDo: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. Stop on Ti", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do, the note G.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear Do, the note G.",
       "Sing Do, Re, Mi and back down to Do. Sing it on the note names.",
       "Then go one note under Do to the ringed Ti, and stop. Hold Ti for a breath, then step up to Do.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", under: true, highlight: ["7"], drone: true }, after: [
@@ -26,7 +26,7 @@ export const tiDo: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. Ti inside the D chord", lines: [
-      "In G major, Ti is F♯. Press Intervals under the D chord box below: the high e string's note is the 3 of the D chord, and that note is F♯.",
+      "In G major, Ti is F♯. Press the Intervals button under the D chord box below: the high e string's note is the 3 of the D chord, and that note is F♯.",
       "Play the D chord, then the G chord, on your guitar. Listen to the high e string: F♯ goes up one fret to G, Ti to Do.",
     ], tool: { type: "chord-shapes", chords: ["D", "G"] }, after: [
       "Practice until you can hum the high e string's note as you change, F♯ and then G.",
@@ -40,7 +40,7 @@ export const tiDo: CourseArticle = {
     ] },
 
     { type: "exercise", title: "4. Sing Ti over D7", lines: [
-      "Press Play below to start the backing track: the G, C and D7 chords, then G again, round and round. Then press Start microphone on the staff below.",
+      "Press the Play button below to start the backing track: the G, C and D7 chords, then G again, round and round. Then press the Start microphone button on the staff below.",
       "Sing Do on \"oo\" over the G and C chords. When D7 comes, step down to Ti, and step back up to Do as the G chord comes round.",
       "If you come in late, wait on Do and catch the next D7.",
     ], tool: { type: "backing-track", key: "g", numerals: ["I", "IV", "V7", "I"], style: "ballad", bpm: 60, parts: { drums: "on", bass: "off", keys: "always" } },

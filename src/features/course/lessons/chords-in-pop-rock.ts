@@ -5,12 +5,12 @@ export const chordsInPopRock: CourseArticle = {
   updated: "2026-11-28T02:30",
   versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
-    { type: "p", text: "You've spent this stage on colour chords. Pop and rock mostly don't need them. They lean on a few plain chords of the key, in a few orders, played with a lot of conviction." },
-    { type: "p", text: "Learn those orders by their numbers and you'll hear them in song after song. You already know the 1st, 4th and 5th chords from [1 → 4 → 5 → 1](/course/5/one-four-five). Pop adds one more: the minor chord on the 6th note, the relative minor from [La: the minor home](/course/3/la-minor-home)." },
+    { type: "p", text: "Pop and rock mostly don't need colour chords. They lean on a few plain chords of the key, in a few orders, played with a lot of conviction." },
+    { type: "p", text: "Learn those orders by their numbers and you'll hear them in song after song. The 1st, 4th and 5th chords are in the [1 → 4 → 5 → 1](/course/5/one-four-five) section. Pop adds one more: the minor chord on the 6th note, the relative minor (see the [La: the minor home](/course/3/la-minor-home) section)." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
+      "Tune your guitar first — [tuner](/tuner).",
       "Keep your strumming wrist loose. If your forearm tightens, stop and shake it out.",
     ] },
 
@@ -22,14 +22,14 @@ export const chordsInPopRock: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. Strum the pop loop", lines: [
-      "Press Play below to start the metronome. After a bar of count-in, play the island strum, one bar on each chord.",
+      "Press the Play button below to start the metronome. After a bar of count-in, play the island strum, one bar on each chord.",
       "If a change comes late, keep your strumming hand going and catch the next beat 1.",
     ], tool: { type: "strum-along", chords: ["G", "D", "Em", "C"], bpm: 60, pattern: "D . D U . U D U" }, after: [
       "Practice until the loop goes round without a gap at the changes.",
     ] },
 
     { type: "exercise", title: "3. Call out the numbers", lines: [
-      "Press Play below to start the backing track: the same four chords, one bar each, round and round. Call out 1, 5, 6 or 4 as each chord arrives.",
+      "Press the Play button below to start the backing track: the same four chords, one bar each, round and round. Call out 1, 5, 6 or 4 as each chord arrives.",
       "Then strum along with it, and keep calling the numbers in your head.",
     ], tool: { type: "backing-track", progression: "pop", key: "g", style: "pop", bpm: 64 }, after: [
       "Practice until you hear the minor chord coming before its box lights.",
@@ -39,7 +39,7 @@ export const chordsInPopRock: CourseArticle = {
     { type: "p", text: "Rock often borrows one chord from outside the key. In D major the 7th note is C♯, but rock plays the C chord, a fret lower. D, C and G is the sound of Sweet Home Alabama by Lynyrd Skynyrd, from [First songs](/course/2/first-songs)." },
 
     { type: "exercise", title: "4. D, C, G, D", lines: [
-      "Press Play below to start the metronome. Play eight downstrums in each bar, two on every beat, and dig in a little more than for the pop loop.",
+      "Press the Play button below to start the metronome. Play eight downstrums in each bar, two on every beat, and dig in a little more than for the pop loop.",
       "Listen for the C chord: it's the one chord here that isn't in D major.",
     ], tool: { type: "strum-along", chords: ["D", "C", "G", "D"], bpm: 60, pattern: "D D D D D D D D" }, after: [
       "Practice until the downstrums stay even through every change.",

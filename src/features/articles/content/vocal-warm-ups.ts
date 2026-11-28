@@ -19,30 +19,30 @@ export const vocalWarmUps: Article = {
     ] },
 
     { type: "exercise", title: "1. Breathe in, hold, breathe out", lines: [
-      "Press Start in the circle below and breathe with it. Keep your shoulders still and let your belly move.",
+      "Press the Start button in the circle below and breathe with it. Keep your shoulders still and let your belly move.",
       "Practice until your breath out is as slow at the end as at the start.",
     ], tool: { type: "breathwork", drill: "farinelli", level: "beginner" } },
 
     { type: "exercise", title: "2. A hiss, then a buzz", lines: [
-      "Press Start in the circle below. Hiss on \"sss\", buzz on \"zzz\", then hiss again, keeping the air at one speed.",
+      "Press the Start button in the circle below. Hiss on \"sss\", buzz on \"zzz\", then hiss again, keeping the air at one speed.",
     ], tool: { type: "breathwork", drill: "sss-zzz" } },
 
     { type: "exercise", title: "3. Lip rolls, sliding down", lines: [
       "Time to sound like a motorboat: blow through loose lips so they buzz, with a little voice behind it.",
-      "Press Start below: the mic starts with it. Lip roll along as the tone slides down.",
+      "Press the Start button below: the mic starts with it. Lip roll along as the tone slides down.",
       "**Don't worry if you're not on the note, or if your mic can't pick up the buzz.** An even buzz matters much more than the note.",
       "No buzz? Press two fingers gently into your cheeks beside your mouth, or roll your tongue instead.",
       "Lip rolls took me a while to learn, so give them a few days.",
     ], tool: { type: "lip-roll", shape: "down", play: "always", plays: 3, voice: "tenor" } },
 
     { type: "exercise", title: "4. Lip rolls, up and back down", lines: [
-      "Press Start below and lip roll along as the tone slides up and back down, in one breath. If the buzz stops, breathe and join again with less air.",
+      "Press the Start button below and lip roll along as the tone slides up and back down, in one breath. If the buzz stops, breathe and join again with less air.",
     ], tool: { type: "lip-roll", shape: "siren", play: "always", plays: 3, voice: "tenor" }, after: [
       "_Don't reach for high notes: let the buzz go when the top stops feeling easy._",
     ] },
 
     { type: "exercise", title: "5. Hum, then open", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear Do.",
       "Hum the low Do, then open it to \"oo\" without the pitch moving. Then do the same on Sol.",
     ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", notes: ["1", "5"], drone: true }, after: [
       "_Don't reach for high notes: Sol here is the one just above the low Do._",
@@ -52,7 +52,7 @@ export const vocalWarmUps: Article = {
 
     { type: "exercise", title: "6. The five-tone scale", lines: [
       "Last, a little run: **Do Re Mi Fa Sol Fa Mi Re Do.** It starts at 40 bpm, slow enough to hear each step.",
-      "Press Play below to hear the run: the mic starts with it. Sing along on \"oo\". Each pass starts a semitone higher.",
+      "Press the Play button below to hear the run: the mic starts with it. Sing along on \"oo\". Each pass starts a semitone higher.",
       "Once it feels easy, use the Tempo selector above the run to speed it up.",
     ], tool: { type: "run-singer", pick: { stage: "five", index: 0 }, voice: "tenor", bpm: 40 }, after: [
       "_Don't reach for high notes: let a pass go when its top stops feeling easy._",

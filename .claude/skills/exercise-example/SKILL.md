@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 16
+version: 17
 description: Write or fix a seed exercise (block) or 7-day plan file in src/features/library/seed - what agents find in the library and copy - so it meets every writing rule and reads well against its tools. Use when asked to add, write, improve or fix a seed exercise or plan, or a showcase.
 ---
 
@@ -42,7 +42,7 @@ Agents look these up in the library (`find_blocks`, `get_block`) and copy them a
    - An exercise stands alone. The app hands out one block at a time, on any day, so its title, headings, text and why name no other day or week: no "day 2", "yesterday", "this week", "next week", "the week's". Say what to play, not when it was first played ("The Do to Sol run, twice as fast", not "Day 2's run, twice as fast"), and name the drill a block builds on by what it is ("the hammer-on drill"). A plan's `summary`, `progress` and day `theme` may name days: they don't travel with the block. `seed check` fails an exercise that names a day.
 
    *The steps*
-   - Each text step says which control to press and where it is ("Press Play below to start the metronome"), then what to play or sing. Controls and game answers carry the label the screen shows (see "Words about the app" in **teaching-voice**): read it in the tool's component before you name it.
+   - Each text step says which control to press and where it is ("Press the Play button below to start the metronome"), then what to play or sing. Controls and game answers carry the label the screen shows (see "Words about the app" in **teaching-voice**): read it in the tool's component before you name it.
    - Each block carries at most one extra line beyond the doing, and it is one of: a feel to reach, starting "Practice until" or naming the goal ("Practice until your fingers find the next note without you looking."; never "Stay with it until" or "Keep going until"), what to do when it goes wrong ("if a change comes late, keep strumming and catch the next beat 1"), the sense it trains, or a variation to try. Not all four.
 
    *The tools and the notes they light*
@@ -62,7 +62,7 @@ Agents look these up in the library (`find_blocks`, `get_block`) and copy them a
    *Moves: other keys, other tempos*
    - A drill that works in other keys or at other tempos states `moves` on its choice: `"moves": { "key": "any", "bpm": { "from": 60, "to": 90, "step": 10 } }`. `"key": "any"` when it can be played in any key; leave it out when the key is the lesson (open chord shapes, a song in its key). `bpm` is the range of tempos the drill makes sense in, `from` the tempo its first tool is written at. Write the tools at the start: the key the drill is first learned in (check where it sits with `npm run -s theory`) and the `from` tempo; a later, faster section keeps its distance. A tool that must not follow lists the part in `"pinned"`.
    - The app gives each player a version of the exercise (a key of theirs, a faster tempo once they found it easy, the earlier ones kept as chips) and draws the selector and the line about it itself. So an exercise with `moves` has no `choice` that sets a key or a tempo, and its text never mentions a selector.
-   - Where the title, a heading or the text names the key or the tempo, write the param, never the value: `"{{=key}} minor pentatonic, then your own phrases"`, `"Press Play below to start the metronome at {{=bpm}}."` A heading names the task, not the tempo ("Over the backing track", not "Over a backing track at 80"). The note dots are unchanged (`{{1}}`, `{{c-sharp}}`).
+   - Where the title, a heading or the text names the key or the tempo, write the param, never the value: `"{{=key}} minor pentatonic, then your own phrases"`, `"Press the Play button below to start the metronome at {{=bpm}}."` A heading names the task, not the tempo ("Over the backing track", not "Over a backing track at 80"). The note dots are unchanged (`{{1}}`, `{{c-sharp}}`).
    - Say what stays the same in another key as a plain line, with no selector in it, opening with `{{?key}}`: "{{?key}}In another key the position sits on other frets, and the roots keep their places inside it." The app shows a `{{?key}}` line only when the Key selector is there (the player has more than one key), and `{{?bpm}}` does the same for a line about another tempo. The mark opens the line; the line stands on its own after a `\n`.
 
    *A second key*
@@ -70,7 +70,7 @@ Agents look these up in the library (`find_blocks`, `get_block`) and copy them a
 
    *Stages and variants*
    - A section's `choice` carries one drill through 2-4 versions without a copy of its tools: `"choice": { "label": "stage", "options": [ … ] }` in the section's header, each option a `scale`, a `position`, a `level`, or several of them (never a `key` or a `bpm`: those are `moves`), and option 1 is how the section's tools are written. A choice with no `options`, only the parts (`"choice": { "key": "a" }`), is open: every tool under it is written in that value and follows it; a tool keeps its own value with `"pinned": ["key"]`. `"label": "stage"` when each option is harder than the last, most often the next level of a tool: say what a stage feels like before the next one, and what to do when a stage is too hard. (`showcase-stages-tempo-ladder` is the older shape, a tempo ladder as a choice: read it for the text, write the tempo as `moves`.) `"label": "variant"` when the options are equals to compare, such as one pattern in two keys or positions (`showcase-variants-same-frets`): say what to look or listen for between them; don't ask the learner to find it.
-   - Name the selector, never a chip ("The selector" in **teaching-voice**): "When every answer comes without counting, try the next stage. Use the Stage selector below to change it, then press Start to begin the game again." A change restarts the block's tools, so say what Play starts again. All of a block's text that names the selector sits in the text above it, with line breaks between the drill, the invitation and what to do when it goes wrong; no text about the selector comes after the tools. The text of a block with a step-choice names no tempo, key or position as the only one; `focus` lists them all.
+   - Name the selector, never a chip ("The selector" in **teaching-voice**): "When every answer comes without counting, try the next stage. Use the Stage selector below to change it, then press the Start button to begin the game again." A change restarts the block's tools, so say what Play starts again. All of a block's text that names the selector sits in the text above it, with line breaks between the drill, the invitation and what to do when it goes wrong; no text about the selector comes after the tools. The text of a block with a step-choice names no tempo, key or position as the only one; `focus` lists them all.
    - A change that needs new words or a new task is a later block, not a chip.
 
    *The metadata*
@@ -99,7 +99,7 @@ What usually fails in an older file:
 - The why says the skill matters instead of what makes the drill work.
 - A title, step or why that names another day or week ("Day 1's run again", "same frets as yesterday", "keep it for next week").
 - The text carries fret numbers or note names the neck already shows ("D, 7th fret").
-- A bare "Press Play below." that doesn't say what starts, or two controls in one sentence.
+- A bare "Press the Play button below." that doesn't say what starts, or two controls in one sentence.
 - A chip named or the options listed ("tap G in the Key row", "tap Stage 2 above the tab"), or text about a selector placed after the tools.
 - "The notes change, the pattern doesn't." instead of what stays the same in this drill; what to notice not on its own line.
 - Two names for the thing practised ("the way across" and "the crossing").

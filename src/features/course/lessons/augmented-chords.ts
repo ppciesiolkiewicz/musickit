@@ -5,12 +5,12 @@ export const augmentedChords: CourseArticle = {
   updated: "2026-11-28T02:30",
   versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
-    { type: "p", text: "Every colour chord so far added a note: a 6th, a 7th, a 9th. An augmented chord moves one instead. Take a major chord and raise its 5th by a half step." },
+    { type: "p", text: "A colour chord adds a note: a 6th, a 7th, a 9th. An augmented chord moves one instead. Take a major chord and raise its 5th by a half step." },
     { type: "p", text: "The G chord is G, B and D. Gaug is G, B and D♯. That raised note has nowhere to rest, so the chord floats and wants to slide on to the next one. In songs it's usually a passing chord: one bar of tension between two plain chords." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Tune your guitar first. The [tuner](/tuner) opens in a new tab: an augmented chord sounds odd enough in tune.",
+      "Tune your guitar first — [tuner](/tuner). An augmented chord sounds odd enough in tune.",
       "Press only as hard as each note needs, and shake your hand loose between tries.",
     ] },
 
@@ -25,7 +25,7 @@ export const augmentedChords: CourseArticle = {
 
     { type: "exercise", title: "2. One note up", lines: [
       "Press a chord box below to hear it, then play each pair on your guitar. From the G chord to Gaug only the D string moves, from open to the 1st fret. From the C chord to Caug the G string does the same.",
-      "Then press Intervals under the chord boxes. The 5 turns into ♯5, and the root and the 3 stay put.",
+      "Then press the Intervals button under the chord boxes. The 5 turns into ♯5, and the root and the 3 stay put.",
     ], tool: { type: "chord-shapes", chords: ["G", "Gaug", "C", "Caug"], frets: [null, "3 2 1 0 0 3 | 3 2 1 0 0 4", null, "x 3 2 1 1 0 | x 3 2 1 1 0"] }, after: [
       "Practice until you can tell each pair apart with your eyes closed.",
     ] },

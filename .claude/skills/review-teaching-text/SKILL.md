@@ -1,6 +1,6 @@
 ---
 name: review-teaching-text
-version: 16
+version: 17
 description: Audit learner-facing music text in musickit - a course section, a stage, a seed exercise or plan, glossary meanings - for wrong music facts, text that disagrees with its picture or tool, and breaks from the teaching voice. Reports findings, does not rewrite unless asked. Use when asked to review, check, proofread or audit lessons, articles, exercises or examples, and before finishing course-article or exercise-example work.
 ---
 
@@ -28,7 +28,7 @@ This skill is for text that teaches music. Interface copy with no music in it (a
 5. **Practice and understanding.** The page is reading with no drill. Or there's a drill with no why, or a why the learner couldn't use to make up their own. Or "done" is a count or a score instead of a feel.
 6. **App words.** "Words about the app" in the **teaching-voice** skill. Open the tool's component and compare:
    - A control named differently from its label on the screen, or a game answer named differently from its button.
-   - A bare "Press Play." that doesn't say what starts or where it is, or two controls in one sentence.
+   - A bare "Press the Play button." that doesn't say what starts or where it is, or two controls in one sentence.
    - A step that says which chip to tap or lists a selector's options ("tap G in the Key row", "tap Stage 2"), or names a selector that sits above the text.
    - In a block file with several choices: read every choice drawn (its `set` and `params` applied, `/admin/content/library?item=<id>`): each must read true against its own tools, a param must fit every sentence it sits in, and a choice whose words differ by more than a phrase or two belongs in its own block.
    - In an exercise with `moves`: a selector mentioned at all, a choice that sets a key or a tempo, or a key or tempo written as a value in the title, a heading or the text where `{{=key}}` or `{{=bpm}}` belongs.
@@ -55,6 +55,6 @@ One line per finding, most serious first:
   proof: <calculator output, the conflicting prop, or the label in the component>
 ```
 
-The seven kinds are the seven checks above, in the same order. The fix is the new wording itself, not advice ("→ 'Press Play below to start the metronome.'", not "→ say what starts").
+The seven kinds are the seven checks above, in the same order. The fix is the new wording itself, not advice ("→ 'Press the Play button below to start the metronome.'", not "→ say what starts").
 
 End with the count per kind, and one line on what you could not check (a page the dev server wouldn't draw, a fact the calculator can't answer). If nothing is wrong, say so in one line. Only edit files when the user asks you to fix the findings.

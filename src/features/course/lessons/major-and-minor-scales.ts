@@ -6,7 +6,7 @@ export const majorAndMinorScales: CourseArticle = {
   versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
-    { type: "p", text: "In [Major or minor?](/course/3/major-or-minor) one note, the 3rd, turned a bright chord dark. A scale works the same way, with three notes instead of one." },
+    { type: "p", text: "One note, the 3rd, turns a bright major chord into a dark minor one (see the [Major or minor?](/course/3/major-or-minor) section). A scale works the same way, with three notes instead of one." },
     { type: "p", text: "Start both scales on the same home note, G. The G minor scale lowers the 3rd, the 6th and the 7th of G major by a half step, one fret. The other four notes stay where they are." },
     { type: "list", items: [
       "G major: G A **B** C D **E** **F♯**",
@@ -27,7 +27,7 @@ export const majorAndMinorScales: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. Sing major, then minor", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear G, your Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear G, your Do.",
       "Sing up the G major scale from the low Do, slowly, on the note names. Hold the ringed notes a little longer.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", highlight: ["3", "6", "7"], drone: true },
     between: [

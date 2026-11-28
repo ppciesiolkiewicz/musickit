@@ -6,7 +6,7 @@ export const chordsFromScale: CourseArticle = {
   versions: { agents: 2, teaching: 13, voice: 5 },
   blocks: [
     { type: "p", text: "The chords of a key aren't a list to learn by heart. They come out of the scale: take any note, skip one, take the next, skip one, take the next. Three notes, one chord." },
-    { type: "p", text: "Do that from each of the seven notes of G major and you get all seven chords of the key, the same ones you've been playing in position 1. Once you see how, you can work out the chords of any key." },
+    { type: "p", text: "Do that from each of the seven notes of G major and you get all seven chords of the key, the same ones you play in position 1. Once you see how, you can work out the chords of any key." },
 
     { type: "exercise", title: "1. Every other note", lines: [
       "The piano below shows G major: G, A, B, C, D, E and F♯. Tap {{1}}, {{3}} and {{5}}, one after the other: G, B and D. That's the G chord, Do–Mi–Sol.",
@@ -25,7 +25,7 @@ export const chordsFromScale: CourseArticle = {
 
     { type: "exercise", title: "3. Up the scale in chords", lines: [
       "Now play the chords of the key in order, up the scale and back down, with the open shapes you know: G, Am, C, D, Em, then D, C and Am. Bm needs a barre and F♯dim is rare, so leave them out for now.",
-      "Press Play below to start the metronome, and strum down four times on each chord.",
+      "Press the Play button below to start the metronome, and strum down four times on each chord.",
       "If a change comes late, keep your strumming hand going and catch the next beat 1.",
     ], tool: { type: "strum-along", chords: ["G", "Am", "C", "D", "Em", "D", "C", "Am"], bpm: 60, pattern: "D D D D" }, after: [
       "Practice until you can play the whole loop without looking at the screen.",

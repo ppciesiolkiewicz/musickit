@@ -1,6 +1,6 @@
 ---
 name: article-voice
-version: 7
+version: 8
 description: How musickit articles sound - the public /learn articles and the course sections at /course written in their style. Friendly, short, "I", ideas to try at the end. Its exercises are written in teaching-voice, which it loads first. Use whenever writing or editing the prose of a /learn article or a course section (src/features/articles/content, src/features/course/lessons), alone or from the course-article skill. Plan, block and seed text is teaching-voice alone.
 ---
 
@@ -35,6 +35,9 @@ Each /learn article's seed file records the version of this voice it was written
 
 ## Diagrams and text take turns
 
+- Introduce a diagram by its kind and place: "The fret diagram below shows the notes of the A major scale.", never "Under this is the neck with…".
+- A link that leaves the article (the tuner, the voice-care notes) opens in a new tab, and the page draws an icon after it. Don't write "opens in a new tab": "Tune your guitar first — [tuner](/tuner)."
+
 - One or two diagrams, then text. Never a wall of diagrams: text comes before each diagram, between two of them (an
   exercise's `between`) and after (`after`), each line about the diagram next to it.
 - Use the smallest tool that shows the point. A chord shape is a chord box (`chord-shapes` with `frets`), not a tool that
@@ -55,7 +58,7 @@ Each /learn article's seed file records the version of this voice it was written
 
 A course section is the same kind of page inside the course, so all of the above holds, with three differences:
 
-- It is one step of a course. It opens from where the course is: the section before it ("In [Do–Mi–Sol](/course/3/do-mi-sol) you sang…"), and it assumes only what earlier sections taught.
+- It is one step of a course, but it reads on its own. It opens with what the thing is and why it matters, in the present tense, never from what an earlier section did ("In [Do–Mi–Sol](/course/3/do-mi-sol) you sang…"). A link to another section calls it a section: "the [previous section](/course/3/do-mi-sol)", "the [Do–Mi–Sol](/course/3/do-mi-sol) section sings both". It assumes only what earlier sections teach.
 - It has no join card and no "More guides": the course moves on to the next section.
 - Course pages draw no glossary note on old block sections, but a section written in this style is marked as /learn is, so use the explained word and don't define it.
 

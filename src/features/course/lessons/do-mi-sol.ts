@@ -17,7 +17,7 @@ export const doMiSol: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. Skip through the chord", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear Do.",
       "Sing Do, Mi, Sol, then back down Mi, Do. Sing it on the note names, and hold each note until your line settles on it.",
       "Then skip straight from Do to Sol and back, missing out Mi.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", notes: ["1", "3", "5"], highlight: ["1"], labels: "solfege", drone: true }, after: [
@@ -25,15 +25,15 @@ export const doMiSol: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. Copy the skip", lines: [
-      "Press Start below: the piano plays Do and then the note to sing, and the mic starts. It's Mi or Sol.",
-      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press Next below for another one.",
+      "Press the Start button below: the piano plays Do and then the note to sing, and the mic starts. It's Mi or Sol.",
+      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press the Next button below for another one.",
       "Practice until you can tell Mi from Sol before you sing it.",
     ], tool: { type: "interval-singer", key: "g", voice: "tenor", intervals: [4, 7], play: "both", picker: false } },
 
     { type: "exercise", title: "3. A tune that skips", lines: [
-      "Press Play below to hear the tune: the mic starts with it. Listen once, then press Play again and sing along on the note names.",
-      "Sing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.",
-      "Once that feels easy, press Chords to mute the chords too, and sing the tune a cappella.",
+      "Press the Play button below to hear the tune: the mic starts with it. Listen once, then press the Play button again and sing along on the note names.",
+      "Sing along with the tune a few times. Then press the Tune button below to mute the tune, and sing it over the chords alone.",
+      "Once that feels easy, press the Chords button to mute the chords too, and sing the tune a cappella.",
     ], tool: { type: "melody-singer", pick: { stage: "skips", index: 0 }, key: "g", voice: "tenor", bpm: 40 } },
 
     { type: "h2", text: "Make it your own" },

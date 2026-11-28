@@ -1,7 +1,7 @@
 import type { LabelSystem } from "@/features/theory/labels";
 
 /** The version of the `article-voice` skill (.claude/skills), the articles' voice; an article's seed file and a course section's lessons file record the one they were written to. */
-export const ARTICLE_VOICE_VERSION = 7;
+export const ARTICLE_VOICE_VERSION = 8;
 
 /**
  * One block of a public article. Text takes two inline marks: `**bold**` and `[label](href)` links (one to another `/learn` guide opens in place, any other in a new tab), and notes written as plan

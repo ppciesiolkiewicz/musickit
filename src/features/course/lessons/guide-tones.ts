@@ -8,12 +8,12 @@ export const guideTones: CourseArticle = {
   updated: "2026-11-28T02:28",
   versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
-    { type: "p", text: "In [Comping](/course/11/comping) you split each shell in two: the root on its own, then the 3rd and 7th together. Those two notes are the guide tones, and they do more than fill a chord." },
+    { type: "p", text: "The guide tones are the 3rd and the 7th of a chord: the two notes of a shell above its root, the pair the [Comping](/course/11/comping) section plays apart from the root. They do more than fill a chord." },
     { type: "p", text: "The 3rd says major or minor, the 7th says which kind of 7th chord. Through a ii–V–I each of them stays put or slides down one step, so two short lines carry all three chords. Find them, and your fills and solos start to follow the changes." },
     { type: "care", text: "_Rest your hand when your thumb or wrist starts to ache._" },
 
     { type: "exercise", title: "1. Two notes per chord", lines: [
-      "Here's the ii–V–I in C again: Dm7, G7, then two bars of Cmaj7. Press Play below to start the backing track, and play only the 3rd and the 7th of each chord from the tab, one note per beat.",
+      "Here's the ii–V–I in C again: Dm7, G7, then two bars of Cmaj7. Press the Play button below to start the backing track, and play only the 3rd and the 7th of each chord from the tab, one note per beat.",
       "Watch how little your hand moves from one chord to the next.",
     ], tool: { type: "guitar-play-along", shape: { shape: "chord-steps", chords: [
       { chord: "Dm7", steps: ["b3", "b7", "b3", "b7"] },
@@ -26,7 +26,7 @@ export const guideTones: CourseArticle = {
 
     { type: "exercise", title: "2. Two lines through the changes", lines: [
       "Now play one guide tone per chord, so the notes make a line. The first line starts on F, the 3rd of Dm7. F stays as the 7th of G7, then falls a half step to E, the 3rd of Cmaj7.",
-      "Press Play below to start the backing track, and play the line from the tab.",
+      "Press the Play button below to start the backing track, and play the line from the tab.",
     ], tool: { type: "guitar-play-along", shape: { shape: "chord-steps", chords: [held("Dm7", "b3"), held("G7", "b7"), held("Cmaj7", "3"), held("Cmaj7", "3")] }, bpm: 60, view: "tab" }, between: [
       "The second line starts on C, the 7th of Dm7. C falls a half step to B, the 3rd of G7, and B stays as the 7th of Cmaj7.",
       "Listen for the bar where your note stays and the chord changes under it.",
@@ -35,7 +35,7 @@ export const guideTones: CourseArticle = {
     ] },
 
     { type: "exercise", title: "3. Shell, then a line", lines: [
-      "Press Play below to start the backing track. Strike the lit shell on beat 1 of each chord, then fill the rest of the bar with a short line in C major.",
+      "Press the Play button below to start the backing track. Strike the lit shell on beat 1 of each chord, then fill the rest of the bar with a short line in C major.",
       "The ringed notes are the chord's 3rd and 7th, so end the line on one of them.",
       "If the line gets lost, play just the shell and one ringed note, then add notes before it.",
     ], tool: { type: "guitar-play-along", shape: { shape: "solo-over", key: "c", scale: "major-ionian", chords: [

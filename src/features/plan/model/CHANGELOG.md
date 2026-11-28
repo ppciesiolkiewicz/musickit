@@ -10,6 +10,11 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 26 (2026-11-28)
+
+- A button is called a button: "Press the Play button below", "the Island 1 button", never the bare label ("Press Island 1").
+- Say less the newer the student is: new and beginner get one new thing per exercise, one tool per step, and only the notes the drill plays on the screen; a whole scale across the neck is for intermediate and up. The position example introduces the picture as "The fret diagram below shows the notes of…", not "Under it is the neck with…".
+
 ### 25 (2026-11-27)
 
 - `caged-neck` `islands` (written by a person, never offered to the AI) takes `"only"`: the islands' notes alone on the whole neck, the chord's other notes left off. The minor E shape's island keeps its ♭3 on the G string.
@@ -159,6 +164,12 @@ Everything before the prompt had a version.
 
 ## Teaching
 
+### 17 (2026-11-28)
+
+- `teaching-voice`: a new section, "Who you're writing for: the level". New and beginner learners get one new thing per exercise, one tool per step, short steps, and only the notes the drill plays on the screen; intermediate can see the whole position; advanced can take the short names already taught.
+- `teaching-voice`: a button is called a button ("Press the Play button below", "the Island 1 button"), never the bare label; a picture is named by its kind and place ("The fret diagram below shows…", "under the fret diagram"), never "Under this is the neck with…".
+- `exercise-example`, `review-teaching-text` and `course-article`: their examples say "the Play button".
+
 ### 16 (2026-11-28)
 
 - `course-article`: a section's lessons file records `versions` (`{ agents, teaching, voice }`), the rules it was written to, beside `updated`. A section behind the rules is found by its `versions`, not by its `updated`. The 32 sections already written carry the versions in force at the commit that wrote them (ten at agents 2, teaching 13, voice 5; twenty-two at 3, 14, 6).
@@ -271,6 +282,12 @@ Everything before versions were kept.
 ## Article voice
 
 The `article-voice` skill, `ARTICLE_VOICE_VERSION` in `src/features/articles/model.ts`. Versions 1 to 5 were `src/features/articles/VOICE.md`.
+
+### 8 (2026-11-28)
+
+- A course section reads on its own: it opens with what the thing is, in the present tense, never "In [X] you sang…". A link to another section calls it a section ("the [Do–Mi–Sol](…) section", "the previous section").
+- A diagram is introduced by its kind and place ("The fret diagram below shows…").
+- A link that leaves the page draws a new-tab icon, so the text never says "opens in a new tab": "Tune your guitar first — [tuner](/tuner)."
 
 ### 7 (2026-11-28)
 

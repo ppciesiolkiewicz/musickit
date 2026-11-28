@@ -6,12 +6,12 @@ export const doMiSolShapes: CourseArticle = {
   versions: { agents: 3, teaching: 14, voice: 6 },
   labels: "solfege",
   blocks: [
-    { type: "p", text: "In [One arpeggio through all five shapes](/course/8/one-arpeggio) you followed G, B and D up the neck. Now give each note its name: Do for G, Mi for B and Sol for D." },
+    { type: "p", text: "G, B and D, the notes of the G chord, sit in all five shapes up the neck (the [One arpeggio through all five shapes](/course/8/one-arpeggio) section follows them). This section gives each note its name: Do for G, Mi for B and Sol for D." },
     { type: "p", text: "Once you know which name sits under each finger, you can aim a line at the note you want, in any shape: Do to sound finished, Mi or Sol to keep it moving." },
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
+      "Tune your guitar first — [tuner](/tuner).",
       "Play one note at a time, slowly. Say its name as you play it.",
     ] },
     { type: "care", text: "_Rest your hand when your fingers or wrist start to ache._" },

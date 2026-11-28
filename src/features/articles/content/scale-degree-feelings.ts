@@ -47,7 +47,7 @@ export const scaleDegreeFeelings: Article = {
     ] },
 
     { type: "exercise", title: "1. Sit on each note over Do", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear Do.",
       "Sing up the scale from the low Do, slowly. Sing it on the note names, and hold each note for a breath.",
       "Practice until you can tell the notes that rest (Do, Mi and Sol) from the ones that want to move.",
     ], tool: { type: "staff", scale: "major-ionian", key: "c", voice: "tenor", highlight: ["1", "3", "5"], drone: true }, after: [
@@ -55,21 +55,21 @@ export const scaleDegreeFeelings: Article = {
     ] },
 
     { type: "exercise", title: "2. Same feelings, new home", lines: [
-      "Now Do is A, and Mi is C♯. Press Start microphone below to start the mic. Then press Play beside the drone to hear the new Do.",
+      "Now Do is A, and Mi is C♯. Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear the new Do.",
       "Sing up the scale from the low Do again, on the note names. Hold Mi and Ti a little longer.",
       "When you change the key, every letter is new, but Mi still rests and Ti still pulls up to Do.",
     ], tool: { type: "staff", scale: "major-ionian", key: "a", voice: "tenor", highlight: ["3", "7"], drone: true } },
 
     { type: "exercise", title: "3. Mi and Sol from any Do", lines: [
-      "Press Start below: the piano plays Do and then the note to sing, and the mic starts. Each time, Do is C, F or A.",
-      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press Next below for another one.",
+      "Press the Start button below: the piano plays Do and then the note to sing, and the mic starts. Each time, Do is C, F or A.",
+      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press the Next button below for another one.",
       "Do moves every time, but Mi and Sol keep their feeling.",
     ], tool: { type: "interval-singer", key: "c", keys: ["c", "f", "a"], voice: "tenor", intervals: [4, 7], play: "both", picker: false } },
 
     { type: "exercise", title: "4. Name it by ear", lines: [
-      "Press Start below to hear two notes. Hear the first one as Do, and say to yourself how the second one feels before you answer.",
+      "Press the Start button below to hear two notes. Hear the first one as Do, and say to yourself how the second one feels before you answer.",
       "Each answer shows both names: M3 for a major 3rd, with Do–Mi under it.",
-      "If two answers sound alike, press Replay below and sing both notes back on \"la\".",
+      "If two answers sound alike, press the Replay button below and sing both notes back on \"la\".",
     ], tool: { type: "interval-ears", set: [2, 4, 7, 12], dir: "up" } },
 
     { type: "h2", text: "Make it your own" },

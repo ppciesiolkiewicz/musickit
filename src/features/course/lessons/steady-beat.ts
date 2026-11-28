@@ -16,7 +16,7 @@ export const steadyBeat: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. Tap on every beat", lines: [
-      "Press Start below to begin a round at 60 bpm. The metronome counts one bar in, then a note comes on every beat. Press Space, or tap the lane, as each note reaches the line.",
+      "Press the Start button below to begin a round at 60 bpm. The metronome counts one bar in, then a note comes on every beat. Press Space, or tap the lane, as each note reaches the line.",
       "Count \"1 2 3 4\" out loud as you tap, and tap your foot with it.",
       "A note turns green when your tap lands on the beat. Practice until most notes turn green without you trying hard.",
     ], tool: { type: "clap-along", level: "new", bpm: 60 }, after: [
@@ -24,14 +24,14 @@ export const steadyBeat: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. Two taps a beat: 1 & 2 &", lines: [
-      "Now each beat splits in two. Press Start below and count \"1 & 2 & 3 & 4 &\", saying \"and\" for each &. Tap on every word.",
+      "Now each beat splits in two. Press the Start button below and count \"1 & 2 & 3 & 4 &\", saying \"and\" for each &. Tap on every word.",
       "The numbers land on the click, and each \"and\" falls halfway to the next one.",
       "If the \"and\" taps come early, give each one its full half of the beat. Practice until they turn green as easily as the numbers.",
     ], tool: { type: "clap-along", level: "beginner", bpm: 60 } },
 
     { type: "exercise", title: "3. Strum the beat on muted strings", lines: [
       "Lay the fingers of your fretting hand lightly across all six strings, so they don't ring: you hear a short \"chk\".",
-      "Press Start below: the mic opens, and the metronome counts one bar in and then stops. Strum down once on each beat as a note reaches the line, and keep the beat going yourself.",
+      "Press the Start button below: the mic opens, and the metronome counts one bar in and then stops. Strum down once on each beat as a note reaches the line, and keep the beat going yourself.",
       "If a strum leaves no mark under its note, strum a little harder or move closer to the mic.",
     ], tool: { type: "clap-along", level: "new", bpm: 60, input: "mic" }, after: [
       "This is the strumming hand you'll use for every chord in stage 2. Practice until the strums feel even without the click.",

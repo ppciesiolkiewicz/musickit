@@ -17,7 +17,7 @@ export const cagedSystemGuitar: Article = {
 
     { type: "h2", text: "Before you start" },
     { type: "list", items: [
-      "Tune your guitar first. The [tuner](/tuner) opens in a new tab.",
+      "Tune your guitar first — [tuner](/tuner).",
       "Pluck only the strings your fingers press, one at a time or together. You won't need a barre until the last step of each part.",
     ] },
     { type: "care", text: "_Rest your hand when your thumb or wrist starts to ache._" },

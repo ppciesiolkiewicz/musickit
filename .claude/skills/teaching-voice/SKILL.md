@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 16
+version: 17
 description: How musickit plan and block text sounds - plain, short, practical English for seed exercises and plans, the AI plan prompt's writing rules, glossary meanings, about lines and captions, and the exercises inside articles. Use whenever writing or editing that text, alone or from the exercise-example, course-article and review-teaching-text skills; the prose of a /learn article or a course section is article-voice, which loads this first. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -27,6 +27,15 @@ This is the landing page's promise (`src/app/page.tsx`): "It's not a game. It's 
 - **Progress you can feel.** Point the learner at what they will notice getting easier, not at a score.
 
 Don't use the landing page's marketing voice in lessons: no "you'll soon be…", no selling. Use the same idea, said plainly.
+
+## Who you're writing for: the level
+
+The same voice speaks to four levels (new, beginner, intermediate, advanced), and says less the newer the learner is. Write for the level the plan, the section or the block is for.
+
+- **New and beginner: one new thing at a time.** One idea per exercise, one tool per step, steps of a sentence or two. The why, when there is one, is a single plain sentence; no theory past it and no name the learner hasn't met.
+- **Few notes on the screen at once.** A new or beginner learner sees only the notes the drill plays: show those and hide or fade the rest (`enable` with `others`, `hide`, `mute`). A whole scale across the neck, every position, or a second tool beside the first is for intermediate and up. If the text has to say which of many notes to look at, the picture shows too many.
+- **Intermediate: build on what they know.** The whole position can be on the screen with the drill's notes ringed, two ideas can share an exercise, and the why can point at a shape or a sound they already have.
+- **Advanced: say less.** A short name the course has already taught can stand alone, and a step can leave the learner to pick their own notes, keys or positions.
 
 ## Facts first, from the calculator
 
@@ -59,7 +68,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 
 - Use one word for one thing:
   - Scale shapes on the neck are "positions" everywhere: articles, exercises, titles, headings and captions ("position 1", "the position with the root on the A string"). Never call them "box" or "pattern", even though some props are called `boxes` and the theory calculator says "box". The one place "box" may appear is the explained word's meaning (the `position` entry in `GLOSSARY`), so a learner who meets "box" elsewhere knows it's the same thing. When you touch text that still says "box" for a scale shape, change it to "position"; course stages 6, 8, 9 and 10 still have some (`grep -n -i 'box' src/features/course/stages/*.ts`). A slug stays as it is (`pentatonic-boxes`), since links point at it. "Chord box" is a different thing and stays.
-  - **A position's number is not a description.** A bare "position 1" is a shortcut: it doesn't say which scale, or what the learner is looking at. The first time a text names a position, say the scale and what is on the screen ("Under it is the neck with the notes of the A minor pentatonic scale: each dot is a note to play."); after that, "the position" or "the dots" is enough. A drill with one position on the screen names no number, in its title and headings too. A number comes in only where the drill has two or more positions to tell apart, and then with its scale the first time ("position 2 of the A minor pentatonic scale").
+  - **A position's number is not a description.** A bare "position 1" is a shortcut: it doesn't say which scale, or what the learner is looking at. The first time a text names a position, say the scale and what is on the screen ("The fret diagram below shows the notes of the A minor pentatonic scale: each dot is a note to play."); after that, "the position" or "the dots" is enough. A drill with one position on the screen names no number, in its title and headings too. A number comes in only where the drill has two or more positions to tell apart, and then with its scale the first time ("position 2 of the A minor pentatonic scale").
   - "the staff" for the five-line notation. Never "stave" or "music sheet". Never call a neck, chord box or tab a staff. Never explain what it is, at any level: no "the staff, the five lines of music". "Staff" is an explained word, so the app adds its note.
   - "the metronome" for the click. "one note per beat" for a step.
   - The thing a drill practises gets one word, the same in every step and heading of the exercise: "the crossing" for the way from one position to the next (not "the way across" in one step and "the slide" in the next), "the tune", "the run". Where it is a word a learner may not know, add it to `GLOSSARY` so the app explains it.
@@ -77,16 +86,17 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 A step is also interface copy: the learner has to find a control with one hand on the guitar. Write it so they never hunt.
 
 - **Name a control by the label on the screen, exactly**: Play, Start, Next, Skip, Start exercise, Start microphone, "Cross on". Read the label in the component (`src/features/exercises/basics/<tool>/index.tsx`, `src/components/practice/`); don't guess it. A game's answers are named as its buttons show them ("pick M3 or m3", "Major 7"), with the plain meaning beside them the first time ("M3 for a major 3rd").
-- **Verb, label, where, what it starts**, in that order: "Press Play below to start the metronome." Never a bare "Press Play." Where is one word, "below" or "above"; add whose control it is only when the step has two of them ("Press Play on the first tab below", "under the neck").
-- **One control per sentence.** "Press a chord box below to see the new shapes. Then press Play under them to start the metronome.", not both in one sentence. A tune or a run starts the mic with its Play, so it is one control: "Press Play below to hear the tune: the mic starts with it."
+- **Verb, label, where, what it starts**, in that order: "Press the Play button below to start the metronome." A button is called a button: "the Play button", "the Island 1 button", never the bare label ("Press Island 1"). Never a bare "Press the Play button." Where is one word, "below" or "above"; add whose control it is only when the step has two of them ("Press the Play button on the first tab below", "under the fret diagram").
+- **One control per sentence.** "Press a chord box below to see the new shapes. Then press the Play button under them to start the metronome.", not both in one sentence. A tune or a run starts the mic with its Play, so it is one control: "Press the Play button below to hear the tune: the mic starts with it."
 - **One verb per kind of control.** Press a button or a chord box. Tap a note on a staff or a neck. Use a selector. Play and sing are for the instrument and the voice, never for the screen.
 - **The selector: invite, don't operate.** The row of chips a section's choice draws is "the selector", named by the label it shows: "the Key selector", "the Tempo selector", "the Position selector", "the Stage selector", "the Variant selector". The text says what to try and never which chip to tap, and never lists the options:
   - The reason to move on comes first, as a feel: "Once you can hum it before you play it, try it in another key."
-  - Then the selector, in its own sentence, with what Play starts again after the change: "Use the Key selector below to change the key, then press Play to hear the tune there."
+  - Then the selector, in its own sentence, with what Play starts again after the change: "Use the Key selector below to change the key, then press the Play button to hear the tune there."
   - Then, on a new line, what changes and what stays: "When you change the key, the notes change but the tune keeps its shape."
   - The text that names a selector sits above it, so the selector is always "below".
   - Wrong: "Tap G in the Key row above the neck below, play the crossing there, then tap C." Right: "Play the same crossing in other keys. Use the Key selector below to change the key."
   - An exercise that states `moves` (it can be played in other keys or tempos) never mentions a selector: the app decides when the Key or Tempo selector is there and writes the line under it. Its text names the key and the tempo only as `{{=key}}` and `{{=bpm}}`, which the app fills in. The line that says what stays the same in another key opens with `{{?key}}` ("{{?key}}In another key the drone and all three notes sit higher or lower, and each skip is still the same distance."): the app shows that line only when the Key selector is there, so a player with one key never reads about another. `{{?bpm}}` does the same for a line about another tempo.
+- **A picture is named by its kind and place**: "The fret diagram below shows the notes of the A major scale.", never "Under this is the neck with…". A control under it is "under the fret diagram".
 - **Say what they will see next**, when it isn't obvious: "After a bar of count-in, the lit box shows the chord to play."
 - **Say what to do when it goes wrong**, inside the step, calmly and as an action: "If a change comes late, keep your strumming hand going and catch the next beat 1." No blame, no "don't worry", no "try again".
 - **One name for each thing on the screen**, the same in every step:

@@ -15,7 +15,7 @@ export const intervalsAndSolfege: Article = {
     { type: "p", text: "Solfège came easier to me at first. Now I think in a mix of both, more so as I move into other modes." },
 
     { type: "h2", text: "Every note from Do" },
-    { type: "p", text: "Here is one octave of a piano from Do, which is C here, up to the Do above. Each note shows its interval on the dot and its solfège name under it. Tap a note to hear it, or press Play below the piano to hear the whole octave rise." },
+    { type: "p", text: "Here is one octave of a piano from Do, which is C here, up to the Do above. Each note shows its interval on the dot and its solfège name under it. Tap a note to hear it, or press the Play button below the piano to hear the whole octave rise." },
     { type: "names" },
     { type: "p", text: "The dots have the same colours as on the guitar necks in the other guides, so a note keeps its colour whichever name you read." },
 
@@ -28,7 +28,7 @@ export const intervalsAndSolfege: Article = {
     ] },
 
     { type: "h2", text: "The names repeat every octave" },
-    { type: "p", text: "After the Do above, the names start again: Ra, Re, Me, Mi, and on up to the next Do. Here are three octaves from a low Do. Press Play below the piano to hear all three rise." },
+    { type: "p", text: "After the Do above, the names start again: Ra, Re, Me, Mi, and on up to the next Do. Here are three octaves from a low Do. Press the Play button below the piano to hear all three rise." },
     { type: "names", octaves: 3 },
     { type: "p", text: "Every Do is a new start, so these twelve names cover every note on the piano. A note an octave up keeps its name and its colour." },
 
@@ -45,16 +45,16 @@ export const intervalsAndSolfege: Article = {
     ] },
 
     { type: "exercise", title: "1. Name it by ear", lines: [
-      "Press Start below to hear two notes. Hear the first one as Do, and pick the name of the second: m3, M3, P4 or P5.",
+      "Press the Start button below to hear two notes. Hear the first one as Do, and pick the name of the second: m3, M3, P4 or P5.",
       "The game writes a minor 3rd as m3 and a major 3rd as M3, with the solfège under each answer.",
-      "If two answers sound alike, press Replay below, then find both notes on the piano above.",
+      "If two answers sound alike, press the Replay button below, then find both notes on the piano above.",
     ], tool: { type: "interval-ears", set: [3, 4, 5, 7], dir: "up" }, after: [
       "Practice until you can name the 3rds without guessing.",
     ] },
 
     { type: "exercise", title: "2. Sing Me, Mi and Sol from Do", lines: [
-      "Press Start below: the piano plays Do and then the note to sing, and the mic starts.",
-      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press Next below for another one.",
+      "Press the Start button below: the piano plays Do and then the note to sing, and the mic starts.",
+      "Sing the second note back on \"oo\" and hold it until Yes shows. Then press the Next button below for another one.",
       "Listen for the gap between Me and Mi: next door on the piano, and a different feeling.",
     ], tool: { type: "interval-singer", key: "c", keys: ["c", "f", "a"], voice: "tenor", intervals: [3, 4, 7], play: "both", picker: false }, after: [
       "_Don't reach for high notes: sing only where your voice feels easy._",

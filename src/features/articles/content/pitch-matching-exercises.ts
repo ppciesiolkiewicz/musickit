@@ -24,7 +24,7 @@ export const pitchMatchingExercises: Article = {
     ] },
 
     { type: "exercise", title: "1. One note, dead centre", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear Do.",
       "Sing the low Do on \"oo\" and hold it. Then slide a little sharp on purpose and back, then a little flat and back.",
       "Practice until you can land on the low Do and hold it without the line drifting.",
     ], tool: { type: "staff", scale: "major-ionian", key: "d", voice: "tenor", enable: ["1"], others: "hidden", drone: true } },
@@ -42,25 +42,25 @@ export const pitchMatchingExercises: Article = {
 
     { type: "exercise", title: "3. The five-tone scale", lines: [
       "Do Re Mi Fa Sol and back down: **Do Re Mi Fa Sol Fa Mi Re Do.**",
-      "Press Play below to hear the run: the mic starts with it. Sing along on the note names, one step at a time. Each pass starts a semitone higher.",
+      "Press the Play button below to hear the run: the mic starts with it. Sing along on the note names, one step at a time. Each pass starts a semitone higher.",
     ], tool: { type: "run-singer", pick: { stage: "five", index: 0 }, voice: "tenor", bpm: 40 } },
 
     { type: "exercise", title: "4. Agility: out from Do and back", lines: [
       "An agility warm-up: **Do Re Do, Do Mi Do, Do Fa Do, Do Sol Do.**",
-      "Press Play below to hear the run: the mic starts with it. Sing along on the note names. Coming back to Do every time gives your ear a home to check against.",
+      "Press the Play button below to hear the run: the mic starts with it. Sing along on the note names. Coming back to Do every time gives your ear a home to check against.",
       "Each pass starts a semitone higher. Switch to \"oo\" when it gets high.",
     ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 0 }, voice: "tenor", bpm: 40 } },
 
     { type: "exercise", title: "5. Agility: Do between each step", lines: [
       "Same notes, quicker: **Do Re Do Mi Do Fa Do Sol, then Fa Mi Re Do.**",
-      "Press Play below to hear the run: the mic starts with it. Sing along on the note names, and listen for each jump landing straight on its note.",
+      "Press the Play button below to hear the run: the mic starts with it. Sing along on the note names, and listen for each jump landing straight on its note.",
       "Then try it on \"oo\" for fun: same jumps, no names to lean on.",
     ], tool: { type: "run-singer", pick: { stage: "out-from-do", index: 1 }, voice: "tenor", bpm: 40 }, after: [
       "_Don't reach for high notes: let a pass go when its top stops feeling easy._",
     ] },
 
     { type: "exercise", title: "6. Hear it, sing it back", lines: [
-      "Press Start below to hear two notes. Sing both back on \"la\" before you answer: that's the pitch matching part.",
+      "Press the Start button below to hear two notes. Sing both back on \"la\" before you answer: that's the pitch matching part.",
     ], tool: { type: "interval-ears", set: [3, 4, 7, 9], dir: "up" } },
 
     { type: "h2", text: "Make it your own" },

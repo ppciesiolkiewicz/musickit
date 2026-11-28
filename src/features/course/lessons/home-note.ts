@@ -18,13 +18,13 @@ export const homeNote: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. Hold Do over the drone", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear Do.",
       "Sing the low Do on \"oo\" and hold it. Slide a little above it and a little below, and listen for the wobble.",
       "When your note matches the drone, the wobble stops and the two blend into one smooth sound. Practice until you can find that smooth spot straight away.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", enable: ["1"], others: "hidden", labels: "solfege", drone: true } },
 
     { type: "exercise", title: "2. Every note leans home", lines: [
-      "Press Play beside the drone below. Sing Re and hold it for a breath, then step down to Do. Sing it on the note names.",
+      "Press the Play button beside the drone below. Sing Re and hold it for a breath, then step down to Do. Sing it on the note names.",
       "Now sing Ti, the note just under Do, and step up to Do. Then try Mi, Fa and Sol, each followed by Do.",
       "Listen for which notes want to move and which can rest. Re and Ti pull hardest. Mi and Sol can stay where they are.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", notes: ["7", "1", "2", "3", "4", "5"], under: true, highlight: ["1"], labels: "solfege", drone: true }, after: [
@@ -32,8 +32,8 @@ export const homeNote: CourseArticle = {
     ] },
 
     { type: "exercise", title: "3. Hum the last note", lines: [
-      "Every tune below ends on Do. Press Play below to hear the tune: the mic starts with it. Sing along on the note names.",
-      "Then press Play again and stop singing just before the end. Hum the note you think comes next, and let the tune check you.",
+      "Every tune below ends on Do. Press the Play button below to hear the tune: the mic starts with it. Sing along on the note names.",
+      "Then press the Play button again and stop singing just before the end. Hum the note you think comes next, and let the tune check you.",
       "Practice until you can hum Do before the tune gets there.",
     ], tool: { type: "melody-singer", pick: { stage: "mi", index: 0 }, key: "g", voice: "tenor", bpm: 40 } },
 

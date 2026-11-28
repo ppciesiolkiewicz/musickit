@@ -155,7 +155,7 @@ set a key and a position). The prompt names each of the five by its file id, the
   play"). One position on the screen: no number, in the title and headings too. Two or more to tell apart: the number,
   with its scale the first time.
 - A text may hold line breaks (`\n`): what to do, the next thing to try and what to notice each start a new line.
-- The text names a control by the label on the screen, one control to a sentence, and says what it starts and where it is; it never carries frets,
+- The text names a control by the label on the screen and a button as a button ("the Play button"), one control to a sentence, and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.
 - Plans: 3 to 7 days (7 for a week of daily practice, fewer for a week of fewer, longer practice days), each adding up to the answers' `minutes` (±2), 2 to 5 exercises, warm-up first and something musical

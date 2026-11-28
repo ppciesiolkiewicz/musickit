@@ -8,7 +8,7 @@ export const fretboardBigPicture: CourseArticle = {
   updated: "2026-11-28T15:54",
   versions: { agents: 3, teaching: 16, voice: 7 },
   blocks: [
-    { type: "p", text: "In [How this course works](/course/0/how-this-course-works) I said the neck holds a lot. Here's all of it on one page, so nothing later comes as a surprise." },
+    { type: "p", text: "The neck holds a lot. Here's all of it on one page, so nothing later in the course comes as a surprise." },
     { type: "p", text: "You don't have to learn any of it today. Read it the way you'd look at a map before a trip." },
     { type: "row", tools: [{ type: "video", ref: { source: "placeholder", text: "I walk through this page: the neck looks like a lot, and what you need to know is very little." } }] },
 
@@ -36,8 +36,8 @@ export const fretboardBigPicture: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. The path: 1, 4, 5 and home", lines: [
-      "Under this is the neck with the notes of the G major scale. Two small groups of notes are framed, and each holds {{1}}, {{4}} and {{5}}: G, C and D.",
-      "Press Island 1 under the neck to hear {{1}}, {{4}}, {{5}} and the {{1}} above. Then press Island 2.",
+      "The fret diagram below shows the notes of the G major scale. Two small groups of notes are framed, and each holds {{1}}, {{4}} and {{5}}: G, C and D.",
+      "Press the Island 1 button under the fret diagram to hear {{1}}, {{4}}, {{5}} and the {{1}} above. Then press the Island 2 button.",
       "Listen for the last note: after {{5}}, the high {{1}} sounds like arriving home.",
     ], tool: { type: "scale-neck", scale: "major-ionian", key: "g", islands: { notes: ["1", "4", "5"], count: 2 } }, after: [
       "Island 2 is the same path in another place on the neck: the same three notes, and the same sound.",
@@ -46,7 +46,7 @@ export const fretboardBigPicture: CourseArticle = {
 
     { type: "exercise", title: "2. The path as three chords", lines: [
       "Now the same path with a chord on each note: the G chord on {{1}}, the C chord on {{4}} and the D chord on {{5}}.",
-      "Press Play under each chord box below in this order: G, C, D, then G again.",
+      "Press the Play button under each chord box below in this order: G, C, D, then G again.",
     ], tool: { type: "chord-shapes", chords: ["G", "C", "D"] }, after: [
       "Practice until you can tell by ear when the G chord comes back.",
       "That's the sound of a great many songs. You'll play it with your own hands in [C, D, G](/course/2/c-d-g), and [1 → 4 → 5 → 1](/course/5/one-four-five) shows the path on the neck.",
@@ -54,7 +54,7 @@ export const fretboardBigPicture: CourseArticle = {
 
     { type: "exercise", title: "3. One shape, three chords", lines: [
       "This small F chord has no open strings, so it's a movable shape: every note moves when your hand does.",
-      "Press Play under each chord box below: the F chord, then the same fingers two frets up for the G chord, then two frets more for the A chord.",
+      "Press the Play button under each chord box below: the F chord, then the same fingers two frets up for the G chord, then two frets more for the A chord.",
     ], tool: { type: "chord-shapes", chords: ["F", "G", "A"], frets: ["x x 3 2 1 x", "x x 5 4 3 x", "x x 7 6 5 x"] }, after: [
       "When the shape moves up the neck, your fingers stay as they are and only the chord's name changes.",
     ] },

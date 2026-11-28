@@ -5,11 +5,11 @@ export const hearingChanges: CourseArticle = {
   updated: "2026-11-28T02:30",
   versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
-    { type: "p", text: "In [1 → 4 → 5 → 1](/course/5/one-four-five) you played G, C and D and felt the C chord step away from home and the D chord pull back to it. Now let your ears do the work, with your eyes off the screen." },
+    { type: "p", text: "In G major the C chord steps away from home and the D chord pulls back to it (the [1 → 4 → 5 → 1](/course/5/one-four-five) section plays them). This section lets your ears do the work, with your eyes off the screen." },
     { type: "p", text: "Once you can hear when a chord changes, and where it went, you can follow a song's chords without a chord sheet, and join in on the right one." },
 
     { type: "exercise", title: "1. When the chord changes", lines: [
-      "Press Play below to start the backing track in G. Each chord stays for one, two or three bars, so counting won't find the changes.",
+      "Press the Play button below to start the backing track in G. Each chord stays for one, two or three bars, so counting won't find the changes.",
       "Tap your knee each time the lit chord box shows a new chord.",
       "Listen for the bass jumping to a new note at that moment.",
     ], tool: { type: "backing-track", key: "g", numerals: ["I", "I", "IV", "IV", "IV", "I", "V", "V"], style: "pop", bpm: 65 }, after: [
@@ -19,15 +19,15 @@ export const hearingChanges: CourseArticle = {
 
     { type: "exercise", title: "2. Away and back", lines: [
       "The G chord is the 1st chord of G major, built on G, the home note. The C chord is the 4th chord, built on C, the 4th note of the scale. The D chord is the 5th chord, built on D, the 5th note.",
-      "Press Play below to start the backing track: the G and C chords take turns, then the G and D chords. Call out 4 on every C chord and 5 on every D chord.",
+      "Press the Play button below to start the backing track: the G and C chords take turns, then the G and D chords. Call out 4 on every C chord and 5 on every D chord.",
       "Listen for how the C chord moves away from G, and how the D chord pulls back to it.",
     ], tool: { type: "backing-track", key: "g", numerals: ["I", "IV", "I", "IV", "I", "V", "I", "V"], style: "pop", bpm: 65 }, after: [
       "Once you call it as the chord arrives, look away from the chord boxes and call out the number before you look back.",
     ] },
 
     { type: "exercise", title: "3. The 4th or the 5th chord", lines: [
-      "Press Start in the game below to hear two chords: the 1st chord, then the 4th or the 5th chord, in a new key each time. Pick IV for the 4th chord or V for the 5th chord.",
-      "Press Replay below to hear the two chords again before you pick. Press Next for two new chords.",
+      "Press the Start button in the game below to hear two chords: the 1st chord, then the 4th or the 5th chord, in a new key each time. Pick IV for the 4th chord or V for the 5th chord.",
+      "Press the Replay button below to hear the two chords again before you pick. Press the Next button for two new chords.",
     ], tool: { type: "interval-ears", kind: "change", level: 1 }, after: [
       "When the key changes, every chord is new, but the 4th chord still steps away and the 5th chord still pulls home.",
       "Practice until you know the answer before the second chord has faded.",

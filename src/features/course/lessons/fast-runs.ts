@@ -6,7 +6,7 @@ export const fastRuns: CourseArticle = {
   versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
-    { type: "p", text: "In [Runs](/course/6/vocal-runs) you sang short runs slowly: Do up to Sol and back, the home chord, turns. This page takes them further: over the pentatonic notes, past the high Do, through the whole scale, and then faster." },
+    { type: "p", text: "A run is a quick string of scale notes sung on one vowel. The [Runs](/course/6/vocal-runs) section keeps them short and slow. This section takes them further: over the pentatonic notes, past the high Do, through the whole scale, and then faster." },
     { type: "p", text: "A fast run is a slow run you no longer have to think about. So every run here starts at 40 bpm, and the speed comes last." },
 
     { type: "h2", text: "Before you start" },
@@ -19,7 +19,7 @@ export const fastRuns: CourseArticle = {
 
     { type: "exercise", title: "1. Over the pentatonic notes", lines: [
       "The major pentatonic scale is the major scale without Fa and Ti: Do, Re, Mi, Sol and La. With those two gone, no two notes sit a half step apart, so each note has room when the run gets quick.",
-      "Press Play below to hear the run: two chords set the key, and the mic starts with them. It comes down from the high Do over those five notes and ends through Re on Do, four notes per beat.",
+      "Press the Play button below to hear the run: two chords set the key, and the mic starts with them. It comes down from the high Do over those five notes and ends through Re on Do, four notes per beat.",
       "Sing along on \"oo\". If the notes smear into each other, sing one pass on \"la\", then go back to \"oo\".",
       "Practice until you can hear each of the five notes on its own.",
     ], tool: { type: "run-singer", pick: { difficulty: "hard", stage: "pentatonic-run" }, voice: "tenor", bpm: 40 }, after: [
@@ -27,13 +27,13 @@ export const fastRuns: CourseArticle = {
     ] },
 
     { type: "exercise", title: "2. Past the high Do", lines: [
-      "Press Play below to hear the run: from Do up the whole scale, past the high Do to the Re above it, and back down to Do, four notes per beat.",
+      "Press the Play button below to hear the run: from Do up the whole scale, past the high Do to the Re above it, and back down to Do, four notes per beat.",
       "Sing along on \"ah\" low down, and change to \"oo\" for the top of the run.",
       "The run reaches the high Re by step, so there's no leap to it. Practice until the top of the run sounds as light as the bottom.",
     ], tool: { type: "run-singer", pick: { difficulty: "medium", stage: "nine" }, voice: "tenor", bpm: 40 } },
 
     { type: "exercise", title: "3. The whole scale, then faster", lines: [
-      "Press Play below to hear the run: up the whole scale from Do to the high Do, straight back down past Do to the Ti under it, and home, four notes per beat. Sing along on \"ah\".",
+      "Press the Play button below to hear the run: up the whole scale from Do to the high Do, straight back down past Do to the Ti under it, and home, four notes per beat. Sing along on \"ah\".",
       "Listen for the two half steps, Mi to Fa and Ti to Do. Every other step is a whole step, and a fast run goes out of tune where those two come out too wide.",
       "Practice until every note of the run has its own pitch. Then use the Tempo selector below to speed it up, one tempo at a time.",
       "If the notes blur at a new tempo, go back to the one before.",

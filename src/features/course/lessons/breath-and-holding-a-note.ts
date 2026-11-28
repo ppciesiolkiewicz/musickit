@@ -18,19 +18,19 @@ export const breathAndHoldingANote: CourseArticle = {
     ] },
 
     { type: "exercise", title: "1. A long breath out", lines: [
-      "Press Start in the circle below and breathe with it: in for 4, then out slowly while the circle shrinks.",
+      "Press the Start button in the circle below and breathe with it: in for 4, then out slowly while the circle shrinks.",
       "Let the air out through a small gap in your lips, as if you're cooling soup.",
       "Practice until your breath out is as slow at the end as at the start.",
     ], tool: { type: "breathwork", drill: "long-exhale" } },
 
     { type: "exercise", title: "2. Hold an easy \"oo\"", lines: [
-      "Press Start below: a note plays first, then the mic starts.",
+      "Press the Start button below: a note plays first, then the mic starts.",
       "Sing an easy \"oo\" near that note and keep the ball in the valley between the two marks until the ring fills. Then take a breath before the next hold.",
       "If the ball wobbles, sing a little quieter: less air is easier to keep steady.",
     ], tool: { type: "voice-hill", where: "middle", sound: "oo", seconds: 5, reps: 4, voice: "tenor" } },
 
     { type: "exercise", title: "3. One breath, one note", lines: [
-      "Press Start microphone below to start the mic. Then press Play beside the drone to hear G, your Do.",
+      "Press the Start microphone button below to start the mic. Then press the Play button beside the drone to hear G, your Do.",
       "Breathe in low, then hold the low Do on \"oo\" for as long as it feels easy. Stop before you run out, and breathe.",
       "Then hold Mi the same way, then Sol. Watch your line at the end of each note: it should stay as flat as at the start.",
     ], tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor", notes: ["1", "3", "5"], drone: true }, after: [

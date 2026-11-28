@@ -7,7 +7,7 @@ through the library tools as the models to write like, so a flaw here shows up i
   Checking one: `review-teaching-text`. Don't write seed text without them.
 - **Facts come from the calculator** (`npm run -s theory -- help`), never worked out by hand.
 - **The text says what the tool can't.** No fret numbers, fingerings or note lists a neck, chord box or staff already shows. If the text has to carry them, the tool or one of its props is missing: say so.
-- **Name controls as the screen does.** Play, Start, Start exercise, Start microphone, a game's answer buttons: read the label in the tool's component, and say what it starts and where it is.
+- **Name controls as the screen does.** Play, Start, Start exercise, Start microphone, a game's answer buttons: read the label in the tool's component, call a button a button ("the Play button"), and say what it starts and where it is.
 - **A why is a mechanism**, one sentence the learner could build the next drill from. "This is the base of everything" is not one.
 - **Done is a feel, never a count.** Each block says loosely what to reach.
 - **Pick tools from the prompt's "Which tool for what"** (`plan/model/prompt.ts`), not from the file being copied.

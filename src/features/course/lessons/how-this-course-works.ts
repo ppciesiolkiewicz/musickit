@@ -33,7 +33,7 @@ export const howThisCourseWorks: CourseArticle = {
     { type: "care", text: "_Stop and shake out your hand as soon as it aches._" },
 
     { type: "exercise", title: "A first taste: the Em chord", lines: [
-      "Press Play under the chord box below to hear the Em chord.",
+      "Press the Play button under the chord box below to hear the Em chord.",
       "Now try it on your guitar. The two dots are your fingers: both on the 2nd fret, one on the A string and one on the D string. Strum all six strings slowly.",
       "If a string buzzes or stays quiet, leave it for now. Every first chord sounds like that.",
     ], tool: { type: "chord-shapes", chords: ["Em"] }, after: [
