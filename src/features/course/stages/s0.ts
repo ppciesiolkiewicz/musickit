@@ -1,6 +1,8 @@
 import { naturalDots } from "../visuals";
 import { DEGREE_COLOURS } from "../../theory/scales";
 import { section, type CourseStage } from "../model";
+import { howThisCourseWorks } from "../lessons/how-this-course-works";
+import { fretboardBigPicture } from "../lessons/fretboard-big-picture";
 import { steadyBeat } from "../lessons/steady-beat";
 import { whatIsAChord } from "../lessons/what-is-a-chord";
 import { homeNote } from "../lessons/home-note";
@@ -21,6 +23,14 @@ const NOTE_FILL = "#e2e8f0";
 const named = (string: number, fret: number, label: string) => ({ string, fret, label, fill: NOTE_FILL, big: fret === 0 });
 
 export const STAGES_0: CourseStage[] = [
+  {
+    slug: "0", label: "0", title: "Start here",
+    intro: "How the course works: your hands first, then the neck. And everything the neck holds on one page, with the little you are expected to know.",
+    sections: [
+      section("how-this-course-works", "How this course works", "basics", "The course in two parts: first your hands, with tuning, open chords and first songs, then the neck and why it all works. And how to practice: little and often, slow first.", howThisCourseWorks),
+      section("fretboard-big-picture", ["The fretboard: the big picture", "The big picture"], "basics", "Everything the neck holds on one page: intervals, scales, chords, triads, arpeggios, double stops and CAGED. And the two ideas that carry them: the 1st, 4th and 5th of a key, and shapes that move.", fretboardBigPicture),
+    ],
+  },
   {
     slug: "1", label: "1", title: "Guitar basics",
     intro: "How the guitar is tuned, how to read tab and chord boxes, the names of the notes on the two lowest strings, a steady beat and a first finger drill.",

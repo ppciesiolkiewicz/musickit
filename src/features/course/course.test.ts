@@ -4,8 +4,9 @@ import { ALL_SECTIONS, COURSE, byTopic, findSection, nextSection, prevSection } 
 import { TOPICS, pcAt } from "./model";
 
 describe("course structure", () => {
-  it("stages run 1–11", () => {
-    assert.deepEqual(COURSE.map((s) => s.slug), ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]);
+  it("stages run 0–11, and the course opens on how it works", () => {
+    assert.deepEqual(COURSE[0].sections.map((x) => x.slug), ["how-this-course-works", "fretboard-big-picture"]);
+    assert.deepEqual(COURSE.map((s) => s.slug), ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]);
   });
   it("position 1 and first open chords have the agreed sections", () => {
     const slugs = (st: string) => COURSE.find((s) => s.slug === st)!.sections.map((x) => x.slug);
@@ -45,7 +46,8 @@ describe("course structure", () => {
   it("next and previous cross stage boundaries and stop at the ends", () => {
     assert.equal(nextSection("1", "spider")?.section.slug, "em-and-am");
     assert.equal(nextSection("11", "guide-tones"), undefined);
-    assert.equal(prevSection("1", "strings-and-tuning"), undefined);
+    assert.equal(prevSection("0", "how-this-course-works"), undefined);
+    assert.equal(prevSection("1", "strings-and-tuning")?.section.slug, "fretboard-big-picture");
     assert.equal(prevSection("2", "em-and-am")?.section.slug, "spider");
   });
   it("unknown stages and sections are not found", () => {

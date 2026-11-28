@@ -12,7 +12,7 @@ import { ARTICLE_VOICE_VERSION, type ArticleBlock } from "@/features/articles/mo
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 
 /** Stages whose content is written; each content task adds its stages here. Sections with no blocks yet are planned. */
-const DONE = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"];
+const DONE = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"];
 
 const sec = (stage: string, section: string) => {
   const r = findSection(stage, section);
