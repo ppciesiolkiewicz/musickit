@@ -111,8 +111,8 @@ export default function ThemeSwitcher({ className = "", autoOpen = false }: { cl
         <Icon name="palette" size={15} className="text-sky-400" />
       </button>
       {open && (
-        // deliberately neutral: the same plain card whatever style is on
-        <div role="dialog" aria-label="Pick a style" className="fixed inset-x-4 top-16 z-[3000] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-[25rem] rounded-[22px] border border-[#e4e4e7] bg-[#fafafa] px-4 pb-3 pt-4 text-center text-[#18181b] shadow-[0_24px_60px_-20px_rgb(0_0_0/0.55)] [font-family:var(--font-geist-sans)]">
+        // in the current style's colours, so it changes with each pick
+        <div role="dialog" aria-label="Pick a style" className="fixed inset-x-4 top-16 z-[3000] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-[25rem] metal-panel rounded-[22px] border border-slate-700 bg-slate-900 px-4 pb-3 pt-4 text-center text-slate-50 shadow-[0_24px_60px_-20px_rgb(0_0_0/0.55)] transition-colors [font-family:var(--font-geist-sans)]">
           <p className="mb-3 text-[17px] font-medium">👋 Just a quick one: your favourite style?</p>
           <div className="grid grid-cols-4 gap-x-2 gap-y-3">
             {STYLES.map((s) => {
@@ -126,9 +126,9 @@ export default function ThemeSwitcher({ className = "", autoOpen = false }: { cl
                     applyStyle(s.id);
                     close(false);
                   }}
-                  className={`group flex flex-col items-center gap-1.5 text-[13px] focus-visible:outline-none ${on ? "font-semibold text-[#18181b]" : "text-[#3f3f46]"}`}
+                  className={`group flex flex-col items-center gap-1.5 text-[13px] focus-visible:outline-none ${on ? "font-semibold text-slate-50" : "text-slate-300"}`}
                 >
-                  <span className={`grid h-14 w-14 place-items-center rounded-full border-2 text-[28px] transition group-hover:-translate-y-0.5 group-hover:scale-105 group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-[#18181b] ${on ? "border-[#18181b] bg-[#fff]" : "border-[#e4e4e7] bg-[#f0f0f2]"} ${on && intro ? "style-pulse" : ""}`} aria-hidden>
+                  <span className={`grid h-14 w-14 place-items-center rounded-full border-2 text-[28px] transition group-hover:-translate-y-0.5 group-hover:scale-105 group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-sky-400 ${on ? "border-sky-400 bg-slate-800" : "border-slate-700 bg-slate-800/60"} ${on && intro ? "style-pulse" : ""}`} aria-hidden>
                     {s.emoji}
                   </span>
                   {s.label}
@@ -136,21 +136,21 @@ export default function ThemeSwitcher({ className = "", autoOpen = false }: { cl
               );
             })}
           </div>
-          <div role="group" aria-label="View" className="mt-3 flex items-center justify-center gap-2 border-t border-[#e4e4e7] pt-2.5 text-[13px]">
-            <span className="text-[#71717a]">View</span>
+          <div role="group" aria-label="View" className="mt-3 flex items-center justify-center gap-2 border-t border-slate-700 pt-2.5 text-[13px]">
+            <span className="text-slate-400">View</span>
             <InfoTip label="What the view setting does" align="center">
               <p>Simplified hides the extra controls and options so each page stays short. Advanced shows everything.</p>
               <p>It applies on every page.</p>
             </InfoTip>
             {LEVELS.map((l) => (
               <button key={l} type="button" aria-pressed={level === l} onClick={() => setLevel(l)} title={`${LEVEL_LABEL[l]} on every page`}
-                className={`rounded-full border px-3 py-1 ${level === l ? "border-[#18181b] bg-[#fff] font-semibold text-[#18181b]" : "border-[#e4e4e7] bg-[#f0f0f2] text-[#3f3f46] hover:text-[#18181b]"}`}>
+                className={`rounded-full border px-3 py-1 ${level === l ? "border-sky-400 bg-slate-800 font-semibold text-slate-50" : "border-slate-700 bg-slate-800/60 text-slate-300 hover:text-slate-50"}`}>
                 {LEVEL_LABEL[l]}
               </button>
             ))}
           </div>
           {intro && (
-            <button type="button" onClick={() => close(true)} className="mt-3 text-[13px] text-[#71717a] underline underline-offset-[3px] hover:text-[#18181b]">
+            <button type="button" onClick={() => close(true)} className="mt-3 text-[13px] text-slate-400 underline underline-offset-[3px] hover:text-slate-50">
               Not now
             </button>
           )}
@@ -162,7 +162,7 @@ export default function ThemeSwitcher({ className = "", autoOpen = false }: { cl
                 toggleFullscreen();
                 close(false);
               }}
-              className="mt-3 flex w-full items-center justify-center gap-2 border-t border-[#e4e4e7] pt-2.5 text-[13px] text-[#3f3f46] hover:text-[#18181b]"
+              className="mt-3 flex w-full items-center justify-center gap-2 border-t border-slate-700 pt-2.5 text-[13px] text-slate-300 hover:text-slate-50"
             >
               <Icon name={fullscreen ? "minimize" : "maximize"} size={14} />
               {fullscreen ? "Exit full screen" : "Full screen"}

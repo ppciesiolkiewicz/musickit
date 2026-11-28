@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 /* the default style's page colour (slate-950 in themes.css), so the splash and the status bar match the first screen */
-export const APP_BACKGROUND = "#020617";
+export const APP_BACKGROUND = "#01061b";
 
 /** The web app manifest: what a phone or computer needs to install attunr as an app. Icons come from `npm run brand`. */
 export default function manifest(): MetadataRoute.Manifest {
