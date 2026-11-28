@@ -9,6 +9,7 @@ import SectionBody from "@/components/course/SectionBody";
 import MyNotes from "@/components/course/MyNotes";
 import SectionVersions from "@/features/devtools/SectionVersions";
 import { LEGACY_STAGES } from "@/features/course/legacy";
+import { isWritten } from "@/features/course/model";
 import { ALL_SECTIONS, findSection, nextSection, sectionHref, stageColour } from "@/features/course/course";
 
 type Params = { stage: string; section: string };
@@ -39,6 +40,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: `${r.section.title} · Stage ${r.stage.label} Guitar Course · attunr`,
     description,
     alternates: { canonical: sectionHref(r.stage.slug, r.section.slug) },
+    // a planned section is only its title and a line on what it will teach: kept out of search until it is written
+    ...(isWritten(r.section) ? {} : { robots: { index: false, follow: true } }),
   };
 }
 

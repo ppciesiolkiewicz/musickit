@@ -18,6 +18,12 @@ const MARKETING = ["/", "/schools", "/faq", "/terms", "/privacy", "/voice-care",
 export const OPEN_TOOLS = ["/theory/scales", "/theory/chords", "/theory/caged", "/tuner", "/theory/metronome-drone"];
 
 /**
+ * The course (`/course`, every stage and section), open so a search can land on a section. It shows the app's bar and a
+ * sign-up offer at the end (`CourseShell`); the sitemap lists its written sections (src/app/sitemap.ts).
+ */
+const OPEN_COURSE = ["/course"];
+
+/**
  * The app's pages anyone may open by their link: a shared note (`/notes/shared/<id>`), and a teacher invite (`/join/<token>`),
  * which logs a visitor in on the page itself. Not marketing: they show the app's bar.
  */
@@ -44,7 +50,7 @@ export const isMarketingPath = (path: string): boolean => MARKETING.some((b) => 
 /** One of the open tools, or a page under one ("/theory/scales/dorian/d"). */
 export const isOpenToolPath = (path: string): boolean => OPEN_TOOLS.some((b) => under(path, b));
 
-export const isPublicPath = (path: string): boolean => isMarketingPath(path) || isOpenToolPath(path) || SHARED.some((b) => under(path, b)) || OTHER.some((b) => under(path, b)) || isFile(path);
+export const isPublicPath = (path: string): boolean => isMarketingPath(path) || isOpenToolPath(path) || OPEN_COURSE.some((b) => under(path, b)) || SHARED.some((b) => under(path, b)) || OTHER.some((b) => under(path, b)) || isFile(path);
 
 /** The login page, coming back to `pathAndQuery` afterwards. */
 export const loginHref = (pathAndQuery: string): string => `/login?next=${encodeURIComponent(pathAndQuery)}`;

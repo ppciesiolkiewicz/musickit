@@ -1,6 +1,6 @@
 # Explore
 
-What a visitor who isn't signed in may use, and the offer to make an account. The tools here are open so a search can land on them (each is in the sitemap, `src/app/sitemap.ts`); everything else in the app still needs a login.
+What a visitor who isn't signed in may use, and the offer to make an account. The tools here are open so a search can land on them (each is in the sitemap, `src/app/sitemap.ts`); The course (`/course`) is open too, as its own list in `src/lib/publicPaths.ts`: `CourseShell` adds `SignUpEnd`, and the sitemap lists its written sections. Everything else in the app still needs a login.
 
 - Which tools are open is one list, `OPEN_TOOLS` in `src/lib/publicPaths.ts` (the scale pages with every mode in every key, chords, CAGED, the tuner, the metronome and drone). The proxy, the login guard, the sitemap and `/explore` all read it. Opening another tool is one line there, plus its date in the sitemap's `CHANGED`.
 - `VisitorSignUp.tsx`: `useVisitor()` (signed out on a site with accounts; false until the session read is done, so a signed-in player never sees the offer flash), `SignUpCorner` (one line and Create account, for `PageShell`'s `action`), `SignUpEnd` (the larger section for `PageShell`'s `end`: what an account gives, a few locked tools by name, Create account; `tools={false}` leaves the tool names out) and `VisitorOnly` (the nav's Explore link). Create account goes to `/login`, coming back to the same page.

@@ -6,6 +6,8 @@ import { OPEN_TOOLS } from "@/lib/publicPaths";
 import { MODE_PAGES } from "@/features/theory/scales";
 import { PENTATONICS } from "@/features/theory/pentatonics";
 import { scaleHref } from "@/features/theory/keySlug";
+import { ALL_SECTIONS, sectionHref } from "@/features/course/course";
+import { isWritten } from "@/features/course/model";
 
 /**
  * The day each page's words last changed, YYYY-MM-DD. Change it in the same commit as a real change to what the page says,
@@ -27,6 +29,8 @@ const CHANGED = {
   "/theory/caged": "2026-11-27",
   "/tuner": "2026-11-27",
   "/theory/metronome-drone": "2026-11-27",
+  /** the course's sections written as course blocks, which carry no date of their own (an article section has its `updated`) */
+  course: "2026-11-28",
   /** every mode and pentatonic in every key, /theory/scales/<slug>/<key>: one date for them all, since they are drawn by the same code */
   scale: "2026-11-27",
 } as const;
@@ -35,6 +39,9 @@ const CHANGED = {
 const toolDay = (t: string) => (CHANGED as Record<string, string>)[t] ?? CHANGED["/explore"];
 
 const day = (d: string) => new Date(`${d}T00:00:00Z`);
+
+/** The course's written sections with their day; a planned one is only its title and a line, so it isn't listed (and is noindex). */
+const sections = ALL_SECTIONS.filter((r) => isWritten(r.section)).map((r) => ({ href: sectionHref(r.stage.slug, r.section.slug), day: r.section.article?.updated.slice(0, 10) ?? CHANGED.course }));
 
 /** The pages a visitor can open without logging in: the site's pages, the articles, the open tools and every scale page. The rest of the app needs a login, so it isn't listed. */
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -51,6 +58,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/kickstarter`, lastModified: day(CHANGED["/kickstarter"]), changeFrequency: "monthly", priority: 0.5 },
     ...TOPIC_SLUGS.map((t) => ({ url: `${SITE_URL}/learn/${t}`, lastModified: day(topicUpdated(t)), changeFrequency: "weekly" as const, priority: 0.7 })),
     ...ARTICLES.map((a) => ({ url: `${SITE_URL}/learn/${a.slug}`, lastModified: day(a.updated), changeFrequency: "monthly" as const, priority: 0.7 })),
+    { url: `${SITE_URL}/course`, lastModified: day(sections.map((s) => s.day).sort().at(-1) ?? CHANGED.course), changeFrequency: "weekly", priority: 0.8 },
+    ...sections.map((s) => ({ url: `${SITE_URL}${s.href}`, lastModified: day(s.day), changeFrequency: "monthly" as const, priority: 0.7 })),
     { url: `${SITE_URL}/explore`, lastModified: day(CHANGED["/explore"]), changeFrequency: "monthly", priority: 0.7 },
     ...OPEN_TOOLS.map((t) => ({ url: `${SITE_URL}${t}`, lastModified: day(toolDay(t)), changeFrequency: "monthly" as const, priority: 0.8 })),
     ...[...MODE_PAGES, ...PENTATONICS].flatMap((m) =>

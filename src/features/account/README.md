@@ -137,7 +137,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's
   public API through `src/lib/sharedNoteGone.ts`, so a stopped link is answered with 404 before the page streams: a clear 404
   only, 2 s at most, failing open); both read the public paths from
-  `src/lib/publicPaths.ts` (public: the marketing pages, the demos, `/explore` and the open tools (`OPEN_TOOLS`: scales, chords, CAGED, tuner, metronome; see `features/explore`), logging in, and a shared note at `/notes/shared/<id>`).
+  `src/lib/publicPaths.ts` (public: the marketing pages, the demos, `/explore` and the open tools (`OPEN_TOOLS`: scales, chords, CAGED, tuner, metronome; see `features/explore`), the course (`/course`), logging in, and a shared note at `/notes/shared/<id>`).
   The guard catches a stale cookie, and keeps a gated page's URL hash (which the server never sees, such as
   `/admin/content/stories#<story>`) across logging in.
 - `AccountStore.ts`: `current()` and `signOut()`, all a page needs.

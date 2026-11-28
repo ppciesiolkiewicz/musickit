@@ -9,12 +9,19 @@ const PUBLIC = [
   "/sitemap.xml", "/instruments/piano/a.mp3", "/images/teacher.webp", "/admin/dev", "/admin/content/stories", "/admin", "/admin/messages",
 ];
 const GATED = [
-  "/plan", "/practice", "/theory/notes", "/theory/scalesx", "/tunerx", "/looper", "/course/1", "/note/x", "/account", "/teachers/studio",
+  "/plan", "/practice", "/theory/notes", "/theory/scalesx", "/tunerx", "/looper", "/coursex", "/note/x", "/account", "/teachers/studio",
   "/schools-x", "/demox", "/dev", "/devx", "/adminx", "/cheatsheet", "/welcome", "/claimx",
 ];
 
 test("marketing pages, sign-in, demos, APIs and files are public", () => {
   for (const p of PUBLIC) assert.equal(isPublicPath(p), true, p);
+});
+
+test("the course is public, with the app's bar", () => {
+  for (const p of ["/course", "/course/1", "/course/1/intervals"]) {
+    assert.equal(isPublicPath(p), true, p);
+    assert.equal(isMarketingPath(p), false, p);
+  }
 });
 
 test("the app needs a login", () => {
