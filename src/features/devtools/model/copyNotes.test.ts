@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { clearCopyNotes, contextLines, copyNotesMarkdown, hashKey, noteHref, noteIdOf, notesOfOldComments, outdatedCount, pathOfRoute, placeOf, readCopyNotes, repinCopyNotes, routeOf, squeeze, stateOf, windowAround, type CopyNote, type NoteSection } from "./copyNotes";
+import { clearCopyNotes, contextLines, copyNotesMarkdown, hashKey, noteHref, noteIdOf, notesDiff, notesOfOldComments, outdatedCount, pathOfRoute, placeOf, readCopyNotes, repinCopyNotes, routeOf, squeeze, stateOf, windowAround, type CopyNote, type NoteSection } from "./copyNotes";
 
 const note = (o: Partial<CopyNote>): CopyNote => ({ id: "1", route: "/plan", text: "Sing with the mic", where: "button", note: "too long", at: "2026-11-02T00:00:00Z", ...o });
 const sec = (o: Partial<NoteSection> = {}): NoteSection => ({ example: "ex-a", address: "ex", index: 2, kind: "text", hash: "aaaaaaaa", commit: "abc1234", ...o });
@@ -114,4 +114,11 @@ test("a text note's context goes under its quote in the Markdown", () => {
   assert.ok(md.includes('- "Sing with the mic" (button)\n  under: Components › Arpeggio part\n  components: ComponentStories › ArpeggioPart\n  source: src/a/ArpeggioPart.tsx:12:5\n  around: "Play the notes one by one"\n  → too long'));
   assert.deepEqual(contextLines(undefined), []);
   assert.deepEqual(contextLines({ under: [] }), []);
+});
+
+test("notesDiff sends the new and changed notes and the ids of the gone ones", () => {
+  const before = [note({ id: "a" }), note({ id: "b" }), note({ id: "c" })];
+  const after = [before[0], note({ id: "b", note: "changed" }), note({ id: "d" })];
+  assert.deepEqual(notesDiff(before, after), { put: [note({ id: "b", note: "changed" }), note({ id: "d" })], remove: ["c"] });
+  assert.deepEqual(notesDiff(before, [...before]), { put: [], remove: [] });
 });

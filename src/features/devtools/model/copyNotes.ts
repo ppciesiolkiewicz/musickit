@@ -2,7 +2,7 @@
  * Dev notes: one registry for every note on the app, kept by route. A note is on a text the maker clicked on any page
  * (found again by the text itself, no wiring in the components), or, through the pencils on /admin/content/library, on one
  * section of one example (`section`: pinned by address, index and a hash of the section). Pure: the overlay keeps them
- * in localStorage (`COPY_NOTES_KEY`). No plan imports here: the overlay that uses it is mounted on every page.
+ * in the database (`dev_notes`, through /api/dev/notes; `COPY_NOTES_KEY` is the old localStorage list, moved in once). No plan imports here: the overlay that uses it is mounted on every page.
  */
 
 import { movedPath } from "../moves";
@@ -203,4 +203,14 @@ export function notesOfOldComments(raw: unknown): CopyNote[] {
       section: { example: s.example, address: s.address, index: s.index, kind: typeof s.kind === "string" ? s.kind : "?", hash: s.hash, commit: s.commit, ...(s.dirty ? { dirty: true } : {}) },
     }];
   });
+}
+
+/** What a change to the notes sends to the server: the notes that are new or changed, and the ids of the notes gone. */
+export function notesDiff(before: CopyNote[], after: CopyNote[]): { put: CopyNote[]; remove: string[] } {
+  const was = new Map(before.map((n) => [n.id, JSON.stringify(n)]));
+  const ids = new Set(after.map((n) => n.id));
+  return {
+    put: after.filter((n) => was.get(n.id) !== JSON.stringify(n)),
+    remove: before.filter((n) => !ids.has(n.id)).map((n) => n.id),
+  };
 }

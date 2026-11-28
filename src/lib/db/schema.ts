@@ -565,3 +565,13 @@ export const payments = pgTable(
   },
   (t) => [index("payments_user").on(t.userId)],
 ).enableRLS();
+
+/**
+ * The dev notes (`CopyNote` in features/devtools/model/copyNotes.ts): notes on the app's text, one shared list for
+ * everyone who writes them (the Notes button in development, /admin/content/notes). The note itself is the JSON; no author.
+ */
+export const devNotes = pgTable("dev_notes", {
+  id: text("id").primaryKey(),
+  note: jsonb("note").notNull(),
+  updatedAt: at("updated_at").notNull().defaultNow(),
+}).enableRLS();
