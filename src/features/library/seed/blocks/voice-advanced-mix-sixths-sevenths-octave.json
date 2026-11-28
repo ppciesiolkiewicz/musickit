@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-mix-sixths-sevenths-octave",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track steps-to-leaps (voice-intervals), step 21: mix of 6ths, 7ths and the octave, the three leaps from one Do over a drone in three keys, an octave-stage tune with an octave and a 6th, then a 7ths-stage tune with no chords under it. missing: an octave-stage tune that holds a 6th, a 7th and an octave together (no tune in the book has all three), so the last tune comes from the 7ths stage.",
+  "note": "6ths, 7ths and the octave side by side: the three leaps from one Do over a drone, an octave-stage tune with an octave and a 6th sung with the tune and then over the chords alone, then a 7ths-stage tune alone and a cappella. The old Key choice is moves (key any, first in F) and its line opens with {{?key}}; the tunes' notes are degree tokens. Missing: an octave-stage tune that holds a 6th, a 7th and an octave together (no tune in the book has all three), so the last tune comes from the 7ths stage.",
   "exercise": {
     "title": "6ths, 7ths and the octave, side by side",
     "area": "voice",
@@ -27,23 +27,10 @@
         "type": "section",
         "heading": "La, Ti or the high Do",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "f"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. From the low {{1}}, leap up to {{6}} and back, then up to {{7}} and back, then up to the next {{1}} and back, on \"oo\". Then sing the three leaps in an order you make up, and hear the landing note before you leave {{1}}.\nOnce each leap lands without a slide, sing them in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and {{7}} is still a half step under the next {{1}}."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. From the low {{1}}, leap up to {{6}} and back, then up to {{7}} and back, then up to the next {{1}} and back. Sing it on \"oo\".\nThen sing the three leaps in an order you make up, and hear the landing note before you leave {{1}}.\nPractice until each leap lands without a slide.\n{{?key}}In another key the drone moves, and {{7}} is still a half step under the high {{1}}."
           },
           {
             "type": "tool",
@@ -74,7 +61,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It opens with an octave, from the Sol under Do up to Sol, and in its second bar it leaps a 6th from Mi up to the high Do. Listen once, then sing along on \"la\".\nIf the 6th lands off, sing Mi and the high Do alone, slowly, then put the leap back in the tune."
+            "text": "Press Play below to hear the tune: the mic starts with it. It opens with an octave, from the {{5}} under {{1}} up to {{5}}, and in its second bar it leaps a 6th from {{3}} up to the high {{1}}. Listen once, then sing along. Sing it on \"la\".\nThen press Tune below to mute the tune, and sing it over the chords alone.\nIf the 6th lands off, sing {{3}} and the high {{1}} alone, slowly, then put the leap back in the tune."
           },
           {
             "type": "tool",
@@ -97,7 +84,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune leaps a 7th twice: from Do up to Ti at the start, and from Re up to the high Do in the second bar. Press Play below to hear the tune alone, with no chords under it: the mic starts with it. Listen once, then sing along on \"la\".\nIf a 7th lands on the octave, sing the octave on purpose, step down one note, then sing the leap again."
+            "text": "This tune leaps a 7th twice: from {{1}} up to {{7}} at the start, and from {{2}} up to the high {{1}} in the second bar. Press Play below to hear it alone, with no chords under it: the mic starts with it. Listen once, then sing along. Sing it on \"la\".\nThen press Tune below to mute the tune, and sing it a cappella.\nIf a 7th lands on the octave, sing the octave on purpose, step down one note, then sing the leap again."
           },
           {
             "type": "tool",
@@ -127,6 +114,9 @@
       "steps": [
         "steps-to-leaps:21"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 9
     }
   ]

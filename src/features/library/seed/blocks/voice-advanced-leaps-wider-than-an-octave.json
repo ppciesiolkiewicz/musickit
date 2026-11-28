@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-leaps-wider-than-an-octave",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 6.",
+  "note": "An ear game of the 2nds and 3rds, sometimes an octave wider (the 9th and the 10th), named as the simple interval as the game's buttons show them; the why says how to fold a wide leap back into one octave. Tagged multi-octave, one feel to reach.",
   "exercise": {
     "title": "Leaps wider than an octave",
     "area": "theory",
@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below. The game plays Do and then a note a 2nd or a 3rd above it, sometimes an octave further up. Hum the top note an octave lower when it is far away, then pick M2, m3 or M3.\nThe answer is the same with or without the extra octave."
+        "text": "Press Start below to hear the first question: the game plays Do, then a note a 2nd or a 3rd above it, sometimes an octave further up.\nWhen the top note is far away, hum it an octave lower. Then pick its name: M2 for the major 2nd, m3 for the minor 3rd, M3 for the major 3rd, and press Next below for another leap: the answer is the same with or without the extra octave.\nPractice until you bring the top note down an octave without humming it."
       },
       {
         "type": "tool",

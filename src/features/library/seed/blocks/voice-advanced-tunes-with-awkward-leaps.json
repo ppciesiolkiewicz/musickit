@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-tunes-with-awkward-leaps",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track tunes (voice-melodies), step 5: three Expert tunes by ear, one with two leaps of a 6th (in three keys), one that starts on Fa and has a dotted note, with the metronome, and one with two leaps of a 7th and no chords under it.",
+  "note": "Three Expert tunes by ear: one with two leaps of a 6th, sung with the tune and then over the chords alone; one that starts on Fa and has a dotted note, with the metronome; and one with two leaps of a 7th, alone and then a cappella. The tunes' notes are degree tokens, each stage names its button, and the old Key choice is moves (key any) with its line opening {{?key}}.",
   "exercise": {
     "title": "Tunes with awkward leaps and dotted notes",
     "area": "voice",
@@ -27,23 +27,10 @@
         "type": "section",
         "heading": "Two leaps of a 6th",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. It opens with a leap of a 6th from Do up to La, and its second bar leaps a 6th again, from Mi up to the high Do. Listen once, then sing along on \"la\".\nOnce both leaps land without a slide, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but both leaps are still a 6th."
+            "text": "Press Play below to hear the tune: the mic starts with it. It opens with a leap of a 6th from {{1}} up to {{6}}, and its second bar leaps a 6th again, from {{3}} up to the high {{1}}. Listen once, then sing along. Sing it on \"la\".\nThen press Tune below to mute the tune, and sing it over the chords alone.\nPractice until both leaps land without a slide.\n{{?key}}In another key the notes change, and both leaps are still a 6th."
           },
           {
             "type": "tool",
@@ -66,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune starts on Fa, not on Do, and its second bar has a dotted note: Sol lasts a beat and a half, and a quick Fa follows it. Press Play below to hear the tune with the metronome: the mic starts with it. Sing along on \"la\".\nIf the quick Fa comes late, clap that bar with the metronome, then sing it again."
+            "text": "This tune starts on {{4}}, not on {{1}}, and its second bar has a dotted note: {{5}} lasts a beat and a half, and a quick {{4}} follows it. Press Play below to hear the tune with the metronome: the mic starts with it. Sing along on \"la\".\nIf the quick {{4}} comes late, clap that bar with the metronome, then sing it again."
           },
           {
             "type": "tool",
@@ -91,7 +78,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "This tune has two leaps of a 7th: from the Sol under Do up to Fa at the start, and from Re up to the high Do in the second bar. Press Play below to hear the tune alone, with no chords under it: the mic starts with it. Listen once, then sing along on \"la\".\nIf a leap of a 7th misses, think of the octave and land one note under it."
+            "text": "This tune has two leaps of a 7th: from the {{5}} under {{1}} up to {{4}} at the start, and from {{2}} up to the high {{1}} in the second bar. Press Play below to hear it alone, with no chords under it: the mic starts with it. Listen once, then sing along. Sing it on \"la\".\nThen press Tune below to mute the tune, and sing it a cappella.\nIf a leap of a 7th misses, think of the octave and land one note under it."
           },
           {
             "type": "tool",
@@ -121,6 +108,9 @@
       "steps": [
         "tunes:5"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-mix-all-five-modes",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track singing-modes (voice-melodies), step 7: mix of all five modes from one Do over one drone, a Scale choice in every block: Lydian, major, Mixolydian, Dorian (one note lowered each time), then Dorian, natural minor, Phrygian, Locrian, then one made-up phrase in Lydian, Mixolydian, Phrygian and Locrian in a second key. The major and natural minor scales are in the chain because Lydian to Mixolydian and Dorian to Phrygian are two notes apart without them. missing: a staff highlight that follows the choice (the staff rings the three notes that move in a block, not only the one that just moved), and a tool that sounds a mode for the singer to name.",
+  "note": "All five modes from one Do over one drone, a Scale selector in every block: Lydian, major, Mixolydian, Dorian (one note lowered each time), then Dorian, natural minor, Phrygian, Locrian, then one made-up phrase in four modes on a new Do. The major and natural minor scales are in the chain because Lydian to Mixolydian and Dorian to Phrygian are two notes apart without them. Each selector is invited with a feel, never a chip. The Scale selector is the lesson, so the file has no moves: the last block's new Do is its second key. Missing: a staff highlight that follows the choice (the staff rings the three notes that move in a block, not only the one that just moved).",
   "exercise": {
     "title": "Five modes from one Do",
     "area": "voice",
@@ -48,7 +48,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is Lydian. Sing the scale up from the low {{1}} to the next {{1}} and back down, on \"oo\". The three ringed notes are the ones that move in this block: {{#4}}, {{7}} and {{3}}.\nThen go on to the next scale, and sing each one the same way. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, one ringed note drops a half step and the rest stay: {{#4}} to {{4}} for the major scale, {{7}} to {{b7}} for Mixolydian, {{3}} to {{b3}} for Dorian."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The staff holds the Lydian mode. Sing it up from the low {{1}} to the next {{1}} and back down. Sing it on \"oo\".\nThe three ringed notes are the ones that move in this block: {{#4}}, {{7}} and {{3}}. Once you hear them against the drone, go on to the next scale. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, one ringed note drops a half step and the rest stay: {{#4}} to {{4}} for the major scale, {{7}} to {{b7}} for Mixolydian, {{3}} to {{b3}} for Dorian."
           },
           {
             "type": "tool",
@@ -94,7 +94,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is Dorian again, where the last block ended. Sing the scale up from the low {{1}} to the next {{1}} and back down, on \"oo\". The three ringed notes are the ones that move now: {{6}}, {{2}} and {{5}}.\nThen go on to the next scale, and sing each one the same way. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, one ringed note drops a half step and the rest stay: {{6}} to {{b6}} for the natural minor scale, {{2}} to {{b2}} for Phrygian, {{5}} to {{b5}} for Locrian."
+            "text": "Press Start exercise below: the drone and the mic start together. The staff holds the Dorian mode again, where the last block ended. Sing it up from the low {{1}} to the next {{1}} and back down. Sing it on \"oo\".\nThe three ringed notes are the ones that move now: {{6}}, {{2}} and {{5}}. Once you hear them against the drone, go on to the next scale. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, one ringed note drops a half step and the rest stay: {{6}} to {{b6}} for the natural minor scale, {{2}} to {{b2}} for Phrygian, {{5}} to {{b5}} for Locrian."
           },
           {
             "type": "tool",
@@ -140,7 +140,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The drone is on a new {{1}} now, and the scale is Lydian. Make up a short phrase that climbs from the low {{1}} towards the next {{1}} and comes back to end on {{1}}, and sing it on \"la\".\nOnce you can sing the phrase the same way twice, sing it in another mode. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the drone and {{1}} stay, and the phrase keeps its shape while some of its notes move a half step."
+            "text": "Press Start exercise below: the drone and the mic start together, on a new {{1}}, in the Lydian mode. Make up a short phrase that climbs from the low {{1}} towards the next {{1}} and comes back to end on {{1}}. Sing it on \"la\".\nOnce the phrase comes back the same each time, sing it in another mode. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the drone and {{1}} stay, and the phrase keeps its shape while some of its notes move a half step."
           },
           {
             "type": "tool",

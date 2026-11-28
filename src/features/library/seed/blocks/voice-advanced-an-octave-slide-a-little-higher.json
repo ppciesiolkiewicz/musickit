@@ -1,27 +1,14 @@
 {
   "id": "voice-advanced-an-octave-slide-a-little-higher",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 2.",
+  "note": "An octave siren over a drone, then the high Do held for one breath. The three keys of the old Key choice are now moves (key any, first in G), so the app brings a higher key; the line about another key opens with {{?key}} and says what stays, and the one care line keeps the top note easy.",
   "exercise": {
     "title": "An octave slide, a little higher",
-    "choice": {
-      "options": [
-        {
-          "key": "g"
-        },
-        {
-          "key": "a"
-        },
-        {
-          "key": "b-flat"
-        }
-      ]
-    },
     "area": "voice",
     "tags": [
       "sing"
@@ -30,14 +17,14 @@
     "concepts": [
       "range"
     ],
-    "why": "A slide passes through every pitch on the way up, so your voice arrives at the top note already moving instead of jumping at it, and each key puts that top note one step higher.",
+    "why": "A slide passes through every pitch on the way up, so your voice arrives at the top note already moving instead of jumping at it.",
     "learnBefore": [
       "/course/9/stretching-your-range"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to the high {{1}} and back, like a siren. Then slide up once more and hold the high {{1}} quietly for one breath.\nOnce the held note stays steady, take the slide higher. Use the Key selector below to change the key, then press Start exercise again.\n_Don't push for the top note: go only as high as stays easy today._"
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Slide slowly from the low {{1}} up to the high {{1}} and back, like a siren. Sing it on \"oo\".\nThen slide up once more and hold the high {{1}} quietly for one breath.\nPractice until the held {{1}} stays steady without pushing.\n{{?key}}In a higher key the slide ends higher, and it is still one octave from the low {{1}} to the high {{1}}.\n_Don't reach for high notes by pushing: go only as high as stays easy today._"
       },
       {
         "type": "tool",
@@ -51,6 +38,9 @@
             "1",
             "5"
           ],
+          "highlight": [
+            "1"
+          ],
           "drone": true
         }
       }
@@ -63,6 +53,9 @@
       "steps": [
         "range:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 3
     }
   ]

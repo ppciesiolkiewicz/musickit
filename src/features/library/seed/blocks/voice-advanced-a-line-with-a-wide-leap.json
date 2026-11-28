@@ -1,16 +1,17 @@
 {
   "id": "voice-advanced-a-line-with-a-wide-leap",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 6.",
+  "note": "One guide-tone line round a turnaround, read from a staff whose `line` rings the note to sing over each chord (so the text spells no note list), then a line of the singer's own that leaps an octave or more to a ringed note, the rings following the chords. The chords are tokens counted the long way, the key is moves, and the line about another key opens with {{?key}}.",
   "exercise": {
     "title": "A line with a wide leap",
     "area": "voice",
     "tags": [
+      "sing",
       "improv"
     ],
     "topic": "voice-harmony",
@@ -25,12 +26,16 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Both lines, round the turnaround",
+        "heading": "One guide-tone line",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track: Cmaj7, Am7, Dm7 and G7, a bar each. Sing the two guide-tone lines on \"oo\", one note per chord: {{7}}, {{1}}, {{1}}, {{7}}, then {{3}}, {{5}}, {{4}}, {{4}}.\nListen for the first line moving by half steps and the second opening with a minor 3rd."
+            "text": "{{chord:Imaj7}} is the 1st chord of the key, built on {{1}}. {{chord:vi7}} is the 6th chord, built on {{6}}, {{chord:ii7}} the 2nd, built on {{2}}, and {{chord:V7}} the 5th, built on {{5}}."
+          },
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the mic and the backing track start together, one chord a bar. Sing the ringed note over each chord, one long note per chord: the ring moves to the next note of the line when the chord changes. Sing it on \"oo\".\nListen for the change where your note stays and the chord moves under it.\n{{?key}}In another key the chords are new, and the line still moves a step or stays at every change."
           },
           {
             "type": "tool",
@@ -41,12 +46,11 @@
               "voice": "tenor",
               "labels": "degree",
               "under": true,
-              "notes": [
-                "1",
+              "line": [
                 "3",
-                "4",
                 "5",
-                "7"
+                "4",
+                "4"
               ]
             }
           },
@@ -55,14 +59,14 @@
             "tool": {
               "type": "backing-track",
               "key": "c",
+              "progression": "turnaround",
               "style": "ballad",
               "bpm": 72,
               "parts": {
                 "drums": "on",
                 "bass": "off",
                 "keys": "always"
-              },
-              "progression": "turnaround"
+              }
             }
           }
         ]
@@ -74,7 +78,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track. Make up your own line, and sing it on any vowel. Start each chord on a ringed note, and once in every round leap an octave or more to the next ringed note.\nIf a leap lands off the chord, sing the note an octave lower first, then leap to it."
+            "text": "Press Start exercise below to start the mic and the same chords. Make up your own line, and sing it on any vowel.\nStart each chord on a ringed note: the rings move with the chords. Once in every round, leap an octave or more to the next ringed note.\nIf a leap lands off the chord, sing the note an octave lower first, then leap to it."
           },
           {
             "type": "tool",
@@ -85,13 +89,7 @@
               "voice": "tenor",
               "labels": "degree",
               "under": true,
-              "highlight": [
-                "1",
-                "3",
-                "4",
-                "5",
-                "7"
-              ]
+              "follow": "guide-tones"
             }
           },
           {
@@ -99,14 +97,14 @@
             "tool": {
               "type": "backing-track",
               "key": "c",
+              "progression": "turnaround",
               "style": "ballad",
               "bpm": 72,
               "parts": {
                 "drums": "on",
                 "bass": "off",
                 "keys": "always"
-              },
-              "progression": "turnaround"
+              }
             }
           }
         ]
@@ -120,6 +118,9 @@
       "steps": [
         "improvise:2"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 6
     }
   ]

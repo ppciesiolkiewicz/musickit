@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-two-notes-at-once",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 4.",
+  "note": "An ear game of intervals sounded together: the singer hums the pair apart, lower note first, and names it; every answer button is named with its plain meaning, and the why says why humming the pair apart works. One feel to reach, no count.",
   "exercise": {
     "title": "Two notes at once",
     "area": "theory",
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below. The game plays two notes at the same time. Hum the lower one, then the upper one, then pick its name: M3, TT, P5, m6, m7 or M7."
+        "text": "Press Start below to hear the first question: the game plays two notes at the same time.\nHum the lower one, then the upper one. Then pick its name: M3 for the major 3rd, TT for the tritone, P5 for the 5th, m6 for the minor 6th, m7 for the minor 7th, M7 for the major 7th, and press Next below for another pair.\nIf the lower note won't come out of the pair, press Replay below and listen for the bottom of the sound."
       },
       {
         "type": "tool",

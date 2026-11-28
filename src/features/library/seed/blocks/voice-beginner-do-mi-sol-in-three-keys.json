@@ -1,27 +1,14 @@
 {
   "id": "voice-beginner-do-mi-sol-in-three-keys",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 5.",
+  "note": "Do Mi Sol up and back from the low Do over a drone. The old block-level Key choice (A, C, D) is moves (key any, first in A, where it sits low for a tenor), so the title names no count of keys and the line about another key opens with {{?key}}; the one care line keeps the singer on the low notes.",
   "exercise": {
-    "title": "Do Mi Sol in three keys",
-    "choice": {
-      "options": [
-        {
-          "key": "a"
-        },
-        {
-          "key": "c"
-        },
-        {
-          "key": "d"
-        }
-      ]
-    },
+    "title": "Do Mi Sol from any Do",
     "area": "voice",
     "tags": [
       "sing"
@@ -37,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. Sing {{1}} {{3}} {{5}} up and back on the note names, starting from the low {{1}}.\nOnce the three land without a slide, try them in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the notes change but the two skips are the same size."
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Starting from the low {{1}}, sing {{1}}, {{3}}, {{5}} and back down. Sing it on the note names.\nPractice until the three notes land without a slide.\n_Don't reach for high notes: stay on the low {{1}}, {{3}} and {{5}}._\n{{?key}}In another key the drone and all three notes move, and the two skips stay the same size."
       },
       {
         "type": "tool",
@@ -52,6 +39,9 @@
             "3",
             "5"
           ],
+          "highlight": [
+            "1"
+          ],
           "drone": true
         }
       }
@@ -64,6 +54,9 @@
       "steps": [
         "steps-to-leaps:8"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 3
     }
   ]

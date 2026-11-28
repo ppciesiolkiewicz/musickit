@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-mix-tunes-chords-off",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track tunes (voice-melodies), step 6: mix of every difficulty with the chords off, four tunes alone, Expert, Easy, Hard and Medium in that order with no word on which is which: Do found from the last note, one sung before it is heard, one in three keys, one from memory.",
+  "note": "Four tunes of every difficulty with the chords off, in no stated order: Do found from the last note, a tune sung from the staff with the tune muted before it is heard, a tune where the singer hums Do before starting, and one sung a cappella from memory. Each stage names its button (Tune mutes the tune); the old Key choice is moves (key any) and its line opens with {{?key}}.",
   "exercise": {
     "title": "Tunes of every difficulty, chords off",
     "area": "voice",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The four tunes in this exercise are of every difficulty, in no order, and the chords are off, so only the tune tells you where Do is.\nTap the last note of the tune below to hear Do. Then press Play below to hear the tune alone: the mic starts with it. Listen once, then sing along on \"la\".\nIf you lose Do in the middle, hum the last note again, then sing along from the start."
+            "text": "The four tunes here are of every difficulty, in no order, and the chords are off, so only the tune tells you where {{1}} is.\nTap the last note of the tune below to hear {{1}}. Then press Play below to hear the tune alone: the mic starts with it. Listen once, then sing along. Sing it on \"la\".\nIf you lose {{1}} in the middle, tap the last note again, then sing along from the start."
           },
           {
             "type": "tool",
@@ -55,7 +55,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Tap the last note of this tune below to hear Do, and no other note. Then sing the tune on \"la\" from the staff before you hear it.\nPress Play below to check it against the tune: the mic starts with it, so sing along the second time.\nIf your tune and the tune you hear part ways, tap the note where they did, then sing on from there."
+            "text": "Tap the last note of this tune below to hear {{1}}, and no other note. Then press Tune below to mute the tune.\nPress Play below and sing the tune from the staff: the mic starts with it. Sing it on \"la\".\nPress Tune again to bring the tune back, and sing along to check it. If your tune and the one you hear part ways, tap the note where they did and sing on from there."
           },
           {
             "type": "tool",
@@ -77,23 +77,10 @@
         "type": "section",
         "heading": "Hum Do, then start",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "f"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "e-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune alone: the mic starts with it. Listen once, and hum its last note, Do, when the tune stops. Then sing along on \"la\", and take the top notes on \"oo\".\nOnce your first note is right without the hum, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, Do moves and the first note is still the same distance from it."
+            "text": "Press Play below to hear the tune alone: the mic starts with it. Listen once, and hum its last note, {{1}}, when the tune stops.\nThen sing along on \"la\", and take the top notes on \"oo\".\nPractice until your first note is right without the hum.\n{{?key}}In another key {{1}} moves, and the first note is still the same distance from it."
           },
           {
             "type": "tool",
@@ -118,7 +105,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune alone, and only listen the first time. Then press Stop below and sing the tune on \"la\" from memory.\nPress Play again and sing along, to check what you kept.\nIf Do moved while you sang alone, tap the last note and start again from there."
+            "text": "Press Play below to hear the tune alone, and only listen the first time.\nThen press Tune below to mute the tune. Press Play again and sing the tune a cappella, from memory: the mic starts with it. Sing it on \"la\".\nIf {{1}} moved while you sang alone, tap the last note and start again from there."
           },
           {
             "type": "tool",
@@ -148,6 +135,9 @@
       "steps": [
         "tunes:6"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

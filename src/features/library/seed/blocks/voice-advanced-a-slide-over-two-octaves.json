@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-a-slide-over-two-octaves",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 6.",
+  "note": "A slow, quiet slide over the two octaves of the staff, from the lowest Do to the highest, over a drone in C, the key that gives a tenor two whole octaves, so the key is the lesson and there are no moves. The why says what the slide does to the break, the feel to reach is a line with no jump, and the one care line keeps the top light.",
   "exercise": {
     "title": "A slide over two octaves",
     "area": "voice",
@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide from the lowest {{1}} on the staff up to the highest and back down, slowly and quietly. Watch your line on the way.\nWhere your line jumps, slide through that spot again, slower and quieter."
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Slide from the lowest {{1}} on the staff up to the highest and back down, slowly and quietly. Sing it on \"oo\".\nWhere your line jumps, slide through that spot again, slower and quieter.\nPractice until your line runs from the bottom to the top with no jump in it.\n_Don't reach for high notes by pushing: let the top of the slide go light._"
       },
       {
         "type": "tool",
@@ -37,6 +37,9 @@
           "notes": [
             "1",
             "5"
+          ],
+          "highlight": [
+            "1"
           ],
           "drone": true
         }

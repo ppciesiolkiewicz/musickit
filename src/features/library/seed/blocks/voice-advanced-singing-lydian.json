@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-singing-lydian",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track singing-modes (voice-melodies), step 5: Lydian over a drone, heard against the major scale (a Scale choice: only the 4th moves), the ♯4 reached by step and by leap from home in three keys, then a made-up tune over Imaj7 II that lands on the ♯4.",
+  "note": "Lydian over a drone, heard against the major scale with a Scale selector (only the 4th moves), the ♯4 reached by step and by leap on a new Do (the second key, in place of the old Key choice: the Scale selector is the lesson, so the file has no moves), then a made-up tune over Imaj7 II that lands on the ♯4. The chords are tokens counted the long way.",
   "exercise": {
     "title": "Lydian over a drone",
     "area": "voice",
@@ -41,7 +41,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing the first five notes of the scale up from the low {{1}} and back down, on \"oo\". The ringed note is {{#4}}, a half step under {{5}}.\nThen sing the same five notes in the major scale. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, only the ringed note moves: it is {{4}} in major and {{#4}} in Lydian."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing the first five notes of the Lydian mode up from the low {{1}} and back down. Sing it on \"oo\".\nThe ringed note is {{#4}}, a half step under {{5}}. Once it pulls up to {{5}} in your ear, sing the same five notes in the major scale. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, only the ringed note moves: it is {{4}} in major and {{#4}} in Lydian."
           },
           {
             "type": "tool",
@@ -64,30 +64,17 @@
         "type": "section",
         "heading": "Up to the ♯4",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "f"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "e-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing {{3}}, {{#4}} and {{5}}, on \"oo\". Then leap from the low {{1}} straight up to {{#4}}, and step up to {{5}}.\nOnce the leap lands without a slide, sing it in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and {{#4}} is still a half step under {{5}}."
+            "text": "Press Start exercise below: the drone and the mic start together, on a new {{1}}. Sing {{3}}, {{#4}} and {{5}}. Sing it on \"oo\".\nThen leap from the low {{1}} straight up to {{#4}}, and step up to {{5}}.\nPractice until the leap lands without a slide.\nIn this key the drone is new, and {{#4}} is still a half step under {{5}}."
           },
           {
             "type": "tool",
             "tool": {
               "type": "staff",
               "scale": "lydian",
-              "key": "f",
+              "key": "g",
               "voice": "tenor",
               "notes": [
                 "1",
@@ -111,7 +98,11 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track, which plays Fmaj7 and G in turn. Make up a short tune from the scale, and sing it on \"la\". Land on {{#4}} when G comes round: it is the 3rd of that chord.\nIf you lose your place, hold {{1}} until Fmaj7 comes back."
+            "text": "{{chord:Imaj7}} is the 1st chord of the key, built on {{1}}, and {{chord:II}} is the 2nd chord, built on {{2}}."
+          },
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the mic and the backing track start together, back on the first {{1}}, playing {{chord:Imaj7}} and {{chord:II}} in turn. Make up a short tune from the scale, and sing it on \"la\".\nLand on {{#4}} when {{chord:II}} comes round: it is the 3rd of that chord.\nIf you lose your place, hold {{1}} until {{chord:Imaj7}} comes back."
           },
           {
             "type": "tool",

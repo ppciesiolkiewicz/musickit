@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-singing-locrian",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track singing-modes (voice-melodies), step 6: Locrian over a drone, heard against Phrygian (a Scale choice: only the 5th moves), its home chord 1 ♭3 ♭5 in three keys, then a made-up tune that ends every phrase on 1. Missing: a Locrian progression on backing-track (it has a vamp for every other mode), so the tune is made up over the drone, not over a backing track.",
+  "note": "Locrian over a drone, heard against Phrygian with a Scale selector (only the 5th moves), its home chord 1 ♭3 ♭5 on a new Do (the second key, in place of the old Key choice: the Scale selector is the lesson, so the file has no moves), then a made-up tune that ends every phrase on 1. Missing: a Locrian progression on backing-track (it has a vamp for every other mode), so the tune is made up over the drone, not over a backing track.",
   "exercise": {
     "title": "Locrian over a drone",
     "area": "voice",
@@ -41,7 +41,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing the first five notes of the scale up from the low {{1}} and back down, on \"oo\". The ringed note is {{b5}}, a half step above {{4}}.\nThen sing the same five notes in Phrygian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, only the ringed note moves: it is {{5}} in Phrygian and {{b5}} in Locrian."
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing the first five notes of the Locrian mode up from the low {{1}} and back down. Sing it on \"oo\".\nThe ringed note is {{b5}}, a half step above {{4}}. Once you hear it rub against the drone, sing the same five notes in the Phrygian mode. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, only the ringed note moves: it is {{5}} in Phrygian and {{b5}} in Locrian."
           },
           {
             "type": "tool",
@@ -64,30 +64,17 @@
         "type": "section",
         "heading": "The home chord",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "e"
-            },
-            {
-              "key": "c"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. These three notes are the chord on {{1}} in Locrian. Sing {{1}}, {{b3}} and {{b5}} up and back down, on \"oo\". Then leap from the low {{1}} straight up to {{b5}} and back.\nOnce the leap lands without a slide, sing it in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and the chord is still {{1}}, {{b3}} and {{b5}}."
+            "text": "Press Start exercise below: the drone and the mic start together, on a new {{1}}. These three notes are the chord on {{1}} in Locrian. Sing {{1}}, {{b3}} and {{b5}} up and back down. Sing it on \"oo\".\nThen leap from the low {{1}} straight up to {{b5}} and back.\nPractice until the leap lands without a slide.\nIn this key the drone is new, and the chord is still {{1}}, {{b3}} and {{b5}}."
           },
           {
             "type": "tool",
             "tool": {
               "type": "staff",
               "scale": "locrian",
-              "key": "d",
+              "key": "e",
               "voice": "tenor",
               "notes": [
                 "1",
@@ -105,12 +92,12 @@
       },
       {
         "type": "section",
-        "heading": "End on 1",
+        "heading": "End every phrase home",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Make up a short tune from the whole scale, and sing it on \"la\". Pass through {{b5}} in every phrase, and end every phrase on {{1}}, so your ear keeps the drone as home.\nIf a phrase ends on another note and sounds finished there, sing its last two notes again and add {{1}}."
+            "text": "Press Start exercise below: the drone and the mic start together, back on the first {{1}}. Make up a short tune from the whole scale, and sing it on \"la\".\nPass through {{b5}} in every phrase, and end every phrase on {{1}}, so your ear keeps the drone as home.\nIf a phrase ends on another note and sounds finished there, sing its last two notes again and add {{1}}."
           },
           {
             "type": "tool",

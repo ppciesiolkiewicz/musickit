@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-every-hard-leap-falling",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 5.",
+  "note": "An ear game of the hard leaps going down: the minor 3rd, the tritone, the minor 6th and both 7ths, each answer button named with its plain meaning, and the why turns a falling leap back into the rising one the singer knows. One feel to reach, no count.",
   "exercise": {
     "title": "Every hard leap, falling",
     "area": "theory",
@@ -17,14 +17,14 @@
     "concepts": [
       "intervals"
     ],
-    "why": "Going down, the note you would measure from comes second, so hum the lower note and measure back up to the first one: the leap is the same one you sang up from Do.",
+    "why": "Going down, the note you would measure from comes second, so hum the lower note and measure back up to the first one: the leap is the same one you sing up from Do.",
     "learnBefore": [
       "/course/6/every-interval"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below. The game plays a note and then a lower one. Hum the lower note, then the first one again, then pick m3, TT, m6, m7 or M7."
+        "text": "Press Start below to hear the first question: the game plays a note, then a lower one.\nHum the lower note, then the first one again. Then pick its name: m3 for the minor 3rd, TT for the tritone, m6 for the minor 6th, m7 for the minor 7th, M7 for the major 7th, and press Next below for another leap.\nPractice until each leap down sounds like the same leap going up."
       },
       {
         "type": "tool",

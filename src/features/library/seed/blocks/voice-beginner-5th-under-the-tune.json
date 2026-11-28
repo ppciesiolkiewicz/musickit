@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-5th-under-the-tune",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track harmony-line (voice-harmony), step 2: hold Do under a tune that starts on Sol, a 5th above, and steps down to meet it. missing: a tool that plays a tune and listens for a held harmony note (melody-singer marks the tune's own notes, so a held Do reads as off the tune and the text sends the singer to their ears).",
+  "note": "Hold Do under a tune that starts on Sol, a 5th above, and steps down to meet it: the 5th over a drone, the tune learned in named stages at 40 bpm, then Do held under it. The old Key choice is moves (key any, tempo 40 to 60), and the line about another key opens with {{?key}}. Missing: a tool that plays a tune and listens for a held harmony note (melody-singer marks the tune's own notes, so a held Do reads as off the tune and the text sends the singer to their ears).",
   "exercise": {
     "title": "Hold Do, a 5th under the tune",
     "area": "voice",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. The drone holds Do. Sing the low {{5}} on \"oo\", then drop to the low {{1}} and hold it. From Sol down to Do is a 5th.\nPractice until you can find {{1}} from {{5}} without sliding.\n_Don't reach for high notes: both notes are the low ones, near the drone._"
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. The drone holds {{1}}. Sing the low {{5}}, then drop to the low {{1}} and hold it. Sing it on \"oo\".\nPractice until you find {{1}} from {{5}} without sliding.\n_Don't reach for high notes: both notes are the low ones, near the drone._"
           },
           {
             "type": "tool",
@@ -59,40 +59,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. The tune starts on Sol and steps down to Do. Sing along on the note names, until you could hum it with the sound off."
-          },
-          {
-            "type": "tool",
-            "tool": {
-              "type": "melody-singer",
-              "pick": {
-                "difficulty": "easy",
-                "stage": "sol"
-              },
-              "key": "d",
-              "voice": "tenor"
-            }
-          }
-        ]
-      },
-      {
-        "type": "section",
-        "heading": "Hold Do under the tune",
-        "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "c"
-            }
-          ]
-        },
-        "cells": [
-          {
-            "type": "text",
-            "text": "Tap the last note of the tune below to hear Do. Then press Play below to start the tune, and hold that Do on \"oo\" from the first note to the last.\nThe staff marks the tune's notes and not yours, so listen: the tune starts a 5th above you and ends on your note.\nOnce your Do stays put while the tune moves, hold it under the tune in another key. Use the Key selector below to change the key, then tap the last note again.\nWhen you change the key, the notes change but the tune still starts a 5th above your Do."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. The tune starts on {{5}} and steps down to {{1}}. Sing along with it a few times, on the note names.\nThen press Tune below to mute the tune, and sing it over the chords alone."
           },
           {
             "type": "tool",
@@ -104,7 +71,32 @@
               },
               "key": "d",
               "voice": "tenor",
-              "chords": false
+              "bpm": 40
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Hold Do under the tune",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the last note of the tune below to hear {{1}}. Then press Play below to start the tune, and hold that {{1}} from the first note to the last. Sing it on \"oo\".\nPractice until your {{1}} stays put while the tune moves: the staff marks the tune's notes, not yours, so listen for the tune closing in on your note.\n{{?key}}In another key the notes change, and the tune still starts a 5th above your {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "sol"
+              },
+              "key": "d",
+              "voice": "tenor",
+              "chords": false,
+              "bpm": 40
             }
           }
         ]
@@ -118,6 +110,14 @@
       "steps": [
         "harmony-line:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 7
     }
   ]

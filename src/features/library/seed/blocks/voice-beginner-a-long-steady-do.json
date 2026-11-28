@@ -1,12 +1,12 @@
 {
   "id": "voice-beginner-a-long-steady-do",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 7.",
+  "note": "One long low Do over a drone, the staff showing only Do, so the pitch line shows every wobble as the breath runs low. The key is moves (key any) with its line opening {{?key}}, and the feel to reach is a flat line to the end of the breath.",
   "exercise": {
     "title": "A long, steady Do",
     "area": "voice",
@@ -17,14 +17,14 @@
     "concepts": [
       "breath"
     ],
-    "why": "A long note shows every wobble in your pitch line, so holding the low Do shows how steady your breath keeps it.",
+    "why": "A long note shows every wobble in your pitch line, and the wobble comes when the air under the note runs low, so a flat line to the end of the breath means your breath is holding the note steady.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}} on \"oo\" and hold it while your line stays flat.\nWatch your line as your breath runs low: that is where it starts to wobble."
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Sing the low {{1}} and hold it, keeping your line flat. Sing it on \"oo\".\nPractice until your line stays flat to the end of your breath: watch for where it starts to wobble as the air runs low.\n{{?key}}In another key the drone sits higher or lower, and the note to hold is still the drone's note."
       },
       {
         "type": "tool",
@@ -50,6 +50,9 @@
       "steps": [
         "breath:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 3
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-guide-tones-round-a-turnaround",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-advanced.json, day 3.",
+  "note": "Both guide-tone lines round a turnaround, found by ear: the staff's rings follow the chord playing (`follow`), and the singer moves to the nearest ringed note at each change, from the 7th and then from the 3rd, so the text spells no note list. Then steps walked between the ringed notes in a second key. The old Key choice is moves (key any), the chords are tokens counted the long way, and the line about another key opens with {{?key}}.",
   "exercise": {
     "title": "Guide tones round a turnaround",
     "area": "voice",
@@ -18,7 +18,7 @@
     "concepts": [
       "improvise"
     ],
-    "why": "Round these four chords the 7th of one chord sits a half step from the 3rd of the next, or on it, so one line covers every change by moving a half step or not at all.",
+    "why": "Round these four chords the 7th of one chord sits a half step from the 3rd of the next, or on it, so a line that moves to the nearest guide tone covers every change by a half step, a small leap or no move at all.",
     "learnBefore": [
       "/course/11/guide-tones",
       "/course/9/improvising-a-melody"
@@ -26,12 +26,16 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Both lines, one leap",
+        "heading": "Both lines, by ear",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track: four chords, a bar each, round and round. Sing one long note per chord on \"oo\": {{7}}, up to {{1}}, {{1}} again, then back down to {{7}}. Then sing the other line: {{3}}, up to {{5}}, down to {{4}}, then {{4}} again. From {{3}} up to {{5}} is a minor 3rd, the leap of the day.\nOnce the leap lands without a slide, sing both lines in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but the first line still moves by half steps and the second still opens with a minor 3rd."
+            "text": "{{chord:Imaj7}} is the 1st chord of the key, built on {{1}}. {{chord:vi7}} is the 6th chord, built on {{6}}, {{chord:ii7}} the 2nd, built on {{2}}, and {{chord:V7}} the 5th, built on {{5}}."
+          },
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the mic and the backing track start together, one chord a bar. The ringed notes are the 3rd and the 7th of the chord playing, and they move with the chords.\nSing one long note per chord on \"oo\": start on {{7}}, and when the chord changes, move to the nearest ringed note. Then sing the other line the same way, from {{3}}.\nListen for the one change in the line from {{3}} that leaps a minor 3rd instead of a step.\n{{?key}}In another key the chords are new, and each line still moves to the nearest ringed note at every change."
           },
           {
             "type": "tool",
@@ -42,13 +46,11 @@
               "voice": "tenor",
               "labels": "degree",
               "under": true,
-              "notes": [
-                "1",
+              "highlight": [
                 "3",
-                "4",
-                "5",
                 "7"
-              ]
+              ],
+              "follow": "guide-tones"
             }
           },
           {
@@ -56,27 +58,17 @@
             "tool": {
               "type": "backing-track",
               "key": "d",
+              "progression": "turnaround",
               "style": "ballad",
               "bpm": 72,
               "parts": {
                 "drums": "on",
                 "bass": "off",
                 "keys": "always"
-              },
-              "progression": "turnaround"
+              }
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "g"
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
@@ -85,7 +77,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the backing track in F: Fmaj7, Dm7, Gm7 and C7. Start each chord on a ringed note from either line, then walk by step to the next chord's ringed note. Sing it on any vowel.\nIf a bar goes by with no ringed note in it, hold the next one for a whole bar and start walking again."
+            "text": "Press Start exercise below to start the mic and the same chords in a new key. Start each chord on a ringed note, then walk by step to the next chord's ringed note. Sing it on any vowel.\nIf a bar goes by with no ringed note in it, hold the next one for a whole bar and start walking again."
           },
           {
             "type": "tool",
@@ -96,13 +88,7 @@
               "voice": "tenor",
               "labels": "degree",
               "under": true,
-              "highlight": [
-                "1",
-                "3",
-                "4",
-                "5",
-                "7"
-              ]
+              "follow": "guide-tones"
             }
           },
           {
@@ -110,14 +96,14 @@
             "tool": {
               "type": "backing-track",
               "key": "f",
+              "progression": "turnaround",
               "style": "ballad",
               "bpm": 72,
               "parts": {
                 "drums": "on",
                 "bass": "off",
                 "keys": "always"
-              },
-              "progression": "turnaround"
+              }
             }
           }
         ]
@@ -131,6 +117,9 @@
       "steps": [
         "improvise:2"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "voice-advanced-a-whole-song-in-tune",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track pitch (voice-pitch), step 6: staying in tune through a whole tune with chords, then with nothing under it, then through a verse of a song the singer knows, over a drone. Missing: a song tool (a whole song's melody and words to sing through with the mic; the longest tunes in the melody book are 4 bars), and a key picker with all twelve keys that the student can use, so the song's key comes from four options.",
+  "note": "Staying in tune through a whole tune: with the chords, then the tune muted over the chords, then the tune alone and a cappella, then a verse of a song the singer knows over a drone. The old Key choice of the last block is moves (key any), and the line about another key opens with {{?key}}. Missing: a song tool (a whole song's melody and words to sing through with the mic; the longest tunes in the melody book are 4 bars).",
   "exercise": {
     "title": "A whole song in tune",
     "area": "voice",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune over its chords: the mic starts with it. Sing along on \"ah\", and watch your line on the two long notes in the second bar: Sol, then the Sol an octave under it.\nIf your line sags on a long note, sing that note again more quietly."
+            "text": "Press Play below to hear the tune over its chords: the mic starts with it. Sing along on \"ah\", and watch your line on the two long notes in the second bar: {{5}}, then the {{5}} an octave under it.\nThen press Tune below to mute the tune, and sing it over the chords alone.\nIf your line sags on a long note, sing that note again more quietly."
           },
           {
             "type": "tool",
@@ -54,7 +54,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The same tune with nothing under it, so you hold the key yourself. Press Play below to hear the tune alone: the mic starts with it. Sing along on \"ah\", and check that your last Do is the Do the tune started on."
+            "text": "Press Play below to hear the same tune with nothing under it: the mic starts with it. Sing along once on \"ah\".\nThen press Tune below to mute the tune, and sing it a cappella.\nPractice until your last {{1}} is the {{1}} the tune started on."
           },
           {
             "type": "tool",
@@ -76,33 +76,17 @@
         "type": "section",
         "heading": "A song you know",
         "minutes": 4,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "d"
-            },
-            {
-              "key": "f"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Pick a song in a major key that you know by heart. Use the Key selector below to find the key where the song sits easily in your voice, then press Start exercise to start the drone and the mic.\nSing a whole verse with its words, with the drone as the song's {{1}}, and watch where your line sits on the long notes.\nWhen a phrase has drifted, its last note no longer blends with the drone: sing that phrase again before you go on."
+            "text": "Pick a song in a major key that you know by heart. Press Start exercise below: the drone and the mic start together.\nSing a whole verse with its words, with the drone as the song's {{1}}, and watch where your line sits on the long notes.\nWhen a phrase has drifted, its last note no longer blends with the drone: sing that phrase again before you go on.\n{{?key}}In another key the drone sits higher or lower, and it is still the song's {{1}}."
           },
           {
             "type": "tool",
             "tool": {
               "type": "staff",
               "scale": "major-ionian",
-              "key": "c",
+              "key": "f",
               "voice": "tenor",
               "highlight": [
                 "1"
@@ -125,6 +109,9 @@
       "steps": [
         "pitch:6"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 10
     }
   ]

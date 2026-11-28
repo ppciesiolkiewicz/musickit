@@ -1,23 +1,24 @@
 {
   "id": "voice-beginner-a-longer-skipping-tune-then-your-own",
-  "model": "claude-fable-5",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/voice-beginner.json, day 5.",
+  "note": "A longer skipping tune learned in named stages (with the tune, the tune muted over the chords, then a cappella) at 40 bpm, then a tune of the singer's own from the low Do, Mi and Sol over a drone, with the one care line. The old Key choice is moves (key any, tempo 40 to 60), and the line about another key opens with {{?key}}.",
   "exercise": {
     "title": "A longer skipping tune, then your own",
     "area": "voice",
     "tags": [
+      "sing",
       "song"
     ],
     "topic": "voice-melodies",
     "concepts": [
       "tunes"
     ],
-    "why": "A longer tune asks for one skip after another, and making up your own afterwards shows which skips your voice finds by itself.",
+    "why": "A skip lands on Do, Mi or Sol, the notes of the home chord, so a longer tune is the same few skips in a new order, and your own tune can be built from them too.",
     "learnBefore": [
       "/course/3/do-mi-sol"
     ],
@@ -29,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\".\nOnce the last bar comes out as sure as the first, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still opens with Do Mi Sol."
+            "text": "Press Play below to hear the tune at {{=bpm}}: the mic starts with it. Listen once, then press Play again and sing along. Sing it on \"oo\".\nSing along with the tune a few times. Then press Tune below to mute the tune, and sing it over the chords alone.\nOnce the last bar comes out as sure as the first, press Chords to mute the chords too, and sing the tune a cappella.\n{{?key}}In another key the notes change, and the tune still skips by the same distances."
           },
           {
             "type": "tool",
@@ -40,20 +41,11 @@
                 "stage": "skips"
               },
               "key": "a",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "d"
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
@@ -62,7 +54,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the drone and the mic. Make up a tune of skips between {{1}}, {{3}} and {{5}}, sing it on \"la\", and end it on {{1}}.\n_Don't reach for high notes: the low {{1}}, {{3}} and {{5}} are enough for a tune._"
+            "text": "Press Start exercise below: the drone and the mic start together. Make up a tune of skips between {{1}}, {{3}} and {{5}}, and end it on {{1}}. Sing it on \"la\".\nPractice until your tune comes back the same way twice in a row.\n_Don't reach for high notes: the low {{1}}, {{3}} and {{5}} are enough for a tune._"
           },
           {
             "type": "tool",
@@ -76,6 +68,9 @@
                 "1",
                 "3",
                 "5"
+              ],
+              "highlight": [
+                "1"
               ],
               "drone": true
             }
@@ -91,6 +86,14 @@
       "steps": [
         "tunes:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 9
     }
   ]
