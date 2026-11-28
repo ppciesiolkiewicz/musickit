@@ -4,10 +4,12 @@ import type { BlockChoice, BlockSummary, ConceptCoverage, CoverageRow } from "@/
 import type { BlocksData, CoverageData, ItemResult, Loaded, TopicCount } from "./load";
 import { SEED_BLOCKS, SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
 import { blockOfChoice } from "@/features/plan/model/blockId";
+import { applyChoiceSet } from "@/features/plan/model/choiceSet";
 import { blockTags, demoSlugOf, seedBlocksById, type LibraryTag } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
 import ScrollToItem from "./ScrollToItem";
 import VersionBadges from "./VersionBadges";
+import { NEAR_COPY_GROUPS, NEAR_COPY_METHOD, nearCopyGroup, nearCopyGroupOf } from "./nearCopies";
 import { libraryHref, minutes, orDash, type LibraryParams, type LibraryTab } from "./params";
 
 const TH = "p-2";
@@ -271,7 +273,7 @@ export function BlocksTable({ blocks, params, open, riffEdited = [] }: { blocks:
             const isOpen = openId === b.id;
             return [
               <tr key={b.id} className={ROW}>
-                <td className="p-2"><ItemLink tab="blocks" id={b.id} title={b.title} open={isOpen} params={params} /><Tags tags={blockTags(b, seed, edited)} /></td>
+                <td className="p-2"><ItemLink tab="blocks" id={b.id} title={applyChoiceSet({ title: b.title }, b.choices[0]?.set).title} open={isOpen} params={params} /><Tags tags={blockTags(b, seed, edited)} /><GroupTag id={b.id} params={params} /></td>
                 <td className="p-2"><ChoiceLinks choices={b.choices} params={params} /></td>
                 <td className="p-2">{orDash(b.level)}</td>
                 <td className="p-2">{b.concepts.join(", ") || "–"}</td>
@@ -287,6 +289,40 @@ export function BlocksTable({ blocks, params, open, riffEdited = [] }: { blocks:
         </tbody>
       </table>
     </Scroll>
+  );
+}
+
+/** TEMPORARY: the near-copy group a block is in, as a link that lists the group. */
+function GroupTag({ id, params }: { id: string; params: LibraryParams }) {
+  const g = nearCopyGroupOf(id);
+  if (!g) return null;
+  return <Link href={libraryHref("blocks", params, { group: g, topic: undefined, item: undefined })} className={`${TAG} border-rose-500/40 bg-rose-500/10 text-rose-200 hover:underline`} title="Near-copy group">{g}</Link>;
+}
+
+/** TEMPORARY: every near-copy group as a link (its first block and size), the listed one marked. */
+function GroupPicker({ group, params }: { group: string | undefined; params: LibraryParams }) {
+  if (NEAR_COPY_GROUPS.length === 0) return null;
+  const m = NEAR_COPY_METHOD;
+  return (
+    <details className="mb-4" open={group !== undefined}>
+      <summary className="cursor-pointer text-sm text-slate-300">
+        Near-copy groups: {NEAR_COPY_GROUPS.length} groups, {NEAR_COPY_GROUPS.reduce((n, g) => n + g.blocks.length, 0)} blocks{" "}
+        <span className="text-slate-500">({m.method === "embedding" ? `${m.model}, cosine` : "word overlap"} at {m.threshold}; scripts/near-copies.ts)</span>
+      </summary>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {NEAR_COPY_GROUPS.map((g) => (
+          <Link
+            key={g.id}
+            href={libraryHref("blocks", params, { group: g.id, topic: undefined, item: undefined })}
+            aria-current={g.id === group ? "page" : undefined}
+            title={g.blocks.join("\n")}
+            className={`rounded-full border px-2 py-0.5 text-xs ${g.id === group ? "border-rose-400 bg-rose-500/15 text-rose-100" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
+          >
+            {g.id} {g.label} <span className="text-slate-500">{g.blocks.length} · {g.best}</span>
+          </Link>
+        ))}
+      </div>
+    </details>
   );
 }
 
@@ -385,13 +421,15 @@ export function BlocksPage({ result, item, params, canNamePlayer = true }: { res
   const shown = data ? { ...params, topic: data.topic ?? undefined } : params;
   const openId = openBlockId(params.item);
   const inTable = openId !== undefined && !!data?.blocks?.some((b) => b.id === openId);
+  const group = nearCopyGroup(params.group);
   return (
     <Frame tab="blocks" params={params} scopeError={result.state === "ok" ? result.scopeError : null} canNamePlayer={canNamePlayer}>
-      {data ? <TopicPicker topics={data.topics} topic={data.topic} params={shown} /> : <NotRead result={result} />}
+      {data ? <TopicPicker topics={data.topics} topic={data.topic} params={{ ...shown, group: undefined }} /> : <NotRead result={result} />}
+      <GroupPicker group={group?.id} params={shown} />
       {params.item !== undefined && !inTable && <Unplaced result={item} params={shown} tab="blocks" />}
       {data && (
         <>
-          <H>{data.topic === null ? "Blocks" : `Blocks for ${data.topic}`}</H>
+          <H>{group ? `Near-copy group ${group.id}` : data.topic === null ? "Blocks" : `Blocks for ${data.topic}`}</H>
           {data.blocks === null ? <Muted>Choose a topic above.</Muted> : <BlocksTable blocks={data.blocks} params={shown} riffEdited={data.riffEdited} open={<Opened result={item} params={shown} />} />}
         </>
       )}

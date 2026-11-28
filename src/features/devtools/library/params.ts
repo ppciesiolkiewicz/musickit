@@ -8,6 +8,8 @@ export interface LibraryParams {
   topic?: string;
   player?: string;
   item?: string;
+  /** TEMPORARY: a near-copy group to list (`nearCopies.ts`), in place of a topic */
+  group?: string;
 }
 
 /** The library's subpages: the coverage overview, the seed plans, the blocks of a topic. */
@@ -27,7 +29,7 @@ const first = (v: string | string[] | undefined): string | undefined => {
 };
 
 export function readParams(raw: Raw): LibraryParams {
-  return { topic: first(raw.topic), player: first(raw.player), item: first(raw.item) };
+  return { topic: first(raw.topic), player: first(raw.player), item: first(raw.item), group: first(raw.group) };
 }
 
 /** Naming a player shows that player's private blocks, ratings and play times: only `dev` and `admin` may (not `content` alone). */
@@ -53,6 +55,7 @@ export function libraryHref(tab: LibraryTab, p: LibraryParams, patch: Partial<Li
   const m = { ...p, ...patch };
   const q = new URLSearchParams();
   if (tab === "blocks" && m.topic !== undefined) q.set("topic", m.topic);
+  if (tab === "blocks" && m.group !== undefined) q.set("group", m.group);
   if (m.player !== undefined) q.set("player", m.player);
   if (tab !== "overview" && m.item !== undefined) q.set("item", m.item);
   const s = q.toString();

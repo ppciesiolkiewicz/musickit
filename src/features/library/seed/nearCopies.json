@@ -1,0 +1,881 @@
+{
+  "note": "TEMPORARY: near-copy groups for thinning the library, from scripts/near-copies.ts. Delete with the script and the filter.",
+  "method": "embedding",
+  "model": "nomic-embed-text",
+  "threshold": 0.93,
+  "groups": [
+    {
+      "id": "g01",
+      "label": "voice-warm-up-lip-rolls-down",
+      "blocks": [
+        "voice-warm-up-lip-rolls-down",
+        "voice-warm-up-lip-rolls-down-then-up",
+        "voice-warm-up-lip-rolls-up-then-down"
+      ],
+      "best": 0.981,
+      "pairs": [
+        {
+          "a": "voice-warm-up-lip-rolls-down-then-up",
+          "b": "voice-warm-up-lip-rolls-down",
+          "cos": 0.976,
+          "jac": 0.512
+        },
+        {
+          "a": "voice-warm-up-lip-rolls-down-then-up",
+          "b": "voice-warm-up-lip-rolls-up-then-down",
+          "cos": 0.981,
+          "jac": 0.582
+        },
+        {
+          "a": "voice-warm-up-lip-rolls-down",
+          "b": "voice-warm-up-lip-rolls-up-then-down",
+          "cos": 0.956,
+          "jac": 0.544
+        }
+      ]
+    },
+    {
+      "id": "g02",
+      "label": "guitar-intermediate-g-minor-pentatonic-positions-1-to-3",
+      "blocks": [
+        "guitar-intermediate-g-minor-pentatonic-positions-1-to-3",
+        "guitar-intermediate-join-positions-1-and-2",
+        "guitar-intermediate-join-positions-2-and-3"
+      ],
+      "best": 0.978,
+      "pairs": [
+        {
+          "a": "guitar-intermediate-g-minor-pentatonic-positions-1-to-3",
+          "b": "guitar-intermediate-join-positions-1-and-2",
+          "cos": 0.962,
+          "jac": 0.517
+        },
+        {
+          "a": "guitar-intermediate-g-minor-pentatonic-positions-1-to-3",
+          "b": "guitar-intermediate-join-positions-2-and-3",
+          "cos": 0.971,
+          "jac": 0.525
+        },
+        {
+          "a": "guitar-intermediate-join-positions-1-and-2",
+          "b": "guitar-intermediate-join-positions-2-and-3",
+          "cos": 0.978,
+          "jac": 0.564
+        }
+      ]
+    },
+    {
+      "id": "g03",
+      "label": "voice-intermediate-hiss-then-buzz",
+      "blocks": [
+        "voice-intermediate-hiss-then-buzz",
+        "voice-warm-up-hiss-then-buzz"
+      ],
+      "best": 0.978,
+      "pairs": [
+        {
+          "a": "voice-intermediate-hiss-then-buzz",
+          "b": "voice-warm-up-hiss-then-buzz",
+          "cos": 0.978,
+          "jac": 0.478
+        }
+      ]
+    },
+    {
+      "id": "g04",
+      "label": "guitar-beginner-hammer-pull-fingers-1-3",
+      "blocks": [
+        "guitar-beginner-hammer-pull-fingers-1-3",
+        "guitar-intermediate-hammer-and-pull-both-finger-pairs",
+        "guitar-intermediate-hammer-and-pull-fingers-2-and-4",
+        "guitar-new-hammer-pull-fingers-1-2"
+      ],
+      "best": 0.969,
+      "pairs": [
+        {
+          "a": "guitar-beginner-hammer-pull-fingers-1-3",
+          "b": "guitar-intermediate-hammer-and-pull-fingers-2-and-4",
+          "cos": 0.938,
+          "jac": 0.365
+        },
+        {
+          "a": "guitar-beginner-hammer-pull-fingers-1-3",
+          "b": "guitar-new-hammer-pull-fingers-1-2",
+          "cos": 0.959,
+          "jac": 0.417
+        },
+        {
+          "a": "guitar-intermediate-hammer-and-pull-both-finger-pairs",
+          "b": "guitar-intermediate-hammer-and-pull-fingers-2-and-4",
+          "cos": 0.941,
+          "jac": 0.403
+        },
+        {
+          "a": "guitar-intermediate-hammer-and-pull-both-finger-pairs",
+          "b": "guitar-new-hammer-pull-fingers-1-2",
+          "cos": 0.934,
+          "jac": 0.382
+        },
+        {
+          "a": "guitar-intermediate-hammer-and-pull-fingers-2-and-4",
+          "b": "guitar-new-hammer-pull-fingers-1-2",
+          "cos": 0.969,
+          "jac": 0.5
+        }
+      ]
+    },
+    {
+      "id": "g05",
+      "label": "guitar-advanced-pentatonic-whole-neck",
+      "blocks": [
+        "guitar-advanced-pentatonic-whole-neck",
+        "guitar-intermediate-mix-pentatonic-five-positions"
+      ],
+      "best": 0.967,
+      "pairs": [
+        {
+          "a": "guitar-advanced-pentatonic-whole-neck",
+          "b": "guitar-intermediate-mix-pentatonic-five-positions",
+          "cos": 0.967,
+          "jac": 0.422
+        }
+      ]
+    },
+    {
+      "id": "g06",
+      "label": "voice-beginner-do-mi-sol-in-three-keys",
+      "blocks": [
+        "voice-beginner-do-mi-sol-in-three-keys",
+        "voice-beginner-siren-to-sol",
+        "voice-intermediate-slide-to-the-high-do",
+        "voice-warm-up-out-from-do-going-down",
+        "voice-warm-up-out-from-do-going-up",
+        "voice-warm-up-the-scale-up-and-back"
+      ],
+      "best": 0.966,
+      "pairs": [
+        {
+          "a": "voice-beginner-do-mi-sol-in-three-keys",
+          "b": "voice-warm-up-out-from-do-going-up",
+          "cos": 0.934,
+          "jac": 0.346
+        },
+        {
+          "a": "voice-beginner-siren-to-sol",
+          "b": "voice-intermediate-slide-to-the-high-do",
+          "cos": 0.93,
+          "jac": 0.613
+        },
+        {
+          "a": "voice-intermediate-slide-to-the-high-do",
+          "b": "voice-warm-up-out-from-do-going-up",
+          "cos": 0.931,
+          "jac": 0.375
+        },
+        {
+          "a": "voice-warm-up-out-from-do-going-down",
+          "b": "voice-warm-up-out-from-do-going-up",
+          "cos": 0.966,
+          "jac": 0.554
+        },
+        {
+          "a": "voice-warm-up-out-from-do-going-up",
+          "b": "voice-warm-up-the-scale-up-and-back",
+          "cos": 0.94,
+          "jac": 0.453
+        }
+      ]
+    },
+    {
+      "id": "g07",
+      "label": "guitar-theory-intermediate-comp-i-vi-ii-v",
+      "blocks": [
+        "guitar-theory-intermediate-comp-i-vi-ii-v",
+        "guitar-theory-intermediate-comp-the-ii-v-i"
+      ],
+      "best": 0.966,
+      "pairs": [
+        {
+          "a": "guitar-theory-intermediate-comp-i-vi-ii-v",
+          "b": "guitar-theory-intermediate-comp-the-ii-v-i",
+          "cos": 0.966,
+          "jac": 0.65
+        }
+      ]
+    },
+    {
+      "id": "g08",
+      "label": "guitar-beginner-g-c-and-d-in-time",
+      "blocks": [
+        "guitar-beginner-g-c-and-d-in-time",
+        "guitar-beginner-mix-seven-open-chords",
+        "guitar-intermediate-am7-dsus2-dm7",
+        "guitar-intermediate-cadd9-g-dsus4-em",
+        "guitar-intermediate-d-dsus2-dsus4",
+        "guitar-new-em-am-changes",
+        "guitar-new-first-week-e-a-and-d",
+        "guitar-new-mix-first-five-open-chords"
+      ],
+      "best": 0.965,
+      "pairs": [
+        {
+          "a": "guitar-beginner-g-c-and-d-in-time",
+          "b": "guitar-beginner-mix-seven-open-chords",
+          "cos": 0.939,
+          "jac": 0.358
+        },
+        {
+          "a": "guitar-beginner-g-c-and-d-in-time",
+          "b": "guitar-intermediate-am7-dsus2-dm7",
+          "cos": 0.933,
+          "jac": 0.348
+        },
+        {
+          "a": "guitar-beginner-g-c-and-d-in-time",
+          "b": "guitar-intermediate-cadd9-g-dsus4-em",
+          "cos": 0.943,
+          "jac": 0.396
+        },
+        {
+          "a": "guitar-beginner-g-c-and-d-in-time",
+          "b": "guitar-intermediate-d-dsus2-dsus4",
+          "cos": 0.945,
+          "jac": 0.396
+        },
+        {
+          "a": "guitar-beginner-g-c-and-d-in-time",
+          "b": "guitar-new-em-am-changes",
+          "cos": 0.951,
+          "jac": 0.394
+        },
+        {
+          "a": "guitar-beginner-g-c-and-d-in-time",
+          "b": "guitar-new-first-week-e-a-and-d",
+          "cos": 0.944,
+          "jac": 0.383
+        },
+        {
+          "a": "guitar-beginner-g-c-and-d-in-time",
+          "b": "guitar-new-mix-first-five-open-chords",
+          "cos": 0.944,
+          "jac": 0.447
+        },
+        {
+          "a": "guitar-beginner-mix-seven-open-chords",
+          "b": "guitar-new-em-am-changes",
+          "cos": 0.931,
+          "jac": 0.373
+        },
+        {
+          "a": "guitar-beginner-mix-seven-open-chords",
+          "b": "guitar-new-mix-first-five-open-chords",
+          "cos": 0.965,
+          "jac": 0.496
+        },
+        {
+          "a": "guitar-intermediate-am7-dsus2-dm7",
+          "b": "guitar-intermediate-cadd9-g-dsus4-em",
+          "cos": 0.942,
+          "jac": 0.367
+        },
+        {
+          "a": "guitar-intermediate-cadd9-g-dsus4-em",
+          "b": "guitar-new-mix-first-five-open-chords",
+          "cos": 0.936,
+          "jac": 0.359
+        },
+        {
+          "a": "guitar-intermediate-d-dsus2-dsus4",
+          "b": "guitar-new-first-week-e-a-and-d",
+          "cos": 0.938,
+          "jac": 0.525
+        },
+        {
+          "a": "guitar-new-em-am-changes",
+          "b": "guitar-new-first-week-e-a-and-d",
+          "cos": 0.94,
+          "jac": 0.484
+        },
+        {
+          "a": "guitar-new-em-am-changes",
+          "b": "guitar-new-mix-first-five-open-chords",
+          "cos": 0.93,
+          "jac": 0.362
+        },
+        {
+          "a": "guitar-new-first-week-e-a-and-d",
+          "b": "guitar-new-mix-first-five-open-chords",
+          "cos": 0.932,
+          "jac": 0.371
+        }
+      ]
+    },
+    {
+      "id": "g09",
+      "label": "voice-new-do-and-re",
+      "blocks": [
+        "voice-new-do-and-re",
+        "voice-new-up-to-fa",
+        "voice-new-up-to-mi",
+        "voice-new-up-to-sol"
+      ],
+      "best": 0.964,
+      "pairs": [
+        {
+          "a": "voice-new-do-and-re",
+          "b": "voice-new-up-to-fa",
+          "cos": 0.931,
+          "jac": 0.487
+        },
+        {
+          "a": "voice-new-do-and-re",
+          "b": "voice-new-up-to-mi",
+          "cos": 0.964,
+          "jac": 0.608
+        },
+        {
+          "a": "voice-new-do-and-re",
+          "b": "voice-new-up-to-sol",
+          "cos": 0.95,
+          "jac": 0.518
+        },
+        {
+          "a": "voice-new-up-to-fa",
+          "b": "voice-new-up-to-sol",
+          "cos": 0.938,
+          "jac": 0.588
+        },
+        {
+          "a": "voice-new-up-to-mi",
+          "b": "voice-new-up-to-sol",
+          "cos": 0.942,
+          "jac": 0.61
+        }
+      ]
+    },
+    {
+      "id": "g10",
+      "label": "guitar-advanced-fingers-1-4-2-3",
+      "blocks": [
+        "guitar-advanced-fingers-1-4-2-3",
+        "guitar-intermediate-fingers-1-3-2-4"
+      ],
+      "best": 0.963,
+      "pairs": [
+        {
+          "a": "guitar-advanced-fingers-1-4-2-3",
+          "b": "guitar-intermediate-fingers-1-3-2-4",
+          "cos": 0.963,
+          "jac": 0.629
+        }
+      ]
+    },
+    {
+      "id": "g11",
+      "label": "voice-warm-up-agility-do-between-steps",
+      "blocks": [
+        "voice-warm-up-agility-do-between-steps",
+        "voice-warm-up-agility-out-from-do-and-back"
+      ],
+      "best": 0.953,
+      "pairs": [
+        {
+          "a": "voice-warm-up-agility-do-between-steps",
+          "b": "voice-warm-up-agility-out-from-do-and-back",
+          "cos": 0.953,
+          "jac": 0.591
+        }
+      ]
+    },
+    {
+      "id": "g12",
+      "label": "voice-beginner-a-skipping-tune-then-over-chords",
+      "blocks": [
+        "voice-beginner-a-skipping-tune-then-over-chords",
+        "voice-beginner-a-sol-tune-then-your-own-line",
+        "voice-beginner-a-tune-under-do-then-over-three-chords",
+        "voice-beginner-do-mi-sol",
+        "voice-beginner-sol-la-sol-then-over-chords",
+        "voice-intermediate-a-tune-with-a-5th-then-your-own-line"
+      ],
+      "best": 0.953,
+      "pairs": [
+        {
+          "a": "voice-beginner-a-skipping-tune-then-over-chords",
+          "b": "voice-beginner-do-mi-sol",
+          "cos": 0.933,
+          "jac": 0.487
+        },
+        {
+          "a": "voice-beginner-a-skipping-tune-then-over-chords",
+          "b": "voice-beginner-sol-la-sol-then-over-chords",
+          "cos": 0.945,
+          "jac": 0.49
+        },
+        {
+          "a": "voice-beginner-a-sol-tune-then-your-own-line",
+          "b": "voice-beginner-sol-la-sol-then-over-chords",
+          "cos": 0.934,
+          "jac": 0.553
+        },
+        {
+          "a": "voice-beginner-a-sol-tune-then-your-own-line",
+          "b": "voice-intermediate-a-tune-with-a-5th-then-your-own-line",
+          "cos": 0.934,
+          "jac": 0.49
+        },
+        {
+          "a": "voice-beginner-a-tune-under-do-then-over-three-chords",
+          "b": "voice-beginner-sol-la-sol-then-over-chords",
+          "cos": 0.953,
+          "jac": 0.49
+        }
+      ]
+    },
+    {
+      "id": "g13",
+      "label": "voice-advanced-mix-all-five-modes",
+      "blocks": [
+        "voice-advanced-mix-all-five-modes",
+        "voice-advanced-singing-locrian",
+        "voice-intermediate-mix-dorian-or-mixolydian"
+      ],
+      "best": 0.952,
+      "pairs": [
+        {
+          "a": "voice-advanced-mix-all-five-modes",
+          "b": "voice-advanced-singing-locrian",
+          "cos": 0.952,
+          "jac": 0.468
+        },
+        {
+          "a": "voice-advanced-mix-all-five-modes",
+          "b": "voice-intermediate-mix-dorian-or-mixolydian",
+          "cos": 0.937,
+          "jac": 0.463
+        },
+        {
+          "a": "voice-advanced-singing-locrian",
+          "b": "voice-intermediate-mix-dorian-or-mixolydian",
+          "cos": 0.948,
+          "jac": 0.483
+        }
+      ]
+    },
+    {
+      "id": "g14",
+      "label": "voice-advanced-hard-leaps",
+      "blocks": [
+        "voice-advanced-hard-leaps",
+        "voice-advanced-sing-the-two-7ths-and-the-octave"
+      ],
+      "best": 0.95,
+      "pairs": [
+        {
+          "a": "voice-advanced-hard-leaps",
+          "b": "voice-advanced-sing-the-two-7ths-and-the-octave",
+          "cos": 0.95,
+          "jac": 0.527
+        }
+      ]
+    },
+    {
+      "id": "g15",
+      "label": "voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between",
+      "blocks": [
+        "voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between",
+        "voice-intermediate-a-harmony-line-over-three-chords"
+      ],
+      "best": 0.95,
+      "pairs": [
+        {
+          "a": "voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between",
+          "b": "voice-intermediate-a-harmony-line-over-three-chords",
+          "cos": 0.95,
+          "jac": 0.415
+        }
+      ]
+    },
+    {
+      "id": "g16",
+      "label": "guitar-beginner-fifths-and-fourths-on-the-next-string",
+      "blocks": [
+        "guitar-beginner-fifths-and-fourths-on-the-next-string",
+        "guitar-intermediate-a-5th-and-a-4th-up-and-down-from-one-note",
+        "guitar-new-fifths-on-two-strings"
+      ],
+      "best": 0.949,
+      "pairs": [
+        {
+          "a": "guitar-beginner-fifths-and-fourths-on-the-next-string",
+          "b": "guitar-intermediate-a-5th-and-a-4th-up-and-down-from-one-note",
+          "cos": 0.949,
+          "jac": 0.4
+        },
+        {
+          "a": "guitar-beginner-fifths-and-fourths-on-the-next-string",
+          "b": "guitar-new-fifths-on-two-strings",
+          "cos": 0.931,
+          "jac": 0.256
+        }
+      ]
+    },
+    {
+      "id": "g17",
+      "label": "guitar-beginner-down-up-picking",
+      "blocks": [
+        "guitar-beginner-down-up-picking",
+        "guitar-new-first-week-pick-each-open-string",
+        "guitar-theory-intermediate-alternate-picking",
+        "guitar-warm-up-down-up-on-open-strings"
+      ],
+      "best": 0.949,
+      "pairs": [
+        {
+          "a": "guitar-beginner-down-up-picking",
+          "b": "guitar-new-first-week-pick-each-open-string",
+          "cos": 0.939,
+          "jac": 0.358
+        },
+        {
+          "a": "guitar-beginner-down-up-picking",
+          "b": "guitar-theory-intermediate-alternate-picking",
+          "cos": 0.935,
+          "jac": 0.4
+        },
+        {
+          "a": "guitar-beginner-down-up-picking",
+          "b": "guitar-warm-up-down-up-on-open-strings",
+          "cos": 0.937,
+          "jac": 0.407
+        },
+        {
+          "a": "guitar-new-first-week-pick-each-open-string",
+          "b": "guitar-warm-up-down-up-on-open-strings",
+          "cos": 0.949,
+          "jac": 0.392
+        }
+      ]
+    },
+    {
+      "id": "g18",
+      "label": "guitar-advanced-a-g-and-d-triads",
+      "blocks": [
+        "guitar-advanced-a-g-and-d-triads",
+        "voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets"
+      ],
+      "best": 0.948,
+      "pairs": [
+        {
+          "a": "guitar-advanced-a-g-and-d-triads",
+          "b": "voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets",
+          "cos": 0.948,
+          "jac": 0.402
+        }
+      ]
+    },
+    {
+      "id": "g19",
+      "label": "guitar-beginner-e-minor-pentatonic-two-places",
+      "blocks": [
+        "guitar-beginner-e-minor-pentatonic-two-places",
+        "guitar-beginner-pentatonic-box1",
+        "guitar-beginner-position-1-then-your-own-phrases"
+      ],
+      "best": 0.948,
+      "pairs": [
+        {
+          "a": "guitar-beginner-e-minor-pentatonic-two-places",
+          "b": "guitar-beginner-position-1-then-your-own-phrases",
+          "cos": 0.934,
+          "jac": 0.379
+        },
+        {
+          "a": "guitar-beginner-pentatonic-box1",
+          "b": "guitar-beginner-position-1-then-your-own-phrases",
+          "cos": 0.948,
+          "jac": 0.607
+        }
+      ]
+    },
+    {
+      "id": "g20",
+      "label": "voice-beginner-a-longer-skipping-tune-then-your-own",
+      "blocks": [
+        "voice-beginner-a-longer-skipping-tune-then-your-own",
+        "voice-beginner-mix-steps-and-skips",
+        "voice-beginner-mix-whole-octave",
+        "voice-new-mix-do-to-sol"
+      ],
+      "best": 0.947,
+      "pairs": [
+        {
+          "a": "voice-beginner-a-longer-skipping-tune-then-your-own",
+          "b": "voice-beginner-mix-steps-and-skips",
+          "cos": 0.944,
+          "jac": 0.426
+        },
+        {
+          "a": "voice-beginner-mix-steps-and-skips",
+          "b": "voice-beginner-mix-whole-octave",
+          "cos": 0.945,
+          "jac": 0.565
+        },
+        {
+          "a": "voice-beginner-mix-steps-and-skips",
+          "b": "voice-new-mix-do-to-sol",
+          "cos": 0.947,
+          "jac": 0.583
+        }
+      ]
+    },
+    {
+      "id": "g21",
+      "label": "voice-advanced-singing-lydian",
+      "blocks": [
+        "voice-advanced-singing-lydian",
+        "voice-intermediate-singing-mixolydian",
+        "voice-new-hold-your-note"
+      ],
+      "best": 0.946,
+      "pairs": [
+        {
+          "a": "voice-advanced-singing-lydian",
+          "b": "voice-intermediate-singing-mixolydian",
+          "cos": 0.946,
+          "jac": 0.563
+        },
+        {
+          "a": "voice-advanced-singing-lydian",
+          "b": "voice-new-hold-your-note",
+          "cos": 0.935,
+          "jac": 0.342
+        }
+      ]
+    },
+    {
+      "id": "g22",
+      "label": "guitar-beginner-spider-new-order",
+      "blocks": [
+        "guitar-beginner-spider-new-order",
+        "guitar-beginner-the-spider-where-position-1-lives",
+        "guitar-warm-up-the-spider-slowly"
+      ],
+      "best": 0.945,
+      "pairs": [
+        {
+          "a": "guitar-beginner-spider-new-order",
+          "b": "guitar-beginner-the-spider-where-position-1-lives",
+          "cos": 0.94,
+          "jac": 0.488
+        },
+        {
+          "a": "guitar-beginner-the-spider-where-position-1-lives",
+          "b": "guitar-warm-up-the-spider-slowly",
+          "cos": 0.945,
+          "jac": 0.512
+        }
+      ]
+    },
+    {
+      "id": "g23",
+      "label": "voice-advanced-a-slide-over-two-octaves",
+      "blocks": [
+        "voice-advanced-a-slide-over-two-octaves",
+        "voice-advanced-an-octave-slide-a-little-higher"
+      ],
+      "best": 0.943,
+      "pairs": [
+        {
+          "a": "voice-advanced-a-slide-over-two-octaves",
+          "b": "voice-advanced-an-octave-slide-a-little-higher",
+          "cos": 0.943,
+          "jac": 0.368
+        }
+      ]
+    },
+    {
+      "id": "g24",
+      "label": "voice-guitar-advanced-first-week-nine-notes-and-the-octave",
+      "blocks": [
+        "voice-guitar-advanced-first-week-nine-notes-and-the-octave",
+        "voice-guitar-advanced-first-week-the-octave-run"
+      ],
+      "best": 0.942,
+      "pairs": [
+        {
+          "a": "voice-guitar-advanced-first-week-nine-notes-and-the-octave",
+          "b": "voice-guitar-advanced-first-week-the-octave-run",
+          "cos": 0.942,
+          "jac": 0.491
+        }
+      ]
+    },
+    {
+      "id": "g25",
+      "label": "theory-advanced-mix-all-twelve-down-and-together",
+      "blocks": [
+        "theory-advanced-mix-all-twelve-down-and-together",
+        "theory-intermediate-mix-intervals-up-down-together"
+      ],
+      "best": 0.94,
+      "pairs": [
+        {
+          "a": "theory-advanced-mix-all-twelve-down-and-together",
+          "b": "theory-intermediate-mix-intervals-up-down-together",
+          "cos": 0.94,
+          "jac": 0.388
+        }
+      ]
+    },
+    {
+      "id": "g26",
+      "label": "guitar-advanced-caged-five-shapes-one-chord",
+      "blocks": [
+        "guitar-advanced-caged-five-shapes-one-chord",
+        "guitar-intermediate-mix-caged-four-shapes"
+      ],
+      "best": 0.939,
+      "pairs": [
+        {
+          "a": "guitar-advanced-caged-five-shapes-one-chord",
+          "b": "guitar-intermediate-mix-caged-four-shapes",
+          "cos": 0.939,
+          "jac": 0.594
+        }
+      ]
+    },
+    {
+      "id": "g27",
+      "label": "guitar-intermediate-skip-a-string",
+      "blocks": [
+        "guitar-intermediate-skip-a-string",
+        "guitar-theory-intermediate-picking-skip-a-string"
+      ],
+      "best": 0.939,
+      "pairs": [
+        {
+          "a": "guitar-intermediate-skip-a-string",
+          "b": "guitar-theory-intermediate-picking-skip-a-string",
+          "cos": 0.939,
+          "jac": 0.423
+        }
+      ]
+    },
+    {
+      "id": "g28",
+      "label": "voice-advanced-hard-leaps-down-from-do",
+      "blocks": [
+        "voice-advanced-hard-leaps-down-from-do",
+        "voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th"
+      ],
+      "best": 0.938,
+      "pairs": [
+        {
+          "a": "voice-advanced-hard-leaps-down-from-do",
+          "b": "voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th",
+          "cos": 0.938,
+          "jac": 0.652
+        }
+      ]
+    },
+    {
+      "id": "g29",
+      "label": "theory-only-first-week-3rds-both-notes-at-once",
+      "blocks": [
+        "theory-only-first-week-3rds-both-notes-at-once",
+        "theory-only-first-week-5ths-octaves-and-3rds-by-ear"
+      ],
+      "best": 0.937,
+      "pairs": [
+        {
+          "a": "theory-only-first-week-3rds-both-notes-at-once",
+          "b": "theory-only-first-week-5ths-octaves-and-3rds-by-ear",
+          "cos": 0.937,
+          "jac": 0.324
+        }
+      ]
+    },
+    {
+      "id": "g30",
+      "label": "guitar-advanced-solo-over-am7-and-d7",
+      "blocks": [
+        "guitar-advanced-solo-over-am7-and-d7",
+        "guitar-advanced-the-jam"
+      ],
+      "best": 0.937,
+      "pairs": [
+        {
+          "a": "guitar-advanced-solo-over-am7-and-d7",
+          "b": "guitar-advanced-the-jam",
+          "cos": 0.937,
+          "jac": 0.356
+        }
+      ]
+    },
+    {
+      "id": "g31",
+      "label": "voice-advanced-mix-tunes-chords-off",
+      "blocks": [
+        "voice-advanced-mix-tunes-chords-off",
+        "voice-intermediate-mix-tunes-easy-to-hard",
+        "voice-new-easy-tunes-by-ear"
+      ],
+      "best": 0.936,
+      "pairs": [
+        {
+          "a": "voice-advanced-mix-tunes-chords-off",
+          "b": "voice-intermediate-mix-tunes-easy-to-hard",
+          "cos": 0.934,
+          "jac": 0.5
+        },
+        {
+          "a": "voice-advanced-mix-tunes-chords-off",
+          "b": "voice-new-easy-tunes-by-ear",
+          "cos": 0.932,
+          "jac": 0.402
+        },
+        {
+          "a": "voice-intermediate-mix-tunes-easy-to-hard",
+          "b": "voice-new-easy-tunes-by-ear",
+          "cos": 0.936,
+          "jac": 0.331
+        }
+      ]
+    },
+    {
+      "id": "g32",
+      "label": "theory-intermediate-augmented-triad",
+      "blocks": [
+        "theory-intermediate-augmented-triad",
+        "theory-intermediate-mix-major-minor-dim-aug"
+      ],
+      "best": 0.933,
+      "pairs": [
+        {
+          "a": "theory-intermediate-augmented-triad",
+          "b": "theory-intermediate-mix-major-minor-dim-aug",
+          "cos": 0.933,
+          "jac": 0.431
+        }
+      ]
+    },
+    {
+      "id": "g33",
+      "label": "voice-intermediate-sing-the-3rd-the-4th-and-the-5th",
+      "blocks": [
+        "voice-intermediate-sing-the-3rd-the-4th-and-the-5th",
+        "voice-new-3rd-and-5th-from-do"
+      ],
+      "best": 0.932,
+      "pairs": [
+        {
+          "a": "voice-intermediate-sing-the-3rd-the-4th-and-the-5th",
+          "b": "voice-new-3rd-and-5th-from-do",
+          "cos": 0.932,
+          "jac": 0.44
+        }
+      ]
+    }
+  ]
+}

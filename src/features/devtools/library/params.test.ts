@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import { allowedParams, canNamePlayer, devArgs, itemRedirect, libraryHref, minutes, orDash, readParams, tabOfItem } from "./params";
 
 test("readParams takes the first value and ignores empty ones", () => {
-  assert.deepEqual(readParams({ topic: ["a", "b"], player: "" }), { topic: "a", player: undefined, item: undefined });
-  assert.deepEqual(readParams({}), { topic: undefined, player: undefined, item: undefined });
+  assert.deepEqual(readParams({ topic: ["a", "b"], player: "" }), { topic: "a", player: undefined, item: undefined, group: undefined });
+  assert.deepEqual(readParams({}), { topic: undefined, player: undefined, item: undefined, group: undefined });
 });
 
 test("include_not_enabled is no longer read or written", () => {
-  assert.deepEqual(readParams({ include_not_enabled: "1" }), { topic: undefined, player: undefined, item: undefined });
+  assert.deepEqual(readParams({ include_not_enabled: "1" }), { topic: undefined, player: undefined, item: undefined, group: undefined });
   assert.equal(libraryHref("blocks", { topic: "t" }, { includeNotEnabled: true } as never), "/admin/content/library/blocks?topic=t");
 });
 
@@ -57,4 +57,10 @@ test("a content-only viewer's player parameter is dropped; dev and admin keep it
   assert.equal(allowedParams(p, ["content", "admin"]).player, "abc");
   assert.equal(allowedParams(p, ["dev"]).player, "abc");
   assert.equal(canNamePlayer(["content"]), false);
+});
+
+test("a near-copy group is read and kept in a Blocks link", () => {
+  assert.equal(readParams({ group: "g03" }).group, "g03");
+  assert.equal(libraryHref("blocks", { group: "g03" }, { item: "a" }), "/admin/content/library/blocks?group=g03&item=a");
+  assert.equal(libraryHref("plans", { group: "g03" }), "/admin/content/library/plans");
 });

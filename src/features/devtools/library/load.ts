@@ -8,6 +8,7 @@ import type { Db } from "@/lib/db/client";
 import { SEED_BLOCKS } from "@/features/library/seed";
 import { riffInFile } from "../riff/blocks";
 import { databaseItem, seedItem, type DrawnItem } from "./item";
+import { nearCopyGroup } from "./nearCopies";
 import { devArgs, type LibraryParams } from "./params";
 
 /** What a library page read, or why it could not: no database, or the query failed. */
@@ -91,6 +92,12 @@ async function riffsNotInFile(deps: Deps): Promise<string[]> {
 export const loadBlocks = (db: Db | null, params: LibraryParams): Promise<Loaded<BlocksData>> =>
   scoped(db, params, async (deps, scope) => {
     const { topics } = await libraryCoverage(deps, scope);
+    // TEMPORARY: a near-copy group lists its blocks, whatever their topic
+    const group = nearCopyGroup(params.group);
+    if (group) {
+      const found = await Promise.all(group.blocks.map((id) => getBlock(deps, scope, id)));
+      return { topics: topicCounts(topics), topic: null, blocks: found.filter((b): b is NonNullable<typeof b> => b !== null), riffEdited: await riffsNotInFile(deps) };
+    }
     let topic = params.topic ?? null;
     if (topic === null && params.item !== undefined) topic = (await getBlock(deps, scope, blockOfChoice(params.item) ?? params.item))?.topic ?? null;
     const blocks = topic === null ? null : await findBlocks(deps, scope, { topic }, "newest", BLOCK_LIMIT.max);
