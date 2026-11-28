@@ -9,6 +9,7 @@ import { isWritten } from "@/features/course/model";
 import { noteKey } from "@/features/course/notes";
 import { useAllNotes, useCourseLayout } from "./useCourseNotes";
 import Marks from "./Marks";
+import SectionVersions from "@/features/devtools/SectionVersions";
 
 type Filter = "work" | "solid" | null;
 
@@ -26,6 +27,8 @@ function Row({ r, n, showStage }: { r: SectionRef; n: number; showStage: boolean
           {showStage && <span className="ml-2 text-xs" style={{ color: colour }}>{r.stage.label}</span>}
         </span>
         {planned(r) && <span className="mt-0.5 block text-xs leading-snug text-slate-500">{r.section.about}</span>}
+        {/* development only: the versions the section was written to */}
+        <SectionVersions section={r.section} compact />
       </span>
       {planned(r)
         ? <span className="shrink-0 rounded-full border border-slate-700 px-2 py-0.5 text-[10px] uppercase tracking-wider text-slate-500">soon</span>

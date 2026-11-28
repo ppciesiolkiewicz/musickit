@@ -7,7 +7,7 @@ import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 import SectionPanel, { StageLine } from "@/components/course/SectionPanel";
 import SectionBody from "@/components/course/SectionBody";
 import MyNotes from "@/components/course/MyNotes";
-import { SectionVersions } from "@/features/devtools/PageVersions";
+import SectionVersions from "@/features/devtools/SectionVersions";
 import { LEGACY_STAGES } from "@/features/course/legacy";
 import { ALL_SECTIONS, findSection, nextSection, sectionHref, stageColour } from "@/features/course/course";
 
