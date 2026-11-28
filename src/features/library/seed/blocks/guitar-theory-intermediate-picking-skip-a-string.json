@@ -1,12 +1,12 @@
 {
   "id": "guitar-theory-intermediate-picking-skip-a-string",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 5.",
+  "note": "String skipping on one picking-drill at level advanced (two notes a string, down-up, a string skipped each time), with its own metronome, so no backing-band beside it. The why says what the skip trains, the step says what Play starts and what the tab's pick row shows, the one extra line is the feel (muscle memory), and the tempo is moves.",
   "exercise": {
     "title": "Picking, skip a string",
     "area": "guitar",
@@ -17,25 +17,14 @@
     "concepts": [
       "picking"
     ],
-    "why": "Arpeggios jump strings, so the pick hand needs to jump accurately.",
+    "why": "An arpeggio jumps over strings, so the picking hand has to travel past a string it doesn't play and still land the next stroke on time.",
     "learnBefore": [
       "/course/8/string-skipping"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the metronome. Pick two notes per string, down-up, skipping a string each time."
-      },
-      {
-        "type": "tool",
-        "tool": {
-          "type": "backing-band",
-          "bpm": 80,
-          "key": "a",
-          "parts": {
-            "click": "on"
-          }
-        }
+        "text": "Press Play below to start the metronome, and follow the tab. Pick two notes on each string, down then up, and jump over the next string each time, as the arrows in the pick row show.\nPractice until the jump is in your muscle memory: your picking hand lands on the right string without you looking."
       },
       {
         "type": "tool",
@@ -54,6 +43,13 @@
       "steps": [
         "picking:4"
       ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 120,
+          "step": 10
+        }
+      },
       "minutes": 5
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-jazz-standard-changes",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track styles (theory-progressions), step 4: the changes of a jazz standard as a major ii–V–I chained to the ii–V–i of the relative minor, the turnaround, then the same changes in other keys.",
+  "note": "Track styles, step 4: the changes of a jazz standard, a major ii–V–I chained to the ii–V–i of the relative minor, heard over a swing backing track; then the turnaround named by number; then the chain again without looking. The two homes are ringed on a staff and named the long way, every chord is a chord token, and the key is moves with a {{?key}} line on what stays the same.",
   "exercise": {
     "title": "Jazz standards: ii–V–Is in a chain",
     "area": "theory",
@@ -31,7 +31,25 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, in swing. Bars 1 to 3 are a ii–V–I in G major, bar 4 is the 4th chord, and bars 5 to 7 are a ii–V–i in E minor, the relative minor.\nCall out \"major\" or \"minor\" each time the backing track lands on a home chord.\nOnce you hear each landing coming a bar early, look away from the chord boxes and call them again."
+            "text": "{{chord:Imaj7}} is the 1st chord of the key, built on {{1}}, and {{chord:vi7}} is the 6th chord, built on {{6}}: the home chord of the relative minor. Tap the two ringed notes on the staff below to hear the two homes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track. Bars 1 to 3 are a ii–V–I in {{=key}} major: {{chord:ii7}} is the 2nd chord and {{chord:V7}} the 5th, leading to {{chord:Imaj7}}. Bar 4 is {{chord:IVmaj7}}, the 4th chord. Bars 5 to 7 are a ii–V–i in the relative minor: {{chord:vii°7}} and {{chord:III7}}, leading to {{chord:vi7}}.\nCall out \"major\" or \"minor\" each time the backing track lands on a home chord.\nPractice until you hear each landing coming a bar early."
           },
           {
             "type": "tool",
@@ -61,7 +79,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: four chords that end a chorus and lead back to its top. The last two are a ii and a V, so the home chord at the top of the next round is the I they point to.\nCall out 1, 6, 2 or 5 on each change until the numbers come without looking."
+            "text": "Press Play below to start the backing track: four chords that end a chorus and lead back to its top, {{chord:Imaj7}}, {{chord:vi7}}, {{chord:ii7}} and {{chord:V7}}. The last two are a ii and a V, so they point back to {{chord:Imaj7}} at the top of the next round. Say the number of each chord as it arrives: 1, 6, 2 or 5.\nPractice until the numbers come without looking at the chord boxes."
           },
           {
             "type": "tool",
@@ -77,25 +95,12 @@
       },
       {
         "type": "section",
-        "heading": "The same changes, new key",
+        "heading": "The chain, without looking",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "b-flat"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the eight bars of the first block again. Look away from the chord boxes and call out \"major\" or \"minor\" on each home chord.\nOnce both landings are easy to hear, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the chain is the same: a ii–V–I in major, then a ii–V–i in its relative minor."
+            "text": "Press Play below to start the backing track: the eight bars of the chain again. Look away from the chord boxes and call out \"major\" or \"minor\" on each home chord, then look back to check.\n{{?key}}In another key the chords have other names, and the chain is the same: a ii–V–I in major, then a ii–V–i in its relative minor."
           },
           {
             "type": "tool",
@@ -130,7 +135,10 @@
       "steps": [
         "styles:4"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

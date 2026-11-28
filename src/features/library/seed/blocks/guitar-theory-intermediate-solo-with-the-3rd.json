@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-solo-with-the-3rd",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 6.",
+  "note": "A blues solo that follows the chords: the A minor pentatonic scale with C♯ added (scale-neck \"add\"), first sliding into C♯ over A7 on a solo-over play-along, then over a 12-bar backing track landing on D over D7 as well. The note outside the scale is named with what it is and why it works, the chords are chord tokens counted the long way once, every note named is lit, and the tempo is moves; the key stays, since the added note is a note name.",
   "exercise": {
-    "title": "Solo with the 3rd",
+    "title": "Solo with the 3rd of each chord",
     "area": "guitar",
     "tags": [
       "improv"
@@ -17,7 +17,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "Adding the chord's 3rd to the pentatonic position makes a blues solo follow the changes.",
+    "why": "The minor pentatonic scale has no 3rd of A7 in it, so sliding into that one added note when A7 plays makes a blues solo follow the chords instead of sitting on top of them.",
     "learnBefore": [
       "/course/7/twelve-bar",
       "/course/7/blues-solo"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Slide into C♯",
+        "heading": "Slide into C♯ over A7",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Improvise in position 1. When A7 comes round, slide from {{b3}} (C) up to {{c-sharp}}: the 3rd of A7, not in A minor pentatonic. End your phrases on {{1}}."
+            "text": "{{chord:I7}} is the 1st chord of the blues in A, built on {{1}}, and {{chord:IV7}} is the 4th chord, built on {{4}}. The neck below has the notes of the A minor pentatonic scale, with the ringed {{b3}} and one added note, {{c-sharp}}. {{c-sharp}} is not in the scale: it is the 3rd of {{chord:I7}}, so it fits that chord."
           },
           {
             "type": "tool",
@@ -45,10 +45,13 @@
                 "c-sharp"
               ],
               "highlight": [
-                "1",
                 "b3"
               ]
             }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track, and improvise with the notes of the scale. When {{chord:I7}} comes round, slide from {{b3}} up one fret into {{c-sharp}}.\nPractice until the slide lands on {{c-sharp}} as {{chord:I7}} starts, not after it."
           },
           {
             "type": "tool",
@@ -83,12 +86,39 @@
       },
       {
         "type": "section",
-        "heading": "Over D7",
+        "heading": "Land on D over D7",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Same backing track. When D7 comes round, aim for {{d}}. When A7 comes round, keep sliding into {{c-sharp}}."
+            "text": "Press Play below to start the backing track: a 12-bar blues in A. When {{chord:IV7}} comes round, land on the ringed {{d}}, its root. When {{chord:I7}} comes back, slide into {{c-sharp}} again.\nIf you lose your place in the 12 bars, wait for the lit box to show {{chord:I7}} and start your next phrase there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "add": [
+                "c-sharp"
+              ],
+              "highlight": [
+                "d"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "blues",
+              "key": "a",
+              "style": "shuffle",
+              "bpm": 90
+            }
           }
         ]
       }
@@ -101,6 +131,13 @@
       "steps": [
         "pentatonic-positions:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 90,
+          "to": 110,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

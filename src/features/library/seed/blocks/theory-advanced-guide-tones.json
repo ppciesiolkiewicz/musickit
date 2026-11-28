@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-guide-tones",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track ii-v-i (theory-progressions), step 4: guide tones, the two lines of 3rds and 7ths through a ii–V–I, tapped on the staff over the backing track, then in other keys.",
+  "note": "Track ii-v-i, step 4: guide tones, the two lines of 3rds and 7ths through a ii–V–I, tapped on a staff beside the backing track. The staff's \"line\" rings the note to tap over each chord, so the text names only where each line starts and what it does; the last block uses \"follow\": \"guide-tones\" for both lines at once. Chords are chord tokens counted the long way once, and the key is moves with a {{?key}} line on what stays the same.",
   "exercise": {
     "title": "Guide tones through a ii–V–I",
     "area": "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "ii-v-i"
     ],
-    "why": "The 3rd and the 7th are the notes that tell one chord from the next, and through a ii–V–I each of them stays or falls by one step, so two short lines carry all three chords.",
+    "why": "The 3rd and the 7th are the notes that tell one chord from the next, and through a ii–V–I each of them stays put or falls by a half step, so two short lines carry all three chords.",
     "learnBefore": [
       "/course/11/guide-tones",
       "/course/11/ii-v-i"
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: Dm7, G7, then two bars of Cmaj7. Tap one note per chord on the staff under the backing track: {{4}} over Dm7, {{4}} again over G7, then {{3}} over Cmaj7.\n{{4}} is the 3rd of Dm7 and stays as the 7th of G7, then falls a half step to the 3rd of Cmaj7.\nPractice until you tap each note as its chord arrives."
+            "text": "{{chord:ii7}} is the 2nd chord of the key, built on {{2}}. {{chord:V7}} is the 5th chord, built on {{5}}, and {{chord:Imaj7}} is the 1st chord, built on {{1}}.\nPress Play below to start the backing track: {{chord:ii7}}, {{chord:V7}}, then two bars of {{chord:Imaj7}}. On the staff under it, tap the ringed note as each chord arrives. The line starts on {{4}}, the 3rd of {{chord:ii7}}, stays as the 7th of {{chord:V7}}, then falls a half step to {{3}}, the 3rd of {{chord:Imaj7}}.\nPractice until you tap each note as its chord arrives."
           },
           {
             "type": "tool",
@@ -56,10 +56,15 @@
               "key": "c",
               "voice": "tenor",
               "highlight": [
-                "3",
                 "4"
               ],
-              "mic": false
+              "mic": false,
+              "line": [
+                "4",
+                "4",
+                "3",
+                "3"
+              ]
             }
           }
         ]
@@ -71,7 +76,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track again. Tap the other line on the staff under it: {{1}} over Dm7, {{7}} over G7, then {{7}} again over Cmaj7.\n{{1}} is the 7th of Dm7 and falls a half step to the 3rd of G7, which stays as the 7th of Cmaj7.\nListen for the bar where your note stays and the chord changes under it."
+            "text": "Press Play below to start the backing track again, and tap the ringed note on the staff under it as each chord arrives. This line starts on {{1}}, the 7th of {{chord:ii7}}, falls a half step to {{7}}, the 3rd of {{chord:V7}}, and stays there as the 7th of {{chord:Imaj7}}.\nListen for the bar where your note stays and the chord changes under it."
           },
           {
             "type": "tool",
@@ -96,35 +101,27 @@
               "key": "c",
               "voice": "tenor",
               "highlight": [
-                "1",
-                "7"
+                "1"
               ],
-              "mic": false
+              "mic": false,
+              "line": [
+                "1",
+                "7",
+                "7",
+                "7"
+              ]
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "Both lines, other keys",
+        "heading": "Both lines",
         "minutes": 4,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "f"
-            },
-            {
-              "key": "b-flat"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Tap one line through the three chords, then the other line the next time round. The staff rings the four notes the two lines use.\nOnce your hand goes to each note without reading it, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the notes are new but each line still stays or falls by one step."
+            "text": "Press Play below to start the backing track. The staff under it now rings both notes of each chord, its 3rd and its 7th. Tap one line through the three chords, then the other line the next time round.\nPractice until your hand goes to each note without reading it.\n{{?key}}In another key the notes are new, and each line still stays put or falls by a half step."
           },
           {
             "type": "tool",
@@ -148,13 +145,8 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
-              "highlight": [
-                "1",
-                "3",
-                "4",
-                "7"
-              ],
-              "mic": false
+              "mic": false,
+              "follow": "guide-tones"
             }
           }
         ]
@@ -168,7 +160,10 @@
       "steps": [
         "ii-v-i:4"
       ],
-      "minutes": 10
+      "minutes": 10,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

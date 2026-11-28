@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-mix-major-and-minor-ii-v-i",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track ii-v-i (theory-progressions), step 3: a major ii–V–I and a minor ii–V–i in one tune, C major and its minor home A, heard as two homes, followed by their roots, then in three keys. Missing: no curated backing-track progression joins the two, so the tune is given as \"chords\".",
+  "note": "Track ii-v-i, step 3 (a mix): a major ii–V–I and a minor ii–V–i in one tune, heard as two homes, their roots tapped from a staff whose \"line\" rings the root of each chord, then named without looking. The tune is written as numerals so it follows the key, which is moves; chords are chord tokens, counted the long way where the staff rings their roots, and the last line opens with {{?key}}.",
   "exercise": {
     "title": "Major and minor ii–V–I in one tune",
     "area": "theory",
@@ -33,25 +33,25 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: a ii–V–I to C major, then a ii–V–i to A minor, round and round. Call out \"major\" or \"minor\" as each home chord arrives.\nThen listen two bars earlier, to each ii chord: Dm7 before the major home, Bm7♭5 before the minor one."
+            "text": "Press Play below to start the backing track: a ii–V–I to {{chord:Imaj7}}, then a ii–V–i to {{chord:vi7}}, round and round. Call out \"major\" or \"minor\" as each home chord arrives.\nThen listen two bars earlier, to the chord that starts each ii–V: {{chord:ii7}} before the major home, {{chord:vii°7}} before the minor one."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-track",
               "key": "c",
-              "chords": [
-                "Dm7",
-                "G7",
-                "Cmaj7",
-                "Cmaj7",
-                "Bm7b5",
-                "E7",
-                "Am7",
-                "Am7"
-              ],
               "style": "swing",
-              "bpm": 96
+              "bpm": 96,
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7",
+                "viiø7",
+                "III7",
+                "vi7",
+                "vi7"
+              ]
             }
           }
         ]
@@ -63,25 +63,25 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track again, slower. Tap the root of each chord on the staff under the backing track as its box lights: {{2}}, {{5}}, {{1}}, then {{7}}, {{3}}, {{6}}.\nBoth lines move by the same leaps, and they end on the two ringed homes, {{1}} and {{6}}."
+            "text": "{{chord:Imaj7}} is the 1st chord of the key, built on {{1}}, the major home. {{chord:vi7}} is the 6th chord, built on {{6}}, the minor home.\nPress Play below to start the backing track again, slower. On the staff under it, tap the ringed root of each chord as its box lights.\nListen for the two lines moving by the same leaps and ending on the two homes."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-track",
               "key": "c",
-              "chords": [
-                "Dm7",
-                "G7",
-                "Cmaj7",
-                "Cmaj7",
-                "Bm7b5",
-                "E7",
-                "Am7",
-                "Am7"
-              ],
               "style": "ballad",
-              "bpm": 66
+              "bpm": 66,
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7",
+                "viiø7",
+                "III7",
+                "vi7",
+                "vi7"
+              ]
             }
           },
           {
@@ -96,50 +96,47 @@
                 "1",
                 "6"
               ],
-              "mic": false
+              "mic": false,
+              "line": [
+                "2",
+                "5",
+                "1",
+                "1",
+                "7",
+                "3",
+                "6",
+                "6"
+              ]
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "Other keys",
+        "heading": "Name the changes",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Look away from the chord boxes and call out 2, 5 or 1 on each change, and \"major\" or \"minor\" on each home chord, then look to check.\nOnce the ii chord tells you which home is coming, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the minor home is still the 6 of the major one."
+            "text": "Press Play below to start the backing track. Look away from the chord boxes and call out 2, 5 or 1 on each change, and \"major\" or \"minor\" on each home chord, then look back to check.\nPractice until the first chord of each ii–V tells you which home is coming.\n{{?key}}In another key the chords have other names, and the minor home is still built on the 6th note of the major key."
           },
           {
             "type": "tool",
             "tool": {
               "type": "backing-track",
               "key": "c",
-              "chords": [
-                "Dm7",
-                "G7",
-                "Cmaj7",
-                "Cmaj7",
-                "Bm7b5",
-                "E7",
-                "Am7",
-                "Am7"
-              ],
               "style": "swing",
-              "bpm": 96
+              "bpm": 96,
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7",
+                "viiø7",
+                "III7",
+                "vi7",
+                "vi7"
+              ]
             }
           }
         ]
@@ -153,7 +150,10 @@
       "steps": [
         "ii-v-i:3"
       ],
-      "minutes": 9
+      "minutes": 9,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

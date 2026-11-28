@@ -1,23 +1,24 @@
 {
   "id": "guitar-theory-intermediate-which-numeral",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 5.",
+  "note": "The I–vi–ii–V loop named by ear: the four roots ringed on a staff and each chord counted the long way, then the chords followed on a backing track, then in a new order without looking. A listening drill for any instrument, so its chords come from a backing-track; the chords are chord tokens, the key is moves, and the last line says what stays the same in another key.",
   "exercise": {
-    "title": "Which numeral?",
+    "title": "The 1st, 6th, 2nd and 5th chords by ear",
     "area": "theory",
     "tags": [
-      "theory"
+      "theory",
+      "ear"
     ],
     "topic": "theory-progressions",
     "concepts": [
       "chords-of-a-key"
     ],
-    "why": "I-vi-ii-V adds the vi to the ii-V-I, and it is the loop under countless songs.",
+    "why": "Each chord is built on one note of the scale, so following the root as it moves from the 1st note to the 6th, 2nd and 5th tells you which chord is playing.",
     "learnBefore": [
       "/course/5/chords-from-scale",
       "/course/5/hearing-changes"
@@ -25,31 +26,45 @@
     "cells": [
       {
         "type": "section",
-        "heading": "With the chart",
+        "heading": "Four roots, four chords",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below and listen. Say each numeral as it arrives: I (Cmaj7), vi (Am7), ii (Dm7), V (G7)."
+            "text": "The staff below shows the {{=key}} major scale: tap the four ringed notes to hear them. {{chord:Imaj7}} is the 1st chord of the key, built on {{1}}. {{chord:vi7}} is the 6th chord, built on {{6}}. {{chord:ii7}} is the 2nd chord, built on {{2}}. {{chord:V7}} is the 5th chord, built on {{5}}."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "guitar-play-along",
-              "shape": {
-                "shape": "progression",
-                "key": "c",
-                "numerals": [
-                  "Imaj7",
-                  "vi7",
-                  "ii7",
-                  "V7"
-                ],
-                "bars": 4,
-                "backing": [
-                  "fingerstyle"
-                ]
-              },
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "2",
+                "5",
+                "6"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track: {{chord:Imaj7}}, {{chord:vi7}}, {{chord:ii7}}, {{chord:V7}}, one bar each. Say the number of each chord as it arrives, 1, 6, 2 or 5, with the lit box to help.\nPractice until you hear each change coming before the box lights."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "Imaj7",
+                "vi7",
+                "ii7",
+                "V7"
+              ],
+              "style": "ballad",
               "bpm": 80
             }
           }
@@ -57,31 +72,25 @@
       },
       {
         "type": "section",
-        "heading": "In a new order",
+        "heading": "A new order",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Now the same four chords in a new order. Look away and press Play. Write down the numerals you hear, then check."
+            "text": "Press Play below to start the backing track: the same four chords in a new order. Look away from the screen, say the number of each chord, and look back to check.\nIf you can't tell which chord is playing, wait for {{chord:Imaj7}}: it sounds like home, and you can follow the order again from there.\n{{?key}}In another key the four chords have other names, and each still sounds the same against the home note."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "guitar-play-along",
-              "shape": {
-                "shape": "progression",
-                "key": "c",
-                "numerals": [
-                  "Imaj7",
-                  "ii7",
-                  "vi7",
-                  "V7"
-                ],
-                "bars": 4,
-                "backing": [
-                  "block"
-                ]
-              },
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "Imaj7",
+                "ii7",
+                "vi7",
+                "V7"
+              ],
+              "style": "bossa",
               "bpm": 80
             }
           }
@@ -97,6 +106,9 @@
         "chords-of-a-key:2",
         "chords-of-a-key:3"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 8
     }
   ]

@@ -1,15 +1,15 @@
 {
   "id": "showcase-progression-four-ways",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 1
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Shows one progression worked several ways: heard as arpeggios with only the ringed roots played, the shapes, strummed with a strum-along that carries the pattern, then improvised over with each chord's 3rd ringed. Same four chords, four different tools and tasks, and no step names a note or a stroke its tool doesn't show.",
+  "note": "Shows one progression worked several ways: heard as arpeggios with only the ringed roots played, strummed on a strum-along that carries the pattern, played through as a song with a Verse and a Chorus on a song-chart (the open-chords step 8 ladder), then improvised over with each chord's 3rd ringed on a solo-over. Same four chords, four tools and tasks; no step names a note or a stroke its tool doesn't show, and the tempo is moves (the open shapes keep their key).",
   "showcase": "progression",
   "exercise": {
-    "title": "I-V-vi-IV in G, four ways",
+    "title": "G, D, Em and C, four ways",
     "area": "guitar",
     "tags": [
       "rhythm",
@@ -20,7 +20,7 @@
       "open-chords",
       "strumming"
     ],
-    "why": "The four chords come round in the same order every time, so each new way of playing them (roots, shapes, strumming, 3rds) trains you to hear where the next change falls.",
+    "why": "The four chords come round in the same order every time, so each new way of playing them (roots, strumming, a whole song, 3rds) trains you to hear where the next change falls.",
     "learnBefore": [
       "/course/2/em-and-am",
       "/course/2/c-d-g"
@@ -33,7 +33,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the progression as arpeggios. Play only the ringed note of each chord, its root, one note per bar. Practice until your hand moves to the next root before the chord changes."
+            "text": "Press Play below to start the backing track: G, D, Em and C as arpeggios, one bar each. Play only the ringed note of each chord, its root, once a bar.\nPractice until your hand moves to the next root before the chord changes."
           },
           {
             "type": "tool",
@@ -65,35 +65,12 @@
       },
       {
         "type": "section",
-        "heading": "The four shapes",
-        "minutes": 3,
-        "cells": [
-          {
-            "type": "text",
-            "text": "Press each chord box below to hear it, then fret the four shapes in order at your own pace. Keep going round until each change needs no look at the neck."
-          },
-          {
-            "type": "tool",
-            "tool": {
-              "type": "chord-shapes",
-              "chords": [
-                "G",
-                "D",
-                "Em",
-                "C"
-              ]
-            }
-          }
-        ]
-      },
-      {
-        "type": "section",
         "heading": "Strum it in time",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to strum, one bar each, with its strokes inside. If a change comes late, keep your strumming hand going and catch the next beat 1."
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to strum, one bar each, with its strokes inside.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -113,29 +90,60 @@
       },
       {
         "type": "section",
+        "heading": "Through the song",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track. After a bar of count-in, it plays the song from the top: the Verse twice, then the Chorus, with the bar playing lit. Strum the same pattern through it, with no gaps at the changes.\nPractice until you reach the Chorus without looking at the chart for where you are."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "g",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "G",
+                    "D",
+                    "Em",
+                    "C"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "Em",
+                    "C",
+                    "G",
+                    "D"
+                  ]
+                }
+              ],
+              "form": [
+                "Verse",
+                "Verse",
+                "Chorus"
+              ],
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
         "heading": "Land on the 3rds",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on the backing track below, under the first neck, and improvise in G major. Land on each chord's 3rd, ringed on the first neck, when that chord comes round: {{b}} over G, {{f-sharp}} over D, {{g}} over Em, {{e}} over C. Then make it yours: pick one other note of each chord to land on."
-          },
-          {
-            "type": "tool",
-            "tool": {
-              "type": "scale-neck",
-              "scale": "major-ionian",
-              "key": "g",
-              "placement": {
-                "by": "chords"
-              },
-              "highlight": [
-                "g",
-                "b",
-                "f-sharp",
-                "e"
-              ]
-            }
+            "text": "Press Play below to start the backing track, and improvise with the notes of the G major scale on the neck. When each chord comes round, land on its ringed note, the chord's 3rd.\nNow make it yours: pick one other note of each chord to land on."
           },
           {
             "type": "tool",
@@ -144,6 +152,7 @@
               "shape": {
                 "shape": "solo-over",
                 "key": "g",
+                "scale": "major-ionian",
                 "chords": [
                   {
                     "chord": "G",
@@ -187,6 +196,13 @@
         "open-chords:8",
         "strumming:3"
       ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 12
     }
   ]

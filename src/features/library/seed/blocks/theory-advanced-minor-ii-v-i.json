@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-minor-ii-v-i",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track ii-v-i (theory-progressions), step 2: the ii–V–i in minor, heard beside the major one, with the note that makes its V chord a dominant 7, then in three minor keys.",
+  "note": "Track ii-v-i, step 2: the ii–V–i in minor, heard beside the major one, then its roots and the raised 7th inside its V chord tapped on a staff, then named by number without looking. Chords are chord tokens (ii°7 for the half-diminished chord), counted the long way where the staff can ring their roots, and the key is moves with a {{?key}} line on what stays the same.",
   "exercise": {
     "title": "The ii–V–i in minor",
     "area": "theory",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on the first backing track below to hear the ii–V–I in C major. Then stop it and press Play on the second backing track below to hear the ii–V–i in A minor, the relative minor.\nListen for the two chords that changed colour: the ii is half-diminished now and the home chord is minor. The V is a dominant 7 in both."
+            "text": "Press Play on the first backing track below to hear the ii–V–I in {{=key}} major. Then stop it and press Play on the second backing track below to hear the ii–V–i in its relative minor.\nListen for the two chords that change colour: the first chord of the minor one is half-diminished and its home chord is minor, while the middle chord is a dominant 7 in both."
           },
           {
             "type": "tool",
@@ -61,7 +61,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track again. Tap the root of each chord on the staff under it as its box lights: {{2}}, then {{5}}, then {{1}}.\nThen tap {{7}} in the E7 bar and {{1}} in the Am7 bar. {{7}} is the raised 7th of harmonic minor and the 3rd of E7, a half step under home."
+            "text": "{{chord:ii°7}} is the 2nd chord of the minor key, built on {{2}}. {{chord:V7}} is the 5th chord, built on {{5}}, and {{chord:i7}} is the 1st chord, built on {{1}}.\nPress Play below to start the backing track again. Tap the root of each chord on the staff under it as its box lights, then tap {{7}} in the {{chord:V7}} bar and {{1}} in the {{chord:i7}} bar. {{7}} is the raised 7th of harmonic minor and the 3rd of {{chord:V7}}, a half step under home.\nPractice until your tap on {{1}} lands with the chord."
           },
           {
             "type": "tool",
@@ -93,25 +93,12 @@
       },
       {
         "type": "section",
-        "heading": "Other minor keys",
+        "heading": "Name the changes",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "d"
-            },
-            {
-              "key": "e"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Look away from the chord boxes and call out 2, 5 or 1 on each change, then look to check.\nOnce the home chord arrives where you expect it, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the order of colours is the same: half-diminished, dominant 7, minor."
+            "text": "Press Play below to start the backing track. Look away from the chord boxes and call out 2, 5 or 1 on each change, then look back to check.\nPractice until the home chord arrives where you expect it.\n{{?key}}In another key the chords have other names, and the order of colours is the same: half-diminished, dominant 7, minor."
           },
           {
             "type": "tool",
@@ -137,7 +124,10 @@
       "steps": [
         "ii-v-i:2"
       ],
-      "minutes": 9
+      "minutes": 9,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

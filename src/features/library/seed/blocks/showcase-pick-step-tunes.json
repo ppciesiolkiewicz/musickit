@@ -1,12 +1,12 @@
 {
   "id": "showcase-pick-step-tunes",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. The why says what makes a step tune easier than a skip, the step tune comes back in A by the Key selector, and the text says what Play starts (the tune and the mic) and what to sing on.",
+  "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. Both are slow (a beginner's tune at 40), the step tune is learned in the stages the text names (with the tune, Tune muted, Chords muted too), the skip tune carries the care line, and the key and tempo are moves, so the text names no selector and the line about another key opens with {{?key}}.",
   "showcase": "pick",
   "exercise": {
     "title": "Two tunes: steps, then skips",
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "A tune on Do, Re and Mi. Press Play below to hear it: the mic starts with it, and your pitch shows on the staff. Sing along on the note names.\nOnce it feels easy, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
+            "text": "A tune on Do, Re and Mi. Press Play below to hear it: the mic starts with it, and your pitch shows on the staff. Sing along on the note names.\nOnce you can sing it with the tune, press Tune to mute the tune and sing it over the chords alone. Then press Chords to mute them too, and sing it a cappella.\n{{?key}}In another key the tune starts higher or lower, and it keeps its shape: the same steps up and down."
           },
           {
             "type": "tool",
@@ -43,20 +43,11 @@
                 "stage": "mi"
               },
               "key": "g",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "a"
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
@@ -65,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "A longer tune in D that skips between Do, Mi and Sol, then steps back down. Look at the staff first and guess how it goes. Press Play below to check your guess, then sing along on \"la\"."
+            "text": "A longer tune that skips between Do, Mi and Sol, then steps back down. Look at the staff first and guess how it goes. Press Play below to check your guess: the mic starts with it. Then sing along on \"oo\".\n_Don't reach for high notes: sing the skip up to Sol only as high as feels easy._"
           },
           {
             "type": "tool",
@@ -76,7 +67,8 @@
                 "stage": "skips"
               },
               "key": "d",
-              "voice": "tenor"
+              "voice": "tenor",
+              "bpm": 40
             }
           }
         ]
@@ -91,6 +83,14 @@
         "tunes:1",
         "tunes:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 40,
+          "to": 60,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]

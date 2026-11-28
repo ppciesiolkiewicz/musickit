@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-click-on-two-and-four",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track beat (theory-basics), step 7: the metronome heard as beats 2 and 4. Missing: a metronome that sounds only beats 2 and 4 of a set tempo and shows the bar; the block uses a plain click at half the tempo and the count is the player's own.",
+  "note": "Track beat, step 7: the metronome heard as beats 2 and 4. Count against a slow click, clap in the gaps, then clap eighths over it; the faster tempos are moves, not a stage choice, so the text names no selector. Missing: a metronome that sounds only beats 2 and 4 of a set tempo and shows the bar; the block uses a plain click at half the tempo and the count is the player's own.",
   "exercise": {
     "title": "The metronome on 2 and 4",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome: a slow click. Count four beats to every two clicks, so that you say \"two\" and \"four\" on the clicks and \"one\" and \"three\" in the gaps.\nOnce the count sits steadily, clap on all four beats, and listen for every second clap hiding a click."
+            "text": "Press Play below to start the metronome: a slow click. Count four beats to every two clicks, so that you say \"two\" and \"four\" on the clicks and \"one\" and \"three\" in the gaps. Then clap on all four beats as you count.\nPractice until every second clap lands right on a click."
           },
           {
             "type": "tool",
@@ -70,24 +70,10 @@
         "type": "section",
         "heading": "Eighths over the click",
         "minutes": 3,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 50
-            },
-            {
-              "bpm": 60
-            },
-            {
-              "bpm": 72
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Clap eighths, two claps to a beat, so that four claps fit from one click to the next.\nWhen the click still lands on your \"two\" and \"four\" after many bars, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a stage is too fast, go back one and clap one clap per beat there first."
+            "text": "Press Play below to start the metronome again. Clap eighths, two claps to a beat, so that four claps fit from one click to the next, and keep counting.\nPractice until the click still lands on your \"two\" and \"four\" after many bars."
           },
           {
             "type": "tool",
@@ -114,7 +100,14 @@
       "steps": [
         "beat:7"
       ],
-      "minutes": 8
+      "minutes": 8,
+      "moves": {
+        "bpm": {
+          "from": 50,
+          "to": 70,
+          "step": 10
+        }
+      }
     }
   ]
 }

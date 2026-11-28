@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-b7-7-or-octave",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 4.",
+  "note": "An ear game on the three widest intervals inside an octave, the minor 7th, the major 7th and the octave (interval-ears with set [10, 11, 12], going up). The why gives the one thing to listen for (how far under the octave the top note stops), the answers are named as the game's buttons show them with the plain word beside each, and the block ends on a feel to reach.",
   "exercise": {
-    "title": "b7, 7 or octave?",
+    "title": "Minor 7th, major 7th or octave?",
     "area": "theory",
     "tags": [
       "ear"
@@ -17,14 +17,14 @@
     "concepts": [
       "sevenths-up"
     ],
-    "why": "The 7th is what separates D7 from Gmaj7, and hearing it alone makes the chords easy to name.",
+    "why": "The minor 7th stops a whole step under the octave and the major 7th only a half step under it, so listening for how close the top note comes to the octave tells the three apart.",
     "learnBefore": [
       "/course/7/hearing-sevenths"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start below and the game plays an interval. Pick its name: m7 for a minor 7th (as in D7), M7 for a major 7th (as in Gmaj7), P8 for the octave."
+        "text": "Press Start in the game below: it plays two notes, the lower one first. Pick m7 for a minor 7th, M7 for a major 7th or P8 for the octave. Press Replay above the answers to hear the same two notes again.\nPractice until you hear how far under the octave the top note stops before you pick."
       },
       {
         "type": "tool",

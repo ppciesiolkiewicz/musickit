@@ -1,12 +1,12 @@
 {
   "id": "guitar-theory-intermediate-major-or-minor-song",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 3.",
+  "note": "The same four open chords played as two songs on song-charts (the open-chords step 8 ladder: a Verse and a Chorus, four open chords, one a bar): one with C as home, one with Am as home, so the student hears the home chord make a song major or minor. The text names the sections as the chart does, says what to listen for instead of asking, and the tempo is moves; the open shapes keep their key.",
   "exercise": {
     "title": "Major or minor song?",
     "area": "guitar",
@@ -17,55 +17,103 @@
     "concepts": [
       "open-chords"
     ],
-    "why": "The same four chords can sound major or minor depending on which one feels like home.",
+    "why": "C, G, Am and Em are all chords of both C major and A minor, so the chord a song keeps coming home to decides whether it sounds major or minor.",
     "learnBefore": [
       "/course/3/major-or-minor"
     ],
     "cells": [
       {
         "type": "section",
-        "heading": "Start on C",
+        "heading": "Home on C",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below; the lit block shows the chord: C, G, Am, F, one bar each. Strum along. Notice that C feels like home."
+            "text": "Press Play below to start the backing track. After a bar of count-in, the lit bar shows the chord to play: strum down on every beat through the Verse and the Chorus, with no gaps at the changes.\nListen for the end of the Chorus: the song lands on C, and C sounds like home."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "strum-along",
-              "chords": [
-                "C",
-                "G",
-                "Am",
-                "F"
+              "type": "song-chart",
+              "key": "c",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "C",
+                    "Em",
+                    "Am",
+                    "G"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "Am",
+                    "G",
+                    "C",
+                    "C"
+                  ]
+                }
               ],
-              "bpm": 80
+              "form": [
+                "Verse",
+                "Verse",
+                "Chorus"
+              ],
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
             }
           }
         ]
       },
       {
         "type": "section",
-        "heading": "Start on Am",
+        "heading": "Home on Am",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Now Am, F, C, G: the same chords, but Am is home and it sounds minor. Strum along. Then stop: which chord feels finished?"
+            "text": "Press Play below to start the backing track: the same four chords, now in a song that starts and ends on Am. Strum down on every beat again.\nListen for the end of the Chorus: the song lands on Am, and with Am as home the same chords sound minor."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "strum-along",
-              "chords": [
-                "Am",
-                "F",
-                "C",
-                "G"
+              "type": "song-chart",
+              "key": "a",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "Am",
+                    "G",
+                    "C",
+                    "Em"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "C",
+                    "G",
+                    "Am",
+                    "Am"
+                  ]
+                }
               ],
-              "bpm": 80
+              "form": [
+                "Verse",
+                "Verse",
+                "Chorus"
+              ],
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
             }
           }
         ]
@@ -79,6 +127,13 @@
       "steps": [
         "open-chords:8"
       ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 9
     }
   ]

@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-diminished-seventh",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track dim-aug (theory-building-chords), step 4: the diminished 7 chord, built, told from half-diminished and heard leading home. Missing: interval-ears \"kind\": \"chord\" has no diminished 7 (or half-diminished) answer, so naming it by ear is done with the backing track; the staff cannot spell a ♭♭7, so the top note is drawn as the 6.",
+  "note": "Track dim-aug, step 4: the diminished 7 chord built on a staff, told from the half-diminished chord on a backing track, then heard leading home. The first two blocks are pinned to B (their chords are named as letters, since a chord token cannot name a diminished 7); the last block follows the key, which is moves, with a {{?key}} line on what stays the same. Missing: interval-ears \"kind\": \"chord\" has no diminished 7 or half-diminished answer, so the naming is done by ear over the backing track; the staff cannot spell a ♭♭7, so the top note is drawn as the 6; a {{chord:…}} token cannot write a diminished 7 (vii°7 reads as half-diminished).",
   "exercise": {
     "title": "The diminished 7 chord",
     "area": "theory",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Bdim7 is the diminished triad, {{1}} {{b3}} {{b5}}, with one more minor 3rd on top. That top note is a diminished 7th above the root, and the staff below draws it as {{6}}, which is the same pitch.\nTap the four notes up from the low {{1}}, then tap on to the high {{1}}: that last step is a minor 3rd too.\nGo up and down until the four even steps sound like one chord to you."
+            "text": "Bdim7 is the diminished triad, {{1}} {{b3}} {{b5}}, with one more minor 3rd on top. That top note is a diminished 7th above the root, and the staff below draws it as {{6}}, which is the same pitch.\nTap the four notes up from the low {{1}}, then tap on to the high {{1}}: that last step is a minor 3rd too.\nPractice until the four even steps sound like one chord to you."
           },
           {
             "type": "tool",
@@ -48,7 +48,10 @@
               "highlight": [
                 "6"
               ],
-              "mic": false
+              "mic": false,
+              "pinned": [
+                "key"
+              ]
             }
           }
         ]
@@ -60,7 +63,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: two bars of Bm7♭5, the half-diminished chord, then two bars of Bdim7. Only the top note differs, a half step lower in Bdim7.\nOnce you hear the note drop, look away from the chord boxes and call out the bar where the chord changes."
+            "text": "Press Play below to start the backing track: two bars of Bm7♭5, the half-diminished chord, then two bars of Bdim7. Only the top note differs: it is a half step lower in Bdim7.\nPractice until you can call out the bar where the chord changes with your eyes off the chord boxes."
           },
           {
             "type": "tool",
@@ -78,7 +81,11 @@
                 "drums": "on",
                 "bass": "on",
                 "keys": "always"
-              }
+              },
+              "key": "b",
+              "pinned": [
+                "key"
+              ]
             }
           }
         ]
@@ -87,23 +94,10 @@
         "type": "section",
         "heading": "Leading home",
         "minutes": 3,
-        "choice": {
-          "options": [
-            {
-              "key": "c"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: a diminished 7 chord, then the major home chord, then the same diminished 7 chord and the minor home chord. The root of the diminished 7 chord sits a half step under home both times.\nOnce you can hear home coming a bar early, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the diminished 7 chord still sits a half step under home."
+            "text": "Press Play below to start the backing track: a diminished 7 chord, then {{chord:I}}, then the same diminished 7 chord and {{chord:i}}. Both times the root of the diminished 7 chord sits a half step under home.\nPractice until you hear home coming a bar early.\n{{?key}}In another key the chords have other names, and the diminished 7 chord still sits a half step under home."
           },
           {
             "type": "tool",
@@ -131,7 +125,10 @@
       "steps": [
         "dim-aug:4"
       ],
-      "minutes": 8
+      "minutes": 8,
+      "moves": {
+        "key": "any"
+      }
     }
   ]
 }

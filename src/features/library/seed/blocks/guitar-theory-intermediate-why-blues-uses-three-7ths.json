@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-why-blues-uses-three-7ths",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 6.",
+  "note": "Why a blues in A has three dominant 7th chords: their roots ringed on a staff and the chords counted the long way, the three chord boxes heard, then A7's own notes on an arpeggio-neck with its 3rd and ♭7 ringed and named. The why is the mechanism (only the 5th chord is a dominant 7th in a major key; the blues makes all three one), and the key stays A, since the note names are the lesson.",
   "exercise": {
-    "title": "Why blues uses three 7ths",
+    "title": "Why the blues uses three 7th chords",
     "area": "theory",
     "tags": [
       "theory"
@@ -17,7 +17,7 @@
     "concepts": [
       "styles"
     ],
-    "why": "Blues breaks the rule of one dominant per key: every chord is a 7th, which gives the style its restless sound.",
+    "why": "In a major key only the 5th chord is a dominant 7th, but in a blues all three chords are, so every chord carries a ♭7 that leans away and the music never quite settles.",
     "learnBefore": [
       "/course/7/twelve-bar",
       "/course/7/sevenths"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The three chords",
+        "heading": "Three dominant 7ths",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "A7, D7 and E7 are built on {{1}}, {{4}} and {{5}} of A. Tap those notes on the staff to hear them. Then press each chord box: the same dominant colour three times."
+            "text": "{{chord:I7}} is the 1st chord of the blues in A, built on {{1}}. {{chord:IV7}} is the 4th chord, built on {{4}}, and {{chord:V7}} is the 5th chord, built on {{5}}. Tap the three ringed notes on the staff below to hear them."
           },
           {
             "type": "tool",
@@ -48,6 +48,10 @@
             }
           },
           {
+            "type": "text",
+            "text": "Press each chord box below to hear the three chords.\nListen for the same dominant 7th sound three times, built on three different roots."
+          },
+          {
             "type": "tool",
             "tool": {
               "type": "chord-shapes",
@@ -62,12 +66,12 @@
       },
       {
         "type": "section",
-        "heading": "A7's own notes",
+        "heading": "The notes of A7",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Tap the A7 arpeggio: {{1}} {{3}} {{5}} {{b7}}. Its {{3}} is C♯, which is not in A minor pentatonic. That clash is the sound of the blues."
+            "text": "The neck below shows the notes of {{chord:I7}}. Tap them from the lowest note to the highest and back.\nThe ringed {{3}} is {{c-sharp}} and the ringed {{b7}} is {{g}}. {{g}} is in the A minor pentatonic scale and {{c-sharp}} is not, so over this chord a blues solo often slides from {{c}} up to {{c-sharp}}.\nPractice until you can find the ringed {{3}} without looking for it."
           },
           {
             "type": "tool",
@@ -75,7 +79,6 @@
               "type": "arpeggio-neck",
               "chord": "A7",
               "highlight": [
-                "1",
                 "3",
                 "b7"
               ]

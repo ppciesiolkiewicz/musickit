@@ -1,12 +1,12 @@
 {
   "id": "theory-advanced-all-twelve-intervals",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track intervals (theory-ear), step 6 (ladder interval-ears:5): the 7ths and the tritone, then all twelve intervals up and down. The first game narrows to the three new intervals with \"set\"; the step is read from the two games set to \"level\": \"advanced\".",
+  "note": "Track intervals, step 6: the 7ths and the tritone, then all twelve intervals up, then down. The first game narrows to the three new intervals with \"set\" and names each answer as its button shows it with the plain word beside it; the next two are set to \"level\": \"advanced\" and change one thing each (all twelve, then the direction). One extra line per block: a feel, what to do when two answers sound alike, what stays the same going down.",
   "exercise": {
     "title": "The 7ths, the tritone, then all twelve",
     "area": "theory",
@@ -17,7 +17,7 @@
     "concepts": [
       "intervals"
     ],
-    "why": "The two 7ths and the tritone are told apart by how far the upper note sits under the octave, so listening for that gap names the three intervals the earlier levels left out.",
+    "why": "The two 7ths and the tritone are told apart by how far the upper note stops under the octave, so listening for that gap names all three.",
     "learnBefore": [
       "/course/6/every-interval"
     ],
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays two notes, one after the other, and you pick m7, M7 or TT (m7 for a minor 7th, M7 for a major 7th, TT for the tritone).\nListen for how close the upper note comes to the octave: a half step under it is M7, a whole step under it is m7, and TT stops halfway up.\nPractice until the three no longer sound alike."
+            "text": "Press Start in the game below: it plays two notes, one after the other. Pick m7 for a minor 7th, M7 for a major 7th or TT for the tritone.\nPractice until you hear where the upper note stops before you pick: just under the octave, a step under it, or halfway up."
           },
           {
             "type": "tool",
@@ -51,7 +51,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: now any of the twelve intervals can come.\nIf two answers sound alike, press Replay in the game and listen to the upper note against the octave again.\nPractice until the name comes before you count the steps."
+            "text": "Press Start in the game below: now any of the twelve intervals can come.\nIf two answers sound alike, press Replay above the answers and listen to how far the upper note is from the lower one, not to the notes themselves."
           },
           {
             "type": "tool",

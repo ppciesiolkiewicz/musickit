@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-ii-v-and-i-in-the-scale",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 2.",
+  "note": "The ii–V–I built from the major scale, then heard: tap every other note of the staff from the three ringed starting notes, then name each chord on a backing track. The chords are chord tokens counted the long way once, the staff rings only the notes the text names, a listening drill for any instrument hears its chords from a backing-track, and the key is moves with a {{?key}} line on what stays the same.",
   "exercise": {
-    "title": "ii, V and I in the scale",
+    "title": "The ii–V–I, built from the scale",
     "area": "theory",
     "tags": [
       "theory"
@@ -17,7 +17,7 @@
     "concepts": [
       "ii-v-i"
     ],
-    "why": "Stack 3rds on the 2nd, 5th and 1st notes of C major and you get Dm7, G7 and Cmaj7.",
+    "why": "Stacking every other note of the major scale on its 2nd, 5th and 1st notes builds the three chords of a ii–V–I, so you can find them in any key from the scale alone.",
     "learnBefore": [
       "/course/5/chords-from-scale",
       "/course/11/ii-v-i"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Build them",
+        "heading": "Build the three chords",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Tap a note on the staff to hear it. Tap {{2}} {{4}} {{6}} {{1}}: Dm7, every other note from D. Then {{5}} {{7}} {{2}} {{4}}: G7. Then {{1}} {{3}} {{5}} {{7}}: Cmaj7."
+            "text": "The staff below shows the {{=key}} major scale: tap a note to hear it. Start on the ringed {{2}} and tap every other note going up until you have four: that is {{chord:ii7}}, the 2nd chord of the key, built on {{2}}.\nDo the same from the ringed {{5}} for {{chord:V7}}, the 5th chord, built on {{5}}, and from the ringed {{1}} for {{chord:Imaj7}}, the 1st chord, built on {{1}}.\nPractice until you can find the four notes of each chord without counting them out."
           },
           {
             "type": "tool",
@@ -39,6 +39,11 @@
               "scale": "major-ionian",
               "key": "c",
               "voice": "tenor",
+              "highlight": [
+                "1",
+                "2",
+                "5"
+              ],
               "mic": false
             }
           }
@@ -46,31 +51,25 @@
       },
       {
         "type": "section",
-        "heading": "Hear the pull",
+        "heading": "Hear the three chords",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below and listen. The ii moves away, the V leans hard, the I lands. Say each numeral as it arrives."
+            "text": "Press Play below to start the backing track: {{chord:ii7}}, {{chord:V7}}, then two bars of {{chord:Imaj7}}. Say the number of each chord as it arrives: 2, 5 or 1.\nListen for the bar of {{chord:V7}}: it pulls toward {{chord:Imaj7}}, and the 1st chord sounds like home when it comes.\n{{?key}}In another key the three chords have other names, and they still come from the 2nd, 5th and 1st notes of the scale."
           },
           {
             "type": "tool",
             "tool": {
-              "type": "guitar-play-along",
-              "shape": {
-                "shape": "progression",
-                "key": "c",
-                "numerals": [
-                  "ii7",
-                  "V7",
-                  "Imaj7",
-                  "Imaj7"
-                ],
-                "bars": 4,
-                "backing": [
-                  "arp-updown"
-                ]
-              },
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
               "bpm": 70
             }
           }
@@ -85,6 +84,9 @@
       "steps": [
         "ii-v-i:1"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 7
     }
   ]

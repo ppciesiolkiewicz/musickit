@@ -1,12 +1,12 @@
 {
   "id": "guitar-new-mix-first-five-open-chords",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": 4,
-    "agents": 2,
-    "teaching": 5
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Track open-chords (guitar-basic-chords), step 3: Em, Am, E, A and D together: the five shapes from memory, minor next to major, then ten bars that meet every pair of the five once, one strum a bar.",
+  "note": "Track open-chords, step 3 (a mix): Em, Am, E, A and D together. The shapes from memory on chord-shapes, minor next to major on a strum-along, then ten bars in which every pair of the five chords meets once, one strum a bar. Each strum-along carries its pattern, the tempo is moves (the open shapes keep their key), and each block has one extra line: a feel, what to listen for, what to do when a change comes late.",
   "exercise": {
     "title": "Five open chords, any two in a row",
     "area": "guitar",
@@ -18,7 +18,7 @@
     "concepts": [
       "open-chords"
     ],
-    "why": "Every change between two chords is its own move, so the last block plays the five chords in an order where each one meets every other once, and the changes that are still slow show up.",
+    "why": "Every change between two chords is its own move, so playing the five chords in an order where each one meets every other once shows you which changes are still slow.",
     "learnBefore": [
       "/course/2/em-and-am",
       "/course/2/e-a-dm",
@@ -56,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down once on beat 1, then use the rest of the bar to move to the next chord.\nWhen Em changes to E and Am to A, listen for the one note that goes up."
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down once on beat 1, then use the rest of the bar to move to the next chord.\nWhen Em changes to E and Am changes to A, listen for the one note that goes up."
           },
           {
             "type": "tool",
@@ -114,6 +114,13 @@
       "steps": [
         "open-chords:3"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

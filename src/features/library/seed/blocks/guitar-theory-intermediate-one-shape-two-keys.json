@@ -1,14 +1,14 @@
 {
   "id": "guitar-theory-intermediate-one-shape-two-keys",
-  "model": "claude-fable-5-2",
+  "model": "claude-opus-5-5",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 0
+    "prompt": 25,
+    "agents": 3,
+    "teaching": 14
   },
-  "note": "Moved from plans/guitar-theory-intermediate.json, day 3.",
+  "note": "One position of five notes played twice: as the minor pentatonic scale over a drone on its root, then as the major pentatonic scale that shares its notes, over a drone on that root. Each block has its own drone so home can be heard, the first naming of the position says the scale and what the dots are, the run says where it starts and turns, and the key and tempo are moves (the second block keeps its distance from the first).",
   "exercise": {
-    "title": "One shape, two keys",
+    "title": "One position, minor and major",
     "area": "guitar",
     "tags": [
       "technique"
@@ -17,30 +17,31 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "The relative minor works on the neck too: one pentatonic position serves both keys, with a different root.",
+    "why": "Every minor pentatonic scale holds the same five notes as one major pentatonic scale, so one position plays both, and the note you treat as home decides which one you hear.",
     "learnBefore": [
       "/course/5/major-pentatonic"
     ],
     "cells": [
       {
-        "type": "tool",
-        "tool": {
-          "type": "backing-band",
-          "bpm": 80,
-          "key": "a",
-          "parts": {
-            "click": "on"
-          }
-        }
-      },
-      {
         "type": "section",
-        "heading": "As A minor",
+        "heading": "Home on the minor root",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play above to start the metronome. Play position 1 at the 5th fret up and down. Start and end on {{1}} (A)."
+            "text": "Press Play below to start the drone and the metronome. Under it is the neck with the notes of the {{=key}} minor pentatonic scale: each dot is a note to play, and the ringed dots are {{1}}, home.\nStart on the ringed {{1}} on the low E string, play every dot up to the high e string, then come back down the same way, one note per beat.\nPractice until the ringed {{1}} sounds like home every time you land on it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "drone": "always",
+                "click": "on"
+              }
+            }
           },
           {
             "type": "tool",
@@ -60,12 +61,24 @@
       },
       {
         "type": "section",
-        "heading": "As C major",
+        "heading": "Home on the major root",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "The same frets, but now home is {{1}} (C). Start and end there. Hear how bright it sounds."
+            "text": "Press Play below to start the drone and the metronome again, now on a new root. The neck under it has the same dots in the same frets, read as a major pentatonic scale: the ringed dots are its {{1}}, the new home.\nStart on the lowest dot on the low E string, play every dot up to the high e string and back down, and end on a ringed {{1}}.\nWhen you change the home note, your hand stays in the same frets and the scale sounds major."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "c",
+              "parts": {
+                "drone": "always",
+                "click": "on"
+              }
+            }
           },
           {
             "type": "tool",
@@ -94,6 +107,14 @@
         "pentatonic-positions:1",
         "pentatonic-positions:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]
