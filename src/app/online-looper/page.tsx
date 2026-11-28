@@ -7,12 +7,13 @@ import Glow from "@/components/landing/Glow";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { Check } from "@/components/landing/home/PracticeSections";
+import { loginHref } from "@/lib/publicPaths";
 import LooperStageMock from "./LooperStageMock";
 
 /*
- * The looper's product page: what the looper at /looper does, for someone who searched for a looper. The looper itself
- * needs a login, and it is the same attunr account as the practice plan: Open the looper goes to /looper, and the proxy
- * sends a visitor to /login first, coming back to the looper. Every claim here is in spec/looper.md (or spec/nam.md):
+ * The looper's product page: what the looper at /looper does, for someone who searched for a looper. The looper is an
+ * open tool (OPEN_TOOLS in src/lib/publicPaths.ts), so Open the looper needs no account; the last section offers the
+ * attunr account for the rest of the app. Every claim here is in spec/looper.md (or spec/nam.md):
  * say nothing the looper doesn't do.
  */
 
@@ -55,7 +56,7 @@ const BEFORE: string[] = [
 const PRIMARY = "ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-teal-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-teal-500/20 transition hover:bg-teal-300";
 const SECONDARY = "ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40";
 
-const ACCOUNT_LINE = "It opens with your attunr account, the same one as your practice plan. Log in with your email or Google.";
+const ACCOUNT_LINE = "No account needed.";
 
 export default function OnlineLooperPage() {
   return (
@@ -145,12 +146,13 @@ export default function OnlineLooperPage() {
         {/* One account */}
         <section aria-labelledby="account-h" className="sect-rule py-12 sm:py-16">
           <div className="ls-card metal-panel relative overflow-hidden rounded-3xl border border-teal-500/30 bg-slate-900/60 p-6 sm:p-10">
-            <H2 id="account-h">One account for the looper <span className="ls-accent italic text-teal-300">and your practice.</span></H2>
+            <H2 id="account-h">More practice tools <span className="ls-accent italic text-teal-300">and a daily practice plan.</span></H2>
             <p className="mt-4 max-w-2xl text-slate-300">
-              Your attunr account opens the looper, the practice tools and your daily practice plan. Log in with your email or Google to start.
+              The looper needs no account. An attunr account adds the rest of the practice tools and a daily practice plan made for your level and your time. Log in with your email or Google to make one.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={LOOPER} className={PRIMARY}>Open the looper <Icon name="chevron-right" size={16} /></Link>
+              <Link href={loginHref("/plan")} className={SECONDARY}>Create account</Link>
               <Link href="/" className={SECONDARY}><Icon name="sparkles" size={16} /> See the practice plan</Link>
             </div>
           </div>

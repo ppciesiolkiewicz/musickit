@@ -16,7 +16,7 @@ const OFFER = "More practice tools and daily practice plan";
 const CREATE = `${btnBase} border-sky-500/60 bg-sky-500/20 text-sky-50 hover:border-sky-400 hover:bg-sky-500/30`;
 
 /** A few of the tools behind an account, named on the end section. Read from `THEORY_SECTIONS`, so a renamed tool stays in step. */
-const LOCKED_HREFS = ["/theory/notes", "/theory/ears", "/theory/backing", "/looper", "/theory/singing", "/theory/drills", "/theory/arpeggios", "/theory/song-chart"];
+const LOCKED_HREFS = ["/theory/notes", "/theory/ears", "/theory/backing", "/theory/singing", "/theory/drills", "/theory/arpeggios", "/theory/song-chart"];
 const LOCKED = LOCKED_HREFS.map((h) => THEORY_SECTIONS.find((s) => s.href === h)).filter((s) => !!s);
 
 /**

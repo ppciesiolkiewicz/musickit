@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import posthog from "posthog-js";
 import { LooperEngine, EFFECT_DEFS, EFFECT_KINDS, type LooperSnapshot } from "@/lib/looper/engine";
 import { wireNam } from "../namWiring";
@@ -189,7 +189,14 @@ function DeviceColumn({ icon, title, items, empty, note, onPick }: { icon: "mic"
   );
 }
 
-export default function LooperApp() {
+/** Where the close button goes and its label: Practice for a signed-in player, the page sets it for a visitor. */
+export type LooperExit = { href: string; label: string };
+
+/**
+ * `action` sits at the start of the top-right buttons (the page's sign-up offer for a visitor). Both come from the page,
+ * so the looper imports nothing about accounts.
+ */
+export default function LooperApp({ action, exit = { href: "/practice", label: "Back to Practice" } }: { action?: ReactNode; exit?: LooperExit } = {}) {
   const { engine, snap } = useEngine();
   const ready = snap.status === "ready";
   const getLevel = useMemo(() => () => engine.getLevel(), [engine]);
@@ -287,6 +294,7 @@ export default function LooperApp() {
       <div className="pointer-events-none sticky top-0 z-[1100] flex flex-wrap items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto" data-tour="looper-metronome"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>
         <div className="pointer-events-auto flex flex-wrap justify-end gap-1">
+          {action}
           <span className="self-center rounded-full border border-sky-400/40 bg-sky-400/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wider text-sky-300">Beta</span>
           <PageHelp pageId="looper" tour={LOOPER_TOUR} />
           <button type="button" className={ibtn} onClick={() => setNewOpen(true)} title="New project" aria-label="New project"><Icon name="file-plus" /></button>
@@ -304,7 +312,7 @@ export default function LooperApp() {
           </Tier>
           <button type="button" className={ibtn} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings" data-tour="looper-settings"><Icon name="settings" /></button>
           <ThemeSwitcher />
-          <Link href="/practice" className={ibtn} title="Back to Practice" aria-label="Back to Practice"><Icon name="x" /></Link>
+          <Link href={exit.href} className={ibtn} title={exit.label} aria-label={exit.label}><Icon name="x" /></Link>
         </div>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}

@@ -56,6 +56,10 @@ Microphone permission and a secure context (HTTPS or localhost) are required. Th
 - An **instrument's play window** opens from its strip (the keyboard button) as a floating window (`src/components/FloatingWindow.tsx`): drag the title bar, resize from the corner, scales its content to fit, position and size remembered; arrow keys move it and Shift + arrows resize it when the title bar is focused.
 - Settings now holds the MIDI keyboard choice, the latency fix and the mix level.
 
+## Who can open it
+
+The looper is an open tool: anyone may use it without an account (`OPEN_TOOLS` in `src/lib/publicPaths.ts`). For a visitor the page (`src/app/looper/LooperForEveryone.tsx`) adds the sign-up offer to the top bar (`LooperApp`'s `action`), points the close button at Explore instead of Practice (`exit`) and ends with the larger offer. Everything is saved in the browser, so an account changes nothing in the looper itself. Its product page is `/online-looper`.
+
 ## Starting and microphone permission
 
 The page stays covered until the audio runs (browsers need a gesture to start it): a "Start the looper" screen, which a click on it or any key press dismisses, then the startup loader. Starting opens no microphone. A device strip asks for microphone access only when the person adds it in the Add input dialog, presses "Detect devices" there, or presses "Connect" on a saved strip (saved device strips come back disconnected). New projects start with the default rigs (see Mixer). An instrument's play window opens only from its strip.

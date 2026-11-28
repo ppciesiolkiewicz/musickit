@@ -5,8 +5,8 @@ import { SignUpCorner, SignUpEnd, exploreTools } from "@/features/explore";
 import type { TheorySection } from "@/features/theory/sections";
 
 export const metadata: Metadata = {
-  title: "Free Guitar Tools: Scales, Chords, CAGED, Tuner, Metronome · attunr",
-  description: "Guitar scales and modes in every key, chord shapes, the CAGED system, a tuner and a metronome with a drone. Free to use, no account needed.",
+  title: "Free Guitar Tools: Scales, Chords, CAGED, Tuner, Metronome, Looper · attunr",
+  description: "Guitar scales and modes in every key, chord shapes, the CAGED system, a tuner, a metronome with a drone, a looper and a guitar course. Free to use, no account needed.",
   alternates: { canonical: "/explore" },
 };
 
@@ -27,14 +27,14 @@ function Tiles({ id, title, tiles, locked = false }: { id: string; title: string
   );
 }
 
-/** The tools a visitor may use without an account, then the ones an account opens (src/lib/publicPaths.ts, OPEN_TOOLS). */
+/** The tools a visitor may use without an account, then the ones an account opens (src/lib/publicPaths.ts: OPEN_TOOLS and the course). */
 export default function ExplorePage() {
   const { open, locked } = exploreTools();
   return (
     <PageShell
       active="/explore"
       title="Explore"
-      intro="Tools you can use without an account: scales in every key, chords, CAGED shapes, a tuner and a metronome."
+      intro="Tools you can use without an account: scales in every key, chords, CAGED shapes, a tuner, a metronome, a looper and the course."
       action={<SignUpCorner />}
       end={<SignUpEnd tools={false} />}
     >

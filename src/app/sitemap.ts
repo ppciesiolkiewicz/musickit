@@ -24,12 +24,13 @@ const CHANGED = {
   "/about": "2026-11-26",
   "/kickstarter": "2026-11-27",
   "/online-looper": "2026-11-28",
-  "/explore": "2026-11-27",
+  "/explore": "2026-11-28",
   "/theory/scales": "2026-11-27",
   "/theory/chords": "2026-11-27",
   "/theory/caged": "2026-11-27",
   "/tuner": "2026-11-27",
   "/theory/metronome-drone": "2026-11-27",
+  "/looper": "2026-11-28",
   /** the course's sections written as course blocks, which carry no date of their own (an article section has its `updated`) */
   course: "2026-11-28",
   /** every mode and pentatonic in every key, /theory/scales/<slug>/<key>: one date for them all, since they are drawn by the same code */

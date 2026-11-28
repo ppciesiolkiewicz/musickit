@@ -5,17 +5,17 @@
  */
 
 /**
- * The pages a visitor reads: the two home pages, the FAQ, the terms, the privacy policy, the voice-care notes, the articles (`/learn`) and their author's page (`/about`), the demo plans, the looper's product page (`/online-looper`; the looper itself needs a login), the open tools' list (`/explore`), logging in (and a teacher's student's
+ * The pages a visitor reads: the two home pages, the FAQ, the terms, the privacy policy, the voice-care notes, the articles (`/learn`) and their author's page (`/about`), the demo plans, the looper's product page (`/online-looper`), the open tools' list (`/explore`), logging in (and a teacher's student's
  * claim link, `/claim`, opened before their first log-in), and pages left as they were.
  */
 const MARKETING = ["/", "/schools", "/faq", "/terms", "/privacy", "/voice-care", "/learn", "/about", "/demo", "/explore", "/login", "/claim", "/kickstarter", "/landing-1", "/intro", "/reminders/off", "/online-looper"];
 
 /**
  * The app's tools a visitor may use without logging in, so a search can land on them: the scale pages (every mode in every
- * key), the chords, CAGED, the tuner and the metronome. They show the app's bar, with Explore and a sign-up corner for a
+ * key), the chords, CAGED, the tuner, the metronome and the looper. They show the app's bar, with Explore and a sign-up corner for a
  * visitor (`features/explore`); `/explore` lists them. The sitemap lists them too (src/app/sitemap.ts).
  */
-export const OPEN_TOOLS = ["/theory/scales", "/theory/chords", "/theory/caged", "/tuner", "/theory/metronome-drone"];
+export const OPEN_TOOLS = ["/theory/scales", "/theory/chords", "/theory/caged", "/tuner", "/theory/metronome-drone", "/looper"];
 
 /**
  * The course (`/course`, every stage and section), open so a search can land on a section. It shows the app's bar and a
@@ -49,6 +49,9 @@ export const isMarketingPath = (path: string): boolean => MARKETING.some((b) => 
 
 /** One of the open tools, or a page under one ("/theory/scales/dorian/d"). */
 export const isOpenToolPath = (path: string): boolean => OPEN_TOOLS.some((b) => under(path, b));
+
+/** The course or a page in it: open, but not one of the tools. */
+export const isOpenCoursePath = (path: string): boolean => OPEN_COURSE.some((b) => under(path, b));
 
 export const isPublicPath = (path: string): boolean => isMarketingPath(path) || isOpenToolPath(path) || OPEN_COURSE.some((b) => under(path, b)) || SHARED.some((b) => under(path, b)) || OTHER.some((b) => under(path, b)) || isFile(path);
 

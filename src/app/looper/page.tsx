@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LooperApp from "@/components/looper/LooperApp";
+import LooperForEveryone from "./LooperForEveryone";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { GuideProvider } from "@/features/guide/Tier";
 
@@ -16,7 +16,7 @@ export default function LooperPage() {
         <h1 className="sr-only">Looper</h1>
         <main>
           <GuideProvider pageId="looper">
-            <LooperApp />
+            <LooperForEveryone />
           </GuideProvider>
         </main>
         <SiteFooter />

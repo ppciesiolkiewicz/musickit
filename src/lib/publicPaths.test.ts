@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isMarketingPath, isOpenToolPath, isPublicPath, loginHref } from "./publicPaths";
+import { isMarketingPath, isOpenCoursePath, isOpenToolPath, isPublicPath, loginHref } from "./publicPaths";
 
 const PUBLIC = [
   "/", "/schools", "/faq", "/terms", "/privacy", "/demo", "/demo/guitar-beginner", "/login", "/login/confirm", "/claim",
@@ -9,7 +9,7 @@ const PUBLIC = [
   "/sitemap.xml", "/instruments/piano/a.mp3", "/images/teacher.webp", "/admin/dev", "/admin/content/stories", "/admin", "/admin/messages",
 ];
 const GATED = [
-  "/plan", "/practice", "/theory/notes", "/theory/scalesx", "/tunerx", "/looper", "/coursex", "/note/x", "/account", "/teachers/studio",
+  "/plan", "/practice", "/theory/notes", "/theory/scalesx", "/tunerx", "/looperx", "/coursex", "/note/x", "/account", "/teachers/studio",
   "/schools-x", "/demox", "/dev", "/devx", "/adminx", "/cheatsheet", "/welcome", "/claimx",
 ];
 
@@ -34,7 +34,7 @@ test("marketing paths are the public pages a visitor reads, not files or APIs", 
 });
 
 test("the open tools and the pages under them are public, with the app's bar", () => {
-  for (const p of ["/theory/scales", "/theory/scales/dorian/d", "/theory/chords", "/theory/caged", "/tuner", "/theory/metronome-drone"]) {
+  for (const p of ["/theory/scales", "/theory/scales/dorian/d", "/theory/chords", "/theory/caged", "/tuner", "/theory/metronome-drone", "/looper"]) {
     assert.equal(isPublicPath(p), true, p);
     assert.equal(isOpenToolPath(p), true, p);
     assert.equal(isMarketingPath(p), false, p);
@@ -68,4 +68,9 @@ test("a teacher invite is public: it logs the visitor in on the page", () => {
 
 test("a plan invite needs a login: it shows nothing of the plan before", () => {
   assert.equal(isPublicPath("/plan/invite/abc"), false);
+});
+
+test("the course is open, but not one of the tools", () => {
+  for (const p of ["/course", "/course/start-here"]) assert.equal(isOpenCoursePath(p), true, p);
+  for (const p of ["/coursex", "/looper", "/"]) assert.equal(isOpenCoursePath(p), false, p);
 });
