@@ -108,6 +108,8 @@ All schema changes happen here, so Part 2 adds rows and content but no migration
 
 ### Part 2, after Part 1: more choices per block
 
+Built 2026-11-28: `set` and `params` on a seed choice, stored together in `choices.set` as `{ tools, params }` (no migration), applied by `applyChoiceSet` (`plan/model/choiceSet.ts`) in `exerciseOf` and `composeBlocks`. A choice's own starting tempo is `set` on the tools; `seed check` compares `moves.bpm.from` with the tools after it.
+
 - A block file may list several choices. Each may set:
   - `level`, `steps`, `moves`, `minutes`, `draft` (as in Part 1);
   - `set`: tool props for that level, applied over the block's tools the way `given` is (for example

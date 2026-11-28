@@ -418,7 +418,7 @@ test("writeVoice keeps one voice a player: a type or their own range; null remov
 const curatedEx = { id: "s3", title: "Spider walk", minutes: 5, cells: [], blockId: "guitar-spider-walk", choiceId: "guitar-spider-walk/beginner" } as PlanExercise;
 const seededCurated = (repo: ReturnType<typeof memoryUserDataRepo>) =>
   repo.upsertCurated(
-    [{ id: "guitar-spider-walk", content: { title: "Spider walk", cells: [] } as never, area: "guitar", topic: "guitar-techniques", concepts: [], tags: [], slot: {}, provenance: { model: null, promptVersion: null, docsAgents: null, docsTeaching: null }, choices: [{ id: "guitar-spider-walk/beginner", name: "beginner", level: "beginner", steps: [], moves: null, minutes: 5, active: true, place: 0 }] }],
+    [{ id: "guitar-spider-walk", content: { title: "Spider walk", cells: [] } as never, area: "guitar", topic: "guitar-techniques", concepts: [], tags: [], slot: {}, provenance: { model: null, promptVersion: null, docsAgents: null, docsTeaching: null }, choices: [{ id: "guitar-spider-walk/beginner", name: "beginner", level: "beginner", steps: [], moves: null, set: {}, minutes: 5, active: true, place: 0 }] }],
     now,
   );
 

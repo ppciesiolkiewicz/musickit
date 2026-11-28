@@ -1,13 +1,21 @@
 import { choiceIdOf } from "@/features/plan/model/blockId";
+import { applyChoiceSet, type ChoiceSet } from "@/features/plan/model/choiceSet";
 import type { SeedBlockFile, SeedBlockRef, SeedChoice, SeedPlanFile } from "./index";
 
 /** A choice's name: lowercase words joined by single hyphens (one word is enough). */
 export const isChoiceName = (v: unknown): v is string => typeof v === "string" && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(v);
 
-/** The AI-shape exercise of one choice: the file's `exercise` plus the choice's level, steps, moves and minutes, and both ids. */
-export function exerciseOf(file: SeedBlockFile, choice: SeedChoice): Record<string, unknown> {
+/** A seed choice's `set` and `params` as one ChoiceSet, the shape `choices.set` stores. */
+export const choiceSetOf = (choice: SeedChoice): ChoiceSet => ({ ...(choice.set ? { tools: choice.set } : {}), ...(choice.params ? { params: choice.params } : {}) });
+
+/**
+ * The AI-shape exercise of one choice: the file's `exercise` with the choice's `set` and `params` applied
+ * (`applyChoiceSet`; `bare` leaves them out: the block as stored), plus the choice's level, steps, moves and minutes,
+ * and both ids.
+ */
+export function exerciseOf(file: SeedBlockFile, choice: SeedChoice, opts: { bare?: boolean } = {}): Record<string, unknown> {
   return {
-    ...file.exercise,
+    ...(opts.bare ? file.exercise : applyChoiceSet(file.exercise, choiceSetOf(choice))),
     ...(choice.level !== undefined ? { level: choice.level } : {}),
     steps: choice.steps,
     ...(choice.moves !== undefined ? { moves: choice.moves } : {}),

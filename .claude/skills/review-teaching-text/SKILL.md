@@ -1,6 +1,6 @@
 ---
 name: review-teaching-text
-version: 14
+version: 15
 description: Audit learner-facing music text in musickit - a course section, a stage, a seed exercise or plan, glossary meanings - for wrong music facts, text that disagrees with its picture or tool, and breaks from the teaching voice. Reports findings, does not rewrite unless asked. Use when asked to review, check, proofread or audit lessons, articles, exercises or examples, and before finishing course-article or exercise-example work.
 ---
 
@@ -30,6 +30,7 @@ This skill is for text that teaches music. Interface copy with no music in it (a
    - A control named differently from its label on the screen, or a game answer named differently from its button.
    - A bare "Press Play." that doesn't say what starts or where it is, or two controls in one sentence.
    - A step that says which chip to tap or lists a selector's options ("tap G in the Key row", "tap Stage 2"), or names a selector that sits above the text.
+   - In a block file with several choices: read every choice drawn (its `set` and `params` applied, `/admin/content/library?item=<id>`): each must read true against its own tools, a param must fit every sentence it sits in, and a choice whose words differ by more than a phrase or two belongs in its own block.
    - In an exercise with `moves`: a selector mentioned at all, a choice that sets a key or a tempo, or a key or tempo written as a value in the title, a heading or the text where `{{=key}}` or `{{=bpm}}` belongs.
    - In an exercise with `moves`: a line about another key or tempo with no `{{?key}}` or `{{?bpm}}` opening it, or a sentence explaining why the tempo is slow (the app writes it at 50 bpm or under).
    - Two names for one thing on the screen (ringed and circled, "the band" or "the backing" for the backing track).

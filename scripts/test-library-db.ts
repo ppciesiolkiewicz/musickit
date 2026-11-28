@@ -150,7 +150,7 @@ describe("user data repo on Postgres: block provenance", () => {
     tags: ["technique"],
     slot: { why: "w" },
     provenance: full,
-    choices: names.map((name, place) => ({ id: `${id}/${name}`, name, level: "beginner", steps: ["picking:1"], moves: null, minutes: 4 + place, active: true, place })),
+    choices: names.map((name, place) => ({ id: `${id}/${name}`, name, level: "beginner", steps: ["picking:1"], moves: null, set: {}, minutes: 4 + place, active: true, place })),
     ...over,
   });
   const choiceRows = async () =>

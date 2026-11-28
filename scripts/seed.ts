@@ -15,6 +15,7 @@ import { expandPlan, exerciseOf, isChoiceName } from "../src/features/library/se
 import type { SeedBlockFile, SeedPlanFile } from "../src/features/library/seed";
 import { dayRefs } from "../src/features/library/seed/dayRefs";
 import { movesProblems } from "../src/features/library/seed/movesCheck";
+import { choiceSetProblems } from "../src/features/plan/model/choiceSet";
 import { DOC_VERSIONS } from "../src/features/library/seed/versions";
 import { catalogue } from "../src/features/plan/model/catalogue";
 import { conceptById } from "../src/features/plan/model/concepts";
@@ -103,6 +104,7 @@ function check(file: string): string[] {
       if (!isChoiceName(c.name)) problems.push(`${where}: the choice name is not lowercase words joined by hyphens.`);
       if (seen.has(c.name)) problems.push(`${where}: a second choice with this name.`);
       seen.add(c.name);
+      problems.push(...choiceSetProblems(file_.exercise, c, where));
       const { block, warnings } = parseExercise(exerciseOf(file_, c), where, entries);
       if (!block) problems.push(`${where}: the exercise does not parse.`);
       else problems.push(...warnings, ...exerciseProblems(block, where), ...newRules(block, where));

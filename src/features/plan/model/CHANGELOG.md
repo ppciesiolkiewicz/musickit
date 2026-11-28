@@ -159,6 +159,12 @@ Everything before the prompt had a version.
 
 ## Teaching
 
+### 15 (2026-11-28)
+
+- `exercise-example`: a choice may say two things of its own. `"set"` lays tool props over the block's tools (by tool type, or `#n` for one tool cell); `"params"` fills `{{=name}}` words in the title, headings and text. The same drill at another level whose tools differ in a setting and whose words differ in a phrase is one block with a choice per level, not a copy. More than a phrase per section, another task or another tool stays a separate block.
+- `review-teaching-text`: a block with several choices is read as each choice draws, against its own tools.
+- `teaching-voice` and `course-article` change only their version.
+
 ### 14 (2026-11-27)
 
 - Two voices. `teaching-voice` is the plan and block voice: seed exercises and plans, the prompt's writing rules, glossary, about lines, captions, and the exercises inside an article. The new `article-voice` skill (what was `src/features/articles/VOICE.md`, version 6) is the voice of /learn articles and course sections, on top of teaching-voice.

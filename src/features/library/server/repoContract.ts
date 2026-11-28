@@ -429,6 +429,15 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.deepEqual(list.map((b) => b.content.moves), [{ key: "any" }, { bpm: { from: 80, to: 120, step: 10 } }]);
       assert.deepEqual(list.map((b) => [b.topic, b.slot.why]), [["guitar-techniques", "Pick evenly."], ["guitar-techniques", "Pick evenly."]]);
     });
+    test("a choice's set draws its block: tool props over the tools, params in the words; the summary shows the set", async () => {
+      const d = baseFixture();
+      const content = { title: "Pick {{=tip}}", cells: [{ type: "text", text: "Play {{=tip}}." }, { type: "tool", tool: { type: "metronome", bpm: 60 } }] } as never;
+      seed(d, "Set", { content }, [{ name: "plain", set: { params: { tip: "slowly" } } }, { name: "fast", set: { tools: { metronome: { bpm: 90 } }, params: { tip: "evenly" } } }]);
+      const list = (await (await make(d)).composeBlocks(A, ["guitar"])).filter((b) => b.id === "Set");
+      assert.deepEqual(list.map((b) => [b.choiceId, b.content.title, (b.content.cells[1] as { tool: { bpm: number } }).tool.bpm]), [["Set/plain", "Pick slowly", 60], ["Set/fast", "Pick evenly", 90]]);
+      const detail = await (await make(d)).getBlock({}, "Set");
+      assert.deepEqual(detail?.choices.map((c) => c.set), [{ params: { tip: "slowly" } }, { tools: { metronome: { bpm: 90 } }, params: { tip: "evenly" } }]);
+    });
     test("an inactive choice is never composed", async () => {
       const d = multi();
       d.choices = d.choices.map((c) => (c.id === "M/one" ? { ...c, active: false } : c));

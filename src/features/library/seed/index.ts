@@ -41,6 +41,10 @@ export interface SeedChoice {
   /** the path steps this choice practises (`["barre:2"]`) */
   steps: string[];
   moves?: unknown;
+  /** tool props this choice sets over the block's tools: by tool type (`{ "note-finder": { "level": "new" } }`), or `#n` for the n-th tool cell (`choiceSet.ts`) */
+  set?: Record<string, Record<string, unknown>>;
+  /** the few words this choice says its own way: fill `{{=name}}` in the block's title, headings and text (`choiceSet.ts`) */
+  params?: Record<string, string>;
   minutes: number;
   draft?: boolean;
 }

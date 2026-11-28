@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 14
+version: 15
 description: Write or fix a seed exercise (block) or 7-day plan file in src/features/library/seed - what agents find in the library and copy - so it meets every writing rule and reads well against its tools. Use when asked to add, write, improve or fix a seed exercise or plan, or a showcase.
 ---
 
@@ -25,7 +25,8 @@ Agents look these up in the library (`find_blocks`, `get_block`) and copy them a
    *The file: one block and its choices*
    - A block file is one exercise. `exercise` holds what every way of playing it shares: the title, the why, the tags and the cells. `choices` lists the ways to play it, each with a `name` and its own `level`, `steps`, `moves` and `minutes`, so those four never sit in `exercise`. A choice's id is `<block id>/<name>`, and a plan's day names a block and one of its choices.
    - One block per exercise. The same drill at another level or over another range (another path step, other keys or tempos in `moves`, more minutes) is another choice in the same file, never a copy of the file.
-   - Every choice shows the same words. When the text, a heading, the why or a tool must differ by level, write separate blocks.
+   - Every choice shows the same words, except where a choice says otherwise in two fields. `"set"` lays tool props over the block's tools for that choice: `"set": { "note-finder": { "level": "new" } }` sets every tool of that type, `"set": { "#2": { "seconds": 6 } }` only the third tool cell (counted from `#0`, through the sections). `"params"` fills a few words the choice says its own way: the block writes `{{=tip}}` (one lowercase word, never `key` or `bpm`, which are `moves`) and every choice gives `"params": { "tip": "…" }`. Write the cells at the first choice's values, so a choice with nothing to change has no `set`.
+   - Fold near-copies with them: the same drill at another level whose tools differ in a level, a range, a set of intervals, a count or a tempo, and whose words differ in a phrase or two, is one block with a choice per level. When more than a phrase per section differs (a heading, the why, a different task, another tool), write separate blocks. A `set` never changes a tool's `type`.
    - Another tool or another drill is a new block. Never edit one block into another. An edit keeps what the block is: a clearer step, a fixed fact, a better-lit note.
    - A choice that isn't ready gets `"draft": true`: the library keeps it inactive, so no plan gets it.
    - A warm-up is the one block that names no step. Its `exercise` has `"kind": "warm-up"` and `"warmUpPart"`: 1, 2 or 3, its place in the short run that opens the voice or the guitar part of a day (voice: 1 breath, 2 lip rolls, 3 scales and intervals; guitar: 1 loose hands, 2 the spider and picking, 3 finger work). Its choices have `"steps": []`, and it needs no `concepts`: it is no step on the path, the app picks it by its kind and a rating of it moves no step. It is 1 to 2 minutes long, a choice's `level` is the lowest level that gets it (`new` for everyone), and the title names the drill, never "Warm-up". Every other rule holds: the why, the `learnBefore` lesson, the tags, the controls by their labels. One that works in any key states `"key": "any"` in `moves` like any block; the app opens it in a key of the exercises that follow it, or a key a fifth away. The path's own block of the same drill (the spider) stays a separate file: `kind` is the block's, not a choice's.

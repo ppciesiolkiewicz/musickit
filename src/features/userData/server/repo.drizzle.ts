@@ -287,7 +287,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
             .values(list.map((b) => ({ userId: null, blockId: b.id, source: "seed" as const, createdAt: now })))
             .onConflictDoNothing();
         }
-        const rows = list.flatMap((b) => b.choices.map((c) => ({ id: c.id, blockId: b.id, name: c.name, level: c.level, steps: c.steps, moves: c.moves, minutes: c.minutes, active: c.active, place: c.place, createdAt: now, updatedAt: now })));
+        const rows = list.flatMap((b) => b.choices.map((c) => ({ id: c.id, blockId: b.id, name: c.name, level: c.level, steps: c.steps, moves: c.moves, set: c.set, minutes: c.minutes, active: c.active, place: c.place, createdAt: now, updatedAt: now })));
         if (rows.length) {
           // written only when a field differs, so updated_at says when the seed last changed the choice
           const differs = or(
@@ -296,6 +296,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
             sql`${choices.level} is distinct from excluded.level`,
             sql`${choices.steps} is distinct from excluded.steps`,
             sql`${choices.moves} is distinct from excluded.moves`,
+            sql`${choices.set} is distinct from excluded.set`,
             sql`${choices.minutes} is distinct from excluded.minutes`,
             sql`${choices.active} is distinct from excluded.active`,
             sql`${choices.place} is distinct from excluded.place`,
@@ -305,7 +306,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
             .values(rows)
             .onConflictDoUpdate({
               target: choices.id,
-              set: { blockId: sql`excluded.block_id`, name: sql`excluded.name`, level: sql`excluded.level`, steps: sql`excluded.steps`, moves: sql`excluded.moves`, minutes: sql`excluded.minutes`, active: sql`excluded.active`, place: sql`excluded.place`, updatedAt: now },
+              set: { blockId: sql`excluded.block_id`, name: sql`excluded.name`, level: sql`excluded.level`, steps: sql`excluded.steps`, moves: sql`excluded.moves`, set: sql`excluded.set`, minutes: sql`excluded.minutes`, active: sql`excluded.active`, place: sql`excluded.place`, updatedAt: now },
               setWhere: differs,
             })
             .returning({ blockId: choices.blockId });

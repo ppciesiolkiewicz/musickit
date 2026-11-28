@@ -14,7 +14,7 @@ videos/<tool>.json a stand-in video per scripted tool: its script as timed capti
 database; `db:seed-blocks` doesn't, and the app never reads the files (contentVideos README, "Stand-ins").
 
 A block file is the exercise (`title`, `cells`, tags) and a `choices` list: each choice is one way to do it, with its
-`name`, `level`, `steps`, `moves` and `minutes` (`SeedChoice`). A choice's id is `<block id>/<name>`. `choices.ts` makes
+`name`, `level`, `steps`, `moves`, `set`, `params` and `minutes` (`SeedChoice`). A choice's id is `<block id>/<name>`. `choices.ts` makes
 the AI-shape exercise of a choice (`exerciseOf`) and fills a plan's refs in (`expandPlan`), so the parser and the checks
 read the shape they always did. The code reads the files through them: `seedExercises(file)` (one exercise per choice),
 `seedExercise(file)` (the first choice's, where one is needed) and `seedPlan(file)` (the plan with its refs filled in), all
@@ -41,7 +41,7 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
    - An exercise: `{ "id", "model", "versions", "note", "exercise", "choices" }`. The `id` is the file name, two or
      more lowercase words joined by hyphens. `exercise` is the exercise as it would sit in a plan's day, without
      `level`, `steps`, `moves` and `minutes`. Each choice (`name`: lowercase words joined by hyphens, unique in the
-     file) holds `level`?, `steps`, `moves`?, `minutes`, `draft`?. `steps` names the path steps it practises
+     file) holds `level`?, `steps`, `moves`?, `set`?, `params`?, `minutes`, `draft`?. `steps` names the path steps it practises
      (`["barre:2"]`, `PATH` in `plan/model/path.ts`), each in a track of the exercise's `concepts`; the library finds it
      by step.
    - A genre's block (a riff: its tool is a guitar-play-along with the `riff` shape, the notes written out in the tool) also has `"genre"`: `blues`, `rock`, `funk` or `jazz` (`genres.ts`). It is a dead end on the path: its choice names the step it uses, and no step waits for it. Its notes, and its `"amp"` (the name of the `.nam` amp model the riff maker plays it through; players don't hear it yet), are written and changed in the riff maker (`/admin/content/riff`), which saves into the database; `npm run -s db:pull-riffs` writes the saved riffs into their files, and the seed keeps a saved riff over the file's until then; its words are written here like any block's. A riff is in its own key, so its `moves` has a tempo range and no key.
@@ -91,8 +91,11 @@ set a key and a position). The prompt names each of the five by its file id, the
   `heading`, `minutes` when it is a timed block, a `choice` when its tools change, and its own `cells`. No `focus`; the
   title may end with hashtags (`#guitar #beginner #technique`) that stand for the fields.
 - One block per exercise. The same drill at another level or over another range (another path step, other keys or
-  tempos in `moves`, more minutes) is another choice in the same file, never a copy. Every choice shows the same words:
-  when the text, a heading, the why or a tool must differ by level, write separate blocks. Another tool or another
+  tempos in `moves`, more minutes) is another choice in the same file, never a copy. Every choice shows the same words
+  and tools, except for its `set` (tool props laid over the block's tools: `{ "<tool type>": { … } }` for every tool of
+  that type, `{ "#n": { … } }` for the n-th tool cell from `#0`) and its `params` (the words that fill `{{=name}}` in the
+  title, headings and text; every choice fills every one) (`plan/model/choiceSet.ts`). When more than a phrase per
+  section, the why or a tool must differ by level, write separate blocks. Another tool or another
   drill is a new block: never edit one block into another. A choice that isn't ready is
   `"draft": true`, kept inactive.
 - A drill that works in other keys or at other tempos states `moves` on its choice: `"key": "any"`

@@ -1,5 +1,6 @@
 import { sql, type SQL } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
+import { applyChoiceSet, readChoiceSet } from "@/features/plan/model/choiceSet";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryRepo } from "./repo";
@@ -142,6 +143,7 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
   return sql`
     select b.id, b.kind,
       (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'level', c.level, 'steps', to_jsonb(c.steps), 'moves', c.moves, 'minutes', c.minutes, 'active', c.active)
+          || (case when c.set <> '{}'::jsonb then jsonb_build_object('set', c.set) else '{}'::jsonb end)
         order by c.place, c.id collate "C"), '[]'::jsonb) from choices c where c.block_id = b.id and b.kind = 'curated' and ${listedChoice(scope)}) as choices,
       (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.steps, b.tags,
       b.model, b.prompt_version, b.docs_agents, b.docs_teaching, b.content, b.parent_id, b.minutes, b.why, b.learn_before, b.explore_more,
@@ -233,24 +235,24 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
       // the candidates first (one per active choice that names a step, or of a warm-up), so the totals are summed for these only
       const list = await rows<{
         id: string; choice_id: string; content: Block; area: string; topic: string | null; concepts: string[]; steps: string[]; level: string | null; tags: string[];
-        minutes: number; moves: Block["moves"] | null; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
+        minutes: number; moves: Block["moves"] | null; set: unknown; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
         times: number; seconds: number; my_stars: number | null; my_at: string | null;
       }>(sql`
         with cand as (
           select b.id, b.content, b.area, b.topic, b.concepts, b.tags, b.why, b.learn_before, b.explore_more,
-            c.id as choice_id, c.level, c.steps, c.minutes, c.moves, c.place
+            c.id as choice_id, c.level, c.steps, c.minutes, c.moves, c.set, c.place
           from blocks b join choices c on c.block_id = b.id
           where b.kind = 'curated' and b.area = any(${textArray(areas)}) and c.active and (cardinality(c.steps) > 0 or b.content->>'kind' = 'warm-up')
         )
-        select c.id, c.choice_id, c.content, c.area, c.topic, c.concepts, c.steps, c.level, c.tags, c.minutes, c.moves, c.why, c.learn_before, c.explore_more,
+        select c.id, c.choice_id, c.content, c.area, c.topic, c.concepts, c.steps, c.level, c.tags, c.minutes, c.moves, c.set, c.why, c.learn_before, c.explore_more,
           coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds, l.stars as my_stars, l.at as my_at
         from cand c
         left join ${timeTotals(undefined, sql`(select id from cand)`)} u on u.block_id = c.id
         left join ${latestChoiceRating(player, sql`(select choice_id from cand)`)} l on l.choice_id = c.choice_id
         order by c.id collate "C", c.place, c.choice_id collate "C"`);
       return list.map((r) => {
-        // the block's content carries the choice's moves (a curated block's content has none of its own)
-        const content: Block = { ...r.content };
+        // the block's content as the choice draws it (its set) and with the choice's moves (a curated block's content has none of its own)
+        const content: Block = applyChoiceSet({ ...r.content }, readChoiceSet(r.set));
         delete content.moves;
         if (r.moves) content.moves = r.moves;
         return {

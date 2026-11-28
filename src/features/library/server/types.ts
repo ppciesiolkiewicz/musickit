@@ -1,3 +1,4 @@
+import type { ChoiceSet } from "@/features/plan/model/choiceSet";
 import type { Moves } from "@/features/plan/model/moves";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
@@ -29,7 +30,8 @@ export interface BlockUse {
 export interface PlayerBlock { stars: Stars | null; ratedAt: string | null; times: number; seconds: number }
 
 /** One choice of a curated block: one way to play it, on its own level, steps, moves (null: none) and minutes. */
-export interface BlockChoice { id: string; name: string; level: string | null; steps: string[]; moves: Moves | null; minutes: number; active: boolean }
+/** A curated block's choice; `set` (tool props and params it changes in the block, `plan/model/choiceSet.ts`) only when it changes something. */
+export interface BlockChoice { id: string; name: string; level: string | null; steps: string[]; moves: Moves | null; set?: ChoiceSet; minutes: number; active: boolean }
 
 export interface BlockSummary {
   id: string;

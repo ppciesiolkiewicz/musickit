@@ -1,4 +1,5 @@
 import type { Block } from "@/features/plan/model/types";
+import { applyChoiceSet, isEmptyChoiceSet, readChoiceSet } from "@/features/plan/model/choiceSet";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
@@ -93,7 +94,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   const titleOf = (b: Row): string => (typeof b.content.title === "string" ? b.content.title : "");
 
   const choicesOf = (scope: Scope, b: Row): BlockChoice[] =>
-    b.kind === "curated" ? listed(scope, b.id).map((c) => ({ id: c.id, name: c.name, level: c.level, steps: [...c.steps], moves: c.moves ?? null, minutes: c.minutes, active: c.active })) : [];
+    b.kind === "curated" ? listed(scope, b.id).map((c) => ({ id: c.id, name: c.name, level: c.level, steps: [...c.steps], moves: c.moves ?? null, minutes: c.minutes, active: c.active, ...(isEmptyChoiceSet(readChoiceSet(c.set)) ? {} : { set: readChoiceSet(c.set) }) })) : [];
 
   const summary = (scope: Scope, b: Row): BlockSummary => {
     const choices = choicesOf(scope, b);
@@ -193,8 +194,8 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
         for (const c of listed({}, b.id)) {
           if (c.steps.length === 0 && b.content.kind !== "warm-up") continue;
           const l = newest(choiceRatings(c.id, player));
-          // the block's content carries the choice's moves (a curated block's content has none of its own)
-          const content: Block = { ...b.content };
+          // the block's content as the choice draws it (its set) and with the choice's moves (a curated block's content has none of its own)
+          const content: Block = applyChoiceSet({ ...b.content }, readChoiceSet(c.set));
           delete content.moves;
           if (c.moves) content.moves = c.moves;
           list.push({

@@ -342,6 +342,7 @@ export const choices = pgTable(
     level: text("level"),
     steps: text("steps").array().notNull().default(sql`'{}'::text[]`),
     moves: jsonb("moves"),
+    /** What the choice changes in its block (`ChoiceSet`, plan/model/choiceSet.ts): `tools` (props over the block's tools) and `params` (words for `{{=name}}`); `{}` for none. */
     set: jsonb("set").notNull().default(sql`'{}'::jsonb`),
     minutes: integer("minutes").notNull(),
     active: boolean("active").notNull().default(true),

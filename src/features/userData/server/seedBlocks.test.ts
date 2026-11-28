@@ -68,7 +68,7 @@ test("seeding stores curated blocks, their choices and the app's owner row", asy
   assert.equal(b.kind, "curated");
   assert.equal(b.revision, 1);
   assert.deepEqual(repo.peekOwners(), [{ userId: null, blockId: "guitar-a-b", source: "seed" }]);
-  assert.deepEqual(repo.peekChoices().get("guitar-a-b/beginner"), { id: "guitar-a-b/beginner", blockId: "guitar-a-b", name: "beginner", level: "beginner", steps: [], moves: null, minutes: 4, active: true, place: 0, updatedAt: NOW });
+  assert.deepEqual(repo.peekChoices().get("guitar-a-b/beginner"), { id: "guitar-a-b/beginner", blockId: "guitar-a-b", name: "beginner", level: "beginner", steps: [], moves: null, set: {}, minutes: 4, active: true, place: 0, updatedAt: NOW });
 });
 
 test("seeding twice changes nothing", async () => {
@@ -232,4 +232,25 @@ test("a riff saved in the app is kept by the seed over its file's, and only whil
   const plainRun = await seedBlocks(repo, LATER, { files: [f] });
   assert.deepEqual(plainRun.keptRiffs, []);
   assert.equal(plainRun.revised, 1, "without the keeper the file's riff is stored again");
+});
+
+test("a choice's set and params sit on the choice; the block keeps its words as written", async () => {
+  const exercise = plain("Pick {{=tip}}", { cells: [{ type: "text", text: "Play it {{=tip}}." }, { type: "tool", tool: { type: "metronome", bpm: 60 } }] });
+  const f = fileOf("guitar-a-b", exercise, [
+    { name: "beginner", level: "beginner", steps: [], minutes: 4, params: { tip: "slowly" } },
+    { name: "advanced", level: "advanced", steps: [], minutes: 4, set: { metronome: { bpm: 90 } }, params: { tip: "evenly" } },
+  ]);
+  const [b] = curatedBlocks([f]).blocks;
+  assert.equal(b.content.title, "Pick {{=tip}}", "the stored block is the bare one");
+  assert.deepEqual(b.choices.map((c) => c.set), [{ params: { tip: "slowly" } }, { tools: { metronome: { bpm: 90 } }, params: { tip: "evenly" } }]);
+  const e = exerciseOf(f, f.choices[1]) as { title: string; cells: { tool?: { bpm: number } }[] };
+  assert.equal(e.title, "Pick evenly");
+  assert.equal(e.cells[1].tool!.bpm, 90);
+
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, NOW, { files: [f] });
+  assert.deepEqual(repo.peekChoices().get("guitar-a-b/advanced")!.set, { tools: { metronome: { bpm: 90 } }, params: { tip: "evenly" } });
+  const changed = fileOf("guitar-a-b", exercise, [f.choices[0], { ...f.choices[1], params: { tip: "lightly" } }]);
+  const r = await seedBlocks(repo, LATER, { files: [changed] });
+  assert.equal(r.revised, 1, "a changed set is a changed block");
 });

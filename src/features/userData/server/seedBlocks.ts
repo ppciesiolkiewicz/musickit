@@ -1,5 +1,5 @@
 import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
-import { exerciseOf } from "@/features/library/seed/choices";
+import { choiceSetOf, exerciseOf } from "@/features/library/seed/choices";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
 import { blockKeyOf, choiceIdOf } from "@/features/plan/model/blockId";
@@ -7,10 +7,11 @@ import { levelOfSteps } from "@/features/plan/model/path";
 import type { CuratedBlock, CuratedChoice, DroppedVideo, Provenance, UserDataRepo } from "./repo";
 
 /**
- * The seed block files as curated blocks: the file's id, its exercise's content (without moves), tags and slot (why,
- * lessons), its model and versions, and one choice per choice in the file, in file order (`place`), each parsed as the
- * exercise `exerciseOf` makes of it: its level (the choice's, else its steps' highest), steps, moves and minutes; a
- * `draft` choice is inactive. A file whose exercise doesn't parse is left out and named in `skipped`.
+ * The seed block files as curated blocks: the file's id, its exercise's content as written (without moves, and without
+ * any choice's `set` or `params` applied), tags and slot (why, lessons), its model and versions, and one choice per
+ * choice in the file, in file order (`place`), each parsed as the exercise `exerciseOf` makes of it: its level (the
+ * choice's, else its steps' highest), steps, moves, minutes and its set (`set` and `params`, `choiceSetOf`); a `draft`
+ * choice is inactive. A file whose exercise, bare or as any choice, doesn't parse is left out and named in `skipped`.
  */
 export function curatedBlocks(files: SeedBlockFile[] = SEED_BLOCKS): { blocks: CuratedBlock[]; skipped: string[] } {
   const entries = catalogue();
@@ -18,7 +19,7 @@ export function curatedBlocks(files: SeedBlockFile[] = SEED_BLOCKS): { blocks: C
   const skipped: string[] = [];
   for (const f of files) {
     const parsed = (f.choices ?? []).map((c) => ({ c, e: parseExercise(exerciseOf(f, c), f.id, entries).block }));
-    const first = parsed[0]?.e;
+    const first = f.choices?.length ? parseExercise(exerciseOf(f, f.choices[0], { bare: true }), f.id, entries).block : null;
     if (!first || parsed.some((p) => !p.e)) {
       skipped.push(f.id);
       continue;
@@ -30,7 +31,7 @@ export function curatedBlocks(files: SeedBlockFile[] = SEED_BLOCKS): { blocks: C
     const choices: CuratedChoice[] = parsed.map(({ c, e }, place) => {
       const k = blockKeyOf(e!);
       const steps = k.steps ?? [];
-      return { id: choiceIdOf(f.id, c.name), name: c.name, level: e!.level ?? levelOfSteps(steps) ?? null, steps, moves: e!.moves ?? null, minutes: e!.minutes, active: !c.draft, place };
+      return { id: choiceIdOf(f.id, c.name), name: c.name, level: e!.level ?? levelOfSteps(steps) ?? null, steps, moves: e!.moves ?? null, set: choiceSetOf(c), minutes: e!.minutes, active: !c.draft, place };
     });
     blocks.push({
       id: f.id,

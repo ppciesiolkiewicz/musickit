@@ -1,6 +1,6 @@
 ---
 name: course-article
-version: 14
+version: 15
 description: Write or rewrite a section (article) of the course at /course - one file per section in src/features/course/lessons, written like a /learn article with live tools and exercises - fill in planned sections, keep the learning path (/admin/content/path) that points at it true, or edit an old section still written with course blocks. Use when asked to write a course article, lesson or section, fill a planned section, or point a glossary word at a new article.
 ---
 

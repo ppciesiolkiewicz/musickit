@@ -2,6 +2,7 @@ import type { SingerVoice } from "@/features/theory/voiceRange";
 import type { DocKind } from "../model";
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { Area } from "@/features/plan/model/concepts";
+import type { ChoiceSet } from "@/features/plan/model/choiceSet";
 import type { Moves } from "@/features/plan/model/moves";
 import type { Block } from "@/features/plan/model/types";
 import type { DayTime } from "@/features/plan/model/planTime";
@@ -73,6 +74,8 @@ export interface CuratedChoice {
   level: string | null;
   steps: string[];
   moves: Moves | null;
+  /** what the choice changes in its block: tool props and params (`ChoiceSet`, `plan/model/choiceSet.ts`); `{}` for none */
+  set: ChoiceSet;
   minutes: number;
   /** false for a choice marked `draft` in its file */
   active: boolean;
