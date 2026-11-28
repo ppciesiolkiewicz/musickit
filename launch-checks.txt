@@ -15,7 +15,7 @@ to re-check, because the law or a vendor may have changed since the last look.
 ======================== Every deploy that changes data handling ========================
 Every1: Does /privacy still name every company that gets data, and only those?
   Today: Vercel (hosting, files, page counts), Supabase (database), Resend (email), Google (sign-in), PostHog (use and
-  errors), ElevenLabs (sampler words). A new SDK, API key or env var for an outside service means a new line there.
+  errors), ElevenLabs (sampler words), Stripe (payments). A new SDK, API key or env var for an outside service means a new line there.
   [2026-11-23 checked] List written from the code. The database host (Supabase) is from .env.example and notes, not
   confirmed for production.
 
@@ -95,6 +95,8 @@ Paid1: A lawyer reads /terms and /privacy.
   lawyer. A lawyer reads both pages before paid plans grow past the test.
 
 Paid2: /privacy names the payment provider ("We will name it here before then").
+  [2026-11-28 done] /privacy names Stripe and what it gets (email, name, card, billing address), lists the payment
+  records we keep, and says they stay five years after an account is deleted (the payments table keeps its rows).
 
 Paid3: What /terms promises about a subscription is built: cancel on /account without writing to us, an email before
   a yearly renewal, an email 30 days before a price change, the 30-day refund.

@@ -42,6 +42,7 @@ const SECTIONS: LegalSection[] = [
           <li>What you make: your practice plans, your answers to the questions, your ratings, how long you practiced each day, your notes, your voice type and range, and the videos you record and save.</li>
           <li>Where you are logged in: for each browser, the kind of browser and when you last used it.</li>
           <li>Messages you send us: the message and the email you gave, from the contact form, the feedback page or the early-access list.</li>
+          <li>Your payments, if you pay for a plan: the date, the amount, the plan, the invoice number, whether your subscription is running, and the id Stripe uses for you. We never see or keep your card number.</li>
         </ul>
         <p>There is no password. We email you a link and a code, and we store them only in a scrambled form, for an hour.</p>
         <p>An account needs your email and a name. Everything else is yours to give or leave out.</p>
@@ -106,7 +107,7 @@ const SECTIONS: LegalSection[] = [
           <li>Resend sends our emails, so it sees your email address and the email itself.</li>
           <li>Google logs you in, if you choose Google.</li>
           <li>PostHog counts use and records errors.</li>
-          <li>When paid plans open, a payment provider will handle your card. We will name it here before then.</li>
+          <li>Stripe takes the payment when you pay for a plan. It gets your email, your name, your card and your billing address, and it keeps its own record of your payments.</li>
         </ul>
         <p>Some of these companies keep data outside Australia, in the United States and the European Union. By using attunr you agree that your data may be kept there.</p>
         <p>We give your data to no one else, unless the law makes us or you ask us to.</p>
@@ -119,6 +120,7 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>We keep your account and what you make for as long as your account is open.</p>
         <p>When you ask us to delete your account, we remove your account, plans, ratings, notes and videos within 30 days, and email you when it is done. A note or plan that someone else copied from your share link is theirs and stays.</p>
+        <p>The records of your payments stay after your account is deleted: the date, the amount, the plan, the invoice number and the id Stripe uses for you. Tax law makes us keep them for five years.</p>
         <p>A browser you stop using is logged out a year after its last visit.</p>
         <p>We keep a message you sent us, and your email on the early-access list, until you ask us to remove it.</p>
       </>
