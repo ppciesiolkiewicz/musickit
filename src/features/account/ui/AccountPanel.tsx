@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { ROLE_LABEL } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
 import EmailUpdates from "./EmailUpdates";
+import ContactForm from "@/components/landing/ContactForm";
 import { FEEDBACK_HREF } from "@/features/messages/ui/FeedbackPage";
 import PlanPicker from "./PlanPicker";
 import type { Audience } from "./planPitch";
@@ -15,7 +16,9 @@ const go = (path: string) => window.location.assign(path);
 
 /**
  * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, and offers, their plan, feedback and, under
- * everything, Log out and Delete account (/terms and /privacy promise it on this page). Logged out, it points to Log in.
+ * everything, Log out and Delete account (/terms and /privacy promise it on this page): a message to us through the contact form
+ * (source `delete-account`), not a button that deletes (user, 2026-11-28). We delete the account on /admin/admin/users, after
+ * cancelling any subscription in Stripe, which deleting doesn't do. Logged out, it points to Log in.
  */
 export default function AccountPanel({ start, payments = false }: { /** the plans' side asked for in the address (`?for=teachers`) */ start?: Audience | null; /** payments are on (`STRIPE_ENABLED`): no open-beta line */ payments?: boolean }) {
   const { account, loaded } = useAccount();
@@ -23,7 +26,6 @@ export default function AccountPanel({ start, payments = false }: { /** the plan
   const [name, setName] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [removeError, setRemoveError] = useState<string | null>(null);
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -54,14 +56,6 @@ export default function AccountPanel({ start, payments = false }: { /** the plan
     if (!r.ok) return setError(errorOf(r));
     setError(null);
     setSaved(true);
-  };
-
-  const remove = async () => {
-    setBusy(true);
-    const r = await send("/api/account", "DELETE");
-    if (r.ok) return go("/");
-    setBusy(false);
-    setRemoveError(errorOf(r));
   };
 
   return (
@@ -111,17 +105,15 @@ export default function AccountPanel({ start, payments = false }: { /** the plan
         <button type="button" disabled={busy} className={`${SECONDARY} !w-auto`} onClick={() => void store.signOut().then(() => go("/"))}>Log out</button>
 
         {asking ? (
-          <div className="flex flex-col gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3">
-            <p className="text-sm text-rose-100">Delete the account for {account.email}? This removes your plans, notes and videos, and can&apos;t be undone.</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" disabled={busy} className={SECONDARY} onClick={() => setAsking(false)}>Keep account</button>
-              <button type="button" disabled={busy} className={`${SECONDARY} !border-rose-500/60 !text-rose-100`} onClick={() => void remove()}>Delete account</button>
-            </div>
+          <div className="flex w-full max-w-xl flex-col gap-3 rounded-xl border border-slate-700 bg-slate-900/40 p-4">
+            <p className="text-sm text-slate-200">To delete the account for {account.email}, send us the message below. We remove your account, plans, notes and videos, and email you when it is done. It can&apos;t be undone.</p>
+            {account.subscribed && <p className="text-sm text-slate-200">Deleting your account doesn&apos;t cancel your plan. To cancel it first, press Manage billing above: it opens Stripe, where you manage your subscription.</p>}
+            <ContactForm source="delete-account" initialEmail={account.email} initialMessage={`Please delete my account (${account.email}).`} done="We'll email you when your account is deleted." />
+            <button type="button" className={`${SECONDARY} !w-auto self-start`} onClick={() => setAsking(false)}>Keep account</button>
           </div>
         ) : (
           <button type="button" className="self-start text-xs text-slate-500 underline-offset-2 hover:text-rose-300 hover:underline" onClick={() => setAsking(true)}>Delete account</button>
         )}
-        <ErrorLine>{removeError}</ErrorLine>
       </div>
     </div>
   );

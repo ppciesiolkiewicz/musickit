@@ -10,8 +10,8 @@
 - **A signed-in person's data is on the server; device setup stays in the browser.** Plans, progress, notes, about me and
   videos belong to the account (`features/userData`, `features/videos`). Theme, audio devices, tool knobs and the other
   device keys stay in the browser. Old browser data was dropped with no import (2026-11-15), so don't write a carry-over.
-  Without accounts (no database) the local source still keeps everything in the browser. Log out and Delete account
-  reload the page, so no in-memory store can send under another account's cookie.
+  Without accounts (no database) the local source still keeps everything in the browser. Log out
+  reloads the page, so no in-memory store can send under another account's cookie.
 - **The rules of sign-in live in `server/auth.ts`, and stay pure.** No `Request`, no cookie and no SQL there: they take
   `AuthDeps` (the repo, the clock, the token maker). A route in `app/api/auth` reads the request, calls one of them and
   turns the result into cookies. A new rule gets a test in `server/auth.test.ts` over `repo.memory.ts`.

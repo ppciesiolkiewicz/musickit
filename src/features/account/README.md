@@ -48,14 +48,14 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   On: an account on a paid plan (`paidThroughCheckout`: not taught, a demo, or priced with you) must have a live
   Stripe subscription (trialing, active, past_due), else `Account.needsPayment` and `needsSetup` hold it on
   `/account/setup`, whose Continue (Continue to payment) saves and opens Checkout (`POST /api/account/checkout`):
-  card up front, the plan's trial once per account, `STRIPE_EARLY_COUPON` while the side's early places are open.
+  card up front, the plan's trial once per account, `STRIPE_EARLY_COUPON` on every new subscription while it is set.
   Stripe returns to `GET /api/account/checkout/done`, which records the subscription at once; `POST /api/stripe/webhook`
   keeps status, plan and billing in step from the subscription as Stripe has it now, fetched on each subscription event (events come in no set order and carry the subscription as it was: 2026-11-25, a late `trial_will_end` put a paid account back to trialing) (a price's metadata names its plan; prices are made from the plan rows on first
   use, keyed by plan, billing, currencies and amount; Australian dollars, tax included, and the same number in US dollars before sales tax; `STRIPE_MANAGED_PAYMENTS=true` makes Stripe the seller of record, collecting the tax itself). Every account with a plan before migration `0040_stripe_payments` is
   `payment_exempt`: it keeps that plan free, and `/account` offers it Pay for … on any paid plan; moving to another
   paid plan without paying, or starting to pay, ends the exemption. A subscriber changes plan, card or cancels in
   Stripe's billing portal (Manage billing, `POST /api/account/portal`); `choosePlan` refuses them a paid plan.
-  Each paid invoice is kept as an order in `payments` (webhook `invoice.paid`, `recordInvoice`): amount, currency, the plan and billing its price named, Stripe's reason, invoice number and link, when paid; one row per invoice, the trial's $0 first invoice included, kept when the account is deleted (`user_id` set null). Off, nothing here runs and the account has no payment fields. `earlyTaken()` still counts by hand, not from Stripe.
+  Each paid invoice is kept as an order in `payments` (webhook `invoice.paid`, `recordInvoice`): amount, currency, the plan and billing its price named, Stripe's reason, invoice number and link, when paid; one row per invoice, the trial's $0 first invoice included, kept when the account is deleted (`user_id` set null). Off, nothing here runs and the account has no payment fields.
 - `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name, labelled "First name or nickname" as on /account and /join (empty
   while it is only the email's stand-in, `emailName`; Google's first name filled in, `given_name` or the first word of `name`, so the full name is never saved) and a plan from the same list, none chosen for
   them, paid Monthly or Yearly (the switch beside the Plan heading), saved together by `POST /api/account/setup` with
@@ -68,7 +68,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   them, and Continue needs it. Sent as `acceptTerms: true`; `setUpAccount` refuses anything else (`error: "terms"`) before
   it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`;
   a number since `0047_terms_version_number`): the version shown on `/terms` then (`TERMS_VERSIONS` in `terms.ts`,
-  numbered, never edited: 1 the beta terms, 2 the paid terms, 3 and 4 the same with no early-price section (user, 2026-11-27: it is an offer, not a term); `termsVersion` picks by `STRIPE_ENABLED`, and the
+  numbered, never edited: 1 the beta terms, 2 the paid terms, 3 and 4 the same with no early-price section (user, 2026-11-27: it is an offer, not a term), 5 and 6 the same with no price written in them (user, 2026-11-28: the pricing page and the checkout show it) a refund of the months left worked out from what was paid, a line on a free plan given by a code or an invite, and an account deleted by asking us; `termsVersion` picks by `STRIPE_ENABLED`, and the
   terms page shows the number and its date). An invite's setup (`joinWithInvite`) saves it the same way.
 - The early price (`EARLY_OFFER` in `pricing.ts`): 50% off the monthly price of every plan, locked in while the person
   stays subscribed, for the first 20 schools and the first 500 students to sign up. It is for paying monthly only (user,
@@ -79,11 +79,13 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   price shows the early price beside the full one struck through, with the red `DiscountBadge` (`@/components/ui`): the
   plan cards on setup and `/account`, the line over them (`EarlyOffer`, by the side shown), `PaymentBox`, the home
   Pricing section, /kickstarter, the FAQ and the intro video. Shown only: the rows keep the full price.
-  How many places are taken is one count for both sides, `earlyTaken()` (`server/earlyTaken.ts`, typed in by hand until
-  payments count it; 0 and 0 now), served by `GET /api/early-price` (`{ schools, students: { taken, places }, open }`) and
-  read by /kickstarter (its countdown) and `GET /api/account/plan` (`early`: `earlyOpen`, by side). A side's plan cards,
-  `EarlyOffer` and `PaymentBox` show the early price only while its places aren't all taken, and /kickstarter drops its
-  half price when the 20 have joined. The home Pricing section, the FAQ and the intro video don't read the count yet.
+  No count of places closes the early price on the plan cards or in Checkout (user, 2026-11-28): they follow
+  `earlyPriceOn()` (`server/paymentsEnabled.ts`: always in the beta, and with payments on while `STRIPE_EARLY_COUPON` is
+  set, so a card never shows a price Checkout won't charge), which `GET /api/account/plan` gives as `early`, the same
+  answer for both sides. The plan cards, `EarlyOffer` and `PaymentBox` show the early price while it is on. How many
+  places are taken, `earlyTaken()` (`server/earlyTaken.ts`, typed in by hand), is /kickstarter's alone: its countdown,
+  through the page and `GET /api/early-price` (`{ schools, students: { taken, places }, open }`), and it drops its half
+  price when the 20 have joined. The home Pricing section, the FAQ and the intro video read neither.
 - `?for=teachers` (`TEACHER_SIGNUP` in `loginGuard.ts`, `/account?for=teachers`): where every "Become a founding
   partner" on /kickstarter goes. Signed out, the login page says "Create your teacher account"; a new account's setup
   and `/account` open their plans on the Teachers side (`startAudience`'s `wanted`).
@@ -145,7 +147,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session (the page's one shared read), and nothing at all when
   there is no session cookie.
 - `ui/`: the screens. `LinkForm` (`/login`), `ConfirmLink` (`/login/confirm`), `AccountPanel`
-  (`/account`: the open-beta line with a Send feedback link (to `/feedback`) across the top; under it, on a wide screen, a narrow column with the Profile card (email, role, name), beside a wide Plan card whose plans sit side by side; under everything Log out and Delete account (`DELETE /api/account`; /terms and /privacy promise it here)), `AccountLink` (the corner of the top nav: Log in, or the name with a
+  (`/account`: the open-beta line with a Send feedback link (to `/feedback`) across the top; under it, on a wide screen, a narrow column with the Profile card (email, role, name), beside a wide Plan card whose plans sit side by side; under everything Log out and Delete account (it opens a contact form, source `delete-account`, with the email and the message filled in, and for a subscriber a line pointing to Manage billing; there is no `DELETE /api/account` since 2026-11-28 (user): we delete the account on /admin/admin/users, after cancelling any subscription in Stripe; /terms and /privacy promise it here)), `AccountLink` (the corner of the top nav: Log in, or the name with a
   menu of Your profile, Home page, Send feedback and Log out, opened on hover or a tap).
 - The Send feedback page is `/feedback` in `src/features/messages` (`FEEDBACK_HREF`): each send starts a new thread with us, answered in the chat bubble. `/account#feedback` sends people there.
 - `server/`: sign-in itself, server only.

@@ -1,16 +1,14 @@
 import Stripe from "stripe";
 import { isLive, paidThroughCheckout } from "../billing";
-import { earlyOpen } from "../pricing";
 import { CURRENCY, canChoose, isBilling, priceCents, roleOnPlan, type Billing, type Plan } from "../plans";
 import type { AuthDeps } from "./auth";
-import { earlyTaken } from "./earlyTaken";
 
 /**
  * Payments through Stripe: Checkout to start paying, the billing portal to change or cancel, and the webhook that keeps
  * `users` in step (`syncSubscription`). Only used while `STRIPE_ENABLED` is "true" (`paymentsEnabled`).
  *
  * Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, optional STRIPE_EARLY_COUPON (a 50% "forever" coupon id, applied
- * while the side's early places are open, `EARLY_OFFER`), and optional STRIPE_MANAGED_PAYMENTS ("true": Stripe sells
+ * to every new subscription while it is set, `EARLY_OFFER`), and optional STRIPE_MANAGED_PAYMENTS ("true": Stripe sells
  * as seller of record and handles the tax, `managedPayments`).
  *
  * Prices aren't set up by hand in Stripe: each plan row, billing, currency and amount gets one Stripe price (in
@@ -115,9 +113,8 @@ export async function startCheckout(deps: AuthDeps, userId: string, input: { pla
     customer = (await s.customers.create({ email: user.email, name: user.name, metadata: { userId: user.id } })).id;
     await deps.repo.setStripeCustomer(user.id, customer, deps.now());
   }
-  const open = earlyOpen(await earlyTaken());
+  // the early price: every new subscription while the coupon is set (`earlyPriceOn`); no count of places closes it
   const coupon = process.env.STRIPE_EARLY_COUPON;
-  const early = coupon && (plan.role === "student" ? open.individual : open.teachers);
   const trial = user.stripeSubscriptionId === null && plan.trialDays > 0 ? plan.trialDays : undefined;
   const done = new URL("/api/account/checkout/done", base);
   done.searchParams.set("next", next);
@@ -127,7 +124,7 @@ export async function startCheckout(deps: AuthDeps, userId: string, input: { pla
     client_reference_id: user.id,
     line_items: [{ price: await priceFor(plan, billing), quantity: 1 }],
     subscription_data: { trial_period_days: trial, metadata: { userId: user.id } },
-    ...(early ? { discounts: [{ coupon }] } : {}),
+    ...(coupon ? { discounts: [{ coupon }] } : {}),
     // Checkout then asks for the name and address tax needs and saves them on the customer itself
     ...(managedPayments() ? { managed_payments: { enabled: true } } : {}),
     // Stripe fills in the session id; URLSearchParams would escape its braces

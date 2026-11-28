@@ -1,8 +1,6 @@
-import { del } from "@vercel/blob";
 import { rename, setEmailUpdates } from "@/features/account/server/auth";
-import { NO_ACCOUNTS, auth, json, readJson, signOutCookies } from "@/features/account/server/http";
-import { signedIn, userData } from "@/features/userData/server/http";
-import { blobToken } from "@/lib/blob";
+import { NO_ACCOUNTS, auth, json, readJson } from "@/features/account/server/http";
+import { signedIn } from "@/features/userData/server/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,6 +8,9 @@ export const dynamic = "force-dynamic";
 /**
  * Change the signed-in account's name, JSON { name }, or the emails about what we fix and add, and offers, JSON { emailUpdates }. Like every changing route it goes through `signedIn`: 503 without
  * accounts, 403 from another site, 401 logged out, 409 `account-changed` when `X-Account-Id` names another account.
+ *
+ * There is no DELETE (user, 2026-11-28): a person asks us to delete their account with the contact form on /account, and
+ * we delete it on /admin/admin/users (`DELETE /api/admin/users/[id]`), after cancelling any subscription in Stripe.
  */
 export async function PATCH(req: Request) {
   const deps = auth();
@@ -26,31 +27,4 @@ export async function PATCH(req: Request) {
   const renamed = await rename(deps, account.id, body?.name);
   if (!renamed) return json({ error: "Please type your name.", field: "name" }, 400, cookies);
   return json({ ok: true, account: renamed }, 200, cookies);
-}
-
-/**
- * Delete the signed-in account: its video paths are read first, then the user row is deleted (the database cascades its
- * sessions, data, shares and videos), then the files. A failed delete strands no file without its row; a file that can't
- * be deleted is logged, and the account is gone either way.
- */
-export async function DELETE(req: Request) {
-  const deps = auth();
-  // a tab still open from before someone else logged in names its own account: 409, so it never deletes theirs
-  if (!deps) return json({ error: NO_ACCOUNTS }, 503);
-  const me = await signedIn(req, deps);
-  if (me instanceof Response) return me;
-  const { account } = me;
-  const store = userData();
-  const blobPaths = store ? await store.repo.videoPaths(account.id) : [];
-  await deps.repo.deleteUser(account.id);
-  if (blobPaths.length) {
-    const token = blobToken(process.env);
-    try {
-      if (!token) throw new Error("no Blob token");
-      await del(blobPaths, { token });
-    } catch (e) {
-      console.error(`account: ${account.id} deleted, ${blobPaths.length} video file(s) not`, e);
-    }
-  }
-  return json({ ok: true }, 200, signOutCookies());
 }

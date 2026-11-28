@@ -78,7 +78,7 @@ test("a new account gives its name and agrees to the terms when it joins, before
   assert.equal(r.account.needsSetup, false);
   assert.equal(r.account.name, "Ann Lee");
   assert.equal(r.account.emailUpdates, true);
-  assert.equal((await deps.repo.userById(ann.id))?.termsVersion, 1);
+  assert.equal((await deps.repo.userById(ann.id))?.termsVersion, 5, "the beta terms, with payments off");
 });
 
 test("an owner stays an owner; a teacher's student can't join; a wrong token is not found", async () => {

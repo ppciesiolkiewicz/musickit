@@ -1,7 +1,7 @@
 /*
- * What attunr costs, in one place: the home pages, the FAQ and the terms read from here so they never disagree.
- * Prices in Australian dollars (the same number in US dollars for a US buyer, `ALSO_IN` in server/stripe.ts). The beta is free; these are the prices from launch. Changing a number here is a change to the
- * terms (/terms says when they last changed).
+ * What attunr costs, in one place: the home pages and the FAQ read from here so they never disagree.
+ * Prices in Australian dollars (the same number in US dollars for a US buyer, `ALSO_IN` in server/stripe.ts). The beta is free; these are the prices from launch. /terms
+ * writes no price (user, 2026-11-28); it reads only `guaranteeDays`, so changing those days is a change to the terms.
  */
 
 export const PRICING = {
@@ -31,7 +31,8 @@ export const OLD_AI_PLANS_PER_MONTH = 8;
  * The early price: half the price of every plan, monthly or yearly, locked in (it doesn't go up while the person stays subscribed),
  * for the first 20 schools (the founding partners on /kickstarter, who pick any teacher plan, of any size) and the first
  * 500 students to sign up. Since 2026-11-24 (user) it is off the yearly price too. Every page that quotes a price shows it beside the full one,
- * with `DiscountBadge`, while that side's places are not all taken (`earlyOpen`). A plan priced with the school
+ * with `DiscountBadge`. The count of places (`earlyOpen`, `earlyTaken`) is read only by /kickstarter; the plan cards
+ * and Checkout follow `earlyPriceOn` (server/paymentsEnabled.ts). A plan priced with the school
  * (Unlimited) is half the price agreed. Nothing is charged yet: there is no payment, so this is the price for
  * when paid plans open.
  */

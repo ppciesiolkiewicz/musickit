@@ -6,7 +6,7 @@ export type AdminDeleteError = "self" | "missing";
 
 /**
  * What deleting the account would take, for the question on /admin/admin/users. An admin can't delete their own account
- * here (`self`): that is Delete account on /account. `actor` is null in development with nobody signed in. Who may call
+ * here (`self`). `actor` is null in development with nobody signed in. Who may call
  * this at all is the route's gate (`permissionCheck(req, "admin")`).
  */
 export async function previewDelete(deps: AuthDeps, actor: Account | null, userId: string): Promise<{ ok: true; footprint: UserFootprint } | { ok: false; error: AdminDeleteError }> {

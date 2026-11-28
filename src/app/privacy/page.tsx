@@ -76,7 +76,7 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>We count which pages are opened and which tools are used, and we record errors, so we know what to fix and what to build. Two services do this: Vercel Analytics and PostHog.</p>
         <p>Neither one sets a cookie or stores anything in your browser. We don&apos;t send them your name or your email, and we don&apos;t link what they count to your account. An invite link or a log-in link is cut out of a page&apos;s address before the address is counted.</p>
-        <p>Like every site you visit, they see your IP address and the kind of browser you use when your browser calls them. They use it to tell one visitor from another for a day, and Vercel works out a rough country from it. Neither keeps the address.</p>
+        <p>Like every site you visit, they see your IP address and the kind of browser you use when your browser calls them. They use it to tell one visitor from another for a day, and Vercel works out a rough country from it.</p>
         <p>You decide whether you are counted. In the European Union, Iceland, Liechtenstein, Norway and Switzerland we ask first, and count nothing until you say yes. Everywhere else we count until you say no. If your browser sends Global Privacy Control, we take that as a no.</p>
         <p>You can change your answer here at any time. The page loads again when you do.</p>
         <AnalyticsSwitch />
@@ -118,7 +118,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>We keep your account and what you make for as long as your account is open.</p>
-        <p>When you delete your account, your account, plans, ratings, notes and videos are removed straight away. A note or plan that someone else copied from your share link is theirs and stays.</p>
+        <p>When you ask us to delete your account, we remove your account, plans, ratings, notes and videos within 30 days, and email you when it is done. A note or plan that someone else copied from your share link is theirs and stays.</p>
         <p>A browser you stop using is logged out a year after its last visit.</p>
         <p>We keep a message you sent us, and your email on the early-access list, until you ask us to remove it.</p>
       </>
@@ -129,7 +129,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>You can see and change your name, your plan and your news emails on <A href="/account">Your profile</A>. Your plans and notes are on their own pages.</p>
-        <p>You can delete your account on <A href="/account">Your profile</A>, with Delete account at the bottom of the page.</p>
+        <p>You can ask us to delete your account on <A href="/account">Your profile</A>: press Delete account at the bottom of the page and send the message there.</p>
         <p>For a copy of everything we hold about you, in a file you can take elsewhere, send us a message <Contact />. Send one too if you want something corrected, or want us to stop using some of your data. We answer within 30 days, and it costs nothing.</p>
         <p>If you think we handled your data wrongly, tell us first and we will put it right. If you are not happy with our answer, you can complain to the <Out href="https://www.oaic.gov.au/privacy/privacy-complaints">Office of the Australian Information Commissioner</Out>, or to the data protection authority of the country you live in.</p>
       </>

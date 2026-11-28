@@ -1,8 +1,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
-import { earlyOpen, type EarlyOpen } from "../pricing";
+import type { EarlyOpen } from "../pricing";
 import { isLive, mustPay, onPlanNow, paidThroughCheckout } from "../billing";
-import { paymentsEnabled } from "./paymentsEnabled";
-import { earlyTaken } from "./earlyTaken";
+import { earlyPriceOn, paymentsEnabled } from "./paymentsEnabled";
 import { isJoinPath, setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
 import { canChoose, choosablePlans, pricedWithYou, roleOnPlan, TAUGHT_PLAN_ID, type Billing, type Plan } from "../plans";
@@ -264,7 +263,7 @@ export async function accountPlans(deps: AuthDeps, userId: string): Promise<Acco
     current: user.planId,
     billing: user.billing,
     request: request ? { planId: request.planId, at: request.createdAt.toISOString() } : null,
-    early: earlyOpen(await earlyTaken()),
+    early: { individual: earlyPriceOn(), teachers: earlyPriceOn() },
     payments: paymentsEnabled(),
   };
 }
@@ -275,7 +274,7 @@ export interface AccountPlans {
   current: string | null;
   billing: Billing;
   request: { planId: string; at: string } | null;
-  /** Whether each side's plans still show the early price (`earlyOpen`). */
+  /** Whether each side's plans show the early price (`earlyPriceOn`: the same answer for both sides). */
   early: EarlyOpen;
   /** Payments are on (`STRIPE_ENABLED`): a paid plan goes through Stripe's Checkout. */
   payments: boolean;

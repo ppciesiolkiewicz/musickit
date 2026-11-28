@@ -9,8 +9,8 @@ import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
 /*
  * The terms of use. Public, linked from the footer and from the box a new account ticks on /account/setup. Plain English,
  * one short section per subject, so a player can read it; the law part (Australian Consumer Law, the liability cap)
- * is the minimum a sole trader on an ABN needs. Prices come from features/account/pricing.ts so this page and the home
- * pages never disagree. What happens to a player's data is on /privacy; the Privacy section here is its short form.
+ * is the minimum a sole trader on an ABN needs. No price is written here (user, 2026-11-28): the pricing page and the
+ * checkout show it; only the guarantee's days come from features/account/pricing.ts. What happens to a player's data is on /privacy; the Privacy section here is its short form.
  */
 
 const DESCRIPTION = "The terms for using attunr: your account, the subscriptions, how plans are made, the 30-day money-back guarantee, your plans and videos, and what happens if attunr closes.";
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 const { player, school } = PRICING;
 /**
- * Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: the paid terms then (version 4), with
- * no beta section or beta lines; else the beta terms (version 3). The version's number is saved with each account that
+ * Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: the paid terms then, with
+ * no beta section or beta lines; else the beta terms (`termsVersion`). The version's number is saved with each account that
  * agrees (`TERMS_VERSIONS`), so a change to the words here is a new version there.
  */
 const PAYMENTS = paymentsEnabled();
@@ -57,7 +57,7 @@ const SECTIONS: LegalSection[] = [
         <p>You log in with your email or a Google account. There is no password: we email you a link and a code. Anyone with access to your email can log in as you, so keep that email safe. Tell us at once if you think someone else is using your account.</p>
         <p>One account is for one person. A teacher can add students; each of them gets their own account.</p>
         <p>You must be 16 or older to make your own account. A younger student uses attunr through a teacher or a school, or with a parent or guardian who accepts these terms for them.</p>
-        <p>You can delete your account at any time on <A href="/account">Your profile</A>. That removes your account, your plans, your notes and your videos. It does not refund a subscription, except as the money-back guarantee below says.</p>
+        <p>You can ask us to delete your account at any time: press Delete account on <A href="/account">Your profile</A> and send the message there. We then remove your account, your plans, your notes and your videos within 30 days, and email you when it is done. Deleting an account does not refund a subscription, except as the money-back guarantee below says.</p>
       </>
     ),
   },
@@ -71,13 +71,14 @@ const SECTIONS: LegalSection[] = [
     title: "The player subscription",
     body: (
       <>
-        <p>A player subscription is for your own practice. It costs {player.monthPrice} a month, or {player.price} a year paid once up front. It gives you:</p>
+        <p>A player subscription is for your own practice. You pay each month, or once a year up front. The prices are shown on the pricing page and when you choose a plan, and the price shown at checkout is the price you pay. It gives you:</p>
         <ul className="list-disc space-y-1 pl-5">
           <li>Practice plans with no limit: a new one each day you open the Practice plan page, and another the same day when you ask. Each is a plan of exercises that attunr puts together for you, as the section on how plans are made says.</li>
           <li>Unlimited use of every tool and lesson: Practice, the course, the tuner, the metronome and drone, backing tracks, the looper, the singing and ear drills.</li>
         </ul>
         <p>A new subscription can start with a free trial. Its length is shown when you choose your plan. Cancel during the trial and you pay nothing.</p>
-        <p>A subscription renews by itself, each month or each year, at the price you are paying, until you cancel. You can cancel at any time on <A href="/account">Your profile</A>, and the subscription then runs to the end of the month or year you paid for. We email you before a yearly subscription renews.</p>
+        <p>A plan given by a code or an invite is free. If it runs for a set time, that time is shown when you join, and the plan ends then. Your account stays open after it, as it does when a subscription ends.</p>
+        <p>A subscription renews by itself, each month or each year, at the price you are paying, until you cancel. You can cancel at any time on <A href="/account">Your profile</A>: Manage billing there opens Stripe, our payment provider, where you manage your subscription. The subscription then runs to the end of the month or year you paid for. We email you before a yearly subscription renews.</p>
         <p>When your subscription ends, your account stays open. You keep every plan and note you made, and you keep unlimited use of every tool and lesson. Only new practice plans need a subscription.</p>
         <p>Our prices may change. A month or a year you have paid for is never repriced, and we email you at least 30 days before a new price applies to your next renewal.</p>
       </>
@@ -163,7 +164,7 @@ const SECTIONS: LegalSection[] = [
         <p>The <A href="/privacy">privacy policy</A> says what we keep about you, why, which companies handle it and how long we keep it. It is part of these terms.</p>
         <p>In short: we store what the app needs, such as your email, your name, and the plans, notes, ratings and videos you make. The tuner and the singing drills listen in your browser to find the pitch; the sound is never sent to us.</p>
         <p>We don&apos;t sell your data and we don&apos;t run advertising. We email you about your account and about changes to attunr; emails with news and offers are only ever opt-in.</p>
-        <p>You can see your data and delete your account on <A href="/account">Your profile</A>. For a copy of everything we hold about you, send us a message <Contact />.</p>
+        <p>You can see your data, and ask us to delete your account, on <A href="/account">Your profile</A>. For a copy of everything we hold about you, send us a message <Contact />.</p>
       </>
     ),
   },
@@ -171,7 +172,7 @@ const SECTIONS: LegalSection[] = [
     title: "If attunr closes",
     body: (
       <>
-        <p>attunr is a small business. If we ever have to close it, we will email every account holder at least 60 days before, keep the app running so you can download your plans and notes until then, and refund the months left on any paid subscription. We won&apos;t simply switch it off.</p>
+        <p>attunr is a small business. If we ever have to close it, we will email every account holder at least 60 days before, keep the app running so you can download your plans and notes until then, and refund the months left on any paid subscription, worked out from what you paid. We won&apos;t simply switch it off.</p>
         <p>If attunr is taken over by another business, these terms carry over to it, and you will be told.</p>
       </>
     ),
@@ -189,14 +190,14 @@ const SECTIONS: LegalSection[] = [
   {
     title: "Changes to these terms",
     body: (
-      <p>We can change these terms. For a change that matters to you (a price, what a plan includes, the guarantee, what we do with your data) we email you at least 30 days before it applies, and you can cancel before then with a refund of the months left. A change for the clearer, or to meet the law, can apply straight away. The date at the top says when the terms last changed.</p>
+      <p>We can change these terms. For a change that matters to you (a price, what a plan includes, the guarantee, what we do with your data) we email you at least 30 days before it applies, and you can cancel before then with a refund of the months left, worked out from what you paid. A change for the clearer, or to meet the law, can apply straight away. The date at the top says when the terms last changed.</p>
     ),
   },
   {
     title: "Ending",
     body: (
       <>
-        <p>You can stop using attunr at any time, and delete your account on <A href="/account">Your profile</A>. We can close an account that breaks these terms, after telling you why, unless the breach is serious enough that we must act at once.</p>
+        <p>You can stop using attunr at any time, and ask us to delete your account on <A href="/account">Your profile</A>. We can close an account that breaks these terms, after telling you why, unless the breach is serious enough that we must act at once.</p>
         <p>These terms are governed by the law of Victoria, Australia. If something in them turns out not to be enforceable, the rest still applies.</p>
       </>
     ),

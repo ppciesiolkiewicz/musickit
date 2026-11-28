@@ -13,12 +13,16 @@ export const TERMS_VERSIONS = {
   3: { updated: "27 November 2026" },
   /** the paid terms with the same cuts */
   4: { updated: "27 November 2026" },
+  /** the beta terms with no price written in them (the pricing page and the checkout show it), a refund of the months left worked out from what was paid, a line on a free plan given by a code or an invite, an account deleted by asking us (within 30 days) and not at once, and Manage billing named as the way to cancel */
+  5: { updated: "28 November 2026" },
+  /** the paid terms with the same changes */
+  6: { updated: "28 November 2026" },
 } as const;
 
 export type TermsVersion = keyof typeof TERMS_VERSIONS;
 
 /** The version of the terms shown and agreed to now: the paid terms with payments on, else the beta terms. */
-export const termsVersion = (paymentsOn: boolean): TermsVersion => (paymentsOn ? 4 : 3);
+export const termsVersion = (paymentsOn: boolean): TermsVersion => (paymentsOn ? 6 : 5);
 
 /** The date the privacy policy (/privacy) last changed, shown on that page. Raise it when the policy changes: what we keep, why, or which company handles it. */
-export const PRIVACY_UPDATED = "23 November 2026";
+export const PRIVACY_UPDATED = "28 November 2026";

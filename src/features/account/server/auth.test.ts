@@ -287,7 +287,7 @@ test("setup: the terms of use must be agreed to, before anything is saved, and a
   assert.equal(store.users[0].planId, null);
   assert.equal(store.users[0].termsAcceptedAt, null);
   assert.ok((await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: "year", acceptTerms: true }, false)).ok);
-  assert.equal(store.users[0].termsVersion, 3, "the beta terms, with payments off");
+  assert.equal(store.users[0].termsVersion, 5, "the beta terms, with payments off");
   assert.notEqual(store.users[0].termsAcceptedAt, null);
 });
 
@@ -296,7 +296,7 @@ test("setup with payments on saves the paid terms' version", async () => {
   const deps: AuthDeps = { ...setup().deps, repo: store.repo };
   const { account } = await signUp(deps, "ann@school.com", "Ann");
   assert.ok((await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: "year", acceptTerms: true }, true)).ok);
-  assert.equal(store.users[0].termsVersion, 4);
+  assert.equal(store.users[0].termsVersion, 6);
 });
 
 test("the page to open next is always on this site", () => {
@@ -325,7 +325,7 @@ test("a new account has no plan yet and sees the enabled plans in order", async 
   assert.equal(seen?.current, null);
   assert.deepEqual(seen?.plans.map((p) => p.id), ["student", "teacher-pro", "teacher-unlimited"]);
   assert.equal(await accountPlans(deps, "nobody"), null);
-  assert.deepEqual(seen?.early, { individual: true, teachers: true }, "no early places are taken yet");
+  assert.deepEqual(seen?.early, { individual: true, teachers: true }, "the early price shows in the beta");
 });
 
 test("choosing a Teacher plan makes a student a teacher, and back; an owner stays an owner", async () => {

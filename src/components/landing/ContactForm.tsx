@@ -6,9 +6,9 @@ import Icon from "@/components/Icon";
 
 type State = { kind: "idle" } | { kind: "sending" } | { kind: "done" } | { kind: "error"; message: string };
 
-/** Email plus a message that starts prefilled (the visitor can edit it), posted to /api/contact. `source` names the section the form sits in. */
-export default function ContactForm({ source, initialMessage, cta = "Send message", done = "Thanks! We'll reply by email.", note = "We only use your email to reply." }: { source: string; initialMessage: string; cta?: string; done?: string; note?: string }) {
-  const [email, setEmail] = useState("");
+/** Email plus a message that starts prefilled (the visitor can edit it), posted to /api/contact. `source` names the section the form sits in; `initialEmail` fills the email in for someone logged in. */
+export default function ContactForm({ source, initialMessage, initialEmail = "", cta = "Send message", done = "Thanks! We'll reply by email.", note = "We only use your email to reply." }: { source: string; initialMessage: string; initialEmail?: string; cta?: string; done?: string; note?: string }) {
+  const [email, setEmail] = useState(initialEmail);
   const [message, setMessage] = useState(initialMessage);
   const [website, setWebsite] = useState("");
   const [state, setState] = useState<State>({ kind: "idle" });
