@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `chords-in-folk`, written in the /learn articles' style. */
 export const chordsInFolk: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "Pop loops four chords. Folk often needs only three: the 1st, 4th and 5th chords of the key, often with a 7th on the 5th chord to pull it home. In G major that's the G chord, built on G, the C chord, built on C, and D7, built on D: all open chords, all ringing." },
     { type: "p", text: "What makes it folk is less the chords than how they move. Many folk songs and hymns count in three, a waltz: 1 2 3, 1 2 3. Leaving on a Jet Plane by John Denver needs only G, C and D, and Amazing Grace, a traditional hymn, is a waltz." },

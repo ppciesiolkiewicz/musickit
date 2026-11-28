@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `stretching-your-range`, written in the /learn articles' style. */
 export const stretchingYourRange: CourseArticle = {
   updated: "2026-11-28T02:29",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Fast runs](/course/9/fast-runs) each pass climbed until it reached the top of your range. This page works on the edges themselves: the middle of your voice first, then a few notes lower and higher." },

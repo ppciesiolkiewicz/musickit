@@ -6,6 +6,7 @@ import GlassShapes from "@/components/landing/GlassShapes";
 import { ARTICLES, articleOf } from "@/features/articles";
 import { articleJsonLd } from "@/features/articles/jsonLd";
 import ArticleView from "@/features/articles/ui/ArticleView";
+import { ArticleVersions } from "@/features/devtools/PageVersions";
 import { SITE_URL } from "@/lib/site";
 
 type Params = { slug: string };
@@ -38,6 +39,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   return (
     <PageShell active="/learn" back={{ href: "/learn", label: "All guides" }} column devices={a.sings} title={a.title} intro={a.intro} decor={<GlassShapes />}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd(a, SITE_URL)).replace(/</g, "\\u003c") }} />
+      <ArticleVersions slug={a.slug} />
       <ArticleHero slug={a.slug} />
       {/* the mic note under the picture, not over it: the picture runs up behind the intro, the note sits by the Your voice picker */}
       {a.sings && <div className="mb-5"><MicNotice /></div>}

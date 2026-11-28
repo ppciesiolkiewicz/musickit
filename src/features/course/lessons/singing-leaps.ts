@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `singing-leaps`, written in the /learn articles' style. */
 export const singingLeaps: CourseArticle = {
   updated: "2026-11-28T02:29",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Every interval by ear](/course/6/every-interval) you learned to hear each interval. Now you sing the wide ones: the 4th, the 5th and the octave." },

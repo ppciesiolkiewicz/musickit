@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `hearing-changes`, written in the /learn articles' style. */
 export const hearingChanges: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [1 → 4 → 5 → 1](/course/5/one-four-five) you played G, C and D and felt the C chord step away from home and the D chord pull back to it. Now let your ears do the work, with your eyes off the screen." },
     { type: "p", text: "Once you can hear when a chord changes, and where it went, you can follow a song's chords without a chord sheet, and join in on the right one." },

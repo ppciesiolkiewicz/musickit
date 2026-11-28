@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `legato`, written in the /learn articles' style. */
 export const legato: CourseArticle = {
   updated: "2026-11-28T02:31",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [Do–Mi–Sol on the neck](/course/4/do-mi-sol-neck) you picked every note. Now the fretting hand makes some of the notes on its own, with hammer-ons and pull-offs." },
     { type: "p", text: "Fewer pick strokes means a smoother line: the notes join up instead of each starting fresh. It's also a strength drill for the fingers the spider woke up." },

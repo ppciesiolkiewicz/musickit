@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `do-mi-sol-shapes`, written in the /learn articles' style. */
 export const doMiSolShapes: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   labels: "solfege",
   blocks: [
     { type: "p", text: "In [One arpeggio through all five shapes](/course/8/one-arpeggio) you followed G, B and D up the neck. Now give each note its name: Do for G, Mi for B and Sol for D." },

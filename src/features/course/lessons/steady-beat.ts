@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `steady-beat`, written in the /learn articles' style. */
 export const steadyBeat: CourseArticle = {
   updated: "2026-11-27T20:48",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
     { type: "p", text: "The beat is the steady pulse you tap your foot to. Beats come in groups of four, counted \"1 2 3 4\" and then again: each group is a bar." },

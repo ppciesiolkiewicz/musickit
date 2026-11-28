@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `do-mi-sol-neck`, written in the /learn articles' style. */
 export const doMiSolNeck: CourseArticle = {
   updated: "2026-11-27T20:57",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   labels: "solfege",
   blocks: [
     { type: "p", text: "In [Do–Mi–Sol](/course/3/do-mi-sol) you sang the three notes of the major chord. Now play them one at a time on the guitar, low on the neck." },

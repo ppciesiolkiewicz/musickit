@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `home-note`, written in the /learn articles' style. */
 export const homeNote: CourseArticle = {
   updated: "2026-11-27T20:48",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
     { type: "p", text: "Do is the home note of a key: the note a tune wants to end on. In G major, Do is G." },

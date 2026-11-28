@@ -14,6 +14,7 @@ import { CommentCount, CommentsFor } from "./Comments";
 import { useMounted } from "../prompt/storage";
 import type { DrawnItem } from "./item";
 import VersionBadges from "./VersionBadges";
+import { RECORDED_IN } from "../versionDocs";
 
 /** Every seed plan and block as section comments are kept: by the seed file's id. */
 const SEED_JSON: { id: string; json: string }[] = [
@@ -143,7 +144,7 @@ export default function LibraryItem({ item }: { item: DrawnItem }) {
           <span className="font-mono text-sm text-sky-200">{item.seedId ?? item.id}</span>
           <Pill tone={KIND_TONE[item.kind]}>{item.seedId ? `seed ${item.kind}` : item.kind}</Pill>
           {item.choiceId && <Pill tone="slate" title="The choice drawn">choice {item.choiceId.slice(item.choiceId.indexOf("/") + 1)}</Pill>}
-          <VersionBadges v={item.versions} />
+          <VersionBadges v={item.versions} recordedIn={item.seedId ? RECORDED_IN[item.kind](item.seedId) : undefined} />
           {item.model ? <Pill tone="indigo" title={item.model}>{modelLabel(item.model)}</Pill> : <Pill tone="slate">model not recorded</Pill>}
           {item.seedId && <CommentCount example={item.seedId} />}
         </span>

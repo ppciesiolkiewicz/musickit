@@ -13,6 +13,7 @@ const cmaj7 = charleston({ string: 5, fret: 3 }, { string: 3, fret: 4 }, { strin
 /** Course section `comping`, written in the /learn articles' style. */
 export const comping: CourseArticle = {
   updated: "2026-11-28T02:28",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [Jazz standards](/course/11/jazz-standards) you played whole tunes with shells. Now the job changes: someone else has the tune, and you play the chords behind them. That's comping." },
     { type: "p", text: "Good comping is mostly space. Short chords in a set rhythm tell the singer where the beat and the chord are, and the gaps between them leave room for the tune." },

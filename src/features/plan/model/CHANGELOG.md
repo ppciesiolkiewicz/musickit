@@ -159,6 +159,11 @@ Everything before the prompt had a version.
 
 ## Teaching
 
+### 16 (2026-11-28)
+
+- `course-article`: a section's lessons file records `versions` (`{ agents, teaching, voice }`), the rules it was written to, beside `updated`. A section behind the rules is found by its `versions`, not by its `updated`. The 32 sections already written carry the versions in force at the commit that wrote them (ten at agents 2, teaching 13, voice 5; twenty-two at 3, 14, 6).
+- `teaching-voice`, `exercise-example` and `review-teaching-text` change only their version.
+
 ### 15 (2026-11-28)
 
 - `exercise-example`: a choice may say two things of its own. `"set"` lays tool props over the block's tools (by tool type, or `#n` for one tool cell); `"params"` fills `{{=name}}` words in the title, headings and text. The same drill at another level whose tools differ in a setting and whose words differ in a phrase is one block with a choice per level, not a copy. More than a phrase per section, another task or another tool stays a separate block.
@@ -266,6 +271,10 @@ Everything before versions were kept.
 ## Article voice
 
 The `article-voice` skill, `ARTICLE_VOICE_VERSION` in `src/features/articles/model.ts`. Versions 1 to 5 were `src/features/articles/VOICE.md`.
+
+### 7 (2026-11-28)
+
+- A course section records the voice it was written to (`versions.voice` in its lessons file), as an article's seed file does. It is not raised by hand.
 
 ### 6 (2026-11-27)
 

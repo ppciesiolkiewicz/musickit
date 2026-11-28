@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `step-melodies`, written in the /learn articles' style. */
 export const stepMelodies: CourseArticle = {
   updated: "2026-11-28T02:31",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [The major scale as do-re-mi](/course/3/do-re-mi) you sang the whole scale, one note after the next. Most tunes move like that too: a step up, a step down, and home." },

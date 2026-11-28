@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `improvising-a-melody`, written in the /learn articles' style. */
 export const improvisingAMelody: CourseArticle = {
   updated: "2026-11-28T02:29",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Do–Mi–Sol](/course/3/do-mi-sol) you skipped through the home chord, and in [A harmony line](/course/6/harmony-line) you sang your own line over chords. Put the two together and you can make up a tune of your own." },

@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `fast-runs`, written in the /learn articles' style. */
 export const fastRuns: CourseArticle = {
   updated: "2026-11-28T02:29",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Runs](/course/6/vocal-runs) you sang short runs slowly: Do up to Sol and back, the home chord, turns. This page takes them further: over the pentatonic notes, past the high Do, through the whole scale, and then faster." },

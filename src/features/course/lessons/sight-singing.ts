@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `sight-singing`, written in the /learn articles' style. */
 export const sightSinging: CourseArticle = {
   updated: "2026-11-28T02:29",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "Sight-singing is reading a tune from the staff and singing it before you've heard it. With the leaps from [Singing leaps](/course/6/singing-leaps) in your voice, you can sing most of what the staff shows you." },

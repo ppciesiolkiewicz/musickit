@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `la-minor-home`, written in the /learn articles' style. */
 export const laMinorHome: CourseArticle = {
   updated: "2026-11-27T20:48",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
     { type: "p", text: "Sing down from Do: Do, Ti, La. Stop on La and it feels like home too, only darker. La is the minor home." },

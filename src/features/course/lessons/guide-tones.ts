@@ -6,6 +6,7 @@ const held = (chord: string, degree: string) => ({ chord, steps: [degree, degree
 /** Course section `guide-tones`, written in the /learn articles' style. */
 export const guideTones: CourseArticle = {
   updated: "2026-11-28T02:28",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [Comping](/course/11/comping) you split each shell in two: the root on its own, then the 3rd and 7th together. Those two notes are the guide tones, and they do more than fill a chord." },
     { type: "p", text: "The 3rd says major or minor, the 7th says which kind of 7th chord. Through a ii–V–I each of them stays put or slides down one step, so two short lines carry all three chords. Find them, and your fills and solos start to follow the changes." },

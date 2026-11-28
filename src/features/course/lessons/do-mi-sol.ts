@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `do-mi-sol`, written in the /learn articles' style. */
 export const doMiSol: CourseArticle = {
   updated: "2026-11-27T20:48",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
     { type: "p", text: "Do, Mi and Sol are the three notes of the home chord. In G major they're G, B and D: the notes of the G chord you already play." },

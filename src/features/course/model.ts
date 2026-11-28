@@ -64,11 +64,13 @@ export interface CourseSection {
 
 /**
  * A course section written as a /learn article is: `ArticleBlock`s drawn by the articles' `ArticleBody`, with the plan's live
- * tools. `updated` carries the time as well as the day, "2026-11-27T14:30" (Sydney time), so a section written to an
- * older /learn style can be found and rewritten.
+ * tools. `updated` carries the time as well as the day, "2026-11-27T14:30" (Sydney time), and `versions` the rules it was
+ * written to, as an article's seed file does, so a section written to older rules can be found and rewritten.
  */
 export interface CourseArticle {
   updated: string;
+  /** the versions it was written to: AGENTS.md and the teaching skills (`DOC_VERSIONS`), and the `article-voice` skill (`ARTICLE_VOICE_VERSION`) */
+  versions: { agents: number; teaching: number; voice: number };
   blocks: ArticleBlock[];
   /** the page listens to the mic: the mic note and the Your voice picker */
   sings?: boolean;

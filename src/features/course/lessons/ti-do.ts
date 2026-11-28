@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `ti-do`, written in the /learn articles' style. */
 export const tiDo: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Hearing 7th chords](/course/7/hearing-sevenths) the 7th of a maj7 sat one fret under the root. In the key, that note has a name: Ti, the 7th note of the scale, a half step under Do." },

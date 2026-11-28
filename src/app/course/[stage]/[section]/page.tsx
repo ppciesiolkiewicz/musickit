@@ -7,6 +7,7 @@ import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 import SectionPanel, { StageLine } from "@/components/course/SectionPanel";
 import SectionBody from "@/components/course/SectionBody";
 import MyNotes from "@/components/course/MyNotes";
+import { SectionVersions } from "@/features/devtools/PageVersions";
 import { LEGACY_STAGES } from "@/features/course/legacy";
 import { ALL_SECTIONS, findSection, nextSection, sectionHref, stageColour } from "@/features/course/course";
 
@@ -65,6 +66,7 @@ export default async function CourseSectionPage({ params }: { params: Promise<Pa
       <div className="flex items-start gap-8 pb-24 lg:pb-0">
         <SectionPanel stage={stage} current={section.slug} />
         <div className="min-w-0 flex-1">
+          <div className="mb-3"><SectionVersions section={section} /></div>
           <SectionBody section={section} />
           <MyNotes key={`${stage.slug}/${section.slug}`} stage={stage.slug} section={section.slug} />
           <nav aria-label="Next section" className="mt-10 border-t border-slate-800/70 pt-8">

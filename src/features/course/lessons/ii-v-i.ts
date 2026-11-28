@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `ii-v-i`, written in the /learn articles' style. */
 export const iiVI: CourseArticle = {
   updated: "2026-11-28T02:28",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [Shell voicings](/course/11/shells) you played Dm7, G7 and Cmaj7 in a row. Those three chords in that order are the ii–V–I, and jazz is full of them: most standards are built from one ii–V–I after another." },
     { type: "p", text: "Once you can hear one coming, a page of jazz chords turns into a few short moves home. Here's the move in a major key, then in a minor one." },

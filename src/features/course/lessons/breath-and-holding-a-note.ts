@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `breath-and-holding-a-note`, written in the /learn articles' style. */
 export const breathAndHoldingANote: CourseArticle = {
   updated: "2026-11-27T20:49",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
     { type: "p", text: "A held note is only as steady as the air under it. When the air comes out evenly, the note stays still. When it rushes or runs out, the note wobbles or drops flat at the end." },

@@ -1,6 +1,6 @@
 ---
 name: article-voice
-version: 6
+version: 7
 description: How musickit articles sound - the public /learn articles and the course sections at /course written in their style. Friendly, short, "I", ideas to try at the end. Its exercises are written in teaching-voice, which it loads first. Use whenever writing or editing the prose of a /learn article or a course section (src/features/articles/content, src/features/course/lessons), alone or from the course-article skill. Plan, block and seed text is teaching-voice alone.
 ---
 
@@ -13,7 +13,7 @@ musickit has two voices, and this is the second:
 
 An article's **exercises** (an `exercise` block's `title`, `lines`, `between` and `after`) are block text: they follow every rule of teaching-voice, as a seed exercise does, with the warmth of this voice. The **prose around them** (the opening, the headings, "Before you start", "Make it your own", the closing line) is this voice.
 
-Each /learn article's seed file records the version of this voice it was written to (`versions.voice`); a course section records the day and time it was written (`updated`).
+Each /learn article's seed file records the version of this voice it was written to (`versions.voice`); a course section records it the same way in its lessons file (`versions.voice`), beside the day and time it was written (`updated`).
 
 ## How it sounds
 
@@ -67,4 +67,4 @@ A course section is the same kind of page inside the course, so all of the above
 ## When this changes
 
 A changed rule here is a new `version`: raise it by one here and `ARTICLE_VOICE_VERSION` in `src/features/articles/model.ts`
-in the same commit, with an entry under "Article voice" in `src/features/plan/model/CHANGELOG.md`. Don't raise an article's `versions.voice` by hand: it changes when the article is rewritten to the new voice.
+in the same commit, with an entry under "Article voice" in `src/features/plan/model/CHANGELOG.md`. Don't raise an article's or a course section's `versions.voice` by hand: it changes when the article or section is rewritten to the new voice.

@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `vocal-runs`, written in the /learn articles' style. */
 export const vocalRuns: CourseArticle = {
   updated: "2026-11-28T02:29",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "A run is a quick string of scale notes sung on one vowel, like the little flourish at the end of a soul or pop line. After the held notes of [A harmony line](/course/6/harmony-line), this is the other way round: many notes, each one short." },

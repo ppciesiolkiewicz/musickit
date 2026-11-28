@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `string-skipping`, written in the /learn articles' style. */
 export const stringSkipping: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [Greensleeves](/course/8/greensleeves) the pick mostly moved to the string next door. Wide tunes and arpeggios jump further: from the low E string to the D string, with the A string left quiet in between." },
     { type: "p", text: "That jump is twice as far for the pick, and it has to land on the right string. These drills build it up from the start, on open strings, so all your attention is on the picking hand." },

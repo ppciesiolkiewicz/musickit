@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `major-and-minor-scales`, written in the /learn articles' style. */
 export const majorAndMinorScales: CourseArticle = {
   updated: "2026-11-27T20:57",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Major or minor?](/course/3/major-or-minor) one note, the 3rd, turned a bright chord dark. A scale works the same way, with three notes instead of one." },

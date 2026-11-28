@@ -8,7 +8,8 @@ import { pcAt, type CourseSection } from "./model";
 import { STRUMS } from "./strum";
 import { parseTool } from "@/features/plan/model/tools";
 import { ARTICLES } from "@/features/articles";
-import type { ArticleBlock } from "@/features/articles/model";
+import { ARTICLE_VOICE_VERSION, type ArticleBlock } from "@/features/articles/model";
+import { DOC_VERSIONS } from "@/features/library/seed/versions";
 
 /** Stages whose content is written; each content task adds its stages here. Sections with no blocks yet are planned. */
 const DONE = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"];
@@ -81,6 +82,11 @@ describe("course content: sections written as /learn articles", () => {
     articleSections().forEach(({ stage, section, article }) => {
       assert.match(article.updated, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, `${stage.slug}/${section.slug}`);
       assert.equal(section.blocks.length, 0, `${stage.slug}/${section.slug}`);
+    });
+  });
+  it("record the versions they were written to, none newer than the documents", () => {
+    articleSections().forEach(({ stage, section, article: { versions: v } }) => {
+      assert.ok(v.agents <= DOC_VERSIONS.agents && v.teaching <= DOC_VERSIONS.teaching && v.voice <= ARTICLE_VOICE_VERSION, `${stage.slug}/${section.slug}`);
     });
   });
   it("have text and at least one exercise, every tool accepted by the plan's parser", () => {

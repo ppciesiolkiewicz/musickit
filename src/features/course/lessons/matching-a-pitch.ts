@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `matching-a-pitch`, written in the /learn articles' style. */
 export const matchingAPitch: CourseArticle = {
   updated: "2026-11-27T20:49",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   sings: true,
   blocks: [
     { type: "p", text: "Matching a pitch is singing the note you hear, right on it. It's what lets you sing a tune back, or tune a string by ear." },

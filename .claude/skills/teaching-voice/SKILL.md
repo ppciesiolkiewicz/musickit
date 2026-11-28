@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 15
+version: 16
 description: How musickit plan and block text sounds - plain, short, practical English for seed exercises and plans, the AI plan prompt's writing rules, glossary meanings, about lines and captions, and the exercises inside articles. Use whenever writing or editing that text, alone or from the exercise-example, course-article and review-teaching-text skills; the prose of a /learn article or a course section is article-voice, which loads this first. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 

@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `diminished-chords`, written in the /learn articles' style. */
 export const diminishedChords: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [Augmented chords](/course/7/augmented-chords) a major chord raised its 5th. A diminished chord does the opposite to a minor chord: it lowers the 5th by a half step." },
     { type: "p", text: "The Am chord is A, C and E. Adim is A, C and E♭. Each note sits a minor 3rd above the one under it, so the chord has no steady 5th to stand on. It's tense, and it wants to move. You met one in [Chords from the scale](/course/5/chords-from-scale): F♯dim, the chord on the 7th note of G major." },

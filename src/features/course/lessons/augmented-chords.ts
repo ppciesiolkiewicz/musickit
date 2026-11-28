@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `augmented-chords`, written in the /learn articles' style. */
 export const augmentedChords: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "Every colour chord so far added a note: a 6th, a 7th, a 9th. An augmented chord moves one instead. Take a major chord and raise its 5th by a half step." },
     { type: "p", text: "The G chord is G, B and D. Gaug is G, B and D♯. That raised note has nowhere to rest, so the chord floats and wants to slide on to the next one. In songs it's usually a passing chord: one bar of tension between two plain chords." },

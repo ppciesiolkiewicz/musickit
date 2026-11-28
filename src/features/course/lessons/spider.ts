@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `spider`, written in the /learn articles' style. */
 export const spider: CourseArticle = {
   updated: "2026-11-28T02:31",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "In [Keeping a steady beat](/course/1/steady-beat) your strumming hand learned to keep time. Now it's the other hand's turn: the fingers that press the strings." },
     { type: "p", text: "The spider gives each finger its own fret, one finger per fret, and walks them across all six strings. It's a small drill, but it builds the fingertips and the reach that every chord in the next stage needs." },

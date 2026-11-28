@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `what-is-a-chord`, written in the /learn articles' style. */
 export const whatIsAChord: CourseArticle = {
   updated: "2026-11-27T20:48",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   blocks: [
     { type: "p", text: "You know eight open chords now. Here's what's inside them: a chord is three or more notes played together, and every chord in this stage is built from just three." },
     { type: "p", text: "Once you can see those three notes, a chord stops being a finger shape to remember. You'll know why the Em chord can be played on three open strings, and why one finger turns a major chord into a minor one." },

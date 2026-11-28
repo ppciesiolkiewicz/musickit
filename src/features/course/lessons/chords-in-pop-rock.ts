@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `chords-in-pop-rock`, written in the /learn articles' style. */
 export const chordsInPopRock: CourseArticle = {
   updated: "2026-11-28T02:30",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   blocks: [
     { type: "p", text: "You've spent this stage on colour chords. Pop and rock mostly don't need them. They lean on a few plain chords of the key, in a few orders, played with a lot of conviction." },
     { type: "p", text: "Learn those orders by their numbers and you'll hear them in song after song. You already know the 1st, 4th and 5th chords from [1 → 4 → 5 → 1](/course/5/one-four-five). Pop adds one more: the minor chord on the 6th note, the relative minor from [La: the minor home](/course/3/la-minor-home)." },

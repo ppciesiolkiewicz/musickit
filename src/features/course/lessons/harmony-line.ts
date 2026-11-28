@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `harmony-line`, written in the /learn articles' style. */
 export const harmonyLine: CourseArticle = {
   updated: "2026-11-28T02:29",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Sight-singing melodies](/course/6/sight-singing) you sang one line. A harmony line is a second one, sung with the tune on notes that fit the chords. It's what a backing singer sings." },

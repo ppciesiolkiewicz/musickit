@@ -1,6 +1,6 @@
 ---
 name: course-article
-version: 15
+version: 16
 description: Write or rewrite a section (article) of the course at /course - one file per section in src/features/course/lessons, written like a /learn article with live tools and exercises - fill in planned sections, keep the learning path (/admin/content/path) that points at it true, or edit an old section still written with course blocks. Use when asked to write a course article, lesson or section, fill a planned section, or point a glossary word at a new article.
 ---
 
@@ -12,9 +12,10 @@ Load **article-voice** first (it loads **teaching-voice**). The prose is article
 
 ## The file
 
-- One file per section, `src/features/course/lessons/<slug>.ts`, exporting a `CourseArticle` (`model.ts`): `updated`, `blocks` (the articles' `ArticleBlock`s: `p`, `h2`, `list`, `care`, `exercise` with its tool, `row`, `guide`, …), `sings` when a tool uses the mic, optional `labels` and `frets`. The stage file imports it and passes it as `section(...)`'s last argument, with `[]` for the blocks. The page draws it with the articles' `ArticleBody` (`src/features/articles/ui/ArticleView.tsx`); `src/features/articles/README.md` says what each block draws.
+- One file per section, `src/features/course/lessons/<slug>.ts`, exporting a `CourseArticle` (`model.ts`): `updated`, `versions`, `blocks` (the articles' `ArticleBlock`s: `p`, `h2`, `list`, `care`, `exercise` with its tool, `row`, `guide`, …), `sings` when a tool uses the mic, optional `labels` and `frets`. The stage file imports it and passes it as `section(...)`'s last argument, with `[]` for the blocks. The page draws it with the articles' `ArticleBody` (`src/features/articles/ui/ArticleView.tsx`); `src/features/articles/README.md` says what each block draws.
 - Model it on the articles in `src/features/articles/content/` and the sections already in `src/features/course/lessons/`.
-- `updated` is the day and the time, Sydney: `TZ=Australia/Sydney date "+%Y-%m-%dT%H:%M"`, set when the section is written or rewritten. The /learn style is still changing: a section older than a style change is found by its `updated` and rewritten to it.
+- `updated` is the day and the time, Sydney: `TZ=Australia/Sydney date "+%Y-%m-%dT%H:%M"`, set when the section is written or rewritten.
+- `versions` is the rules the section was written to, as a seed file records them: `{ agents, teaching, voice }`, the numbers now in `DOC_VERSIONS` (`src/features/library/seed/versions.ts`) and `ARTICLE_VOICE_VERSION` (`src/features/articles/model.ts`). Set them when the section is written or rewritten whole, never by hand for a small edit. The rules are still changing: a section behind them is found by its `versions` (in development the top of its page shows them, and hovering one lists the files it stands for) and rewritten.
 - Tools are set up as a seed exercise sets them up (the plan's parser reads them; `content.test.ts` checks), controls named by their label on the screen. Read the tool's props in `src/features/exercises/docs/docs.generated.json` or its `*.props.ts`; only use props listed there. Glossary words are marked on these pages as on /learn, so the text uses the word and doesn't define it.
 - Links in the text: `[label](/course/<stage>/<section>)`, `/learn/<slug>` or a `/theory` page, all real (the test checks). A `guide` block puts a /learn article's card where the reader may need it first.
 

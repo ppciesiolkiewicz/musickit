@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `sing-then-find`, written in the /learn articles' style. */
 export const singThenFind: CourseArticle = {
   updated: "2026-11-28T02:31",
+  versions: { agents: 3, teaching: 14, voice: 6 },
   sings: true,
   blocks: [
     { type: "p", text: "In [Melodies in tab](/course/4/melodies) the tab told you where every note was. This time your ear does: sing a short tune first, then find it on the neck, starting from Do." },

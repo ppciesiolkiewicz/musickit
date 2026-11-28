@@ -3,6 +3,7 @@ import type { CourseArticle } from "../model";
 /** Course section `chords-from-scale`, written in the /learn articles' style. */
 export const chordsFromScale: CourseArticle = {
   updated: "2026-11-27T20:57",
+  versions: { agents: 2, teaching: 13, voice: 5 },
   blocks: [
     { type: "p", text: "The chords of a key aren't a list to learn by heart. They come out of the scale: take any note, skip one, take the next, skip one, take the next. Three notes, one chord." },
     { type: "p", text: "Do that from each of the seven notes of G major and you get all seven chords of the key, the same ones you've been playing in position 1. Once you see how, you can work out the chords of any key." },
